@@ -179,8 +179,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
             return listClasses().toSet();
         }
         Set<OntClass> res = new HashSet<>();
-        Function<OntClass, ExtendedIterator<OntClass>> listSuperClasses =
-                x -> ((OntObjectImpl) x).listObjects(RDFS.subClassOf, OntClass.class);
+        Function<OntClass, Stream<OntClass>> listSuperClasses = x -> x.objects(RDFS.subClassOf, OntClass.class);
         listObjects(RDF.type, OntClass.class).forEachRemaining(c -> collectIndirect(c, listSuperClasses, res));
         return res;
     }

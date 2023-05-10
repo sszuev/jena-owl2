@@ -31,52 +31,86 @@ import java.util.stream.Stream;
 public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoint<OntClass> {
 
     /**
+     * Answers a {@code Stream} over all the class expressions
+     * that are declared to be sub-classes of this class expression.
+     * The return {@code Stream} is distinct and this instance is not included into it.
+     * The flag {@code direct} allows some selectivity over the classes that appear in the {@code Stream}.
+     * Consider the following scenario:
+     * <pre>{@code
+     *   :B rdfs:subClassOf :A.
+     *   :C rdfs:subClassOf :A.
+     *   :D rdfs:subClassOf :C.
+     * }</pre>
+     * (so {@code A} has two sub-classes, {@code B} and {@code C}, and {@code C} has sub-class {@code D})
+     * In a raw model, with no inference support, listing the sub-classes of {@code A} will answer {@code B} and {@code C}.
+     * In an inferencing model, {@code rdfs:subClassOf} is known to be transitive, so
+     * the sub-classes iterator will include {@code D}.
+     * The {@code direct} sub-classes are those members of the closure of the subClassOf relation,
+     * restricted to classes that cannot be reached by a longer route,
+     * i.e. the ones that are <em>directly</em> adjacent to the given root.
+     * Thus, the direct sub-classes of {@code A} are {@code B} and {@code C} only, and not {@code D} - even in an inferencing graph.
+     * Note that this is not the same as the entailments from the raw graph.
+     * Suppose we add to this example:
+     * <pre>{@code
+     *   :D rdfs:subClassOf :A.
+     * }</pre>
+     * Now, in the raw graph, {@code A} has sub-class {@code C}. But the direct sub-classes of {@code A} remain {@code B} and {@code C},
+     * since there is a longer path {@code A-C-D} that means that {@code D} is not a direct sub-class of {@code A}.
+     * The assertion in the raw graph that {@code A} has sub-class {@code D} is essentially redundant,
+     * since this can be inferred from the closure of the graph.
+     *
+     * @param direct {@code boolean} - if {@code true} answers the directly adjacent classes in the sub-class relation:
+     *               i.e. eliminate any class for which there is a longer route to reach that parent under the sub-class relation;
+     *               if {@code false} answers all sub-classes found by inferencer, which usually means entire hierarchy down the tree;
+     *               this class is not included
+     * @return <b>distinct</b> {@code Stream} of sub {@link OntClass class expression}s
+     * @see #subClasses()
+     * @see #superClasses(boolean)
+     * @see org.apache.jena.ontology.OntClass#listSubClasses(boolean)
+     */
+    Stream<OntClass> subClasses(boolean direct);
+
+    /**
      * Answers a {@code Stream} over the class-expressions
-     * for which this class expression is declared a subclass.
+     * for which this class expression is declared a sub-class.
      * The return {@code Stream} is distinct and this instance is not included into it.
      * <p>
      * The flag {@code direct} allows some selectivity over the classes that appear in the {@code Stream}.
-     * If it is {@code true} only direct subclasses are returned,
-     * and the method is equivalent to the method {@link #superClasses()}
-     * with except of some boundary cases (e.g. {@code <A> rdfs:subClassOf <A>}).
-     * If it is {@code false}, the method returns all super classes recursively.
      * Consider the following scenario:
      * <pre>{@code
      *   :A rdfs:subClassOf :B .
-     *   :B rdfs:subClassOf :C .
+     *   :A rdfs:subClassOf :C .
+     *   :C rdfs:subClassOf :D .
      * }</pre>
-     * If the flag {@code direct} is {@code true},
-     * the listing super classes for the class {@code A} will return only {@code B}.
-     * Otherwise, the method will return {@code B} and also {@code C}.
+     * (so {@code A} has super-classes {@code B} and {@code C}, and {@code C} has super-class {@code D})
+     * In a raw model, with no inference support, listing the super-classes of {@code A} will answer {@code B} and {@code C}.
+     * In an inferencing model, {@code rdfs:subClassOf} is known to be transitive,
+     * so the super-classes iterator will include {@code D}.
+     * The {@code direct} super-classes are those members of the closure of the inverse-subClassOf relation,
+     * restricted to classes that cannot be reached by a longer route,
+     * i.e. the ones that are <em>directly</em> adjacent to the given root.
+     * Thus, the direct super-classes of {@code A} are {@code B} and {@code C} only, and not {@code D} - even in an inferencing graph.
+     * Note that this is not the same as the entailments from the raw graph.
+     * Suppose we add to this example:
+     * <pre>{@code
+     *   :A rdfs:subClassOf :D .
+     * }</pre>
+     * Now, in the raw graph, {@code A} has super-classes {@code B}, {@code C}, {@code D}.
+     * But the direct super-classes of {@code A} remain only {@code B} and C,
+     * since there is a longer path {@code A-C-D} that means that {@code D} is not a direct super-class of {@code A}.
+     * The assertion in the raw graph that {@code A} has super-class {@code D} is essentially redundant,
+     * since this can be inferred from the closure of the graph.
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent classes in the super-class relation,
-     *               otherwise answers all super-classes found in the {@code Graph} recursively, this class is not included
+     *               i.e. eliminate any class for which there is a longer route to reach that parent under the super-class relation;
+     *               if {@code false} answers all super-classes found by inferencer, which usually means entire hierarchy up the tree;
+     *               this class is not included
      * @return <b>distinct</b> {@code Stream} of super {@link OntClass class expression}s
      * @see #superClasses()
      * @see #subClasses(boolean)
+     * @see org.apache.jena.ontology.OntClass#listSuperClasses(boolean)
      */
     Stream<OntClass> superClasses(boolean direct);
-
-    /**
-     * Answers a {@code Stream} over all the class expressions
-     * that are declared to be subclasses of this class expression.
-     * The return {@code Stream} is distinct and this instance is not included into it.
-     * The flag {@code direct} allows some selectivity over the classes that appear in the {@code Stream}.
-     * Consider the following scenario:
-     * <pre>{@code
-     *   :B rdfs:subClassOf :A .
-     *   :C rdfs:subClassOf :B .
-     * }</pre>
-     * If the flag {@code direct} is {@code true},
-     * the listing subclasses for the class {@code A} will return only {@code B}.
-     * And otherwise, if the flag {@code direct} is {@code false}, it will return {@code B} and also {@code C}.
-     *
-     * @param direct boolean: if {@code true} answers the directly adjacent classes in the subclass relation,
-     *               otherwise answers all subclasses found in the {@code Graph} recursively, this class is not included
-     * @return <b>distinct</b> {@code Stream} of sub {@link OntClass class expression}s
-     * @see #superClasses(boolean)
-     */
-    Stream<OntClass> subClasses(boolean direct);
 
     /**
      * Returns {@code true} if the given property is associated with a frame-like view of this class.
@@ -94,9 +128,10 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * {@link org.apache.jena.ontology.OntClass#hasDeclaredProperty(Property, boolean)}.
      *
      * @param property {@link OntRealProperty}, not {@code null}
-     * @param direct   {@code boolean}: if {@code true} analyses only the directly adjacent domains in the subclass relation,
+     * @param direct   {@code boolean}: if {@code true} analyses only the directly adjacent domains in the sub-class relation,
      *                 otherwise takes into account the class hierarchy
      * @return {@code boolean}, {@code true} if the property is associated with this class by its domain, otherwise {@code false}
+     * @see org.apache.jena.ontology.OntClass#hasDeclaredProperty(Property, boolean)
      */
     boolean hasDeclaredProperty(OntRealProperty property, boolean direct);
 
@@ -112,7 +147,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * The behavior of this method must be identical to the behavior of the Jena method
      * {@link org.apache.jena.ontology.OntClass#listDeclaredProperties(boolean)}}.
      *
-     * @param direct {@code boolean}: if {@code true} analyses only the directly adjacent domains in the subclass relation,
+     * @param direct {@code boolean}: if {@code true} analyses only the directly adjacent domains in the sub-class relation,
      *               otherwise takes into account the class hierarchy
      * @return a <b>distinct</b> {@code Stream} of {@link OntRealProperty object and date properties}, attached to this class
      * @see #properties()
@@ -251,17 +286,31 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Lists all super classes for this class expression.
-     * The search pattern is {@code C rdfs:subClassOf Ci},
-     * where {@code C} is this instance, and {@code Ci} is one of the returned.
+     * Lists all direct or indirect sub-classes for this class expression, i.e. all sub-classes found by inferencer,
+     * which usually means entire hierarchy down the tree; this class is not included.
+     * The search pattern is {@code Ci rdfs:subClassOf C}.
      * <p>
-     * Equivalent to {@code this.superClasses(true).filter(other -> !other.equals(this))}.
+     * Equivalent to {@code this.subClasses(false)}.
+     *
+     * @return {@code Stream} of {@link OntClass}s
+     * @see #subClasses(boolean)
+     */
+    default Stream<OntClass> subClasses() {
+        return subClasses(false);
+    }
+
+    /**
+     * Lists all direct and indirect super-classes for this class expression, i.e. all super-classes found by inferencer,
+     * which usually means entire hierarchy up the tree; this class is not included.
+     * The search pattern is {@code C rdfs:subClassOf Ci}.
+     * <p>
+     * Equivalent to {@code this.superClasses(false)}.
      *
      * @return {@code Stream} of {@link OntClass}s
      * @see #superClasses(boolean)
      */
     default Stream<OntClass> superClasses() {
-        return objects(RDFS.subClassOf, OntClass.class);
+        return superClasses(false);
     }
 
     /**
@@ -362,6 +411,19 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      */
     default OntClass addSuperClass(OntClass other) {
         addSubClassOfStatement(other);
+        return this;
+    }
+
+    /**
+     * Adds the given class as a sub-class
+     * and returns this class expression instance to allow cascading calls.
+     *
+     * @param other {@link OntClass}, not {@code null}
+     * @return <b>this</b> instance to allow cascading calls
+     * @see #addSuperClass(OntClass)
+     */
+    default OntClass addSubClass(OntClass other) {
+        other.addSuperClass(this);
         return this;
     }
 

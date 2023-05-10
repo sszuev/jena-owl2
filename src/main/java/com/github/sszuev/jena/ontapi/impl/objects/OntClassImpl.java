@@ -12,7 +12,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,12 +58,12 @@ public class OntClassImpl extends OntObjectImpl implements OntClass.Named {
 
     @Override
     public Stream<OntClass> superClasses(boolean direct) {
-        return hierarchy(this, OntClass.class, RDFS.subClassOf, false, direct);
+        return OntCEImpl.superClasses(this, direct);
     }
 
     @Override
     public Stream<OntClass> subClasses(boolean direct) {
-        return hierarchy(this, OntClass.class, RDFS.subClassOf, true, direct);
+        return OntCEImpl.subClasses(this, direct);
     }
 
     @Override

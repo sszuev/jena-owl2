@@ -11,7 +11,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
-import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -34,12 +33,12 @@ public class OntDPropertyImpl extends OntPEImpl implements OntDataProperty {
 
     @Override
     public Stream<OntDataProperty> superProperties(boolean direct) {
-        return hierarchy(this, OntDataProperty.class, RDFS.subPropertyOf, false, direct);
+        return superProperties(this, OntDataProperty.class, direct);
     }
 
     @Override
     public Stream<OntDataProperty> subProperties(boolean direct) {
-        return hierarchy(this, OntDataProperty.class, RDFS.subPropertyOf, true, direct);
+        return subProperties(this, OntDataProperty.class, direct);
     }
 
     @Override

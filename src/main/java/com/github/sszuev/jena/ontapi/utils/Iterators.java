@@ -141,7 +141,7 @@ public class Iterators {
 
     /**
      * Creates a {@code Stream} for a future {@code Set}, which is produced by the factory-parameter {@code getAsSet}.
-     * The returned {@code Stream} is based on a data-snapshot, and it is therefore always safe to use.
+     * The produced {@code Set} must not change and must not contain {@code null}.
      *
      * @param getAsSet {@code Supplier} that produces a {@code Set} of {@link X}
      * @param <X>      the type of items
@@ -515,6 +515,7 @@ public class Iterators {
      * This method allows to achieve a similar behaviour:
      * when creating an {@code ExtendedIterator} does not weight anything,
      * but it materializes itself when processing.
+     * Therefore, operations such as {@code (stream-1 + stream-2).findFirst()} will demand less memory.
      * <p>
      * The returned iterator is not thread-safe, just as like any other RDF extended iterator, with whom we work.
      *

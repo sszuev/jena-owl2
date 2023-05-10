@@ -19,7 +19,6 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
@@ -41,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -130,6 +130,13 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         throw new OntJenaException.IllegalArgument("Not uri resource " + res);
     }
 
+    public static <X extends OntObject> Stream<X> subjects(Property predicate, OntObject object, Class<X> type) {
+        return object.getModel()
+                .statements(null, predicate, object)
+                .map(x -> x.getSubject().getAs(type))
+                .filter(Objects::nonNull);
+    }
+
     /**
      * Lists all descendants for the specified object and the predicate.
      *
@@ -141,31 +148,54 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      * @param <X>       subtype of {@link OntObject}
      * @return <b>distinct</b> {@code Stream} of {@link X}s
      */
+    @Deprecated // wrong logic
     public static <X extends OntObject> Stream<X> hierarchy(X object,
                                                             Class<X> type,
                                                             Property predicate,
                                                             boolean inverse,
                                                             boolean direct) {
-        return Iterators.fromSet(() -> getHierarchy(object, getListDirect(type, predicate, inverse), direct));
+        if (direct) {
+            return getListDirect(type, predicate, inverse).apply(object);
+        }
+        return treeAsStream(object, getListDirect(type, predicate, inverse));
     }
 
     /**
-     * Answers an {@link ExtendedIterator} over all elements fromm hierarchy.
+     * Lists all descendants using the operation {@code children} to determine adjacent children.
      *
-     * @param object    {@link X}
-     * @param type      the class-type of {@link X}
-     * @param predicate the {@link Property} whose values are required
-     * @param inverse   if {@code true}, use the inverse of {@code predicate} rather than {@code predicate}
-     * @param direct    if {@code true}, only returns the direct (adjacent) values
-     * @param <X>       subtype of {@link OntObject}
-     * @return <b>distinct</b> {@code ExtendedIterator} of {@link X}s
+     * @param object   {@link X}
+     * @param children a {@code Function} that returns {@code Stream} for an object of type {@link X}
+     * @param direct   if {@code true}, only returns the direct (adjacent) values
+     * @param <X>      subtype of {@link OntObject}
+     * @return <b>distinct</b> {@code Stream} of {@link X}s
      */
-    public static <X extends OntObject> ExtendedIterator<X> listHierarchy(X object,
-                                                                          Class<X> type,
-                                                                          Property predicate,
-                                                                          boolean inverse,
-                                                                          boolean direct) {
-        return Iterators.create(() -> getHierarchy(object, getListDirect(type, predicate, inverse), direct).iterator());
+    public static <X extends OntObject> Stream<X> hierarchy(X object,
+                                                            Function<X, Stream<X>> children,
+                                                            boolean direct) {
+        if (direct) {
+            return adjacentChildren(object, children);
+        }
+        return treeAsStream(object, children);
+    }
+
+    /**
+     * Lists all descendants using the operation {@code children} to determine adjacent children.
+     *
+     * @param object           {@link X}
+     * @param implicitChildren a {@code Function} that returns {@code Stream} of {@link X}'s children, including implicit ones (for example, bound by an equivalent operator)
+     * @param explicitChildren a {@code Function} that returns {@code Stream} of {@link X}'s children, declared in RDF
+     * @param direct           if {@code true}, only returns the direct (adjacent) values
+     * @param <X>              subtype of {@link OntObject}
+     * @return <b>distinct</b> {@code Stream} of {@link X}s
+     */
+    public static <X extends OntObject> Stream<X> hierarchy(X object,
+                                                            Function<X, Stream<X>> implicitChildren,
+                                                            Function<X, Stream<X>> explicitChildren,
+                                                            boolean direct) {
+        if (direct) {
+            return adjacentChildren(object, implicitChildren);
+        }
+        return treeAsStream(object, explicitChildren);
     }
 
     /**
@@ -177,61 +207,83 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      * @param <X>       subtype of {@link OntObject} (actually {@link OntObjectImpl})
      * @return a {@code Function} that responses a {@code ExtendedIterator} over direct listed {@link X}
      */
-    private static <X extends OntObject> Function<X, ExtendedIterator<X>> getListDirect(Class<X> type,
-                                                                                        Property predicate,
-                                                                                        boolean inverse) {
-        return inverse ?
-                x -> ((OntObjectImpl) x).listSubjects(predicate, type) :
-                x -> ((OntObjectImpl) x).listObjects(predicate, type);
+    private static <X extends OntObject> Function<X, Stream<X>> getListDirect(Class<X> type,
+                                                                              Property predicate,
+                                                                              boolean inverse) {
+        return inverse ? x -> subjects(predicate, x, type) : x -> x.objects(predicate, type);
     }
 
     /**
      * For the given object returns a {@code Set} of objects the same type,
      * that are its children which is determined by the operation {@code listChildren}.
-     * If the flag {@code direct} is {@code true}, then only direct children are considered,
-     * otherwise performs recursive searching over the whole graph.
-     * The given object is not included in the return {@code Set}
      *
-     * @param object     {@link X}
-     * @param listDirect a {@code Function} that returns {@code Iterator} for an object of type {@link X}
-     * @param direct     boolean, if {@code false} performs a complex search over whole graph,
-     *                   otherwise only direct descendants are included into  the result
-     * @param <X>        subtype of {@link Resource}
+     * @param object       {@link X}
+     * @param listChildren a {@code Function} that returns {@code Iterator} for an object of type {@link X}
+     * @param <X>          subtype of {@link Resource}
      * @return {@code Set} of {@link X}
      */
-    public static <X extends Resource> Set<X> getHierarchy(X object,
-                                                           Function<X, ExtendedIterator<X>> listDirect,
-                                                           boolean direct) {
-        Set<X> res;
-        if (direct) {
-            res = listDirect.apply(object).toSet();
-        } else {
-            collectIndirect(object, listDirect, res = new HashSet<>());
-        }
-        res.remove(object);
-        return res;
+    static <X extends Resource> Stream<X> treeAsStream(X object, Function<X, ? extends Stream<X>> listChildren) {
+        return Iterators.fromSet(() -> {
+            Set<X> res = new HashSet<>();
+            collectIndirect(object, listChildren, res);
+            res.remove(object);
+            return res;
+        });
     }
 
     /**
      * For the given object recursively collects all children determined by the operation {@code listChildren}.
      *
-     * @param object     {@link X}
-     * @param listDirect a {@code Function} that returns {@code Iterator} for an object of type {@link X}
-     * @param res        {@code Set} to store result
-     * @param <X>        any subtype of {@link Resource}
+     * @param root         {@link X}
+     * @param listChildren a {@code Function} that returns {@code Iterator} for an object of type {@link X}
+     * @param res          {@code Set} to store result
+     * @param <X>          any subtype of {@link Resource}
      */
-    static <X extends Resource> void collectIndirect(X object,
-                                                     Function<X, ? extends Iterator<X>> listDirect,
+    static <X extends Resource> void collectIndirect(X root,
+                                                     Function<X, ? extends Stream<X>> listChildren,
                                                      Set<X> res) {
-        List<X> found = new LinkedList<>();
-        found.add(object);
-        while (found.size() != 0) {
-            X processed = found.remove(0);
-            listDirect.apply(processed).forEachRemaining(x -> {
-                if (res.add(x)) {
-                    found.add(x);
+        List<X> queue = new LinkedList<>();
+        queue.add(root);
+        while (queue.size() != 0) {
+            X next = queue.remove(0);
+            try (Stream<X> children = listChildren.apply(next)) {
+                children.forEach(x -> {
+                    if (res.add(x)) {
+                        queue.add(x);
+                    }
+                });
+            }
+        }
+    }
+
+    static <X extends Resource> Stream<X> adjacentChildren(X object, Function<X, Stream<X>> listChildren) {
+        return Iterators.fromSet(() -> {
+            Set<X> res = listChildren.apply(object).collect(Collectors.toSet());
+            dropNodesWithSeveralPaths(object, listChildren, res);
+            return res;
+        });
+    }
+
+    static <X extends Resource> void dropNodesWithSeveralPaths(X root, Function<X, ? extends Stream<X>> listChildren, Set<X> res) {
+        Set<X> seen = new HashSet<>();
+        List<X> queue = new LinkedList<>();
+        queue.add(root);
+        while (queue.size() != 0) {
+            X next = queue.remove(0);
+            try (Stream<X> children = listChildren.apply(next)) {
+                Iterator<X> it = children.iterator();
+                while (it.hasNext()) {
+                    X x = it.next();
+                    if (seen.add(x)) {
+                        queue.add(x);
+                    } else {
+                        res.remove(x);
+                    }
+                    if (res.isEmpty()) {
+                        return;
+                    }
                 }
-            });
+            }
         }
     }
 
@@ -343,19 +395,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      */
     @Override
     public Stream<OntStatement> content() {
-        //return Iter.asStream(listContent());
         return Iterators.fromSet(this::getContent);
-    }
-
-    /**
-     * Lists the content of this object, which is all its characteristic statements (see {@link #listSpec()}),
-     * plus any additional {@link OntStatement Ont Statement}s in which this object is a subject,
-     * minus those of them whose predicate is an annotation property to any discard annotations.
-     *
-     * @return <b>distinct</b> {@code ExtendedIterator} of {@link OntStatement}s
-     */
-    public ExtendedIterator<OntStatement> listContent() {
-        return Iterators.create(() -> getContent().iterator());
     }
 
     /**
@@ -648,18 +688,6 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         // for others
         findRootStatement().ifPresent(OntStatement::clearAnnotations);
         return this;
-    }
-
-    /**
-     * Removes all objects for predicate (if object is rdf:List removes all content)
-     *
-     * @param predicate Property
-     */
-    public void clearAll(Property predicate) {
-        listProperties(predicate).mapWith(Statement::getObject)
-                .filterKeep(n -> n.canAs(RDFList.class))
-                .mapWith(n -> n.as(RDFList.class)).forEachRemaining(RDFList::removeList);
-        removeAll(predicate);
     }
 
     /**

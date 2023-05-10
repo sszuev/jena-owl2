@@ -36,18 +36,23 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
     /**
      * {@inheritDoc}
      *
+     * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
+     *               i.e. eliminate any properties for which there is a longer route to reach that parent under the sub-property relation
+     * @return <b>distinct</b> {@code Stream} of datatype properties
+     */
+    @Override
+    Stream<OntDataProperty> subProperties(boolean direct);
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
+     *               i.e. eliminate any property for which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of datatype properties
      */
     @Override
     Stream<OntDataProperty> superProperties(boolean direct);
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return <b>distinct</b> {@code Stream} of datatype properties
-     */
-    @Override
-    Stream<OntDataProperty> subProperties(boolean direct);
 
     /**
      * {@inheritDoc}
@@ -83,18 +88,29 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
     }
 
     /**
-     * Lists all super properties.
-     * The pattern is {@code R1 rdfs:subPropertyOf R2},
-     * where {@code R1} is this data property and {@code R2} is a retrieved data property.
+     * {@inheritDoc}
+     * <p>
+     * The pattern is {@code Ri rdfs:subPropertyOf Rj} where {@code Ri, Rj} are data properties.
      *
      * @return {@code Stream} of {@link OntDataProperty}s
-     * @see #addSuperProperty(OntDataProperty)
-     * @see OntProperty#removeSuperProperty(Resource)
-     * @see #addSubPropertyOfStatement(OntDataProperty)
+     * @see #subProperties(boolean)
+     */
+    @Override
+    default Stream<OntDataProperty> subProperties() {
+        return subProperties(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The pattern is {@code Ri rdfs:subPropertyOf Rj} where {@code Ri, Rj} are data properties.
+     *
+     * @return {@code Stream} of {@link OntDataProperty}s
+     * @see #subProperties(boolean)
      */
     @Override
     default Stream<OntDataProperty> superProperties() {
-        return objects(RDFS.subPropertyOf, OntDataProperty.class);
+        return superProperties(false);
     }
 
     /**

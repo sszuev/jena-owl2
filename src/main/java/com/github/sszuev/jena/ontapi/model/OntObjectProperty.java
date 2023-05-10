@@ -31,27 +31,26 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
 
     /**
      * {@inheritDoc}
-     * Note: a {@code PropertyChain} is not included into consideration:
-     * even this property is a member of some chain ({@code P owl:propertyChainAxiom ( P1 ... Pn )},
-     * where {@code Pj} is this property), it does not mean it has the same super property ({@code P}).
      *
+     * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
+     *               i.e. eliminate any properties for which there is a longer route to reach that parent under the sub-property relation
+     * @return <b>distinct</b> {@code Stream} of object property expressions
+     * @see #propertyChains()
+     */
+    @Override
+    Stream<OntObjectProperty> subProperties(boolean direct);
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
+     *               i.e. eliminate any property for which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of object property expressions
      * @see #propertyChains()
      */
     @Override
     Stream<OntObjectProperty> superProperties(boolean direct);
 
-    /**
-     * {@inheritDoc}
-     * Note: a {@code PropertyChain} is not included into consideration,
-     * even this property is a super property of some chain ({@code P owl:propertyChainAxiom ( P1 ... Pn )},
-     * where {@code P} is this property), each of chain members is not considered as sub property of this property.
-     *
-     * @return <b>distinct</b> {@code Stream} of object property expressions
-     * @see #propertyChains()
-     */
-    @Override
-    Stream<OntObjectProperty> subProperties(boolean direct);
 
     /**
      * Returns a {@code Stream} over all property chain {@link OntList ontology list}s
@@ -148,9 +147,27 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     }
 
     /**
-     * Lists all direct super properties, the pattern is {@code P1 rdfs:subPropertyOf P2}.
+     * {@inheritDoc}
+     * <p>
+     * The pattern is {@code Pi rdfs:subPropertyOf Pj} where {@code Pi, Pj} are object properties.
      *
      * @return {@code Stream} of {@link OntObjectProperty}s
+     * @see #subProperties(boolean)
+     * @see OntProperty#superProperties(boolean)
+     * @see #propertyChains()
+     */
+    @Override
+    default Stream<OntObjectProperty> subProperties() {
+        return subProperties(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The pattern is {@code Pi rdfs:subPropertyOf Pj} where {@code Pi, Pj} are object properties.
+     *
+     * @return {@code Stream} of {@link OntObjectProperty}s
+     * @see #superProperties(boolean)
      * @see #addSuperProperty(OntObjectProperty)
      * @see OntProperty#removeSuperProperty(Resource)
      * @see OntProperty#superProperties(boolean)
@@ -158,7 +175,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      */
     @Override
     default Stream<OntObjectProperty> superProperties() {
-        return objects(RDFS.subPropertyOf, OntObjectProperty.class);
+        return superProperties(false);
     }
 
     /**

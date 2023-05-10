@@ -22,16 +22,18 @@ public interface OntAnnotationProperty extends OntProperty, OntNamedProperty<Ont
     /**
      * {@inheritDoc}
      *
+     * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
+     *               i.e. eliminate any properties for which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of annotation properties
      */
-    Stream<OntAnnotationProperty> superProperties(boolean direct);
+    Stream<OntAnnotationProperty> subProperties(boolean direct);
 
     /**
      * {@inheritDoc}
      *
      * @return <b>distinct</b> {@code Stream} of annotation properties
      */
-    Stream<OntAnnotationProperty> subProperties(boolean direct);
+    Stream<OntAnnotationProperty> superProperties(boolean direct);
 
     /**
      * Lists all valid annotation property domains in the form of java {@code Stream}.
@@ -77,19 +79,29 @@ public interface OntAnnotationProperty extends OntProperty, OntNamedProperty<Ont
     OntStatement addRangeStatement(Resource range);
 
     /**
-     * Lists all direct super properties.
-     * The pattern is {@code A1 rdfs:subPropertyOf A2},
-     * where {@code A1} is this property and {@code A2} is what needs to be returned.
+     * {@inheritDoc}
+     * <p>
+     * The pattern is {@code Ai rdfs:subPropertyOf Aj}, where {@code Ai, Aj} are annotation properties.
      *
      * @return {@code Stream} of {@link OntAnnotationProperty}s
-     * @see #addSubPropertyOfStatement(OntAnnotationProperty)
-     * @see #addSuperProperty(OntAnnotationProperty)
-     * @see #removeSuperProperty(Resource)
+     * @see #subProperties(boolean)
+     */
+    @Override
+    default Stream<OntAnnotationProperty> subProperties() {
+        return subProperties(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The pattern is {@code Ai rdfs:subPropertyOf Aj}, where {@code Ai, Aj} are annotation properties.
+     *
+     * @return {@code Stream} of {@link OntAnnotationProperty}s
      * @see #superProperties(boolean)
      */
     @Override
     default Stream<OntAnnotationProperty> superProperties() {
-        return objects(RDFS.subPropertyOf, OntAnnotationProperty.class);
+        return superProperties(false);
     }
 
     /**

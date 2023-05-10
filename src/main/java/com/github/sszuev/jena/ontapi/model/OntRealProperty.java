@@ -18,16 +18,20 @@ public interface OntRealProperty extends OntProperty {
     /**
      * {@inheritDoc}
      *
+     * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
+     *               i.e. eliminate any properties for which there is a longer route to reach that parent under the sub-property relation
      * @return <b>distinct</b> {@code Stream} of data <b>or</b> object properties
      */
-    Stream<? extends OntRealProperty> superProperties(boolean direct);
+    Stream<? extends OntRealProperty> subProperties(boolean direct);
 
     /**
      * {@inheritDoc}
      *
+     * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
+     *               i.e. eliminate any property for which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of data <b>or</b> object properties
      */
-    Stream<? extends OntRealProperty> subProperties(boolean direct);
+    Stream<? extends OntRealProperty> superProperties(boolean direct);
 
     /**
      * Lists all property ranges,
@@ -38,11 +42,16 @@ public interface OntRealProperty extends OntProperty {
     Stream<? extends OntObject> ranges();
 
     /**
-     * List all super properties for this property expression.
-     * In other words, returns all objects {@code R} from statements like {@code P rdfs:subPropertyOf R},
-     * where {@code P} is this property.
+     * {@inheritDoc}
      *
-     * @return {@code Stream} of {@link OntRealProperty}s - object <b>or</b> data properties
+     * @return {@code Stream} of {@link OntRealProperty}s (object <b>or</b> data properties)
+     */
+    Stream<? extends OntRealProperty> subProperties();
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@code Stream} of {@link OntRealProperty}s (object <b>or</b> data properties)
      */
     Stream<? extends OntRealProperty> superProperties();
 

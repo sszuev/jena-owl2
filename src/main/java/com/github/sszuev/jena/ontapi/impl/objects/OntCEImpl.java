@@ -427,6 +427,42 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    static Stream<OntClass> subClasses(OntClass clazz, boolean direct) {
+        if (direct) {
+            return adjacentChildren(clazz, x -> actualAdjacentSubClasses(x, false));
+        }
+        return treeAsStream(clazz, OntCEImpl::explicitSubClasses);
+    }
+
+    static Stream<OntClass> superClasses(OntClass clazz, boolean direct) {
+        if (direct) {
+            return adjacentChildren(clazz, x -> actualAdjacentSubClasses(x, true));
+        }
+        return treeAsStream(clazz, OntCEImpl::explicitSuperClasses);
+    }
+
+    static Stream<OntClass> actualAdjacentSubClasses(OntClass clazz, boolean inverse) {
+        Set<OntClass> equivalents = equivalentBySubClassOfClasses(clazz).collect(Collectors.toSet());
+        equivalents.add(clazz);
+        return equivalents.stream()
+                .flatMap(x -> inverse ? explicitSuperClasses(x) : explicitSubClasses(x))
+                .filter(x -> !equivalents.contains(x))
+                .flatMap(x -> Stream.concat(Stream.of(x), equivalentBySubClassOfClasses(x)))
+                .distinct();
+    }
+
+    static Stream<OntClass> explicitSubClasses(OntClass clazz) {
+        return subjects(RDFS.subClassOf, clazz, OntClass.class);
+    }
+
+    static Stream<OntClass> explicitSuperClasses(OntClass clazz) {
+        return clazz.objects(RDFS.subClassOf, OntClass.class);
+    }
+
+    static Stream<OntClass> equivalentBySubClassOfClasses(OntClass clazz) {
+        return explicitSubClasses(clazz).filter(x -> x.getModel().contains(clazz, RDFS.subClassOf, x));
+    }
+
     @Override
     public Optional<OntStatement> findRootStatement() {
         return getRequiredRootStatement(this, OWL.Class);
@@ -473,12 +509,12 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
 
     @Override
     public Stream<OntClass> superClasses(boolean direct) {
-        return hierarchy(this, OntClass.class, RDFS.subClassOf, false, direct);
+        return superClasses(this, direct);
     }
 
     @Override
     public Stream<OntClass> subClasses(boolean direct) {
-        return hierarchy(this, OntClass.class, RDFS.subClassOf, true, direct);
+        return subClasses(this, direct);
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.vocabulary.RDFS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,6 +131,42 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
             }
         }
         return domains.stream().filter(clazz -> clazz.hasDeclaredProperty(property, direct));
+    }
+
+    static <X extends OntProperty> Stream<X> subProperties(X property, Class<X> type, boolean direct) {
+        if (direct) {
+            return adjacentChildren(property, x -> actualAdjacentSubProperties(x, type, false));
+        }
+        return treeAsStream(property, x -> explicitSubProperties(x, type));
+    }
+
+    static <X extends OntProperty> Stream<X> superProperties(X property, Class<X> type, boolean direct) {
+        if (direct) {
+            return adjacentChildren(property, x -> actualAdjacentSubProperties(x, type, true));
+        }
+        return treeAsStream(property, x -> explicitSuperProperties(x, type));
+    }
+
+    static <X extends OntProperty> Stream<X> actualAdjacentSubProperties(X property, Class<X> type, boolean inverse) {
+        Set<X> equivalents = equivalentBySubPropertyOfProperties(property, type).collect(Collectors.toSet());
+        equivalents.add(property);
+        return equivalents.stream()
+                .flatMap(x -> inverse ? explicitSuperProperties(x, type) : explicitSubProperties(x, type))
+                .filter(x -> !equivalents.contains(x))
+                .flatMap(x -> Stream.concat(Stream.of(x), equivalentBySubPropertyOfProperties(x, type)))
+                .distinct();
+    }
+
+    static <X extends OntProperty> Stream<X> explicitSubProperties(X property, Class<X> type) {
+        return subjects(RDFS.subPropertyOf, property, type);
+    }
+
+    static <X extends OntProperty> Stream<X> explicitSuperProperties(X property, Class<X> type) {
+        return property.objects(RDFS.subPropertyOf, type);
+    }
+
+    static <X extends OntProperty> Stream<X> equivalentBySubPropertyOfProperties(X property, Class<X> type) {
+        return explicitSubProperties(property, type).filter(x -> x.getModel().contains(property, RDFS.subPropertyOf, x));
     }
 
     @Override

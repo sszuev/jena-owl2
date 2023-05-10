@@ -49,7 +49,7 @@ public class OntPropertyTest {
 
     @Test
     public void testListPropertyHierarchy() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntDataProperty da = m.createDataProperty("dA");
         OntDataProperty db = m.createDataProperty("dB");
 
@@ -79,8 +79,8 @@ public class OntPropertyTest {
         Assertions.assertEquals(1, iob.subProperties(false).count());
         Assertions.assertEquals(2, oa.subProperties(false).count());
 
-        Assertions.assertEquals(1, ac.superProperties(true).count());
-        Assertions.assertEquals(1, ac.subProperties(true).count());
+        Assertions.assertEquals(0, ac.superProperties(true).count());
+        Assertions.assertEquals(0, ac.subProperties(true).count());
         Assertions.assertEquals(3, ac.superProperties(false).count());
         Assertions.assertEquals(3, m.getRDFSComment().subProperties(false).count());
     }

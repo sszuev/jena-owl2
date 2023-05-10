@@ -18,7 +18,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Collection;
 import java.util.List;
@@ -42,12 +41,12 @@ public abstract class OntOPEImpl extends OntPEImpl implements OntObjectProperty 
 
     @Override
     public Stream<OntObjectProperty> superProperties(boolean direct) {
-        return hierarchy(this, OntObjectProperty.class, RDFS.subPropertyOf, false, direct);
+        return superProperties(this, OntObjectProperty.class, direct);
     }
 
     @Override
     public Stream<OntObjectProperty> subProperties(boolean direct) {
-        return hierarchy(this, OntObjectProperty.class, RDFS.subPropertyOf, true, direct);
+        return subProperties(this, OntObjectProperty.class, direct);
     }
 
     @Override
