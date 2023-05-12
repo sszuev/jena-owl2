@@ -113,6 +113,15 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     Stream<OntClass> superClasses(boolean direct);
 
     /**
+     * Lists all individuals, directly or indirectly connected to this class.
+     * The search pattern is {@code a rdf:type C}, where {@code C} is class expression and {@code a} individual.
+     *
+     * @param direct {@code boolean} if true, only direct instances are counted (i.e. not instances of sub-classes of this class)
+     * @return a {@code Stream} of {@link OntIndividual}s
+     */
+    Stream<OntIndividual> individuals(boolean direct);
+
+    /**
      * Returns {@code true} if the given property is associated with a frame-like view of this class.
      * This captures an informal notion of the <em>properties of a class</em>,
      * by looking at the domains of the property in this class's model, and matching them to this class.
@@ -257,13 +266,14 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Lists all individuals,
-     * i.e. subjects from class-assertion statements {@code a rdf:type C}, where {@code C} is this class expression.
+     * Lists all individuals taking into account class hierarchy.
+     * Equivalent to {@code this.individuals(false)}
      *
      * @return a {@code Stream} of {@link OntIndividual}s
+     * @see OntClass#individuals(boolean)
      */
     default Stream<OntIndividual> individuals() {
-        return getModel().statements(null, RDF.type, this).map(s -> s.getSubject(OntIndividual.class));
+        return individuals(false);
     }
 
     /**

@@ -427,6 +427,19 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
+        OntModel m = clazz.getModel();
+        return Iterators.fromSet(() -> {
+                    Set<OntClass> res = direct ?
+                            equivalentsBySubClassOf(clazz).collect(Collectors.toSet()) :
+                            clazz.subClasses(false).collect(Collectors.toSet());
+                    res.add(clazz);
+                    return res;
+                }).flatMap(c -> m.statements(null, RDF.type, c)
+                        .map(i -> i.getSubject().getAs(OntIndividual.class)))
+                .filter(Objects::nonNull).distinct();
+    }
+
     static Stream<OntClass> subClasses(OntClass clazz, boolean direct) {
         if (direct) {
             return adjacentChildren(clazz, x -> actualAdjacentSubClasses(x, false));
@@ -442,12 +455,12 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> actualAdjacentSubClasses(OntClass clazz, boolean inverse) {
-        Set<OntClass> equivalents = equivalentBySubClassOfClasses(clazz).collect(Collectors.toSet());
+        Set<OntClass> equivalents = equivalentsBySubClassOf(clazz).collect(Collectors.toSet());
         equivalents.add(clazz);
         return equivalents.stream()
                 .flatMap(x -> inverse ? explicitSuperClasses(x) : explicitSubClasses(x))
                 .filter(x -> !equivalents.contains(x))
-                .flatMap(x -> Stream.concat(Stream.of(x), equivalentBySubClassOfClasses(x)))
+                .flatMap(x -> Stream.concat(Stream.of(x), equivalentsBySubClassOf(x)))
                 .distinct();
     }
 
@@ -459,7 +472,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         return clazz.objects(RDFS.subClassOf, OntClass.class);
     }
 
-    static Stream<OntClass> equivalentBySubClassOfClasses(OntClass clazz) {
+    static Stream<OntClass> equivalentsBySubClassOf(OntClass clazz) {
         return explicitSubClasses(clazz).filter(x -> x.getModel().contains(clazz, RDFS.subClassOf, x));
     }
 
@@ -515,6 +528,11 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     @Override
     public Stream<OntClass> subClasses(boolean direct) {
         return subClasses(this, direct);
+    }
+
+    @Override
+    public Stream<OntIndividual> individuals(boolean direct) {
+        return individuals(this, direct);
     }
 
     @Override

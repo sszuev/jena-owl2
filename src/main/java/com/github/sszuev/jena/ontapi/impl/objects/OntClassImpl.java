@@ -67,6 +67,11 @@ public class OntClassImpl extends OntObjectImpl implements OntClass.Named {
     }
 
     @Override
+    public Stream<OntIndividual> individuals(boolean direct) {
+        return OntCEImpl.individuals(this, direct);
+    }
+
+    @Override
     public boolean hasDeclaredProperty(OntRealProperty property, boolean direct) {
         return OntCEImpl.testDomain(this, property, direct);
     }

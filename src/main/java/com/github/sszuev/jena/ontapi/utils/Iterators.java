@@ -502,7 +502,7 @@ public class Iterators {
     }
 
     /**
-     * Creates a new {@link ExtendedIterator Extended Iterator}} over all elements of an iterator
+     * Creates a new {@link ExtendedIterator Extended Iterator} over all elements of an iterator
      * which will be created by the {@code provider} on first iteration.
      * The returned iterator does not contain any elements,
      * but they will be derived at once when calling any of the {@code ExtendedIterator} methods.
@@ -517,7 +517,7 @@ public class Iterators {
      * but it materializes itself when processing.
      * Therefore, operations such as {@code (stream-1 + stream-2).findFirst()} will demand less memory.
      * <p>
-     * The returned iterator is not thread-safe, just as like any other RDF extended iterator, with whom we work.
+     * The returned iterator is not thread-safe, just as like any other RDF extended iterator we work with.
      *
      * @param provider {@link Supplier} deriving nonnull {@link Iterator}, cannot be {@code null}
      * @param <X>      the element type of the new iterator

@@ -148,12 +148,12 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
     }
 
     static <X extends OntProperty> Stream<X> actualAdjacentSubProperties(X property, Class<X> type, boolean inverse) {
-        Set<X> equivalents = equivalentBySubPropertyOfProperties(property, type).collect(Collectors.toSet());
+        Set<X> equivalents = equivalentsBySubPropertyOf(property, type).collect(Collectors.toSet());
         equivalents.add(property);
         return equivalents.stream()
                 .flatMap(x -> inverse ? explicitSuperProperties(x, type) : explicitSubProperties(x, type))
                 .filter(x -> !equivalents.contains(x))
-                .flatMap(x -> Stream.concat(Stream.of(x), equivalentBySubPropertyOfProperties(x, type)))
+                .flatMap(x -> Stream.concat(Stream.of(x), equivalentsBySubPropertyOf(x, type)))
                 .distinct();
     }
 
@@ -165,7 +165,7 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
         return property.objects(RDFS.subPropertyOf, type);
     }
 
-    static <X extends OntProperty> Stream<X> equivalentBySubPropertyOfProperties(X property, Class<X> type) {
+    static <X extends OntProperty> Stream<X> equivalentsBySubPropertyOf(X property, Class<X> type) {
         return explicitSubProperties(property, type).filter(x -> x.getModel().contains(property, RDFS.subPropertyOf, x));
     }
 

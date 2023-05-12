@@ -248,7 +248,17 @@ public class OntClassTest {
     }
 
     @Test
-    public void testIsHierarchyRoot() {
+    public void testIsHierarchyRoot1() {
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntClass a = m.createOntClass(NS + "A");
+        OntClass b = m.createOntClass(NS + "B");
+        a.addSubClass(b);
+        Assertions.assertTrue(a.isHierarchyRoot());
+        Assertions.assertFalse(b.isHierarchyRoot());
+    }
+
+    @Test
+    public void testIsHierarchyRoot2() {
         OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass(":C1");
         OntClass c2 = m.createOntClass(":C2");
@@ -769,4 +779,202 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of("D"), indirectC);
         Assertions.assertEquals(Set.of(), indirectD);
     }
+
+    @Test
+    public void testListIndividuals1() {
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+        OntModel m = createABCDEFModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
+        OntClass a = m.getOntClass(NS + "A");
+        OntClass b = m.getOntClass(NS + "B");
+        OntClass c = m.getOntClass(NS + "C");
+        OntClass d = m.getOntClass(NS + "D");
+        OntClass e = m.getOntClass(NS + "E");
+        OntClass f = m.getOntClass(NS + "F");
+
+        a.createIndividual(NS + "iA");
+        b.createIndividual(NS + "iB");
+        c.createIndividual(NS + "iC");
+        d.createIndividual(NS + "iD");
+        e.createIndividual(NS + "iE");
+
+        Set<String> directA = a.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = a.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directB = b.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = b.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directC = c.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = c.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directD = d.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectD = d.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directE = e.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectE = e.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directF = f.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectF = f.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of("iA"), directA);
+        Assertions.assertEquals(Set.of("iB"), directB);
+        Assertions.assertEquals(Set.of("iC"), directC);
+        Assertions.assertEquals(Set.of("iD"), directD);
+        Assertions.assertEquals(Set.of("iE"), directE);
+        Assertions.assertEquals(Set.of(), directF);
+        Assertions.assertEquals(Set.of("iA", "iB", "iC", "iD", "iE"), indirectA);
+        Assertions.assertEquals(Set.of("iB", "iD", "iE"), indirectB);
+        Assertions.assertEquals(Set.of("iE", "iC"), indirectC);
+        Assertions.assertEquals(Set.of("iD"), indirectD);
+        Assertions.assertEquals(Set.of("iE"), indirectE);
+        Assertions.assertEquals(Set.of(), indirectF);
+    }
+
+    @Test
+    public void testListIndividuals2() {
+        // B = C
+        //  \ |
+        //    A
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        A.addSuperClass(B);
+        A.addSuperClass(C);
+        B.addSuperClass(C);
+        C.addSuperClass(B);
+        m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
+
+        Set<String> directA = m.getOntClass(NS + "A").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = m.getOntClass(NS + "A").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directB = m.getOntClass(NS + "B").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = m.getOntClass(NS + "B").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directC = m.getOntClass(NS + "C").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = m.getOntClass(NS + "C").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of("iA"), directA);
+        Assertions.assertEquals(Set.of("iB", "iC"), directB);
+        Assertions.assertEquals(Set.of("iB", "iC"), directC);
+        Assertions.assertEquals(Set.of("iA"), indirectA);
+        Assertions.assertEquals(Set.of("iA", "iB", "iC"), indirectB);
+        Assertions.assertEquals(Set.of("iA", "iB", "iC"), indirectC);
+    }
+
+    @Test
+    public void testListIndividuals3() {
+        //     D
+        //    | \
+        // B  |  C
+        //  \ | /
+        //    A
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        OntClass D = m.createOntClass(NS + "D");
+        C.addSubClass(A);
+        B.addSubClass(A);
+        D.addSubClass(C);
+        D.addSubClass(A);
+        m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
+
+        Set<String> directA = m.getOntClass(NS + "A").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = m.getOntClass(NS + "A").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directB = m.getOntClass(NS + "B").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = m.getOntClass(NS + "B").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directC = m.getOntClass(NS + "C").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = m.getOntClass(NS + "C").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directD = m.getOntClass(NS + "D").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectD = m.getOntClass(NS + "D").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of("iA"), directA);
+        Assertions.assertEquals(Set.of("iB"), directB);
+        Assertions.assertEquals(Set.of("iC"), directC);
+        Assertions.assertEquals(Set.of("iD"), directD);
+        Assertions.assertEquals(Set.of("iA"), indirectA);
+        Assertions.assertEquals(Set.of("iA", "iB"), indirectB);
+        Assertions.assertEquals(Set.of("iA", "iC"), indirectC);
+        Assertions.assertEquals(Set.of("iA", "iC", "iD"), indirectD);
+    }
+
+    @Test
+    public void testListInstances3() {
+        //     A
+        //   /  / \
+        //  /  B   C
+        //  | / \ / \
+        //  D   E   F
+        // / \
+        // G  H = K
+        //       / \
+        //      L   M
+        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
+        m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
+
+        Set<String> directA = m.getOntClass(NS + "A").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = m.getOntClass(NS + "A").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directB = m.getOntClass(NS + "B").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = m.getOntClass(NS + "B").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directC = m.getOntClass(NS + "C").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = m.getOntClass(NS + "C").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directD = m.getOntClass(NS + "D").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectD = m.getOntClass(NS + "D").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directE = m.getOntClass(NS + "E").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectE = m.getOntClass(NS + "E").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directF = m.getOntClass(NS + "F").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectF = m.getOntClass(NS + "F").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directG = m.getOntClass(NS + "G").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectG = m.getOntClass(NS + "G").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directH = m.getOntClass(NS + "H").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectH = m.getOntClass(NS + "H").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directK = m.getOntClass(NS + "K").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectK = m.getOntClass(NS + "K").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directL = m.getOntClass(NS + "L").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectL = m.getOntClass(NS + "L").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directM = m.getOntClass(NS + "M").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectM = m.getOntClass(NS + "M").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of("iA"), directA);
+        Assertions.assertEquals(Set.of("iB"), directB);
+        Assertions.assertEquals(Set.of("iC"), directC);
+        Assertions.assertEquals(Set.of("iD"), directD);
+        Assertions.assertEquals(Set.of("iE"), directE);
+        Assertions.assertEquals(Set.of("iF"), directF);
+        Assertions.assertEquals(Set.of("iG"), directG);
+        Assertions.assertEquals(Set.of("iK", "iH"), directH);
+        Assertions.assertEquals(Set.of("iK", "iH"), directK);
+        Assertions.assertEquals(Set.of("iL"), directL);
+        Assertions.assertEquals(Set.of("iM"), directM);
+
+        Assertions.assertEquals(Set.of("iA", "iB", "iC", "iD", "iE", "iF", "iG", "iH", "iK", "iL", "iM"), indirectA);
+        Assertions.assertEquals(Set.of("iB", "iD", "iE", "iG", "iH", "iK", "iL", "iM"), indirectB);
+        Assertions.assertEquals(Set.of("iC", "iE", "iF"), indirectC);
+        Assertions.assertEquals(Set.of("iD", "iG", "iH", "iK", "iL", "iM"), indirectD);
+        Assertions.assertEquals(Set.of("iE"), indirectE);
+        Assertions.assertEquals(Set.of("iF"), indirectF);
+        Assertions.assertEquals(Set.of("iG"), indirectG);
+        Assertions.assertEquals(Set.of("iK", "iH"), indirectH);
+        Assertions.assertEquals(Set.of("iH", "iK", "iL", "iM"), indirectK);
+        Assertions.assertEquals(Set.of("iL"), indirectL);
+        Assertions.assertEquals(Set.of("iM"), indirectM);
+    }
+
 }
