@@ -18,9 +18,9 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
-import com.github.sszuev.jena.ontapi.testutils.RDFIOUtils;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
-import com.github.sszuev.jena.ontapi.utils.Models;
+import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
@@ -108,7 +108,7 @@ public class OntModelTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void testPizzaLoadCE() {
-        OntModel m = OntModelFactory.createModel(RDFIOUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph());
+        OntModel m = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph());
 
         List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
         int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
@@ -152,20 +152,20 @@ public class OntModelTest {
     @Test
     public void testPizzaLoadProperties() {
         simplePropertiesValidation(
-                OntModelFactory.createModel(RDFIOUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph())
+                OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph())
         );
     }
 
     @Test
     public void testFamilyLoadProperties() {
         simplePropertiesValidation(
-                OntModelFactory.createModel(RDFIOUtils.loadResourceAsModel("/testdata/family.ttl", Lang.TURTLE).getGraph())
+                OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/testdata/family.ttl", Lang.TURTLE).getGraph())
         );
     }
 
     @Test
     public void testPizzaLoadIndividuals() {
-        OntModel m = OntModelFactory.createModel(RDFIOUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph());
+        OntModel m = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph());
         List<OntIndividual> individuals = m.ontObjects(OntIndividual.class).collect(Collectors.toList());
         Map<OntIndividual, Set<OntClass>> classes = individuals.stream()
                 .collect(Collectors.toMap(Function.identity(), i -> i.classes().collect(Collectors.toSet())));
@@ -404,44 +404,44 @@ public class OntModelTest {
         OntNegativeAssertion<?, ?> npa1 = p1.addNegativeAssertion(i1, m.createLiteral("xxx"));
 
 
-        Assertions.assertEquals(1, class1.spec().map(Models::toString).count());
-        Assertions.assertEquals(4, class1.content().map(Models::toString).count());
+        Assertions.assertEquals(1, class1.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(4, class1.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(6, class2.spec().map(Models::toString).count());
-        Assertions.assertEquals(7, class2.content().map(Models::toString).count());
+        Assertions.assertEquals(6, class2.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(7, class2.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(3, class3.spec().map(Models::toString).count());
-        Assertions.assertEquals(3, class3.content().map(Models::toString).count());
+        Assertions.assertEquals(3, class3.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(3, class3.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(4, class4.spec().map(Models::toString).count());
-        Assertions.assertEquals(4, class4.content().map(Models::toString).count());
+        Assertions.assertEquals(4, class4.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(4, class4.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(0, class5.spec().map(Models::toString).count());
-        Assertions.assertEquals(1, class5.content().map(Models::toString).count());
+        Assertions.assertEquals(0, class5.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(1, class5.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(3, class6.spec().map(Models::toString).count());
-        Assertions.assertEquals(3, class6.content().map(Models::toString).count());
+        Assertions.assertEquals(3, class6.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(3, class6.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(3, class7.spec().map(Models::toString).count());
-        Assertions.assertEquals(3, class7.content().map(Models::toString).count());
+        Assertions.assertEquals(3, class7.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(3, class7.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(0, dr1.spec().map(Models::toString).count());
-        Assertions.assertEquals(0, dr1.content().map(Models::toString).count());
+        Assertions.assertEquals(0, dr1.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(0, dr1.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(6, dr2.spec().map(Models::toString).count());
-        Assertions.assertEquals(6, dr2.content().map(Models::toString).count());
+        Assertions.assertEquals(6, dr2.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(6, dr2.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(2, dr3.spec().map(Models::toString).count());
-        Assertions.assertEquals(2, dr3.content().map(Models::toString).count());
+        Assertions.assertEquals(2, dr3.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(2, dr3.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(1, i1.spec().map(Models::toString).count());
-        Assertions.assertEquals(6, i1.content().map(Models::toString).count());
+        Assertions.assertEquals(1, i1.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(6, i1.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(0, i2.spec().map(Models::toString).count());
-        Assertions.assertEquals(1, i2.content().map(Models::toString).count());
+        Assertions.assertEquals(0, i2.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(1, i2.content().map(ModelUtils::toString).count());
 
-        Assertions.assertEquals(4, npa1.spec().map(Models::toString).count());
-        Assertions.assertEquals(4, npa1.content().map(Models::toString).count());
+        Assertions.assertEquals(4, npa1.spec().map(ModelUtils::toString).count());
+        Assertions.assertEquals(4, npa1.content().map(ModelUtils::toString).count());
     }
 
     @Test
@@ -476,19 +476,19 @@ public class OntModelTest {
         m.setID("http://x");
         Assertions.assertEquals(4, m.numPrefixes());
         Assertions.assertEquals(4, m.getBaseGraph().getPrefixMapping().numPrefixes());
-        String txt = RDFIOUtils.asString(m, Lang.TURTLE);
+        String txt = RDFIOTestUtils.asString(m, Lang.TURTLE);
         Assertions.assertEquals(6, txt.split("\n").length);
 
         m.setNsPrefix("x", "http://x#");
         Assertions.assertEquals(5, m.numPrefixes());
         Assertions.assertEquals(5, m.getBaseGraph().getPrefixMapping().numPrefixes());
-        txt = RDFIOUtils.asString(m, Lang.TURTLE);
+        txt = RDFIOTestUtils.asString(m, Lang.TURTLE);
         Assertions.assertEquals(7, txt.split("\n").length);
 
         m.removeNsPrefix("x");
         Assertions.assertEquals(4, m.numPrefixes());
         Assertions.assertEquals(4, m.getBaseGraph().getPrefixMapping().numPrefixes());
-        txt = RDFIOUtils.asString(m, Lang.TURTLE);
+        txt = RDFIOTestUtils.asString(m, Lang.TURTLE);
         Assertions.assertEquals(6, txt.split("\n").length);
     }
 
@@ -609,7 +609,7 @@ public class OntModelTest {
 
     @Test
     public void testOntPropertyOrdinal() {
-        Graph g = RDFIOUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph();
+        Graph g = RDFIOTestUtils.loadResourceAsModel("/testdata/pizza.ttl", Lang.TURTLE).getGraph();
         OntModel m = OntModelFactory.createModel(g);
         OntNamedProperty<?> p = m.getOntEntity(OntNamedProperty.class, m.expandPrefix(":isIngredientOf"));
         Assertions.assertNotNull(p);
@@ -620,7 +620,7 @@ public class OntModelTest {
 
     @Test
     public void testFamilyListObjects() {
-        OntModel m = OntModelFactory.createModel(RDFIOUtils.loadResourceAsModel("/testdata/family.ttl", Lang.TURTLE).getGraph(),
+        OntModel m = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/testdata/family.ttl", Lang.TURTLE).getGraph(),
                 OntPersonalities.OWL2_PERSONALITY_LAX);
         assertOntObjectsCount(m, OntEntity.class, 656);
         assertOntObjectsCount(m, OntNamedProperty.class, 90);

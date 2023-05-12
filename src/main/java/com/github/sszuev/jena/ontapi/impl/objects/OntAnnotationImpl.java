@@ -9,7 +9,7 @@ import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.Models;
+import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
@@ -53,9 +53,9 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
         Set<OntStatement> rightSet = listRelatedStatements(right).toSet();
         int res = Integer.compare(leftSet.size(), rightSet.size());
         while (res == 0) {
-            OntStatement s1 = removeMin(leftSet, Models.STATEMENT_COMPARATOR_IGNORE_BLANK);
-            OntStatement s2 = removeMin(rightSet, Models.STATEMENT_COMPARATOR_IGNORE_BLANK);
-            res = Models.STATEMENT_COMPARATOR_IGNORE_BLANK.compare(s1, s2);
+            OntStatement s1 = removeMin(leftSet, ModelUtils.STATEMENT_COMPARATOR_IGNORE_BLANK);
+            OntStatement s2 = removeMin(rightSet, ModelUtils.STATEMENT_COMPARATOR_IGNORE_BLANK);
+            res = ModelUtils.STATEMENT_COMPARATOR_IGNORE_BLANK.compare(s1, s2);
             if (leftSet.isEmpty() || rightSet.isEmpty()) break;
         }
         return -res;
@@ -64,8 +64,8 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
             Set.of(OWL.AllDisjointClasses, OWL.AllDisjointProperties, OWL.AllDifferent, OWL.NegativePropertyAssertion);
     public static final List<Resource> ROOT_TYPES = Stream.concat(Stream.of(OWL.Axiom, OWL.Annotation)
             , EXTRA_ROOT_TYPES.stream()).collect(Collectors.toUnmodifiableList());
-    public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = Iterators.asUnmodifiableNodeSet(EXTRA_ROOT_TYPES);
-    private static final Set<Node> REQUIRED_PROPERTY_NODES = Iterators.asUnmodifiableNodeSet(REQUIRED_PROPERTIES);
+    public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = ModelUtils.asUnmodifiableNodeSet(EXTRA_ROOT_TYPES);
+    private static final Set<Node> REQUIRED_PROPERTY_NODES = ModelUtils.asUnmodifiableNodeSet(REQUIRED_PROPERTIES);
     public static ObjectFactory annotationFactory = Factories.createCommon(OntAnnotationImpl.class,
             OntAnnotationImpl::listRootAnnotations,
             OntAnnotationImpl::testAnnotation);
@@ -87,7 +87,7 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
     public static OntAnnotation createAnnotation(Model model, Statement base, Resource type) {
         Resource res = Objects.requireNonNull(model).createResource();
         if (!model.contains(Objects.requireNonNull(base))) {
-            throw new OntJenaException.IllegalArgument("Can't find " + Models.toString(base));
+            throw new OntJenaException.IllegalArgument("Can't find " + ModelUtils.toString(base));
         }
         res.addProperty(RDF.type, type);
         res.addProperty(OWL.annotatedSource, base.getSubject());

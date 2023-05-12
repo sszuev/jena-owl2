@@ -1,14 +1,6 @@
 package com.github.sszuev.jena.ontapi.utils;
 
-import com.github.sszuev.jena.ontapi.OntJenaException;
 import org.apache.jena.atlas.iterator.FilterUnique;
-import org.apache.jena.graph.FrontsNode;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.Triple;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.rdf.model.impl.StmtIteratorImpl;
 import org.apache.jena.util.iterator.ClosableIterator;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NiceIterator;
@@ -151,29 +143,6 @@ public class Iterators {
     public static <X> Stream<X> fromSet(Supplier<Set<X>> getAsSet) {
         int chs = Spliterator.NONNULL | Spliterator.DISTINCT | Spliterator.IMMUTABLE;
         return asStream(create(() -> getAsSet.get().iterator()), chs);
-    }
-
-    /**
-     * Creates an iterator which returns RDF Statements based on the given extended iterator of triples.
-     *
-     * @param triples {@link ExtendedIterator} of {@link Triple}s
-     * @param map     a Function to map {@link Triple} -&gt; {@link Statement}
-     * @return {@link StmtIterator}
-     * @see org.apache.jena.rdf.model.impl.IteratorFactory#asStmtIterator(Iterator, org.apache.jena.rdf.model.impl.ModelCom)
-     */
-    public static StmtIterator createStmtIterator(ExtendedIterator<Triple> triples, Function<Triple, Statement> map) {
-        return new StmtIteratorImpl(triples.mapWith(map));
-    }
-
-    /**
-     * Creates an unmodifiable Set of {@link Node}s from the collection of {@link RDFNode RDF Node}s.
-     * Placed here as it is widely used.
-     *
-     * @param nodes Collection of {@link RDFNode}s
-     * @return Set of {@link Node}
-     */
-    public static Set<Node> asUnmodifiableNodeSet(Collection<? extends RDFNode> nodes) {
-        return nodes.stream().map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -529,7 +498,7 @@ public class Iterators {
             private Iterator<? extends X> base;
 
             Iterator<? extends X> base() {
-                return base == null ? base = OntJenaException.notNull(provider.get()) : base;
+                return base == null ? base = Objects.requireNonNull(provider.get()) : base;
             }
 
             @Override

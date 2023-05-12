@@ -13,8 +13,8 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
+import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.Models;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Factory;
@@ -299,7 +299,7 @@ public class OntListTest {
 
         list.add(p2).add(p3).add(p4);
         Assertions.assertEquals(6, list.spec().count());
-        Set<Statement> set = Models.getAssociatedStatements(m.listStatements(null, OWL.propertyChainAxiom, (RDFNode) null)
+        Set<Statement> set = ModelTestUtils.getAssociatedStatements(m.listStatements(null, OWL.propertyChainAxiom, (RDFNode) null)
                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource).toList().get(0));
         Assertions.assertEquals(set, list.spec().collect(Collectors.toSet()));
 

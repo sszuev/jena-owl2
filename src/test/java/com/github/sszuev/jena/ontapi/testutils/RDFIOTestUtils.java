@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Objects;
 
-public class RDFIOUtils {
+public class RDFIOTestUtils {
 
     public static String asString(Model model, Lang ext) {
         return toStringWriter(model, ext).toString();
@@ -23,7 +23,7 @@ public class RDFIOUtils {
 
     public static Model loadResourceAsModel(String resource, Lang lang) {
         Model m = ModelFactory.createDefaultModel();
-        try (InputStream in = Objects.requireNonNull(RDFIOUtils.class.getResourceAsStream(resource))) {
+        try (InputStream in = Objects.requireNonNull(RDFIOTestUtils.class.getResourceAsStream(resource))) {
             return m.read(in, null, lang.getName());
         } catch (IOException e) {
             throw new IllegalStateException(e);

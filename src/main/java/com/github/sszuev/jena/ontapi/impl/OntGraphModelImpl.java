@@ -30,6 +30,7 @@ import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
+import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.datatypes.BaseDatatype;
@@ -596,7 +597,7 @@ public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGra
      */
     @Override
     public StmtIterator listStatements(Resource s, Property p, RDFNode o) {
-        return Iterators.createStmtIterator(getGraph().find(asNode(s), asNode(p), asNode(o)), this::asStatement);
+        return ModelUtils.createStmtIterator(getGraph().find(asNode(s), asNode(p), asNode(o)), this::asStatement);
     }
 
     /**

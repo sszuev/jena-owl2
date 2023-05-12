@@ -5,8 +5,9 @@ import com.github.sszuev.jena.ontapi.model.OntID;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
+import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.Models;
+import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * To test {@link Models} and {@link OntModels} utilities.
+ * To test {@link ModelUtils} and {@link OntModels} utilities.
  * <p>
  * Created by @ssz on 25.04.2018.
  */
@@ -69,12 +70,12 @@ public class ModelUtilsTest {
                 .filter(s -> s.hasProperty(OWL.someValuesFrom))
                 .findFirst().orElseThrow(IllegalStateException::new);
 
-        Models.deleteAll(r);
-        Models.deleteAll(d);
+        ModelTestUtils.deleteAll(r);
+        ModelTestUtils.deleteAll(d);
         List<OntClass> classes = m.classes()
                 .filter(s -> s.getLocalName().contains("CL"))
                 .collect(Collectors.toList());
-        classes.forEach(Models::deleteAll);
+        classes.forEach(ModelTestUtils::deleteAll);
 
         Assertions.assertEquals(10, m.statements().count());
     }
@@ -92,9 +93,9 @@ public class ModelUtilsTest {
                 .addVersionInfo("lab5");
 
         Property p = OWL.versionInfo;
-        Assertions.assertEquals(2, Models.langValues(id, p, null).count());
-        Assertions.assertEquals(3, Models.langValues(id, p, "e2").count());
-        Assertions.assertEquals(1, Models.langValues(id, p, "language3").count());
+        Assertions.assertEquals(2, ModelUtils.langValues(id, p, null).count());
+        Assertions.assertEquals(3, ModelUtils.langValues(id, p, "e2").count());
+        Assertions.assertEquals(1, ModelUtils.langValues(id, p, "language3").count());
         Assertions.assertEquals(7, m.listObjectsOfProperty(id, p).toSet().size());
     }
 
@@ -126,20 +127,20 @@ public class ModelUtilsTest {
         OntClass a = m.createOntClass("A");
         OntClass b = m.createOntClass("B");
         Resource t = m.getResource("type");
-        RDFList list = Models.createTypedList(m, t, Arrays.asList(a, b));
+        RDFList list = ModelUtils.createTypedList(m, t, Arrays.asList(a, b));
         Assertions.assertNotNull(list);
 
         Assertions.assertEquals(8, m.size());
         Assertions.assertEquals(2, m.listStatements(null, RDF.type, t).toList().size());
 
-        Assertions.assertTrue(Models.isInList(m, a));
-        Assertions.assertTrue(Models.isInList(m, b));
+        Assertions.assertTrue(ModelUtils.isInList(m, a));
+        Assertions.assertTrue(ModelUtils.isInList(m, b));
 
-        Assertions.assertEquals(6, Iterators.peek(Models.listDescendingStatements(list),
-                s -> Assertions.assertTrue(RDF.type.equals(s.getPredicate()) || Models.isInList(s))).toList().size());
+        Assertions.assertEquals(6, Iterators.peek(ModelTestUtils.listDescendingStatements(list),
+                s -> Assertions.assertTrue(RDF.type.equals(s.getPredicate()) || ModelUtils.isInList(s))).toList().size());
 
-        Assertions.assertEquals(2, Models.subjects(t).count());
-        Assertions.assertEquals(2, Models.listAscendingStatements(RDF.nil.inModel(m)).toList().size());
+        Assertions.assertEquals(2, ModelUtils.subjects(t).count());
+        Assertions.assertEquals(2, ModelTestUtils.listAscendingStatements(RDF.nil.inModel(m)).toList().size());
     }
 
     @Test
@@ -149,7 +150,7 @@ public class ModelUtilsTest {
         OntClass b = m.createOntClass("B");
         m.createObjectSomeValuesFrom(m.createObjectProperty("P"), m.createObjectComplementOf(m.createObjectUnionOf(a, b)));
 
-        testStatementsComparator(m, Models.STATEMENT_COMPARATOR);
+        testStatementsComparator(m, ModelUtils.STATEMENT_COMPARATOR);
     }
 
     @Test

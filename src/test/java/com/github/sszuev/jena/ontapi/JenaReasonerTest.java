@@ -2,7 +2,7 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntModel;
-import com.github.sszuev.jena.ontapi.testutils.RDFIOUtils;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
@@ -77,7 +77,7 @@ public class JenaReasonerTest {
 
 
     private void validationTest(String resource, boolean result) {
-        OntModel data = OntModelFactory.createModel(RDFIOUtils.loadResourceAsModel(resource, Lang.NTRIPLES).getGraph());
+        OntModel data = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel(resource, Lang.NTRIPLES).getGraph());
         InfModel inf = data.getInferenceModel(ReasonerRegistry.getRDFSReasoner());
         ValidityReport validity = inf.validate();
         List<ValidityReport.Report> reports = new ArrayList<>();
@@ -150,7 +150,7 @@ public class JenaReasonerTest {
         r.addProperty(first, p);
         r.addProperty(second, q);
 
-        String data = RDFIOUtils.asString(rawData, Lang.TURTLE);
+        String data = RDFIOTestUtils.asString(rawData, Lang.TURTLE);
 
         // Rule example for
         String rules = "[r1: (?c eg:concatFirst ?p), (?c eg:concatSecond ?q) -> [r1b: (?x ?c ?y) <- (?x ?p ?z) (?z ?q ?y)]]";
@@ -159,7 +159,7 @@ public class JenaReasonerTest {
         Assertions.assertTrue(inf.contains(A, p, B));
         Assertions.assertTrue(inf.contains(A, r, C));
 
-        Assertions.assertEquals(data, RDFIOUtils.asString(rawData, Lang.TURTLE), "Data has been changed");
+        Assertions.assertEquals(data, RDFIOTestUtils.asString(rawData, Lang.TURTLE), "Data has been changed");
     }
 
 }

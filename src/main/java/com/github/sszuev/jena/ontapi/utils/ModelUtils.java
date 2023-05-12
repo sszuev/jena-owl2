@@ -5,8 +5,10 @@ import com.github.sszuev.jena.ontapi.model.OntList;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
@@ -15,21 +17,22 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.rdf.model.impl.ResourceImpl;
+import org.apache.jena.rdf.model.impl.StmtIteratorImpl;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.util.NodeCmp;
 import org.apache.jena.util.iterator.ExtendedIterator;
-import org.apache.jena.util.iterator.NullIterator;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,7 +43,7 @@ import java.util.stream.Stream;
  * Created @ssz on 20.10.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class Models {
+public class ModelUtils {
     public static final Comparator<RDFNode> RDF_NODE_COMPARATOR = (r1, r2) -> NodeCmp.compareRDFTerms(r1.asNode(), r2.asNode());
     public static final Comparator<Statement> STATEMENT_COMPARATOR = Comparator
             .comparing(Statement::getSubject, RDF_NODE_COMPARATOR)
@@ -168,130 +171,6 @@ public class Models {
     }
 
     /**
-     * Recursively deletes all resource children.
-     *
-     * @param inModel Resource from a model
-     */
-    public static void deleteAll(Resource inModel) {
-        deleteAll(inModel, new HashSet<>());
-    }
-
-    private static void deleteAll(Resource r, Set<Node> viewed) {
-        if (!viewed.add(r.asNode())) {
-            return;
-        }
-        r.listProperties().toSet().forEach(s -> {
-            RDFNode o = s.getObject();
-            if (o.isAnon()) {
-                deleteAll(o.asResource(), viewed);
-            }
-            r.getModel().remove(s);
-        });
-    }
-
-    /**
-     * Recursively gets all statements related to the specified subject.
-     * Note: {@code rdf:List} may content a large number of members (1000+),
-     * which may imply heavy calculation.
-     *
-     * @param inModel Resource with associated model inside.
-     * @return a {@code Set} of {@link Statement}s
-     * @see Models#listDescendingStatements(RDFNode)
-     */
-    public static Set<Statement> getAssociatedStatements(Resource inModel) {
-        Set<Statement> res = new HashSet<>();
-        calcAssociatedStatements(inModel, res);
-        return res;
-    }
-
-    private static void calcAssociatedStatements(Resource root, Set<Statement> res) {
-        if (root.canAs(RDFList.class)) {
-            RDFList list = root.as(RDFList.class);
-            if (list.isEmpty()) return;
-            getListStatements(list).forEach(statement -> {
-                res.add(statement);
-                if (!RDF.first.equals(statement.getPredicate())) return;
-                RDFNode obj = statement.getObject();
-                if (obj.isAnon())
-                    calcAssociatedStatements(obj.asResource(), res);
-            });
-            return;
-        }
-        root.listProperties().forEachRemaining(statement -> {
-            try {
-                if (!statement.getObject().isAnon() ||
-                        res.stream().anyMatch(s -> statement.getObject().equals(s.getSubject()))) // to avoid cycles
-                    return;
-                calcAssociatedStatements(statement.getObject().asResource(), res);
-            } finally {
-                res.add(statement);
-            }
-        });
-    }
-
-    /**
-     * Recursively lists all ascending statements for the given {@link RDFNode RDF Node}.
-     * <p>
-     * More specifically, this function returns all statements,
-     * which have either the specified node in an object position,
-     * or its indirect ascendant in a graph tree, found by the same method.
-     * Consider, the specified node {@code r} belongs to the following RDF:
-     * <pre>{@code
-     * <a>  p0 _:b0 .
-     * _:b0 p1 _:b1 .
-     * _:b1 p2  <x> .
-     * _:b1 p3  r .
-     * }</pre>
-     * In this case the method will return three statements:
-     * {@code _:b1 p3 r}, {@code _:b0 p1 _:b1} and {@code <a> p0 _:b0}.
-     * The statement {@code _:b1 p2  <x>} is skipped since uri resource {@code <x>} is not an ascendant of {@code r}.
-     * <p>
-     * This is the opposite of the method {@link #listDescendingStatements(RDFNode)}.
-     * <p>
-     * Note: there is a danger of {@code StackOverflowError} in case graph contains a recursion.
-     *
-     * @param object, not {@code null} must be attached to a model
-     * @return {@link ExtendedIterator} of {@link Statement}s
-     */
-    public static ExtendedIterator<Statement> listAscendingStatements(RDFNode object) {
-        return Iterators.flatMap(object.getModel().listStatements(null, null, object),
-                s -> s.getSubject().isAnon() ?
-                        Iterators.concat(Iterators.of(s), listAscendingStatements(s.getSubject())) : Iterators.of(s));
-    }
-
-    /**
-     * Recursively lists all descending statements for the given {@link RDFNode RDF Node}.
-     * <p>
-     * More specifically, this function returns all statements,
-     * which have either the specified node in a subject position,
-     * or its indirect descendant in a graph tree (if the node is anonymous resource), found by the same method.
-     * Consider, the specified node {@code <a>} belongs to the following RDF:
-     * <pre>{@code
-     * <a>  p0 _:b0 .
-     * _:b0 p1 _:b1 .
-     * _:b1 p2  <x> .
-     * <x> p3  <b> .
-     * }</pre>
-     * In this case the method will return three statements:
-     * {@code <a>  p0 _:b0}, {@code :b0 p1 _:b1} and {@code _:b1 p2  <x>}.
-     * The last statement is skipped, since {@code <x>} is uri resource.
-     * <p>
-     * This is the opposite of the method {@link #listAscendingStatements(RDFNode)}.
-     * <p>
-     * Note: there is a danger of {@code StackOverflowError} in case graph contains a recursion.
-     *
-     * @param subject, not {@code null} must be attached to a model
-     * @return {@link ExtendedIterator} of {@link Statement}s
-     * @see Models#getAssociatedStatements(Resource)
-     */
-    public static ExtendedIterator<Statement> listDescendingStatements(RDFNode subject) {
-        if (!subject.isResource()) return NullIterator.instance();
-        return Iterators.flatMap(subject.asResource().listProperties(),
-                s -> s.getObject().isAnon() ?
-                        Iterators.concat(Iterators.of(s), listDescendingStatements(s.getResource())) : Iterators.of(s));
-    }
-
-    /**
      * Lists all direct subjects for the given object.
      *
      * @param object {@link RDFNode}, not {@code null}
@@ -354,5 +233,28 @@ public class Models {
         if (uri.equals(statement.getSubject().getURI())) return true;
         if (uri.equals(statement.getPredicate().getURI())) return true;
         return containsURI(statement.getObject(), uri);
+    }
+
+    /**
+     * Creates an iterator which returns RDF Statements based on the given extended iterator of triples.
+     *
+     * @param triples {@link ExtendedIterator} of {@link Triple}s
+     * @param map     a Function to map {@link Triple} -&gt; {@link Statement}
+     * @return {@link StmtIterator}
+     * @see org.apache.jena.rdf.model.impl.IteratorFactory#asStmtIterator(Iterator, org.apache.jena.rdf.model.impl.ModelCom)
+     */
+    public static StmtIterator createStmtIterator(ExtendedIterator<Triple> triples, Function<Triple, Statement> map) {
+        return new StmtIteratorImpl(triples.mapWith(map));
+    }
+
+    /**
+     * Creates an unmodifiable Set of {@link Node}s from the collection of {@link RDFNode RDF Node}s.
+     * Placed here as it is widely used.
+     *
+     * @param nodes Collection of {@link RDFNode}s
+     * @return Set of {@link Node}
+     */
+    public static Set<Node> asUnmodifiableNodeSet(Collection<? extends RDFNode> nodes) {
+        return nodes.stream().map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
     }
 }

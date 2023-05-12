@@ -24,7 +24,7 @@ import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.Models;
+import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
@@ -317,7 +317,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     }
 
     public static HasSelf createHasSelf(OntGraphModelImpl model, OntObjectProperty onProperty) {
-        Resource res = createOnPropertyRestriction(model, onProperty).addProperty(OWL.hasSelf, Models.TRUE);
+        Resource res = createOnPropertyRestriction(model, onProperty).addProperty(OWL.hasSelf, ModelUtils.TRUE);
         return model.getNodeAs(res.asNode(), HasSelf.class);
     }
 
@@ -1225,7 +1225,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     protected static class HasSelfFilter implements OntFilter {
         @Override
         public boolean test(Node n, EnhGraph g) {
-            return g.asGraph().contains(n, OWL.hasSelf.asNode(), Models.TRUE.asNode());
+            return g.asGraph().contains(n, OWL.hasSelf.asNode(), ModelUtils.TRUE.asNode());
         }
     }
 
@@ -1237,7 +1237,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         @Override
         public void make(Node node, EnhGraph eg) {
             super.make(node, eg);
-            eg.asGraph().add(Triple.create(node, OWL.hasSelf.asNode(), Models.TRUE.asNode()));
+            eg.asGraph().add(Triple.create(node, OWL.hasSelf.asNode(), ModelUtils.TRUE.asNode()));
         }
     }
 

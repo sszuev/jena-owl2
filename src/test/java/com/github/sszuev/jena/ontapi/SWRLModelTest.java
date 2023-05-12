@@ -8,7 +8,7 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
-import com.github.sszuev.jena.ontapi.testutils.RDFIOUtils;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.SWRL;
 import com.github.sszuev.jena.ontapi.vocabulary.SWRLB;
@@ -106,7 +106,7 @@ public class SWRLModelTest {
 
     @Test
     public void testSWRLObjectsOnLoadOntology() {
-        Graph g = RDFIOUtils.loadResourceAsModel("/testdata/swrl-test.owl", Lang.RDFXML).getGraph();
+        Graph g = RDFIOTestUtils.loadResourceAsModel("/testdata/swrl-test.owl", Lang.RDFXML).getGraph();
         OntModel m = OntModelFactory.createModel(g);
 
 
