@@ -72,7 +72,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
      * @return {@code Stream} of {@link OntClass}s
      */
     default Stream<OntClass> classes() {
-        return objects(RDF.type, OntClass.class);
+        return classes(false);
     }
 
     /**

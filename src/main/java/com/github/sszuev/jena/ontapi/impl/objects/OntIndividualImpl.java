@@ -23,12 +23,9 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
-import org.apache.jena.vocabulary.RDFS;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -136,9 +133,8 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         throw new OntJenaException.Conversion(node + " could not be " + Anonymous.class);
     }
 
-    @Override
-    public Stream<OntClass> classes() {
-        return Iterators.asStream(listClasses(), getCharacteristics());
+    static Stream<OntClass> explicitClassTypes(OntIndividual individual) {
+        return individual.objects(RDF.type, OntClass.class);
     }
 
     @Override
@@ -155,17 +151,6 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         return listObjects(RDF.type, OntClass.class);
     }
 
-    /**
-     * Lists all right parts from class assertion statements where this individual is at subject position,
-     * and also all their super-classes if the parameter {@code direct} is {@code false}.
-     *
-     * @param direct if {@code true} returns only direct types, just like {@link #listClasses()}
-     * @return {@link ExtendedIterator} over all {@link OntClass class}-types
-     * @see #listClasses()
-     */
-    public ExtendedIterator<OntClass> listClasses(boolean direct) {
-        return Iterators.create(() -> getClasses(direct).iterator());
-    }
 
     /**
      * Returns a {@code Set} of all class-types,
@@ -175,13 +160,12 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
      * @return a {@code Set} of all {@link OntClass class}-types
      */
     public Set<OntClass> getClasses(boolean direct) {
+        Stream<OntClass> directClasses = explicitClassTypes(this)
+                .flatMap(it -> Stream.concat(OntCEImpl.equivalentsBySubClassOf(it), Stream.of(it)));
         if (direct) {
-            return listClasses().toSet();
+            return directClasses.collect(Collectors.toSet());
         }
-        Set<OntClass> res = new HashSet<>();
-        Function<OntClass, Stream<OntClass>> listSuperClasses = x -> x.objects(RDFS.subClassOf, OntClass.class);
-        listObjects(RDF.type, OntClass.class).forEachRemaining(c -> collectIndirect(c, listSuperClasses, res));
-        return res;
+        return directClasses.flatMap(it -> Stream.concat(Stream.of(it), it.superClasses(false))).collect(Collectors.toSet());
     }
 
     @Override
