@@ -6,7 +6,6 @@ import com.github.sszuev.jena.ontapi.common.ObjectFactory;
 import com.github.sszuev.jena.ontapi.common.OntFilter;
 import com.github.sszuev.jena.ontapi.common.OntFinder;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
-import com.github.sszuev.jena.ontapi.impl.UnionModel;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
@@ -312,7 +311,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      * @param view a {@code Class}-type of the desired RDF view (interface)
      * @param <X>  any subtype of {@link RDFNode}
      * @return an instance of the type {@link X} or {@code null}
-     * @see UnionModel#getNodeAs(Node, Class)
+     * @see OntGraphModelImpl#getNodeAs(Node, Class)
      */
     public static <X extends RDFNode> X getNodeAs(RDFNode node, Class<X> view) {
         try {

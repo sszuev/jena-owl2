@@ -106,7 +106,7 @@ public class OntModels {
                     m.imports()
                             .filter(i -> uri.equals(i.getID().getImportsIRI()))
                             .findFirst()
-                            .ifPresent(i -> ((UnionGraph) m.getGraph()).removeGraph(i.getGraph()));
+                            .ifPresent(i -> ((UnionGraph) m.getGraph()).removeParent(i.getGraph()));
                 })
                 .filter(m -> m.imports().map(OntModel::getID).map(OntID::getImportsIRI).noneMatch(uri::equals))
                 .forEach(m -> m.addImport(ont));

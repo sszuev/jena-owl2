@@ -684,11 +684,9 @@ public class OntModelTest {
         s.addAnnotation(m.getRDFSLabel(), "a1").addAnnotation(m.getRDFSComment(), "a2");
         s.addAnnotation(m.getRDFSComment(), "a3");
 
-
         Assertions.assertEquals(14, m.size());
 
         d.removeDomain(c);
-
         Assertions.assertEquals(2, m.size());
 
         d.removeRange(c);
@@ -820,6 +818,19 @@ public class OntModelTest {
 
         Set<OntClass> roots = m.hierarchyRoots().collect(Collectors.toSet());
         Assertions.assertEquals(Set.of(c0, c4, c7, c10), roots);
+    }
+
+    @Test
+    public void testRecursionOnComplementOf() {
+        // test there is no StackOverflowError
+        Assertions.assertThrows(OntJenaException.Recursion.class, () -> {
+            Model m = OntModelFactory.createDefaultModel().setNsPrefixes(OntModelFactory.STANDARD);
+            Resource anon = m.createResource().addProperty(RDF.type, OWL.Class);
+            anon.addProperty(OWL.complementOf, anon);
+            OntModel ont = OntModelFactory.createModel(m.getGraph());
+            List<OntClass> ces = ont.ontObjects(OntClass.class).collect(Collectors.toList());
+            Assertions.assertEquals(0, ces.size());
+        });
     }
 
 }

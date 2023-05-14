@@ -49,7 +49,7 @@ public class ModelUtilsTest {
     @Test
     public void testDeleteResources() {
         OntModel m = OntModelFactory.createModel()
-                .read(ModelUtilsTest.class.getResourceAsStream("/testdata/recursive-graph.ttl"), null, "ttl");
+                .read(ModelUtilsTest.class.getResourceAsStream("/testdata/with-recursion.ttl"), null, "ttl");
         String ns = m.getID().getURI() + "#";
         OntObject d = m.createDisjointClasses(
                 m.createOntClass(ns + "CL1"),
@@ -68,7 +68,8 @@ public class ModelUtilsTest {
                 .filter(RDFNode::isAnon)
                 .map(RDFNode::asResource)
                 .filter(s -> s.hasProperty(OWL.someValuesFrom))
-                .findFirst().orElseThrow(IllegalStateException::new);
+                .findFirst()
+                .orElseThrow(IllegalStateException::new);
 
         ModelTestUtils.deleteAll(r);
         ModelTestUtils.deleteAll(d);

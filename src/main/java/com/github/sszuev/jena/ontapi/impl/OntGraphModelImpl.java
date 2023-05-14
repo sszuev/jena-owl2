@@ -37,6 +37,7 @@ import org.apache.jena.datatypes.BaseDatatype;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.enhanced.PersonalityConfigException;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -51,7 +52,9 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.InfModelImpl;
+import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.shared.JenaException;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDFS;
@@ -83,17 +86,30 @@ import java.util.stream.Stream;
  * @see UnionGraph
  */
 @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
-public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGraph {
+public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph {
+
 
     // the model's types mapper
     protected final Map<String, RDFDatatype> dtTypes = new HashMap<>();
+    // to control graph recursion while casting a node to an RDF view, see #fetchNodeAs(Node, Class)
+    private final ThreadLocal<Set<Node>> visited = ThreadLocal.withInitial(HashSet::new);
 
     /**
      * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
      */
     public OntGraphModelImpl(Graph graph, OntPersonality personality) {
-        super(graph, OntPersonality.asJenaPersonality(personality));
+        super(asUnionGraph(graph), OntPersonality.asJenaPersonality(personality));
+    }
+
+    /**
+     * Creates an {@link UnionGraph} instance if it is needed.
+     *
+     * @param graph {@link Graph} to wrap or return as is
+     * @return {@link UnionGraph} (fresh or given)
+     */
+    public static UnionGraph asUnionGraph(Graph graph) {
+        return graph instanceof UnionGraph ? (UnionGraph) graph : new UnionGraph(graph);
     }
 
     /**
@@ -339,7 +355,7 @@ public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGra
      * @param u String, not {@code null}
      */
     protected void addImportModel(Graph g, String u) {
-        getGraph().addGraph(g);
+        getUnionGraph().addGraph(g);
         getID().addImport(u);
     }
 
@@ -350,7 +366,7 @@ public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGra
      * @param u String, not {@code null}
      */
     protected void removeImportModel(Graph g, String u) {
-        getGraph().removeGraph(g);
+        getUnionGraph().removeParent(g);
         getID().removeImport(u);
     }
 
@@ -372,7 +388,7 @@ public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGra
      * @return <b>non-distinct</b> {@code ExtendedIterator} of {@link UnionGraph}
      */
     protected final ExtendedIterator<UnionGraph> listImportGraphs() {
-        return getGraph().getUnderlying().listGraphs()
+        return getUnionGraph().getUnderlying().listGraphs()
                 .filterKeep(x -> x instanceof UnionGraph)
                 .mapWith(x -> (UnionGraph) x);
     }
@@ -399,7 +415,7 @@ public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGra
      */
     @Override
     public boolean independent() {
-        return getGraph().getUnderlying().isEmpty();
+        return getUnionGraph().getUnderlying().isEmpty();
     }
 
     @Override
@@ -573,7 +589,7 @@ public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGra
 
     @Override
     public Stream<OntStatement> statements() {
-        UnionGraph g = getGraph();
+        Graph g = getGraph();
         return asStream(g, g.find().mapWith(this::asStatement), true);
     }
 
@@ -1314,6 +1330,135 @@ public class OntGraphModelImpl extends UnionModel implements OntModel, OntEnhGra
     @Override
     public String toString() {
         return String.format("OntGraphModel{%s}", Graphs.getName(getBaseGraph()));
+    }
+
+    public UnionGraph getUnionGraph() {
+        return (UnionGraph) super.getGraph();
+    }
+
+    @Override
+    public Graph getBaseGraph() {
+        return getUnionGraph().getBaseGraph();
+    }
+
+    @Override
+    public Model getBaseModel() {
+        return new ModelCom(getBaseGraph());
+    }
+
+    /**
+     * Answers {@code true} if the given statement belongs to the base graph.
+     *
+     * @param s {@link Statement}, not {@code null}
+     * @return boolean
+     */
+    @Override
+    public boolean isLocal(Statement s) {
+        return isLocal(OntJenaException.notNull(s, "Null statement.").getSubject(), s.getPredicate(), s.getObject());
+    }
+
+    /**
+     * Answers {@code true} if the given SPO belongs to the base graph.
+     *
+     * @param s {@link Resource}, not {@code null}
+     * @param p {@link Property}, not {@code null}
+     * @param o {@link RDFNode}, not {@code null}
+     * @return boolean
+     */
+    public boolean isLocal(Resource s, Property p, RDFNode o) {
+        return getBaseGraph().contains(s.asNode(), p.asNode(), o.asNode());
+    }
+
+    /**
+     * Returns a {@link RDFNode} for the given type and, if the result is present, caches it node at the model level.
+     * The method works silently: normally no exception is expected.
+     *
+     * @param node {@link Node}
+     * @param type {@link Class}-type
+     * @param <N>  any subtype of {@link RDFNode}
+     * @return {@link RDFNode} or {@code null}
+     * @throws RuntimeException unexpected misconfiguration (RDF recursion, wrong input, personality mismatch, etc)
+     * @see #getNodeAs(Node, Class)
+     */
+    @Override
+    public <N extends RDFNode> N findNodeAs(Node node, Class<N> type) {
+        try {
+            return getNodeAs(node, type);
+        } catch (OntJenaException.Conversion ignore) {
+            // ignore
+            return null;
+        }
+    }
+
+    /**
+     * Answers an enhanced node that wraps the given node and conforms to the given interface type.
+     * The returned RDF node is cached at the model-level.
+     *
+     * @param node a node (assumed to be in this graph)
+     * @param type a type denoting the enhanced facet desired
+     * @param <N>  a subtype of {@link RDFNode}
+     * @return an enhanced node, cannot be {@code null}
+     * @throws OntJenaException unable to construct new RDF view for whatever reasons
+     * @throws RuntimeException unexpected misconfiguration (wrong inputs, personality mismatch)
+     */
+    @Override
+    public <N extends RDFNode> N getNodeAs(Node node, Class<N> type) {
+        try {
+            return getNodeAsInternal(node, type);
+        } catch (OntJenaException e) {
+            throw e;
+        } catch (JenaException e) {
+            throw new OntJenaException.Conversion(String.format("Failed to convert node <%s> to <%s>",
+                    node, OntObjectImpl.viewAsString(type)), e);
+        }
+    }
+
+    /**
+     * Answers an enhanced node that wraps the given node and conforms to the given interface type,
+     * taking into account possible graph recursions.
+     * For internal usage only.
+     *
+     * @param node a node (assumed to be in this graph)
+     * @param type a type denoting the enhanced facet desired
+     * @param <N>  a subtype of {@link RDFNode}
+     * @return an enhanced node or {@code null} if no match found
+     * @throws OntJenaException.Recursion if a graph recursion is detected
+     * @throws RuntimeException           unexpected misconfiguration
+     * @see #getNodeAs(Node, Class)
+     */
+    @Override
+    public <N extends RDFNode> N fetchNodeAs(Node node, Class<N> type) {
+        Set<Node> nodes = visited.get();
+        try {
+            if (nodes.add(node)) {
+                return getNodeAsInternal(node, type);
+            }
+            throw new OntJenaException.Recursion("Can't cast to " + OntObjectImpl.viewAsString(type) + ": " +
+                    "graph contains a recursion for node <" + node + ">");
+        } catch (OntJenaException.Conversion | PersonalityConfigException r) {
+            return null;
+        } finally {
+            nodes.remove(node);
+        }
+    }
+
+    /**
+     * Answers an enhanced node that wraps the given node and conforms to the given interface type.
+     * The returned RDF node is cached at the model-level.
+     *
+     * @param node a node (assumed to be in this graph)
+     * @param type a type denoting the enhanced facet desired
+     * @param <N>  a subtype of {@link RDFNode}
+     * @return an enhanced node
+     * @throws org.apache.jena.enhanced.PersonalityConfigException if personality is misconfigured
+     *                                                             or the given {@code type} is absent in it;
+     *                                                             normally this should not happen
+     * @throws NullPointerException                                if any input is {@code null}
+     * @throws JenaException                                       unable to construct a new RDF view
+     */
+    protected <N extends RDFNode> N getNodeAsInternal(Node node, Class<N> type) {
+        return super.getNodeAs(Objects.requireNonNull(node, "Null node"),
+                Objects.requireNonNull(type, "Null class view."));
     }
 
 }

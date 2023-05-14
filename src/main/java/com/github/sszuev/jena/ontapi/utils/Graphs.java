@@ -300,6 +300,9 @@ public class Graphs {
      * @see Graphs#getOntologyIRI(Graph)
      */
     public static String getName(Graph graph) {
+        if (graph.isClosed()) {
+            return "(closed)";
+        }
         Optional<Node> res = ontologyNode(getBase(graph));
         if (res.isEmpty()) return NULL_ONTOLOGY_IDENTIFIER;
         List<String> versions = graph.find(res.get(), OWL.versionIRI.asNode(), Node.ANY)

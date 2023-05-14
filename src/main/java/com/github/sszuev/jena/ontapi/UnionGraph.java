@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.impl.UnionModel;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import org.apache.jena.graph.Graph;
@@ -9,7 +8,6 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.CompositionBase;
 import org.apache.jena.graph.impl.SimpleEventManager;
 import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.util.CollectionFactory;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.ArrayList;
@@ -18,35 +16,35 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.stream.Stream;
 
 /**
- * A Union Graph.
- * It consists of two parts: a {@link #base base} graph and an {@link #sub Underlying} graphs collection.
- * The difference between {@link org.apache.jena.graph.compose.MultiUnion MultiUnion} and this implementation is that
- * this graph explicitly requires primary base graph which is the only one that can be modified directly.
- * Underlying sub graphs are used only for searching; add and delete operations are performed only on the base graph.
- * Such structure allows to build graph hierarchy which is used to reference between different models.
- * Also note: this graph supports recursions, that is, it may contain itself somewhere in the hierarchy.
+ * UnionGraph.
+ * <p>
+ * It consists of two parts: a {@link #base base graph} and an {@link SubGraphs sub-graphs} collection.
+ * Unlike {@link org.apache.jena.graph.compose.MultiUnion MultiUnion} this implementation explicitly requires primary (base) graph.
+ * Underlying sub-graphs are only used for searching; modify operations are performed only on the base graph.
+ * This graph allows to build graph hierarchy which can be used to link different models.
+ * Also, it allows recursion, that is, it can contain itself somewhere in the hierarchy.
  * The {@link PrefixMapping} of this graph is taken from the base graph,
  * and, therefore, any changes in it reflects both the base and this graph.
  * <p>
  * Created @ssz on 28.10.2016.
- *
- * @see UnionModel
  */
 @SuppressWarnings({"WeakerAccess"})
 public class UnionGraph extends CompositionBase {
 
     protected final Graph base;
-    protected final Underlying sub;
+    protected final SubGraphs subGraphs;
     protected final boolean distinct;
 
     /**
-     * A set of parents, used to control {@link #graphs cache}.
+     * A set of parents, used to control {@link #bases}.
      * Items of this {@code Set} are removed automatically by GC
      * if there are no more strong references (a graph/model is removed, i.e. there is no its usage anymore).
      */
@@ -55,7 +53,7 @@ public class UnionGraph extends CompositionBase {
      * Internal cache to hold all base graphs, used while {@link Graph#find(Triple) #find(..)}.
      * This {@code Set} cannot contain {@link UnionGraph}s.
      */
-    protected Set<Graph> graphs;
+    protected Set<Graph> bases;
 
     /**
      * Creates an instance with default settings.
@@ -94,15 +92,15 @@ public class UnionGraph extends CompositionBase {
      * have a plain (non-union) graph as a {@link #getBaseGraph() root}
      * and {@code UnionGraph} as {@link #getUnderlying() leaves}.
      *
-     * @param base     {@link Graph}, not {@code null}
-     * @param sub      {@link Underlying} or {@code null} to use default empty sub-graph container
-     * @param gem      {@link OntEventManager} or {@code null} to use default fresh event manager
-     * @param distinct if {@code true}, the method {@link #find(Triple)} returns an iterator avoiding duplicates
+     * @param base      {@link Graph}, not {@code null}
+     * @param subGraphs {@link SubGraphs} or {@code null} to use default empty sub-graph container
+     * @param gem       {@link OntEventManager} or {@code null} to use default fresh event manager
+     * @param distinct  if {@code true}, the method {@link #find(Triple)} returns an iterator avoiding duplicates
      * @throws NullPointerException if base graph is {@code null}
      */
-    public UnionGraph(Graph base, Underlying sub, OntEventManager gem, boolean distinct) {
+    public UnionGraph(Graph base, SubGraphs subGraphs, OntEventManager gem, boolean distinct) {
         this.base = Objects.requireNonNull(base, "Null base graph.");
-        this.sub = sub == null ? new Underlying() : sub;
+        this.subGraphs = subGraphs == null ? new SubGraphs() : subGraphs;
         this.gem = gem == null ? new OntEventManager() : gem;
         this.distinct = distinct;
     }
@@ -144,15 +142,15 @@ public class UnionGraph extends CompositionBase {
     /**
      * Returns the underlying graph, possible empty.
      *
-     * @return {@link Underlying}, not {@code null}
+     * @return {@link SubGraphs}, not {@code null}
      */
-    public Underlying getUnderlying() {
-        return sub;
+    public SubGraphs getUnderlying() {
+        return subGraphs;
     }
 
     @Override
     public void performAdd(Triple t) {
-        if (!sub.contains(t))
+        if (!subGraphs.contains(t))
             base.add(t);
     }
 
@@ -190,15 +188,15 @@ public class UnionGraph extends CompositionBase {
      * @param graph {@link Graph}, not {@code null}
      * @return this instance
      */
-    public UnionGraph removeGraph(Graph graph) {
+    public UnionGraph removeParent(Graph graph) {
         checkOpen();
         getUnderlying().remove(graph);
-        removeParent(graph);
+        removeUnion(graph);
         resetGraphsCache();
         return this;
     }
 
-    protected void removeParent(Graph graph) {
+    protected void removeUnion(Graph graph) {
         if (!(graph instanceof UnionGraph)) {
             return;
         }
@@ -206,10 +204,10 @@ public class UnionGraph extends CompositionBase {
     }
 
     /**
-     * Clears the {@link #graphs cache}.
+     * Clears the {@link #bases cache}.
      */
     protected void resetGraphsCache() {
-        collectAllUnionGraphs().forEach(x -> x.graphs = null);
+        getAllLinkedUnionGraphs().forEach(x -> x.bases = null);
     }
 
     /**
@@ -221,16 +219,7 @@ public class UnionGraph extends CompositionBase {
      * @see UnionGraph#getBaseGraph()
      */
     public ExtendedIterator<Graph> listBaseGraphs() {
-        return Iterators.create(graphs == null ? graphs = collectBaseGraphs() : graphs);
-    }
-
-    /**
-     * Lists all {@link UnionGraph}s from the hierarchy including this graph at the first place.
-     *
-     * @return <b>distinct</b> {@link ExtendedIterator} of {@link UnionGraph}s
-     */
-    public ExtendedIterator<UnionGraph> listUnionGraphs() {
-        return Iterators.create(collectUnionGraphs());
+        return Iterators.create(bases == null ? bases = getAllBaseGraphs() : bases);
     }
 
     /**
@@ -256,7 +245,7 @@ public class UnionGraph extends CompositionBase {
     @Override
     public boolean graphBaseContains(Triple t) {
         if (base.contains(t)) return true;
-        if (sub.isEmpty()) return false;
+        if (subGraphs.isEmpty()) return false;
         Iterator<Graph> graphs = listBaseGraphs();
         while (graphs.hasNext()) {
             Graph g = graphs.next();
@@ -268,7 +257,7 @@ public class UnionGraph extends CompositionBase {
 
     @Override
     public int graphBaseSize() {
-        if (sub.isEmpty()) {
+        if (subGraphs.isEmpty()) {
             return base.size();
         }
         return super.graphBaseSize();
@@ -291,7 +280,7 @@ public class UnionGraph extends CompositionBase {
      */
     @SuppressWarnings("JavadocReference")
     protected ExtendedIterator<Triple> createFindIterator(Triple m) {
-        if (sub.isEmpty()) {
+        if (subGraphs.isEmpty()) {
             return base.find(m);
         }
         if (!distinct) {
@@ -302,7 +291,7 @@ public class UnionGraph extends CompositionBase {
         // That last is a performance penalty,
         // but I see no way to remove it unless we know the graphs do not overlap.
         Set<Triple> seen = createSet();
-        return Iterators.flatMap(listBaseGraphs(), x -> recording(rejecting(x.find(m), seen), seen));
+        return Iterators.flatMap(listBaseGraphs(), x -> CompositionBase.recording(rejecting(x.find(m), seen), seen));
     }
 
     /**
@@ -314,7 +303,7 @@ public class UnionGraph extends CompositionBase {
      * @return Set of {@link Triple}s
      */
     protected Set<Triple> createSet() {
-        return CollectionFactory.createHashedSet();
+        return new HashSet<>();
     }
 
     /**
@@ -325,7 +314,7 @@ public class UnionGraph extends CompositionBase {
     @Override
     public void close() {
         listBaseGraphs().forEachRemaining(Graph::close);
-        collectUnionGraphs().forEach(x -> x.closed = true);
+        getAllUnderlyingUnionGraphs().forEach(x -> x.closed = true);
     }
 
     /**
@@ -336,7 +325,7 @@ public class UnionGraph extends CompositionBase {
      */
     @Override
     public boolean dependsOn(Graph other) {
-        return (other instanceof UnionGraph && collectUnionGraphs().contains(other))
+        return (other instanceof UnionGraph && getAllUnderlyingUnionGraphs().contains(other))
                 || Iterators.anyMatch(listBaseGraphs(), x -> Graphs.dependsOn(x, other));
     }
 
@@ -350,36 +339,24 @@ public class UnionGraph extends CompositionBase {
      *
      * @return a {@code Set} (ordered) of {@link Graph}s
      */
-    protected Set<Graph> collectBaseGraphs() {
-        // use LinkedHasSet to save the order:
-        // the base graph from this UnionGraph must be the first for better searching
+    protected Set<Graph> getAllBaseGraphs() {
         Set<Graph> res = new LinkedHashSet<>();
-        collectBaseGraphs(res, new HashSet<>());
+        Set<UnionGraph> visited = new HashSet<>();
+        List<Graph> queue = new LinkedList<>();
+        queue.add(this);
+        while (!queue.isEmpty()) {
+            Graph next = queue.remove(0);
+            if (next instanceof UnionGraph) {
+                UnionGraph u = (UnionGraph) next;
+                if (visited.add(u)) {
+                    queue.add(u.base);
+                    queue.addAll(u.subGraphs.graphs);
+                }
+            } else {
+                res.add(next);
+            }
+        }
         return res;
-    }
-
-    /**
-     * Recursively collects all base {@link Graph graph}s
-     * that are present in this collection or anywhere under the hierarchy.
-     *
-     * @param res  a {@code Set} of non-union {@link Graph}s to return
-     * @param seen {@code Set} of {@link UnionGraph}s to control recursion
-     */
-    private void collectBaseGraphs(Set<Graph> res, Set<UnionGraph> seen) {
-        Graph base = getBaseGraph();
-        Set<Graph> graphs = new LinkedHashSet<>();
-        graphs.add(base);
-        graphs.addAll(getUnderlying().graphs);
-        graphs.forEach(g -> {
-            if (!(g instanceof UnionGraph)) {
-                res.add(g);
-                return;
-            }
-            UnionGraph u = (UnionGraph) g;
-            if (seen.add(u)) {
-                u.collectBaseGraphs(res, seen);
-            }
-        });
     }
 
     /**
@@ -390,9 +367,18 @@ public class UnionGraph extends CompositionBase {
      *
      * @return Set of {@link UnionGraph}s
      */
-    protected Set<UnionGraph> collectAllUnionGraphs() {
-        Set<UnionGraph> res = collectUnionGraphs();
-        collectParents(res);
+    protected Set<UnionGraph> getAllLinkedUnionGraphs() {
+        Set<UnionGraph> res = new LinkedHashSet<>();
+        List<UnionGraph> queue = new LinkedList<>();
+        queue.add(this);
+        while (!queue.isEmpty()) {
+            UnionGraph next = queue.remove(0);
+            if (res.add(next)) {
+                next.parents.stream().filter(res::add).forEach(queue::add);
+                next.getAllUnderlyingUnionGraphs().stream().filter(res::add).forEach(queue::add);
+            }
+
+        }
         return res;
     }
 
@@ -401,37 +387,23 @@ public class UnionGraph extends CompositionBase {
      *
      * @return Set of {@link UnionGraph}s
      */
-    protected Set<UnionGraph> collectUnionGraphs() {
-        Set<UnionGraph> res = new HashSet<>();
-        res.add(this);
-        collectChildren(res);
+    protected Set<UnionGraph> getAllUnderlyingUnionGraphs() {
+        Set<UnionGraph> res = new LinkedHashSet<>();
+        List<UnionGraph> queue = new LinkedList<>();
+        queue.add(this);
+        while (!queue.isEmpty()) {
+            UnionGraph next = queue.remove(0);
+            if (res.add(next)) {
+                next.unionSubGraphs().forEach(queue::add);
+            }
+        }
         return res;
     }
 
-    /**
-     * Recursively collects all {@link UnionGraph}s
-     * that are present somewhere higher in the hierarchy.
-     *
-     * @param res {@code Set} of {@link UnionGraph}s
-     */
-    private void collectParents(Set<UnionGraph> res) {
-        parents.stream()
-                .filter(res::add)
-                .forEach(u -> u.collectParents(res));
-    }
-
-    /**
-     * Recursively collects all {@link UnionGraph}s
-     * that are present in the {@link Underlying} collection or anywhere down the hierarchy.
-     *
-     * @param res {@code Set} of {@link UnionGraph}s
-     */
-    private void collectChildren(Set<UnionGraph> res) {
-        getUnderlying().graphs()
-                .filter(x -> x instanceof UnionGraph)
-                .map(UnionGraph.class::cast)
-                .filter(res::add)
-                .forEach(u -> u.collectChildren(res));
+    private Stream<UnionGraph> unionSubGraphs() {
+        return getUnderlying().graphs()
+                .filter(g -> g instanceof UnionGraph)
+                .map(u -> (UnionGraph) u);
     }
 
     @Override
@@ -445,14 +417,14 @@ public class UnionGraph extends CompositionBase {
      * to share its instance among different {@code UnionGraph} instances
      * in order to impart whole hierarchy structure when it is needed.
      */
-    public static class Underlying {
+    public static class SubGraphs {
         protected final Collection<Graph> graphs;
 
-        protected Underlying() {
+        protected SubGraphs() {
             this(new ArrayList<>());
         }
 
-        protected Underlying(Collection<Graph> graphs) {
+        protected SubGraphs(Collection<Graph> graphs) {
             this.graphs = Objects.requireNonNull(graphs);
         }
 
