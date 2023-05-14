@@ -66,7 +66,7 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
             , EXTRA_ROOT_TYPES.stream()).collect(Collectors.toUnmodifiableList());
     public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = ModelUtils.asUnmodifiableNodeSet(EXTRA_ROOT_TYPES);
     private static final Set<Node> REQUIRED_PROPERTY_NODES = ModelUtils.asUnmodifiableNodeSet(REQUIRED_PROPERTIES);
-    public static ObjectFactory annotationFactory = Factories.createCommon(OntAnnotationImpl.class,
+    public static final ObjectFactory OWL2_ANNOTATION_FACTORY = Factories.createCommon(OntAnnotationImpl.class,
             OntAnnotationImpl::listRootAnnotations,
             OntAnnotationImpl::testAnnotation);
     private static final Node AXIOM = OWL.Axiom.asNode();

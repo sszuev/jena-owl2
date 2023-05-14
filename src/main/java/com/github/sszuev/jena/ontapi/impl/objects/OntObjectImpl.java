@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public class OntObjectImpl extends ResourceImpl implements OntObject {
 
-    public static ObjectFactory objectFactory = Factories.createCommon(OntObjectImpl.class,
+    public static final ObjectFactory ONT_OBJECT_FACTORY = Factories.createCommon(OntObjectImpl.class,
             OntFinder.ANY_SUBJECT, OntFilter.URI.or(OntFilter.BLANK));
 
     public OntObjectImpl(Node n, EnhGraph m) {

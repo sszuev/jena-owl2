@@ -60,75 +60,75 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         return Iterators.findFirst(g.asGraph().find(n, RDF.Nodes.type, SWRL.Builtin.asNode())).isPresent();
     };
 
-    public static ObjectFactory variableSWRLFactory = Factories.createCommon(
+    public static final ObjectFactory SWRL_VARIABLE_FACTORY = Factories.createCommon(
             new OntMaker.WithType(VariableImpl.class, SWRL.Variable),
             new OntFinder.ByType(SWRL.Variable), VARIABLE_FILTER);
 
-    public static ObjectFactory builtinWRLFactory = Factories.createCommon(
+    public static final ObjectFactory SWRL_BUILTIN_FACTORY = Factories.createCommon(
             new OntMaker.WithType(BuiltinImpl.class, SWRL.Builtin),
             new OntFinder.ByType(SWRL.Builtin), BUILTIN_FILTER);
 
-    public static ObjectFactory dArgSWRLFactory = Factories.createCommon(DArgImpl.class,
+    public static final ObjectFactory SWRL_DARG_FACTORY = Factories.createCommon(DArgImpl.class,
             OntFinder.ANY_SUBJECT_AND_OBJECT, VARIABLE_FILTER.or(LiteralImpl.factory::canWrap));
 
-    public static ObjectFactory iArgSWRLFactory = Factories.createCommon(IArgImpl.class,
+    public static final ObjectFactory SWRL_IARG_FACTORY = Factories.createCommon(IArgImpl.class,
             OntFinder.ANY_SUBJECT_AND_OBJECT, VARIABLE_FILTER.or((n, g) -> OntEnhGraph.canAs(OntIndividual.class, n, g)));
 
-    public static ObjectFactory abstractArgSWRLFactory = Factories.createFrom(OntFinder.ANY_SUBJECT_AND_OBJECT
-            , DArg.class
-            , IArg.class);
+    public static final ObjectFactory SWRL_ARG_FACTORY = Factories.createFrom(OntFinder.ANY_SUBJECT_AND_OBJECT,
+            DArg.class,
+            IArg.class);
 
-    public static ObjectFactory builtInAtomSWRLFactory =
+    public static final ObjectFactory SWRL_BUILT_IN_ATOM_FACTORY =
             makeAtomFactory(BuiltInAtomImpl.class, SWRL.BuiltinAtom);
 
-    public static ObjectFactory classAtomSWRLFactory =
+    public static final ObjectFactory SWRL_CLASS_ATOM_FACTORY =
             makeAtomFactory(OntClassAtomImpl.class, SWRL.ClassAtom);
 
-    public static ObjectFactory dataRangeAtomSWRLFactory =
+    public static final ObjectFactory SWRL_DATA_RANGE_ATOM_FACTORY =
             makeAtomFactory(DataRangeAtomImpl.class, SWRL.DataRangeAtom);
 
-    public static ObjectFactory dataValuedAtomSWRLFactory =
+    public static final ObjectFactory SWRL_DATA_VALUED_ATOM_FACTORY =
             makeAtomFactory(DataPropertyAtomImpl.class, SWRL.DatavaluedPropertyAtom);
 
-    public static ObjectFactory individualAtomSWRLFactory =
+    public static final ObjectFactory SWRL_INDIVIDUAL_ATOM_FACTORY =
             makeAtomFactory(ObjectPropertyAtomImpl.class, SWRL.IndividualPropertyAtom);
 
-    public static ObjectFactory differentIndividualsAtomSWRLFactory =
+    public static final ObjectFactory SWRL_DIFFERENT_INDIVIDUALS_ATOM_FACTORY =
             makeAtomFactory(DifferentIndividualsAtomImpl.class, SWRL.DifferentIndividualsAtom);
 
-    public static ObjectFactory sameIndividualsAtomSWRLFactory =
+    public static final ObjectFactory SWRL_SAME_INDIVIDUALS_ATOM_FACTORY =
             makeAtomFactory(SameIndividualsAtomImpl.class, SWRL.SameIndividualAtom);
 
-    public static ObjectFactory abstractAtomSWRLFactory = Factories.createFrom(OntFinder.TYPED
-            , Atom.WithBuiltin.class
-            , Atom.WithClass.class
-            , Atom.WithDataRange.class
-            , Atom.WithDataProperty.class
-            , Atom.WithObjectProperty.class
-            , Atom.WithDifferentIndividuals.class
-            , Atom.WithSameIndividuals.class);
+    public static final ObjectFactory SWRL_ATOM_FACTORY = Factories.createFrom(OntFinder.TYPED,
+            Atom.WithBuiltin.class,
+            Atom.WithClass.class,
+            Atom.WithDataRange.class,
+            Atom.WithDataProperty.class,
+            Atom.WithObjectProperty.class,
+            Atom.WithDifferentIndividuals.class,
+            Atom.WithSameIndividuals.class);
 
-    public static ObjectFactory abstractBinarySWRLFactory = Factories.createFrom(OntFinder.TYPED
-            , Atom.WithDataProperty.class
-            , Atom.WithObjectProperty.class
-            , Atom.WithDifferentIndividuals.class
-            , Atom.WithSameIndividuals.class);
-    public static ObjectFactory abstractUnarySWRLFactory = Factories.createFrom(OntFinder.TYPED
-            , Atom.WithClass.class
-            , Atom.WithDataRange.class);
-    public static ObjectFactory abstractSWRLFactory = Factories.createFrom(OntFinder.TYPED
-            , Atom.WithBuiltin.class
-            , Atom.WithClass.class
-            , Atom.WithDataRange.class
-            , Atom.WithDataProperty.class
-            , Atom.WithObjectProperty.class
-            , Atom.WithDifferentIndividuals.class
-            , Atom.WithSameIndividuals.class
-            , Builtin.class
-            , Variable.class
-            , Imp.class);
+    public static final ObjectFactory SWRL_BINARY_FACTORY = Factories.createFrom(OntFinder.TYPED,
+            Atom.WithDataProperty.class,
+            Atom.WithObjectProperty.class,
+            Atom.WithDifferentIndividuals.class,
+            Atom.WithSameIndividuals.class);
+    public static final ObjectFactory SWRL_UNARY_FACTORY = Factories.createFrom(OntFinder.TYPED,
+            Atom.WithClass.class,
+            Atom.WithDataRange.class);
+    public static final ObjectFactory SWRL_OBJECT_FACTORY = Factories.createFrom(OntFinder.TYPED,
+            Atom.WithBuiltin.class,
+            Atom.WithClass.class,
+            Atom.WithDataRange.class,
+            Atom.WithDataProperty.class,
+            Atom.WithObjectProperty.class,
+            Atom.WithDifferentIndividuals.class,
+            Atom.WithSameIndividuals.class,
+            Builtin.class,
+            Variable.class,
+            Imp.class);
 
-    public static ObjectFactory impSWRLFactory = new SWRLImplFactory();
+    public static final ObjectFactory SWRL_IMP_FACTORY = new SWRLImplFactory();
     //Factories.createCommon(ImpImpl.class, new OntFinder.ByType(SWRL.Imp), new OntFilter.HasType(SWRL.Imp));
 
     public OntSWRLImpl(Node n, EnhGraph m) {

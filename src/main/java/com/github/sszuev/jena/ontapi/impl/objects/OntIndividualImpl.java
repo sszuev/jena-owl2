@@ -50,12 +50,11 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
                     RDF.first, SWRL.argument1, SWRL.argument2)
             .map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
 
-    public static OntFinder FINDER = OntFinder.ANY_SUBJECT_AND_OBJECT;
-    public static ObjectFactory anonymousIndividualFactory = Factories.createCommon(AnonymousImpl.class, FINDER,
+    private static final OntFinder FINDER = OntFinder.ANY_SUBJECT_AND_OBJECT;
+    public static final ObjectFactory OWL2_ANONYMOUS_INDIVIDUAL_FACTORY = Factories.createCommon(AnonymousImpl.class, FINDER,
             OntIndividualImpl::testAnonymousIndividual);
 
-    public static ObjectFactory abstractIndividualFactory = Factories.createFrom(FINDER,
-            Named.class, Anonymous.class);
+    public static final ObjectFactory OWL2_INDIVIDUAL_FACTORY = Factories.createFrom(FINDER, Named.class, Anonymous.class);
 
     public OntIndividualImpl(Node n, EnhGraph m) {
         super(n, m);

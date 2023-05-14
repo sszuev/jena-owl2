@@ -44,18 +44,13 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
     public static final OntFinder NAMED_PROPERTY_FINDER = Factories.createFinder(OWL.AnnotationProperty
             , OWL.ObjectProperty, OWL.DatatypeProperty);
 
-    public static ObjectFactory inversePropertyFactory = createAnonymousObjectPropertyFactory();
-    public static ObjectFactory abstractNamedPropertyFactory = Factories.createFrom(NAMED_PROPERTY_FINDER
-            , OntObjectProperty.Named.class, OntDataProperty.class, OntAnnotationProperty.class);
+    public static final ObjectFactory OWL2_INVERSE_PROPERTY_FACTORY = createAnonymousObjectPropertyFactory();
+    public static final ObjectFactory OWL2_NAMED_PROPERTY_FACTORY = Factories.createFrom(NAMED_PROPERTY_FINDER,
+            OntObjectProperty.Named.class, OntDataProperty.class, OntAnnotationProperty.class);
 
-    public static ObjectFactory abstractOPEFactory = createObjectPropertyExpressionFactory();
-    //Factories.createFrom(OBJECT_PROPERTY_FINDER, OntNOP.class, OntOPE.Inverse.class);
-
-    public static ObjectFactory abstractDOPFactory = createDataOrObjectPropertyFactory();
-    //Factories.createFrom(OntFinder.ANY_SUBJECT, OntNDP.class, OntOPE.class);
-
-    public static ObjectFactory abstractPEFactory = createPropertyExpressionFactory();
-    //Factories.createFrom(OntFinder.ANY_SUBJECT, OntNOP.class, OntNDP.class, OntNAP.class, OntOPE.Inverse.class);
+    public static final ObjectFactory OWL2_OBJECT_PROPERTY_EXPRESSION_FACTORY = createObjectPropertyExpressionFactory();
+    public static final ObjectFactory OWL2_DATA_OR_OBJECT_PROPERTY_FACTORY = createDataOrObjectPropertyFactory();
+    public static final ObjectFactory OWL2_PROPERTY_FACTORY = createPropertyExpressionFactory();
 
     public OntPEImpl(Node n, EnhGraph m) {
         super(n, m);

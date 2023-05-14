@@ -42,29 +42,29 @@ import java.util.stream.Stream;
 public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl implements OntDisjoint<O> {
     public static final OntFinder PROPERTIES_FINDER = new OntFinder.ByType(OWL.AllDisjointProperties);
 
-    public static ObjectFactory disjointClassesFactory = createFactory(ClassesImpl.class,
+    public static final ObjectFactory OWL2_DISJOINT_CLASSES_FACTORY = createFactory(ClassesImpl.class,
             OWL.AllDisjointClasses, OntClass.class, true, OWL.members);
 
-    public static ObjectFactory differentIndividualsFactory = createFactory(IndividualsImpl.class,
+    public static final ObjectFactory OWL2_DIFFERENT_INDIVIDUALS_FACTORY = createFactory(IndividualsImpl.class,
             OWL.AllDifferent, OntIndividual.class, true, OWL.members, OWL.distinctMembers);
 
-    public static ObjectFactory objectPropertiesFactory =
+    public static final ObjectFactory OWL2_OBJECT_PROPERTIES_FACTORY =
             createFactory(ObjectPropertiesImpl.class, OWL.AllDisjointProperties, OntObjectProperty.class, false, OWL.members);
 
-    public static ObjectFactory dataPropertiesFactory = createFactory(DataPropertiesImpl.class,
+    public static final ObjectFactory OWL2_DATA_PROPERTIES_FACTORY = createFactory(DataPropertiesImpl.class,
             OWL.AllDisjointProperties, OntDataProperty.class, false, OWL.members);
 
-    public static ObjectFactory abstractPropertiesFactory = Factories.createFrom(PROPERTIES_FINDER
-            , ObjectProperties.class
-            , DataProperties.class);
+    public static final ObjectFactory OWL2_PROPERTIES_FACTORY = Factories.createFrom(PROPERTIES_FINDER,
+            ObjectProperties.class,
+            DataProperties.class);
 
-    public static OntFinder DISJOINT_FINDER = Factories.createFinder(OWL.AllDisjointClasses,
+    public static final OntFinder DISJOINT_FINDER = Factories.createFinder(OWL.AllDisjointClasses,
             OWL.AllDifferent, OWL.AllDisjointProperties);
-    public static ObjectFactory abstractDisjointFactory = Factories.createFrom(DISJOINT_FINDER
-            , ObjectProperties.class
-            , DataProperties.class
-            , Classes.class
-            , Individuals.class);
+    public static final ObjectFactory OWL2_DISJOINT_FACTORY = Factories.createFrom(DISJOINT_FINDER,
+            ObjectProperties.class,
+            DataProperties.class,
+            Classes.class,
+            Individuals.class);
 
     public OntDisjointImpl(Node n, EnhGraph m) {
         super(n, m);

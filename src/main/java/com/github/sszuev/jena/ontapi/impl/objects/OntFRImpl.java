@@ -27,30 +27,30 @@ import java.util.Optional;
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestriction {
-    public static ObjectFactory lengthFRFactory = Factories.createCommon(LengthImpl.class,
+    public static final ObjectFactory OWL2_LENGTH_FR_FACTORY = Factories.createCommon(LengthImpl.class,
             makeFinder(XSD.length), makeFilter(XSD.length));
-    public static ObjectFactory minLengthFRFactory = Factories.createCommon(MinLengthImpl.class,
+    public static final ObjectFactory OWL2_MIN_LENGTH_FR_FACTORY = Factories.createCommon(MinLengthImpl.class,
             makeFinder(XSD.minLength), makeFilter(XSD.minLength));
-    public static ObjectFactory maxLengthFRFactory = Factories.createCommon(MaxLengthImpl.class,
+    public static final ObjectFactory OWL2_MAX_LENGTH_FR_FACTORY = Factories.createCommon(MaxLengthImpl.class,
             makeFinder(XSD.maxLength), makeFilter(XSD.maxLength));
-    public static ObjectFactory minInclusiveFRFactory = Factories.createCommon(MinInclusiveImpl.class,
+    public static final ObjectFactory OWL2_MIN_INCLUSIVE_FR_FACTORY = Factories.createCommon(MinInclusiveImpl.class,
             makeFinder(XSD.minInclusive), makeFilter(XSD.minInclusive));
-    public static ObjectFactory maxInclusiveFRFactory = Factories.createCommon(MaxInclusiveImpl.class,
+    public static final ObjectFactory OWL2_MAX_INCLUSIVE_FR_FACTORY = Factories.createCommon(MaxInclusiveImpl.class,
             makeFinder(XSD.maxInclusive), makeFilter(XSD.maxInclusive));
-    public static ObjectFactory minExclusiveFRFactory = Factories.createCommon(MinExclusiveImpl.class,
+    public static final ObjectFactory OWL2_MIN_EXCLUSIVE_FR_FACTORY = Factories.createCommon(MinExclusiveImpl.class,
             makeFinder(XSD.minExclusive), makeFilter(XSD.minExclusive));
-    public static ObjectFactory maxExclusiveFRFactory = Factories.createCommon(MaxExclusiveImpl.class,
+    public static final ObjectFactory OWL2_MAX_EXCLUSIVE_FR_FACTORY = Factories.createCommon(MaxExclusiveImpl.class,
             makeFinder(XSD.maxExclusive), makeFilter(XSD.maxExclusive));
-    public static ObjectFactory totalDigitsFRFactory = Factories.createCommon(TotalDigitsImpl.class,
+    public static final ObjectFactory OWL2_TOTAL_DIGITS_FR_FACTORY = Factories.createCommon(TotalDigitsImpl.class,
             makeFinder(XSD.totalDigits), makeFilter(XSD.totalDigits));
-    public static ObjectFactory fractionDigitsFRFactory = Factories.createCommon(FractionDigitsImpl.class,
+    public static final ObjectFactory OWL2_FRACTION_DIGITS_FR_FACTORY = Factories.createCommon(FractionDigitsImpl.class,
             makeFinder(XSD.fractionDigits), makeFilter(XSD.fractionDigits));
-    public static ObjectFactory patternFRFactory = Factories.createCommon(PatternImpl.class,
+    public static final ObjectFactory OWL2_PATTERN_FR_FACTORY = Factories.createCommon(PatternImpl.class,
             makeFinder(XSD.pattern), makeFilter(XSD.pattern));
-    public static ObjectFactory langRangeFRFactory = Factories.createCommon(LangRangeImpl.class,
+    public static final ObjectFactory OWL2_LANG_RANGE_FR_FACTORY = Factories.createCommon(LangRangeImpl.class,
             makeFinder(RDF.langRange), makeFilter(RDF.langRange));
 
-    public static ObjectFactory abstractFRFactory = Factories.createFrom(OntFinder.ANY_BLANK_SUBJECT
+    public static final ObjectFactory OWL2_FR_FACTORY = Factories.createFrom(OntFinder.ANY_BLANK_SUBJECT
             , Length.class
             , MinLength.class
             , MaxLength.class

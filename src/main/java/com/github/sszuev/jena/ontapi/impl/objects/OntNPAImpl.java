@@ -39,13 +39,12 @@ public abstract class OntNPAImpl<P extends OntRealProperty, T extends RDFNode>
             .and(new OntFilter.HasPredicate(OWL.sourceIndividual))
             .and(new OntFilter.HasPredicate(OWL.assertionProperty));
 
-    public static ObjectFactory objectNPAFactory = Factories.createCommon(ObjectAssertionImpl.class,
+    public static final ObjectFactory OWL2_OBJECT_NPA_FACTORY = Factories.createCommon(ObjectAssertionImpl.class,
             NPA_FINDER, NPA_FILTER, new OntFilter.HasPredicate(OWL.targetIndividual));
-    public static ObjectFactory dataNPAFactory = Factories.createCommon(DataAssertionImpl.class,
+    public static final ObjectFactory OWL2_DATA_NPA_FACTORY = Factories.createCommon(DataAssertionImpl.class,
             NPA_FINDER, NPA_FILTER, new OntFilter.HasPredicate(OWL.targetValue));
-    public static ObjectFactory abstractNPAFactory = Factories.createFrom(NPA_FINDER
-            , WithObjectProperty.class
-            , WithDataProperty.class);
+    public static final ObjectFactory OWL2_NPA_FACTORY = Factories.createFrom(NPA_FINDER,
+            WithObjectProperty.class, WithDataProperty.class);
 
     public OntNPAImpl(Node n, EnhGraph m) {
         super(n, m);

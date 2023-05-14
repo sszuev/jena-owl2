@@ -43,25 +43,25 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
     private static final OntFinder DR_FINDER = new OntFinder.ByType(RDFS.Datatype);
     private static final OntFilter DR_FILTER = OntFilter.BLANK.and(new OntFilter.HasType(RDFS.Datatype));
 
-    public static ObjectFactory oneOfDRFactory = Factories.createCommon(OneOfImpl.class,
+    public static final ObjectFactory OWL2_ONE_OF_DR_FACTORY = Factories.createCommon(OneOfImpl.class,
             DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.oneOf)));
-    public static ObjectFactory restrictionDRFactory = Factories.createCommon(RestrictionImpl.class,
+    public static final ObjectFactory OWL2_RESTRICTION_DR_FACTORY = Factories.createCommon(RestrictionImpl.class,
             DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.onDatatype))
                     .and(new OntFilter.HasPredicate(OWL.withRestrictions)));
-    public static ObjectFactory complementOfDRFactory = Factories.createCommon(ComplementOfImpl.class,
+    public static final ObjectFactory OWL2_COMPLEMENT_OF_DR_FACTORY = Factories.createCommon(ComplementOfImpl.class,
             DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.datatypeComplementOf)));
-    public static ObjectFactory unionOfDRFactory = Factories.createCommon(UnionOfImpl.class,
+    public static final ObjectFactory OWL2_UNION_OF_DR_FACTORY = Factories.createCommon(UnionOfImpl.class,
             DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.unionOf)));
-    public static ObjectFactory intersectionOfDRFactory = Factories.createCommon(IntersectionOfImpl.class,
+    public static final ObjectFactory OWL2_INTERSECTION_OF_DR_FACTORY = Factories.createCommon(IntersectionOfImpl.class,
             DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.intersectionOf)));
 
-    public static ObjectFactory abstractComponentsDRFactory = Factories.createFrom(DR_FINDER
+    public static final ObjectFactory OWL2_COMPONENTS_DR_FACTORY = Factories.createFrom(DR_FINDER
             , OneOf.class
             , Restriction.class
             , UnionOf.class
             , IntersectionOf.class);
 
-    public static ObjectFactory abstractDRFactory = DataRangeFactory.createFactory();
+    public static final ObjectFactory OWL2_DR_FACTORY = DataRangeFactory.createFactory();
 
     public OntDRImpl(Node n, EnhGraph m) {
         super(n, m);

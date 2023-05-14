@@ -68,120 +68,120 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     public static final OntFinder RESTRICTION_FINDER = new OntFinder.ByType(OWL.Restriction);
     public static final OntFilter RESTRICTION_FILTER = OntFilter.BLANK.and(new OntFilter.HasType(OWL.Restriction));
 
-    public static ObjectFactory unionOfCEFactory = createCEFactory(UnionOfImpl.class, OWL.unionOf, RDFList.class);
-    public static ObjectFactory intersectionOfCEFactory = createCEFactory(IntersectionOfImpl.class,
+    public static final ObjectFactory OWL2_UNION_OF_CE_FACTORY = createCEFactory(UnionOfImpl.class, OWL.unionOf, RDFList.class);
+    public static final ObjectFactory OWL_2INTERSECTION_OF_CE_FACTORY = createCEFactory(IntersectionOfImpl.class,
             OWL.intersectionOf, RDFList.class);
-    public static ObjectFactory oneOfCEFactory = createCEFactory(OneOfImpl.class, OWL.oneOf, RDFList.class);
-    public static ObjectFactory complementOfCEFactory = createCEFactory(ComplementOfImpl.class,
+    public static final ObjectFactory OWL2_ONE_OF_CE_FACTORY = createCEFactory(OneOfImpl.class, OWL.oneOf, RDFList.class);
+    public static final ObjectFactory OWL2_COMPLEMENT_OF_CE_FACTORY = createCEFactory(ComplementOfImpl.class,
             OWL.complementOf, OntClass.class);
 
-    public static ObjectFactory objectSomeValuesOfCEFactory = createRestrictionFactory(ObjectSomeValuesFromImpl.class,
+    public static final ObjectFactory OWL2_OBJECT_SOME_VALUES_OF_CE_FACTORY = createRestrictionFactory(ObjectSomeValuesFromImpl.class,
             RestrictionType.OBJECT, ObjectRestrictionType.CLASS, OWL.someValuesFrom);
-    public static ObjectFactory dataSomeValuesOfCEFactory = createRestrictionFactory(DataSomeValuesFromImpl.class,
+    public static final ObjectFactory OWL2_DATA_SOME_VALUES_OF_CE_FACTORY = createRestrictionFactory(DataSomeValuesFromImpl.class,
             RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, OWL.someValuesFrom);
 
-    public static ObjectFactory objectAllValuesOfCEFactory = createRestrictionFactory(ObjectAllValuesFromImpl.class,
+    public static final ObjectFactory OWL2_OBJECT_ALL_VALUES_OF_CE_FACTORY = createRestrictionFactory(ObjectAllValuesFromImpl.class,
             RestrictionType.OBJECT, ObjectRestrictionType.CLASS, OWL.allValuesFrom);
-    public static ObjectFactory dataAllValuesOfCEFactory = createRestrictionFactory(DataAllValuesFromImpl.class,
+    public static final ObjectFactory OWL2_DATA_ALL_VALUES_OF_CE_FACTORY = createRestrictionFactory(DataAllValuesFromImpl.class,
             RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, OWL.allValuesFrom);
 
-    public static ObjectFactory objectHasValueCEFactory = createRestrictionFactory(ObjectHasValueImpl.class,
+    public static final ObjectFactory OWL2_OBJECT_HAS_VALUE_CE_FACTORY = createRestrictionFactory(ObjectHasValueImpl.class,
             RestrictionType.OBJECT, ObjectRestrictionType.INDIVIDUAL, OWL.hasValue);
-    public static ObjectFactory dataHasValueCEFactory = createRestrictionFactory(DataHasValueImpl.class,
+    public static final ObjectFactory OWL2_DATA_HAS_VALUE_CE_FACTORY = createRestrictionFactory(DataHasValueImpl.class,
             RestrictionType.DATA, ObjectRestrictionType.LITERAL, OWL.hasValue);
 
-    public static ObjectFactory dataMinCardinalityCEFactory = createRestrictionFactory(DataMinCardinalityImpl.class,
+    public static final ObjectFactory OWL2_DATA_MIN_CARDINALITY_CE_FACTORY = createRestrictionFactory(DataMinCardinalityImpl.class,
             RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, CardinalityType.MIN);
-    public static ObjectFactory objectMinCardinalityCEFactory = createRestrictionFactory(ObjectMinCardinalityImpl.class,
+    public static final ObjectFactory OWL2_OBJECT_MIN_CARDINALITY_CE_FACTORY = createRestrictionFactory(ObjectMinCardinalityImpl.class,
             RestrictionType.OBJECT, ObjectRestrictionType.CLASS, CardinalityType.MIN);
 
-    public static ObjectFactory dataMaxCardinalityCEFactory = createRestrictionFactory(DataMaxCardinalityImpl.class,
+    public static final ObjectFactory OWL2_DATA_MAX_CARDINALITY_CE_FACTORY = createRestrictionFactory(DataMaxCardinalityImpl.class,
             RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, CardinalityType.MAX);
-    public static ObjectFactory objectMaxCardinalityCEFactory = createRestrictionFactory(ObjectMaxCardinalityImpl.class,
+    public static final ObjectFactory OWL2_OBJECT_MAX_CARDINALITY_CE_FACTORY = createRestrictionFactory(ObjectMaxCardinalityImpl.class,
             RestrictionType.OBJECT, ObjectRestrictionType.CLASS, CardinalityType.MAX);
 
-    public static ObjectFactory dataCardinalityCEFactory = createRestrictionFactory(DataCardinalityImpl.class,
+    public static final ObjectFactory OWL2_DATA_CARDINALITY_CE_FACTORY = createRestrictionFactory(DataCardinalityImpl.class,
             RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, CardinalityType.EXACTLY);
-    public static ObjectFactory objectCardinalityCEFactory = createRestrictionFactory(ObjectCardinalityImpl.class,
+    public static final ObjectFactory OWL2_OBJECT_CARDINALITY_CE_FACTORY = createRestrictionFactory(ObjectCardinalityImpl.class,
             RestrictionType.OBJECT, ObjectRestrictionType.CLASS, CardinalityType.EXACTLY);
 
-    public static ObjectFactory hasSelfCEFactory = Factories.createCommon(new HasSelfMaker(),
+    public static final ObjectFactory OWL2_HAS_SELF_CE_FACTORY = Factories.createCommon(new HasSelfMaker(),
             RESTRICTION_FINDER, OntFilter.BLANK.and(new HasSelfFilter()));
 
     //see <a href='https://www.w3.org/TR/owl2-quick-reference/#Class_Expressions'>Restrictions Using n-ary Data Range</a>
-    public static ObjectFactory naryDataAllValuesFromCEFactory = createNaryFactory(NaryDataAllValuesFromImpl.class,
+    public static final ObjectFactory OWL2_NARY_DATA_ALL_VALUES_FROM_CE_FACTORY = createNaryFactory(NaryDataAllValuesFromImpl.class,
             OWL.allValuesFrom);
-    public static ObjectFactory naryDataSomeValuesFromCEFactory = createNaryFactory(NaryDataSomeValuesFromImpl.class,
+    public static final ObjectFactory OWL2_NARY_DATA_SOME_VALUES_FROM_CE_FACTORY = createNaryFactory(NaryDataSomeValuesFromImpl.class,
             OWL.someValuesFrom);
 
     //Boolean Connectives and Enumeration of Individuals:
-    public static ObjectFactory abstractComponentsCEFactory = Factories.createFrom(CLASS_FINDER
-            , UnionOf.class
-            , IntersectionOf.class
-            , OneOf.class);
+    public static final ObjectFactory OWL2_COMPONENTS_CE_FACTORY = Factories.createFrom(CLASS_FINDER,
+            UnionOf.class,
+            IntersectionOf.class,
+            OneOf.class);
 
     // Cardinality Restrictions:
-    public static ObjectFactory abstractCardinalityRestrictionCEFactory = Factories.createFrom(RESTRICTION_FINDER
-            , ObjectMaxCardinality.class
-            , DataMaxCardinality.class
-            , ObjectMinCardinality.class
-            , DataMinCardinality.class
-            , ObjectCardinality.class
-            , DataCardinality.class);
+    public static final ObjectFactory OWL2_CARDINALITY_RESTRICTION_CE_FACTORY = Factories.createFrom(RESTRICTION_FINDER,
+            ObjectMaxCardinality.class,
+            DataMaxCardinality.class,
+            ObjectMinCardinality.class,
+            DataMinCardinality.class,
+            ObjectCardinality.class,
+            DataCardinality.class);
 
     // Cardinality + Existential/Universal Restrictions + Value Restrictions:
-    public static ObjectFactory abstractComponentRestrictionCEFactory = Factories.createFrom(RESTRICTION_FINDER
-            , ObjectMaxCardinality.class
-            , DataMaxCardinality.class
-            , ObjectMinCardinality.class
-            , DataMinCardinality.class
-            , ObjectCardinality.class
-            , DataCardinality.class
-            , ObjectSomeValuesFrom.class
-            , DataSomeValuesFrom.class
-            , ObjectAllValuesFrom.class
-            , DataAllValuesFrom.class
-            , ObjectHasValue.class
-            , DataHasValue.class);
+    public static final ObjectFactory OWL2_COMPONENT_RESTRICTION_CE_FACTORY = Factories.createFrom(RESTRICTION_FINDER,
+            ObjectMaxCardinality.class,
+            DataMaxCardinality.class,
+            ObjectMinCardinality.class,
+            DataMinCardinality.class,
+            ObjectCardinality.class,
+            DataCardinality.class,
+            ObjectSomeValuesFrom.class,
+            DataSomeValuesFrom.class,
+            ObjectAllValuesFrom.class,
+            DataAllValuesFrom.class,
+            ObjectHasValue.class,
+            DataHasValue.class);
 
     // Cardinality + Existential/Universal Restrictions + Local reflexivity (hasSelf) + Value Restrictions
     // (all them have owl:onProperty):
-    public static ObjectFactory abstractPropertyRestrictionCEFactory = Factories.createFrom(RESTRICTION_FINDER
-            , ObjectMaxCardinality.class
-            , DataMaxCardinality.class
-            , ObjectMinCardinality.class
-            , DataMinCardinality.class
-            , ObjectCardinality.class
-            , DataCardinality.class
-            , ObjectSomeValuesFrom.class
-            , DataSomeValuesFrom.class
-            , ObjectAllValuesFrom.class
-            , DataAllValuesFrom.class
-            , ObjectHasValue.class
-            , DataHasValue.class
-            , HasSelf.class);
+    public static final ObjectFactory OWL2_PROPERTY_RESTRICTION_CE_FACTORY = Factories.createFrom(RESTRICTION_FINDER,
+            ObjectMaxCardinality.class,
+            DataMaxCardinality.class,
+            ObjectMinCardinality.class,
+            DataMinCardinality.class,
+            ObjectCardinality.class,
+            DataCardinality.class,
+            ObjectSomeValuesFrom.class,
+            DataSomeValuesFrom.class,
+            ObjectAllValuesFrom.class,
+            DataAllValuesFrom.class,
+            ObjectHasValue.class,
+            DataHasValue.class,
+            HasSelf.class);
 
     // Cardinality + Existential/Universal Restrictions + N-ary existential/universal +
     // Local reflexivity (hasSelf) + Value Restrictions:
-    public static ObjectFactory abstractRestrictionCEFactory = Factories.createFrom(RESTRICTION_FINDER
-            , ObjectMaxCardinality.class
-            , DataMaxCardinality.class
-            , ObjectMinCardinality.class
-            , DataMinCardinality.class
-            , ObjectCardinality.class
-            , DataCardinality.class
-            , ObjectSomeValuesFrom.class
-            , DataSomeValuesFrom.class
-            , ObjectAllValuesFrom.class
-            , DataAllValuesFrom.class
-            , ObjectHasValue.class
-            , DataHasValue.class
-            , NaryDataSomeValuesFrom.class
-            , NaryDataAllValuesFrom.class
-            , HasSelf.class);
+    public static final ObjectFactory OWL2_RESTRICTION_CE_FACTORY = Factories.createFrom(RESTRICTION_FINDER,
+            ObjectMaxCardinality.class,
+            DataMaxCardinality.class,
+            ObjectMinCardinality.class,
+            DataMinCardinality.class,
+            ObjectCardinality.class,
+            DataCardinality.class,
+            ObjectSomeValuesFrom.class,
+            DataSomeValuesFrom.class,
+            ObjectAllValuesFrom.class,
+            DataAllValuesFrom.class,
+            ObjectHasValue.class,
+            DataHasValue.class,
+            NaryDataSomeValuesFrom.class,
+            NaryDataAllValuesFrom.class,
+            HasSelf.class);
 
     // All:
-    public static ObjectFactory abstractCEFactory = ClassExpressionFactory.createFactory();
+    public static final ObjectFactory OWL2_CE_FACTORY = ClassExpressionFactory.createFactory();
 
     public OntCEImpl(Node n, EnhGraph m) {
         super(n, m);

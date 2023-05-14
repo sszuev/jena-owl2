@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("WeakerAccess")
 public class OntIDImpl extends OntObjectImpl implements OntID {
-    public static ObjectFactory idFactory = Factories.createCommon(OntIDImpl.class,
+    public static final ObjectFactory ONT_ID_FACTORY = Factories.createCommon(OntIDImpl.class,
             new OntFinder.ByType(OWL.Ontology), new OntFilter.HasType(OWL.Ontology));
 
     public OntIDImpl(Node n, EnhGraph m) {
