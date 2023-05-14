@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
+import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -321,7 +322,7 @@ public class OntListTest {
 
     @Test
     public void testTypedList() {
-        OntGraphModelImpl m = new OntGraphModelImpl(Factory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX);
+        OntGraphModelImpl m = new OntGraphModelImpl(Factory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX, OntModelConfig.DEFAULT);
         m.setNsPrefixes(OntModelFactory.STANDARD);
         Resource a = m.createResource("A");
         Resource b = m.createResource("B");

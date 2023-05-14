@@ -464,7 +464,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel());
+        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
 
         Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
         Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
@@ -682,7 +682,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel());
+        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
 
         Set<String> directA = m.getOntClass(NS + "A").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
         Set<String> indirectA = m.getOntClass(NS + "A").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());

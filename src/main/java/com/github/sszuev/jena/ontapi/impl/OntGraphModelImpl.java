@@ -88,18 +88,21 @@ import java.util.stream.Stream;
 @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
 public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph {
 
-
     // the model's types mapper
     protected final Map<String, RDFDatatype> dtTypes = new HashMap<>();
-    // to control graph recursion while casting a node to an RDF view, see #fetchNodeAs(Node, Class)
+    // to control RDF recursion while casting a node to an RDF view, see #fetchNodeAs(Node, Class)
     private final ThreadLocal<Set<Node>> visited = ThreadLocal.withInitial(HashSet::new);
+    // configuration
+    private final OntModelConfig config;
 
     /**
      * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
+     * @param config      {@link OntModelConfig}
      */
-    public OntGraphModelImpl(Graph graph, OntPersonality personality) {
+    public OntGraphModelImpl(Graph graph, OntPersonality personality, OntModelConfig config) {
         super(asUnionGraph(graph), OntPersonality.asJenaPersonality(personality));
+        this.config = config;
     }
 
     /**
@@ -260,6 +263,10 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return o == null;
     }
 
+    public OntModelConfig getConfig() {
+        return config;
+    }
+
     @Override
     public OntPersonality getOntPersonality() {
         return (OntPersonality) super.getPersonality();
@@ -378,7 +385,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return <b>non-distinct</b> {@code ExtendedIterator} of {@link OntGraphModelImpl}s
      */
     public final ExtendedIterator<OntGraphModelImpl> listImportModels(OntPersonality personality) {
-        return listImportGraphs().mapWith(u -> new OntGraphModelImpl(u, personality));
+        return listImportGraphs().mapWith(u -> new OntGraphModelImpl(u, personality, config));
     }
 
     /**
@@ -405,7 +412,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         if (independent()) {
             return this;
         }
-        return new OntGraphModelImpl(getBaseGraph(), getOntPersonality());
+        return new OntGraphModelImpl(getBaseGraph(), getOntPersonality(), config);
     }
 
     /**

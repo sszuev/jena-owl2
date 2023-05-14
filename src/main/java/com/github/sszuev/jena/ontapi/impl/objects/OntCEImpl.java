@@ -441,17 +441,11 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> subClasses(OntClass clazz, boolean direct) {
-        if (direct) {
-            return adjacentChildren(clazz, x -> actualAdjacentSubClasses(x, false));
-        }
-        return treeAsStream(clazz, OntCEImpl::explicitSubClasses);
+        return treeNodes(clazz, x -> actualAdjacentSubClasses(x, false), OntCEImpl::explicitSubClasses, direct);
     }
 
     static Stream<OntClass> superClasses(OntClass clazz, boolean direct) {
-        if (direct) {
-            return adjacentChildren(clazz, x -> actualAdjacentSubClasses(x, true));
-        }
-        return treeAsStream(clazz, OntCEImpl::explicitSuperClasses);
+        return treeNodes(clazz, x -> actualAdjacentSubClasses(x, true), OntCEImpl::explicitSuperClasses, direct);
     }
 
     static Stream<OntClass> actualAdjacentSubClasses(OntClass clazz, boolean inverse) {

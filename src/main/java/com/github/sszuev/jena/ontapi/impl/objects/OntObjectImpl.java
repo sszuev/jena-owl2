@@ -6,6 +6,7 @@ import com.github.sszuev.jena.ontapi.common.ObjectFactory;
 import com.github.sszuev.jena.ontapi.common.OntFilter;
 import com.github.sszuev.jena.ontapi.common.OntFinder;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
+import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
@@ -137,80 +138,25 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
                 .filter(Objects::nonNull);
     }
 
-    /**
-     * Lists all descendants for the specified object and the predicate.
-     *
-     * @param object    {@link X}
-     * @param type      the class-type of {@link X}
-     * @param predicate the {@link Property} whose values are required
-     * @param inverse   if {@code true}, use the inverse of {@code predicate} rather than {@code predicate}
-     * @param direct    if {@code true}, only returns the direct (adjacent) values
-     * @param <X>       subtype of {@link OntObject}
-     * @return <b>distinct</b> {@code Stream} of {@link X}s
-     */
-    @Deprecated // wrong logic
-    public static <X extends OntObject> Stream<X> hierarchy(X object,
-                                                            Class<X> type,
-                                                            Property predicate,
-                                                            boolean inverse,
-                                                            boolean direct) {
-        if (direct) {
-            return getListDirect(type, predicate, inverse).apply(object);
-        }
-        return treeAsStream(object, getListDirect(type, predicate, inverse));
+    static OntModelConfig config(OntObject object) {
+        return ((OntGraphModelImpl) object.getModel()).getConfig();
     }
 
     /**
-     * Lists all descendants using the operation {@code children} to determine adjacent children.
-     *
-     * @param object   {@link X}
-     * @param children a {@code Function} that returns {@code Stream} for an object of type {@link X}
-     * @param direct   if {@code true}, only returns the direct (adjacent) values
-     * @param <X>      subtype of {@link OntObject}
-     * @return <b>distinct</b> {@code Stream} of {@link X}s
+     * see {@code org.apache.jena.ontology.impl.OntResourceImpl#listDirectPropertyValues(Property, String, Class, Property, boolean, boolean)}
      */
-    public static <X extends OntObject> Stream<X> hierarchy(X object,
-                                                            Function<X, Stream<X>> children,
-                                                            boolean direct) {
+    static <X extends OntObject> Stream<X> treeNodes(
+            X object,
+            Function<X, Stream<X>> listAdjacentNodes,
+            Function<X, Stream<X>> listExplicitNodes,
+            boolean direct) {
         if (direct) {
-            return adjacentChildren(object, children);
+            return adjacentTreeNodes(object, listAdjacentNodes);
         }
-        return treeAsStream(object, children);
-    }
-
-    /**
-     * Lists all descendants using the operation {@code children} to determine adjacent children.
-     *
-     * @param object           {@link X}
-     * @param implicitChildren a {@code Function} that returns {@code Stream} of {@link X}'s children, including implicit ones (for example, bound by an equivalent operator)
-     * @param explicitChildren a {@code Function} that returns {@code Stream} of {@link X}'s children, declared in RDF
-     * @param direct           if {@code true}, only returns the direct (adjacent) values
-     * @param <X>              subtype of {@link OntObject}
-     * @return <b>distinct</b> {@code Stream} of {@link X}s
-     */
-    public static <X extends OntObject> Stream<X> hierarchy(X object,
-                                                            Function<X, Stream<X>> implicitChildren,
-                                                            Function<X, Stream<X>> explicitChildren,
-                                                            boolean direct) {
-        if (direct) {
-            return adjacentChildren(object, implicitChildren);
+        if (config(object).useBuiltinHierarchySupport()) {
+            return allTreeNodes(object, listExplicitNodes);
         }
-        return treeAsStream(object, explicitChildren);
-    }
-
-    /**
-     * Gets a facility to get direct iterator.
-     *
-     * @param type      the class-type of {@link X}
-     * @param predicate the {@link Property} whose values are required
-     * @param inverse   if {@code true}, use the inverse of {@code predicate} rather than {@code predicate}
-     * @param <X>       subtype of {@link OntObject} (actually {@link OntObjectImpl})
-     * @return a {@code Function} that responses a {@code ExtendedIterator} over direct listed {@link X}
-     */
-    private static <X extends OntObject> Function<X, Stream<X>> getListDirect(Class<X> type,
-                                                                              Property predicate,
-                                                                              boolean inverse) {
-        return inverse ? x -> subjects(predicate, x, type) : x -> x.objects(predicate, type);
+        return listExplicitNodes.apply(object);
     }
 
     /**
@@ -222,7 +168,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      * @param <X>          subtype of {@link Resource}
      * @return {@code Set} of {@link X}
      */
-    static <X extends Resource> Stream<X> treeAsStream(X object, Function<X, ? extends Stream<X>> listChildren) {
+    static <X extends Resource> Stream<X> allTreeNodes(X object, Function<X, ? extends Stream<X>> listChildren) {
         return Iterators.fromSet(() -> {
             Set<X> res = new HashSet<>();
             collectIndirect(object, listChildren, res);
@@ -256,7 +202,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         }
     }
 
-    static <X extends Resource> Stream<X> adjacentChildren(X object, Function<X, Stream<X>> listChildren) {
+    static <X extends Resource> Stream<X> adjacentTreeNodes(X object, Function<X, Stream<X>> listChildren) {
         return Iterators.fromSet(() -> {
             Set<X> res = listChildren.apply(object).collect(Collectors.toSet());
             dropNodesWithSeveralPaths(object, listChildren, res);
@@ -264,7 +210,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         });
     }
 
-    static <X extends Resource> void dropNodesWithSeveralPaths(X root, Function<X, ? extends Stream<X>> listChildren, Set<X> res) {
+    static <X extends Resource> void dropNodesWithSeveralPaths(X root, Function<X, Stream<X>> listChildren, Set<X> res) {
         Set<X> seen = new HashSet<>();
         List<X> queue = new LinkedList<>();
         queue.add(root);

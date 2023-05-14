@@ -32,18 +32,18 @@ public class OntAPropertyImpl extends OntPEImpl implements OntAnnotationProperty
 
     @Override
     public Stream<OntAnnotationProperty> superProperties(boolean direct) {
-        if (direct) {
-            return adjacentChildren(this, x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, true));
-        }
-        return treeAsStream(this, x -> explicitSuperProperties(x, OntAnnotationProperty.class));
+        return treeNodes(this,
+                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, true),
+                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, true),
+                direct);
     }
 
     @Override
     public Stream<OntAnnotationProperty> subProperties(boolean direct) {
-        if (direct) {
-            return adjacentChildren(this, x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, false));
-        }
-        return treeAsStream(this, x -> explicitSubProperties(x, OntAnnotationProperty.class));
+        return treeNodes(this,
+                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, false),
+                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, false),
+                direct);
     }
 
     @Override

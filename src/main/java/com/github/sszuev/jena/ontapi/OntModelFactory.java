@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
+import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
@@ -82,7 +83,7 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(Graph graph) {
-        return createModel(graph, OntPersonalities.getPersonality());
+        return createModel(graph, OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
     }
 
     /**
@@ -93,7 +94,8 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(Graph graph, OntPersonality personality) {
-        return new OntGraphModelImpl(graph, personality);
+        return createModel(graph,
+                new OntSpecification(personality, null, OntModelConfig.DEFAULT.useBuiltinHierarchySupport(true)));
     }
 
     /**
@@ -115,7 +117,7 @@ public class OntModelFactory {
      */
     public static OntModel createModel(Graph graph, OntSpecification spec) {
         if (spec.getReasonerFactory() == null) {
-            return new OntGraphModelImpl(graph, spec.getPersonality());
+            return new OntGraphModelImpl(graph, spec.getPersonality(), spec.getConfig());
         }
         throw new UnsupportedOperationException("TODO");
     }

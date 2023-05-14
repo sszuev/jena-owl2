@@ -129,17 +129,17 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
     }
 
     static <X extends OntProperty> Stream<X> subProperties(X property, Class<X> type, boolean direct) {
-        if (direct) {
-            return adjacentChildren(property, x -> actualAdjacentSubProperties(x, type, false));
-        }
-        return treeAsStream(property, x -> explicitSubProperties(x, type));
+        return treeNodes(property,
+                x -> actualAdjacentSubProperties(x, type, false),
+                x -> explicitSubProperties(x, type),
+                direct);
     }
 
     static <X extends OntProperty> Stream<X> superProperties(X property, Class<X> type, boolean direct) {
-        if (direct) {
-            return adjacentChildren(property, x -> actualAdjacentSubProperties(x, type, true));
-        }
-        return treeAsStream(property, x -> explicitSuperProperties(x, type));
+        return treeNodes(property,
+                x -> actualAdjacentSubProperties(x, type, true),
+                x -> explicitSuperProperties(x, type),
+                direct);
     }
 
     static <X extends OntProperty> Stream<X> actualAdjacentSubProperties(X property, Class<X> type, boolean inverse) {
