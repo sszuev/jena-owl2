@@ -156,7 +156,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         if (config(object).useBuiltinHierarchySupport()) {
             return allTreeNodes(object, listExplicitNodes);
         }
-        return listExplicitNodes.apply(object);
+        return listExplicitNodes.apply(object).filter(x -> !object.equals(x));
     }
 
     /**

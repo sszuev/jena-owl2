@@ -13,6 +13,8 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -442,9 +444,10 @@ public class OntClassTest {
         Assertions.assertEquals(1, m.individuals().count());
     }
 
-    @Test
-    public void testListSubClasses1() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_MEM", "OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSubClasses1(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass a = m.createOntClass(NS + "A");
         a.addSubClass(a);
 
@@ -452,8 +455,75 @@ public class OntClassTest {
         Assertions.assertTrue(a.subClasses(false).findFirst().isEmpty());
     }
 
-    @Test
-    public void testListSubClasses2() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_MEM"})
+    public void testListSubClasses2(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntClass a = m.createOntClass(NS + "A");
+        OntClass b = m.createOntClass(NS + "B");
+        OntClass c = m.createOntClass(NS + "C");
+        OntClass d = m.createOntClass(NS + "D");
+        a.addSubClass(b);
+        a.addSubClass(c);
+        c.addSubClass(d);
+
+        Assertions.assertEquals(Set.of(b, c), a.subClasses().collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(b, c), a.subClasses(true).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(b, c), a.subClasses(false).collect(Collectors.toSet()));
+
+        a.addSubClass(d);
+        Assertions.assertEquals(Set.of(b, c, d), a.subClasses().collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(b, c), a.subClasses(true).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(b, c, d), a.subClasses(false).collect(Collectors.toSet()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSubClasses3(TestSpec spec) {
+        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
+
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+
+        Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directB = m.getOntClass(NS + "B").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = m.getOntClass(NS + "B").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directC = m.getOntClass(NS + "C").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = m.getOntClass(NS + "C").subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directD = m.getOntClass(NS + "D").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectD = m.getOntClass(NS + "D").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directE = m.getOntClass(NS + "E").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectE = m.getOntClass(NS + "E").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directF = m.getOntClass(NS + "F").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectF = m.getOntClass(NS + "F").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of("C", "B"), directA);
+        Assertions.assertEquals(Set.of("D", "E"), directB);
+        Assertions.assertEquals(Set.of("F", "E"), directC);
+        Assertions.assertEquals(Set.of(), directD);
+        Assertions.assertEquals(Set.of(), directE);
+        Assertions.assertEquals(Set.of(), directF);
+
+        Assertions.assertEquals(Set.of("C", "B", "D", "E", "F"), indirectA);
+        Assertions.assertEquals(Set.of("E", "D"), indirectB);
+        Assertions.assertEquals(Set.of("F", "E"), indirectC);
+        Assertions.assertEquals(Set.of(), indirectD);
+        Assertions.assertEquals(Set.of(), indirectE);
+        Assertions.assertEquals(Set.of(), indirectF);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSubClasses4(TestSpec spec) {
         //     A
         //   /  / \
         //  /  B   C
@@ -464,7 +534,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
+        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
         Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
@@ -524,55 +594,13 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of(), indirectM);
     }
 
-    @Test
-    public void testListSubClasses3() {
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
-
-        //      A
-        //     / \
-        //    B   C
-        //   / \ / \
-        //  D   E   F
-
-        Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-
-        Set<String> directB = m.getOntClass(NS + "B").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-
-        Set<String> directC = m.getOntClass(NS + "C").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
-
-        Set<String> directD = m.getOntClass(NS + "D").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-
-        Set<String> directE = m.getOntClass(NS + "E").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-
-        Set<String> directF = m.getOntClass(NS + "F").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-
-        Assertions.assertEquals(Set.of("C", "B"), directA);
-        Assertions.assertEquals(Set.of("D", "E"), directB);
-        Assertions.assertEquals(Set.of("F", "E"), directC);
-        Assertions.assertEquals(Set.of(), directD);
-        Assertions.assertEquals(Set.of(), directE);
-        Assertions.assertEquals(Set.of(), directF);
-
-        Assertions.assertEquals(Set.of("C", "B", "D", "E", "F"), indirectA);
-        Assertions.assertEquals(Set.of("E", "D"), indirectB);
-        Assertions.assertEquals(Set.of("F", "E"), indirectC);
-        Assertions.assertEquals(Set.of(), indirectD);
-        Assertions.assertEquals(Set.of(), indirectE);
-        Assertions.assertEquals(Set.of(), indirectF);
-    }
-
-    @Test
-    public void testListSubClasses4() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSubClasses5(TestSpec spec) {
         //     A
         //     |
         // D = B = C
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
         OntClass C = m.createOntClass(NS + "C");
@@ -602,9 +630,42 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of(), indirectD);
     }
 
-    @Test
-    public void testListSuperClasses1() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF", "OWL2_MEM"})
+    public void testListSubClasses6(TestSpec spec) {
+        // B = C
+        //  \ |
+        //    A
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        A.addSuperClass(B);
+        A.addSuperClass(C);
+        B.addSuperClass(C);
+        C.addSuperClass(B);
+
+        Set<String> directA = A.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = B.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = C.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> indirectA = A.subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = B.subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = C.subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of(), directA);
+        Assertions.assertEquals(Set.of("A"), directB);
+        Assertions.assertEquals(Set.of("A"), directC);
+
+        Assertions.assertEquals(Set.of(), indirectA);
+        Assertions.assertEquals(Set.of("A", "C"), indirectB);
+        Assertions.assertEquals(Set.of("A", "B"), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_MEM", "OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSuperClasses1(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass A = m.createOntClass(NS + "A");
         A.addSuperClass(A);
 
@@ -612,9 +673,15 @@ public class OntClassTest {
         Assertions.assertTrue(A.superClasses(false).findFirst().isEmpty());
     }
 
-    @Test
-    public void testListSuperClasses2() {
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSuperClasses2(TestSpec spec) {
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = m.getOntClass(NS + "A").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
         Set<String> indirectA = m.getOntClass(NS + "A").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
@@ -639,12 +706,55 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of("A", "B", "C"), indirectE);
     }
 
-    @Test
-    public void testListSuperClasses3() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_MEM"})
+    public void testListSuperClasses3(TestSpec spec) {
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
+
+        Set<String> directA = m.getOntClass(NS + "A").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = m.getOntClass(NS + "A").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directB = m.getOntClass(NS + "B").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = m.getOntClass(NS + "B").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directC = m.getOntClass(NS + "C").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = m.getOntClass(NS + "C").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directD = m.getOntClass(NS + "D").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectD = m.getOntClass(NS + "D").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directE = m.getOntClass(NS + "E").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectE = m.getOntClass(NS + "E").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Set<String> directF = m.getOntClass(NS + "F").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectF = m.getOntClass(NS + "F").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of(), directA);
+        Assertions.assertEquals(Set.of("A"), directB);
+        Assertions.assertEquals(Set.of("A"), directC);
+        Assertions.assertEquals(Set.of("B"), directD);
+        Assertions.assertEquals(Set.of("B", "C"), directE);
+        Assertions.assertEquals(Set.of("C"), directF);
+        Assertions.assertEquals(Set.of(), indirectA);
+        Assertions.assertEquals(Set.of("A"), indirectB);
+        Assertions.assertEquals(Set.of("A"), indirectC);
+        Assertions.assertEquals(Set.of("B"), indirectD);
+        Assertions.assertEquals(Set.of("B", "C"), indirectE);
+        Assertions.assertEquals(Set.of("C"), indirectF);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_MEM", "OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSuperClasses4(TestSpec spec) {
         // B = C
         //  \ |
         //    A
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
         OntClass C = m.createOntClass(NS + "C");
@@ -670,8 +780,9 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of("B"), indirectC);
     }
 
-    @Test
-    public void testListSuperClasses4() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSuperClasses5(TestSpec spec) {
         //     A
         //   /  / \
         //  /  B   C
@@ -682,7 +793,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
+        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = m.getOntClass(NS + "A").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
         Set<String> indirectA = m.getOntClass(NS + "A").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
@@ -742,14 +853,15 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of("A", "B", "D", "H", "K"), indirectM);
     }
 
-    @Test
-    public void testListSuperClasses5() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_MEM", "OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListSuperClasses6(TestSpec spec) {
         //     D
         //    | \
         // B  |  C
         //  \ | /
         //    A
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
         OntClass C = m.createOntClass(NS + "C");
@@ -780,14 +892,15 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of(), indirectD);
     }
 
-    @Test
-    public void testListIndividuals1() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListIndividuals1(TestSpec spec) {
         //      A
         //     / \
         //    B   C
         //   / \ / \
         //  D   E   F
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
+        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
         OntClass a = m.getOntClass(NS + "A");
         OntClass b = m.getOntClass(NS + "B");
         OntClass c = m.getOntClass(NS + "C");
@@ -833,12 +946,13 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of(), indirectF);
     }
 
-    @Test
-    public void testListIndividuals2() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListIndividuals2(TestSpec spec) {
         // B = C
         //  \ |
         //    A
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
         OntClass C = m.createOntClass(NS + "C");
@@ -865,14 +979,15 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of("iA", "iB", "iC"), indirectC);
     }
 
-    @Test
-    public void testListIndividuals3() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListIndividuals3(TestSpec spec) {
         //     D
         //    | \
         // B  |  C
         //  \ | /
         //    A
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
         OntClass C = m.createOntClass(NS + "C");
@@ -905,8 +1020,9 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of("iA", "iC", "iD"), indirectD);
     }
 
-    @Test
-    public void testListInstances3() {
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    public void testListInstances3(TestSpec spec) {
         //     A
         //   /  / \
         //  /  B   C
@@ -916,7 +1032,7 @@ public class OntClassTest {
         // G  H = K
         //       / \
         //      L   M
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF));
+        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = m.getOntClass(NS + "A").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
