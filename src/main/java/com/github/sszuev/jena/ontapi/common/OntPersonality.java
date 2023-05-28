@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * that serves for the following purposes:
  * <ul>
  * <li>Defines a set of permitted mappings from [interface] Class objects
- * to {@link ObjectFactory OWL Ontology Object factory}
+ * to {@link EnhNodeFactory OWL Ontology Object factory}
  * that can generate instances of the facet represented by the Class.</li>
  * <li>Defines a set of builtin {@link OntEntity OWL entities}</li>
  * <li>Defines a set of OWL punnings</li>
@@ -56,7 +56,7 @@ public interface OntPersonality {
      * @param p {@link OntPersonality}
      * @return {@link Personality}
      * @throws OntJenaException in case the conversion is not possible
-     * @see ObjectFactory#asJenaImplementation(ObjectFactory)
+     * @see EnhNodeFactory#asJenaImplementation(EnhNodeFactory)
      * @see OntEnhGraph#asPersonalityModel(EnhGraph)
      */
     @SuppressWarnings("unchecked")
@@ -69,7 +69,7 @@ public interface OntPersonality {
 
     /**
      * Lists all object-types, which are supported by this personality configuration.
-     * Each of the class-types are associated with either {@link ObjectFactory} (if it is {@link OntObject} type)
+     * Each of the class-types are associated with either {@link EnhNodeFactory} (if it is {@link OntObject} type)
      * or with {@link org.apache.jena.enhanced.Implementation} (if it is a standard jena resource object).
      *
      * @return Stream of {@code Class}es, subclasses of {@link RDFNode}.
@@ -81,9 +81,9 @@ public interface OntPersonality {
      * returning {@code null} if there isn't one available.
      *
      * @param type a class-type of {@link OntObject}
-     * @return {@link ObjectFactory} a factory to create an instance of the given type
+     * @return {@link EnhNodeFactory} a factory to create an instance of the given type
      */
-    ObjectFactory getObjectFactory(Class<? extends OntObject> type);
+    EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type);
 
     /**
      * Makes a full copy of this configuration.

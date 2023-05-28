@@ -1,10 +1,10 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.BaseFactoryImpl;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
+import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -41,24 +41,24 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
 
-    public static final OntFinder NAMED_PROPERTY_FINDER = Factories.createFinder(OWL.AnnotationProperty
+    public static final EnhNodeFinder NAMED_PROPERTY_FINDER = OntEnhNodeFactories.createFinder(OWL.AnnotationProperty
             , OWL.ObjectProperty, OWL.DatatypeProperty);
 
-    public static final ObjectFactory OWL2_INVERSE_PROPERTY_FACTORY = createAnonymousObjectPropertyFactory();
-    public static final ObjectFactory OWL2_NAMED_PROPERTY_FACTORY = Factories.createFrom(NAMED_PROPERTY_FINDER,
+    public static final EnhNodeFactory OWL2_INVERSE_PROPERTY_FACTORY = createAnonymousObjectPropertyFactory();
+    public static final EnhNodeFactory OWL2_NAMED_PROPERTY_FACTORY = OntEnhNodeFactories.createFrom(NAMED_PROPERTY_FINDER,
             OntObjectProperty.Named.class, OntDataProperty.class, OntAnnotationProperty.class);
 
-    public static final ObjectFactory OWL2_OBJECT_PROPERTY_EXPRESSION_FACTORY = createObjectPropertyExpressionFactory();
-    public static final ObjectFactory OWL2_DATA_OR_OBJECT_PROPERTY_FACTORY = createDataOrObjectPropertyFactory();
-    public static final ObjectFactory OWL2_PROPERTY_FACTORY = createPropertyExpressionFactory();
+    public static final EnhNodeFactory OWL2_OBJECT_PROPERTY_EXPRESSION_FACTORY = createObjectPropertyExpressionFactory();
+    public static final EnhNodeFactory OWL2_DATA_OR_OBJECT_PROPERTY_FACTORY = createDataOrObjectPropertyFactory();
+    public static final EnhNodeFactory OWL2_PROPERTY_FACTORY = createPropertyExpressionFactory();
 
     public OntPEImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
-    public static ObjectFactory createObjectPropertyExpressionFactory() {
+    public static EnhNodeFactory createObjectPropertyExpressionFactory() {
         return new HasAnonymous() {
-            private final ObjectFactory named = WrappedFactoryImpl.of(OntObjectProperty.Named.class);
+            private final EnhNodeFactory named = WrappedFactoryImpl.of(OntObjectProperty.Named.class);
 
             @Override
             public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {
@@ -95,20 +95,20 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
         };
     }
 
-    public static ObjectFactory createDataOrObjectPropertyFactory() {
+    public static EnhNodeFactory createDataOrObjectPropertyFactory() {
         return new PropertiesFactory()
                 .add(OWL.ObjectProperty, OntObjectProperty.Named.class)
                 .add(OWL.DatatypeProperty, OntDataProperty.class);
     }
 
-    public static ObjectFactory createPropertyExpressionFactory() {
+    public static EnhNodeFactory createPropertyExpressionFactory() {
         return new PropertiesFactory()
                 .add(OWL.ObjectProperty, OntObjectProperty.Named.class)
                 .add(OWL.DatatypeProperty, OntDataProperty.class)
                 .add(OWL.AnnotationProperty, OntAnnotationProperty.class);
     }
 
-    public static ObjectFactory createAnonymousObjectPropertyFactory() {
+    public static EnhNodeFactory createAnonymousObjectPropertyFactory() {
         return new AnonymousObjectPropertyFactory();
     }
 
@@ -183,7 +183,7 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
             Graph g = eg.asGraph();
             ExtendedIterator<EnhNode> res = Iterators.distinct(Iterators.flatMap(Iterators.create(factories),
                     f -> g.find(Node.ANY, RDF.Nodes.type, f.nt)
-                            .mapWith(t -> BaseFactoryImpl.safeWrap(t.getSubject(), eg, f.f)).filterDrop(Objects::isNull)));
+                            .mapWith(t -> BaseEnhNodeFactoryImpl.safeWrap(t.getSubject(), eg, f.f)).filterDrop(Objects::isNull)));
             return Iterators.concat(res, anonymous.iterator(eg));
         }
 
@@ -230,7 +230,7 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
 
         private static class Factory {
             private final Node nt;
-            private final ObjectFactory f;
+            private final EnhNodeFactory f;
 
             private Factory(Node nodeType, Class<? extends OntProperty> classType) {
                 this.nt = Objects.requireNonNull(nodeType);
@@ -239,13 +239,13 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
         }
     }
 
-    protected static abstract class HasAnonymous extends BaseFactoryImpl {
-        protected final ObjectFactory anonymous = WrappedFactoryImpl.of(OntObjectProperty.Inverse.class);
+    protected static abstract class HasAnonymous extends BaseEnhNodeFactoryImpl {
+        protected final EnhNodeFactory anonymous = WrappedFactoryImpl.of(OntObjectProperty.Inverse.class);
     }
 
-    public static class AnonymousObjectPropertyFactory extends BaseFactoryImpl {
+    public static class AnonymousObjectPropertyFactory extends BaseEnhNodeFactoryImpl {
         private static final Node OWL_INVERSE_OF = OWL.inverseOf.asNode();
-        protected final ObjectFactory named = WrappedFactoryImpl.of(OntObjectProperty.Named.class);
+        protected final EnhNodeFactory named = WrappedFactoryImpl.of(OntObjectProperty.Named.class);
 
         @Override
         public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {

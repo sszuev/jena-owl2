@@ -14,14 +14,14 @@ import java.util.Set;
  * An abstraction to work with {@link OntPersonality}
  * and an interface-analog of the {@link EnhGraph Jena Enhanced Graph},
  * and also a facility to provide implicit links between different
- * {@link ObjectFactory} factories within a model.
+ * {@link EnhNodeFactory} factories within a model.
  * A .orElse(null) is assumed to be {@link OntEnhGraph}.
  * <p>
  * Explicit links between object factories are undesirable, since replacing one of the factories will affect others.
  * But using this interface it is possible to build safe implicit links and
  * replacing one factory with a custom implementation will not break the whole model.
  * More about this see in the description for
- * the method {@link PersonalityBuilder#add(Class, ObjectFactory)}.
+ * the method {@link PersonalityBuilder#add(Class, EnhNodeFactory)}.
  * <p>
  * Created by @ssz on 18.01.2019.
  */

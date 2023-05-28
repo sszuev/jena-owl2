@@ -1,10 +1,10 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.model.OntID;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -23,8 +23,8 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("WeakerAccess")
 public class OntIDImpl extends OntObjectImpl implements OntID {
-    public static final ObjectFactory ONT_ID_FACTORY = Factories.createCommon(OntIDImpl.class,
-            new OntFinder.ByType(OWL.Ontology), new OntFilter.HasType(OWL.Ontology));
+    public static final EnhNodeFactory ONT_ID_FACTORY = OntEnhNodeFactories.createCommon(OntIDImpl.class,
+            new EnhNodeFinder.ByType(OWL.Ontology), new EnhNodeFilter.HasType(OWL.Ontology));
 
     public OntIDImpl(Node n, EnhGraph m) {
         super(n, m);

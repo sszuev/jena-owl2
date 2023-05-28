@@ -1,9 +1,9 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
@@ -34,17 +34,16 @@ import java.util.Optional;
 public abstract class OntNPAImpl<P extends OntRealProperty, T extends RDFNode>
         extends OntObjectImpl implements OntNegativeAssertion<P, T> {
 
-    private static final OntFinder NPA_FINDER = new OntFinder.ByType(OWL.NegativePropertyAssertion);
-    private static final OntFilter NPA_FILTER = OntFilter.BLANK
-            .and(new OntFilter.HasPredicate(OWL.sourceIndividual))
-            .and(new OntFilter.HasPredicate(OWL.assertionProperty));
-
-    public static final ObjectFactory OWL2_OBJECT_NPA_FACTORY = Factories.createCommon(ObjectAssertionImpl.class,
-            NPA_FINDER, NPA_FILTER, new OntFilter.HasPredicate(OWL.targetIndividual));
-    public static final ObjectFactory OWL2_DATA_NPA_FACTORY = Factories.createCommon(DataAssertionImpl.class,
-            NPA_FINDER, NPA_FILTER, new OntFilter.HasPredicate(OWL.targetValue));
-    public static final ObjectFactory OWL2_NPA_FACTORY = Factories.createFrom(NPA_FINDER,
+    private static final EnhNodeFinder NPA_FINDER = new EnhNodeFinder.ByType(OWL.NegativePropertyAssertion);
+    public static final EnhNodeFactory OWL2_NPA_FACTORY = OntEnhNodeFactories.createFrom(NPA_FINDER,
             WithObjectProperty.class, WithDataProperty.class);
+    private static final EnhNodeFilter NPA_FILTER = EnhNodeFilter.BLANK
+            .and(new EnhNodeFilter.HasPredicate(OWL.sourceIndividual))
+            .and(new EnhNodeFilter.HasPredicate(OWL.assertionProperty));
+    public static final EnhNodeFactory OWL2_OBJECT_NPA_FACTORY = OntEnhNodeFactories.createCommon(ObjectAssertionImpl.class,
+            NPA_FINDER, NPA_FILTER, new EnhNodeFilter.HasPredicate(OWL.targetIndividual));
+    public static final EnhNodeFactory OWL2_DATA_NPA_FACTORY = OntEnhNodeFactories.createCommon(DataAssertionImpl.class,
+            NPA_FINDER, NPA_FILTER, new EnhNodeFilter.HasPredicate(OWL.targetValue));
 
     public OntNPAImpl(Node n, EnhGraph m) {
         super(n, m);

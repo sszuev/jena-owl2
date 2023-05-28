@@ -1,13 +1,13 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.BaseFactoryImpl;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
+import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
-import com.github.sszuev.jena.ontapi.common.OntMaker;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -49,57 +49,24 @@ import java.util.Optional;
  */
 @SuppressWarnings("WeakerAccess")
 public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
-    private static final OntFilter VARIABLE_FILTER = OntFilter.URI.and(new OntFilter.HasType(SWRL.Variable));
-    private static final OntFilter BUILTIN_FILTER = (n, g) -> {
-        if (!n.isURI())
-            return false;
-        OntPersonality p = OntEnhGraph.asPersonalityModel(g).getOntPersonality();
-        if (p.getBuiltins().get(Builtin.class).contains(n)) {
-            return true;
-        }
-        return Iterators.findFirst(g.asGraph().find(n, RDF.Nodes.type, SWRL.Builtin.asNode())).isPresent();
-    };
-
-    public static final ObjectFactory SWRL_VARIABLE_FACTORY = Factories.createCommon(
-            new OntMaker.WithType(VariableImpl.class, SWRL.Variable),
-            new OntFinder.ByType(SWRL.Variable), VARIABLE_FILTER);
-
-    public static final ObjectFactory SWRL_BUILTIN_FACTORY = Factories.createCommon(
-            new OntMaker.WithType(BuiltinImpl.class, SWRL.Builtin),
-            new OntFinder.ByType(SWRL.Builtin), BUILTIN_FILTER);
-
-    public static final ObjectFactory SWRL_DARG_FACTORY = Factories.createCommon(DArgImpl.class,
-            OntFinder.ANY_SUBJECT_AND_OBJECT, VARIABLE_FILTER.or(LiteralImpl.factory::canWrap));
-
-    public static final ObjectFactory SWRL_IARG_FACTORY = Factories.createCommon(IArgImpl.class,
-            OntFinder.ANY_SUBJECT_AND_OBJECT, VARIABLE_FILTER.or((n, g) -> OntEnhGraph.canAs(OntIndividual.class, n, g)));
-
-    public static final ObjectFactory SWRL_ARG_FACTORY = Factories.createFrom(OntFinder.ANY_SUBJECT_AND_OBJECT,
+    public static final EnhNodeFactory SWRL_ARG_FACTORY = OntEnhNodeFactories.createFrom(EnhNodeFinder.ANY_SUBJECT_AND_OBJECT,
             DArg.class,
             IArg.class);
-
-    public static final ObjectFactory SWRL_BUILT_IN_ATOM_FACTORY =
+    public static final EnhNodeFactory SWRL_BUILT_IN_ATOM_FACTORY =
             makeAtomFactory(BuiltInAtomImpl.class, SWRL.BuiltinAtom);
-
-    public static final ObjectFactory SWRL_CLASS_ATOM_FACTORY =
+    public static final EnhNodeFactory SWRL_CLASS_ATOM_FACTORY =
             makeAtomFactory(OntClassAtomImpl.class, SWRL.ClassAtom);
-
-    public static final ObjectFactory SWRL_DATA_RANGE_ATOM_FACTORY =
+    public static final EnhNodeFactory SWRL_DATA_RANGE_ATOM_FACTORY =
             makeAtomFactory(DataRangeAtomImpl.class, SWRL.DataRangeAtom);
-
-    public static final ObjectFactory SWRL_DATA_VALUED_ATOM_FACTORY =
+    public static final EnhNodeFactory SWRL_DATA_VALUED_ATOM_FACTORY =
             makeAtomFactory(DataPropertyAtomImpl.class, SWRL.DatavaluedPropertyAtom);
-
-    public static final ObjectFactory SWRL_INDIVIDUAL_ATOM_FACTORY =
+    public static final EnhNodeFactory SWRL_INDIVIDUAL_ATOM_FACTORY =
             makeAtomFactory(ObjectPropertyAtomImpl.class, SWRL.IndividualPropertyAtom);
-
-    public static final ObjectFactory SWRL_DIFFERENT_INDIVIDUALS_ATOM_FACTORY =
+    public static final EnhNodeFactory SWRL_DIFFERENT_INDIVIDUALS_ATOM_FACTORY =
             makeAtomFactory(DifferentIndividualsAtomImpl.class, SWRL.DifferentIndividualsAtom);
-
-    public static final ObjectFactory SWRL_SAME_INDIVIDUALS_ATOM_FACTORY =
+    public static final EnhNodeFactory SWRL_SAME_INDIVIDUALS_ATOM_FACTORY =
             makeAtomFactory(SameIndividualsAtomImpl.class, SWRL.SameIndividualAtom);
-
-    public static final ObjectFactory SWRL_ATOM_FACTORY = Factories.createFrom(OntFinder.TYPED,
+    public static final EnhNodeFactory SWRL_ATOM_FACTORY = OntEnhNodeFactories.createFrom(EnhNodeFinder.TYPED,
             Atom.WithBuiltin.class,
             Atom.WithClass.class,
             Atom.WithDataRange.class,
@@ -107,16 +74,15 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
             Atom.WithObjectProperty.class,
             Atom.WithDifferentIndividuals.class,
             Atom.WithSameIndividuals.class);
-
-    public static final ObjectFactory SWRL_BINARY_FACTORY = Factories.createFrom(OntFinder.TYPED,
+    public static final EnhNodeFactory SWRL_BINARY_FACTORY = OntEnhNodeFactories.createFrom(EnhNodeFinder.TYPED,
             Atom.WithDataProperty.class,
             Atom.WithObjectProperty.class,
             Atom.WithDifferentIndividuals.class,
             Atom.WithSameIndividuals.class);
-    public static final ObjectFactory SWRL_UNARY_FACTORY = Factories.createFrom(OntFinder.TYPED,
+    public static final EnhNodeFactory SWRL_UNARY_FACTORY = OntEnhNodeFactories.createFrom(EnhNodeFinder.TYPED,
             Atom.WithClass.class,
             Atom.WithDataRange.class);
-    public static final ObjectFactory SWRL_OBJECT_FACTORY = Factories.createFrom(OntFinder.TYPED,
+    public static final EnhNodeFactory SWRL_OBJECT_FACTORY = OntEnhNodeFactories.createFrom(EnhNodeFinder.TYPED,
             Atom.WithBuiltin.class,
             Atom.WithClass.class,
             Atom.WithDataRange.class,
@@ -127,17 +93,36 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
             Builtin.class,
             Variable.class,
             Imp.class);
-
-    public static final ObjectFactory SWRL_IMP_FACTORY = new SWRLImplFactory();
+    public static final EnhNodeFactory SWRL_IMP_FACTORY = new SWRLImplFactory();
+    private static final EnhNodeFilter VARIABLE_FILTER = EnhNodeFilter.URI.and(new EnhNodeFilter.HasType(SWRL.Variable));
+    public static final EnhNodeFactory SWRL_VARIABLE_FACTORY = OntEnhNodeFactories.createCommon(
+            new EnhNodeProducer.WithType(VariableImpl.class, SWRL.Variable),
+            new EnhNodeFinder.ByType(SWRL.Variable), VARIABLE_FILTER);
+    public static final EnhNodeFactory SWRL_DARG_FACTORY = OntEnhNodeFactories.createCommon(DArgImpl.class,
+            EnhNodeFinder.ANY_SUBJECT_AND_OBJECT, VARIABLE_FILTER.or(LiteralImpl.factory::canWrap));
+    public static final EnhNodeFactory SWRL_IARG_FACTORY = OntEnhNodeFactories.createCommon(IArgImpl.class,
+            EnhNodeFinder.ANY_SUBJECT_AND_OBJECT, VARIABLE_FILTER.or((n, g) -> OntEnhGraph.canAs(OntIndividual.class, n, g)));
+    private static final EnhNodeFilter BUILTIN_FILTER = (n, g) -> {
+        if (!n.isURI())
+            return false;
+        OntPersonality p = OntEnhGraph.asPersonalityModel(g).getOntPersonality();
+        if (p.getBuiltins().get(Builtin.class).contains(n)) {
+            return true;
+        }
+        return Iterators.findFirst(g.asGraph().find(n, RDF.Nodes.type, SWRL.Builtin.asNode())).isPresent();
+    };
+    public static final EnhNodeFactory SWRL_BUILTIN_FACTORY = OntEnhNodeFactories.createCommon(
+            new EnhNodeProducer.WithType(BuiltinImpl.class, SWRL.Builtin),
+            new EnhNodeFinder.ByType(SWRL.Builtin), BUILTIN_FILTER);
     //Factories.createCommon(ImpImpl.class, new OntFinder.ByType(SWRL.Imp), new OntFilter.HasType(SWRL.Imp));
 
     public OntSWRLImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
-    private static ObjectFactory makeAtomFactory(Class<? extends AtomImpl<?>> view, Resource type) {
-        return Factories.createCommon(new OntMaker.Default(view),
-                new OntFinder.ByType(type), OntFilter.BLANK.and(new OntFilter.HasType(type)));
+    private static EnhNodeFactory makeAtomFactory(Class<? extends AtomImpl<?>> view, Resource type) {
+        return OntEnhNodeFactories.createCommon(new EnhNodeProducer.Default(view),
+                new EnhNodeFinder.ByType(type), EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(type)));
     }
 
     public static Builtin fetchBuiltinEntity(OntGraphModelImpl model, String uri) {
@@ -587,7 +572,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
     }
 
-    public static class SWRLImplFactory extends BaseFactoryImpl {
+    public static class SWRLImplFactory extends BaseEnhNodeFactoryImpl {
         private static final Node IMP = SWRL.Imp.asNode();
         private static final Node BODY = SWRL.body.asNode();
         private static final Node HEAD = SWRL.head.asNode();

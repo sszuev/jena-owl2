@@ -9,10 +9,15 @@ import com.github.sszuev.jena.ontapi.model.OntNamedProperty;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -235,5 +240,26 @@ public class OntPropertyTest {
         Assertions.assertEquals(4, p2.referringRestrictions().count());
         Assertions.assertEquals(5, p3.referringRestrictions().count());
         Assertions.assertEquals(4, p4.referringRestrictions().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF", "OWL2_MEM"})
+    public void testListProperties(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntObjectProperty op = m.createObjectProperty("op");
+        OntObjectProperty iop = op.asNamed().createInverse();
+        OntDataProperty dp = m.createDataProperty("dp");
+        OntAnnotationProperty ap = m.createAnnotationProperty("ap");
+        Resource rp = m.createResource("rp", RDF.Property);
+
+        List<OntProperty> properties = m.properties().collect(Collectors.toList());
+        Set<? extends Resource> resources = m.properties().collect(Collectors.toSet());
+        Assertions.assertEquals(4, properties.size());
+        Assertions.assertEquals(4, resources.size());
+        Assertions.assertFalse(resources.contains(rp));
+        Assertions.assertTrue(properties.contains(op));
+        Assertions.assertTrue(properties.contains(dp));
+        Assertions.assertTrue(properties.contains(ap));
+        Assertions.assertTrue(properties.contains(iop));
     }
 }

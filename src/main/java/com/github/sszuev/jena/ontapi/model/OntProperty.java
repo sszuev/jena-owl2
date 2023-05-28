@@ -21,6 +21,13 @@ import java.util.stream.Stream;
 public interface OntProperty extends OntObject {
 
     /**
+     * Returns a named part of this property expression.
+     *
+     * @return {@link Property}
+     */
+    Property asProperty();
+
+    /**
      * Answers a {@code Stream} over all the properties that are declared to be sub-properties of this property.
      * Each element of the {@code Stream} will have the same type as this property instance:
      * if it is datatype property the method will return only data properties, etc.
@@ -100,34 +107,6 @@ public interface OntProperty extends OntObject {
     Stream<? extends OntProperty> superProperties(boolean direct);
 
     /**
-     * Lists all the properties that are declared to be sub-properties of
-     * this property (directly or indirectly).
-     * Note: the return elements have the same type as this instance.
-     * <p>
-     * Equivalent to {@code this.subProperties(false)}.
-     *
-     * @return {@code Stream} of {@link OntProperty ont-properties}
-     * @see #superProperties(boolean)
-     * @see OntAnnotationProperty#superProperties()
-     * @see OntRealProperty#superProperties()
-     */
-    Stream<? extends OntProperty> subProperties();
-
-    /**
-     * Lists all the properties that are declared to be super-properties of
-     * this property (directly or indirectly).
-     * Note: the return elements have the same type as this instance.
-     * <p>
-     * Equivalent to {@code this.superProperties(false)}.
-     *
-     * @return {@code Stream} of {@link OntProperty ont-properties}
-     * @see #superProperties(boolean)
-     * @see OntAnnotationProperty#superProperties()
-     * @see OntRealProperty#superProperties()
-     */
-    Stream<? extends OntProperty> superProperties();
-
-    /**
      * Lists all property domains.
      *
      * @return {@code Stream} of {@link Resource}s
@@ -147,11 +126,67 @@ public interface OntProperty extends OntObject {
     Stream<? extends Resource> ranges();
 
     /**
-     * Returns a named part of this property expression.
+     * Lists all the properties that are declared to be sub-properties of
+     * this property (directly or indirectly).
+     * Note: the return elements have the same type as this instance.
+     * <p>
+     * Equivalent to {@code this.subProperties(false)}.
      *
-     * @return {@link Property}
+     * @return {@code Stream} of {@link OntProperty ont-properties}
+     * @see #superProperties(boolean)
+     * @see OntAnnotationProperty#superProperties()
+     * @see OntRealProperty#superProperties()
      */
-    Property asProperty();
+    default Stream<? extends OntProperty> subProperties() {
+        return subProperties(false);
+    }
+
+    /**
+     * Lists all the properties that are declared to be super-properties of
+     * this property (directly or indirectly).
+     * Note: the return elements have the same type as this instance.
+     * <p>
+     * Equivalent to {@code this.superProperties(false)}.
+     *
+     * @return {@code Stream} of {@link OntProperty ont-properties}
+     * @see #superProperties(boolean)
+     * @see OntAnnotationProperty#superProperties()
+     * @see OntRealProperty#superProperties()
+     */
+    default Stream<? extends OntProperty> superProperties() {
+        return superProperties(false);
+    }
+
+    /**
+     * Adds the given property as super property returning a new statement to annotate.
+     * The triple pattern is {@code $this rdfs:subPropertyOf $property}).
+     *
+     * @param property {@link Resource}, not {@code null}
+     * @return {@link OntStatement} to allow subsequent annotations adding
+     */
+    default OntStatement addSubPropertyOfStatement(Resource property) {
+        return addStatement(RDFS.subPropertyOf, property);
+    }
+
+    /**
+     * Adds range statement {@code $this rdfs:range $range}.
+     *
+     * @param range {@link Resource}, not {@code null}
+     * @return {@link OntStatement} to allow subsequent annotations adding
+     */
+    default OntStatement addRangeStatement(Resource range) {
+        return addStatement(RDFS.range, range);
+    }
+
+    /**
+     * Adds a statement {@code $this rdfs:domain $domain}.
+     *
+     * @param domain {@link Resource}, not null
+     * @return {@link OntStatement} to allow the subsequent addition of annotations
+     */
+    default OntStatement addDomainStatement(Resource domain) {
+        return addStatement(RDFS.domain, domain);
+    }
 
     /**
      * Removes the specified domain resource (predicate is {@link RDFS#domain rdfs:domain}),
@@ -162,7 +197,10 @@ public interface OntProperty extends OntObject {
      * @param domain {@link Resource}, or {@code null} to remove all domains
      * @return <b>this</b> instance to allow cascading calls
      */
-    OntProperty removeDomain(Resource domain);
+    default OntProperty removeDomain(Resource domain) {
+        remove(RDFS.domain, domain);
+        return this;
+    }
 
     /**
      * Removes the specified range resource (predicate is {@link RDFS#range rdfs:range}),
@@ -173,7 +211,10 @@ public interface OntProperty extends OntObject {
      * @param range {@link Resource}, or {@code null} to remove all ranges
      * @return <b>this</b> instance to allow cascading calls
      */
-    OntProperty removeRange(Resource range);
+    default OntProperty removeRange(Resource range) {
+        remove(RDFS.range, range);
+        return this;
+    }
 
     /**
      * Removes the specified super property (predicate is {@link RDFS#subPropertyOf rdfs:subPropertyOf}),
@@ -184,6 +225,8 @@ public interface OntProperty extends OntObject {
      * @param property {@link Resource} or {@code null} to remove all direct super properties
      * @return <b>this</b> instance to allow cascading calls
      */
-    OntProperty removeSuperProperty(Resource property);
-
+    default OntProperty removeSuperProperty(Resource property) {
+        remove(RDFS.subPropertyOf, property);
+        return this;
+    }
 }

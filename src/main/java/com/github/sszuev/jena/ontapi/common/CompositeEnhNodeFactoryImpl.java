@@ -14,24 +14,24 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A {@link ObjectFactory Ontology Object Factory} implementation to combine several other factories.
+ * A {@link EnhNodeFactory Ontology Object Factory} implementation to combine several other factories.
  * <p>
  * Created @ssz on 07.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class MultiFactoryImpl extends BaseFactoryImpl {
-    private final List<ObjectFactory> factories;
-    private final OntFinder finder;
-    private final OntFilter fittingFilter;
+public class CompositeEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
+    private final List<EnhNodeFactory> factories;
+    private final EnhNodeFinder finder;
+    private final EnhNodeFilter fittingFilter;
 
     /**
      * Creates a factory instance.
      *
-     * @param finder        {@link OntFinder}, optional, if {@code null} then uses only provided sub-factories to search
-     * @param fittingFilter {@link OntFilter}, optional, to trim searching
+     * @param finder        {@link EnhNodeFinder}, optional, if {@code null} then uses only provided sub-factories to search
+     * @param fittingFilter {@link EnhNodeFilter}, optional, to trim searching
      * @param factories     array of factories to combine, must not be {@code null} or empty
      */
-    public MultiFactoryImpl(OntFinder finder, OntFilter fittingFilter, ObjectFactory... factories) {
+    public CompositeEnhNodeFactoryImpl(EnhNodeFinder finder, EnhNodeFilter fittingFilter, EnhNodeFactory... factories) {
         this.finder = finder;
         this.fittingFilter = fittingFilter;
         if (factories.length == 0)
@@ -39,9 +39,9 @@ public class MultiFactoryImpl extends BaseFactoryImpl {
         this.factories = unbend(factories);
     }
 
-    private static List<ObjectFactory> unbend(ObjectFactory... factories) {
+    private static List<EnhNodeFactory> unbend(EnhNodeFactory... factories) {
         return Arrays.stream(factories)
-                .flatMap(f -> f instanceof MultiFactoryImpl ? ((MultiFactoryImpl) f).factories.stream() : Stream.of(f))
+                .flatMap(f -> f instanceof CompositeEnhNodeFactoryImpl ? ((CompositeEnhNodeFactoryImpl) f).factories.stream() : Stream.of(f))
                 .collect(Collectors.toList());
     }
 
@@ -73,20 +73,20 @@ public class MultiFactoryImpl extends BaseFactoryImpl {
         return Iterators.distinct(Iterators.flatMap(listFactories(), f -> f.iterator(eg)));
     }
 
-    public OntFinder getFinder() {
+    public EnhNodeFinder getFinder() {
         return finder;
     }
 
-    public OntFilter getFilter() {
+    public EnhNodeFilter getFilter() {
         return fittingFilter;
     }
 
     /**
      * Lists all sub-factories.
      *
-     * @return {@link ExtendedIterator} of {@link ObjectFactory}
+     * @return {@link ExtendedIterator} of {@link EnhNodeFactory}
      */
-    public ExtendedIterator<? extends ObjectFactory> listFactories() {
+    public ExtendedIterator<? extends EnhNodeFactory> listFactories() {
         return Iterators.create(factories);
     }
 

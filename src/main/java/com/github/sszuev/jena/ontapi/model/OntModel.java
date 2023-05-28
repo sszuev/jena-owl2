@@ -519,6 +519,15 @@ public interface OntModel extends Model,
     }
 
     /**
+     * Lists all OntProperties.
+     *
+     * @return {@code Stream} of {@link OntProperty OntProperty}s
+     */
+    default Stream<OntProperty> properties() {
+        return ontObjects(OntProperty.class);
+    }
+
+    /**
      * Lists all data properties.
      *
      * @return {@code Stream} of {@link OntDataProperty Data Property}s

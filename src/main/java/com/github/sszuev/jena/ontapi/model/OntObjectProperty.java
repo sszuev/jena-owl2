@@ -395,28 +395,6 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     }
 
     /**
-     * Adds a property range (i.e. {@code P rdfs:range C} statement).
-     *
-     * @param range {@link OntClass}, not {@code null}
-     * @return {@link OntStatement} to allow processing annotations
-     * @see #addRange(OntClass)
-     */
-    default OntStatement addRangeStatement(OntClass range) {
-        return addStatement(RDFS.range, range);
-    }
-
-    /**
-     * Adds the given property as super property returning a new statement to annotate.
-     * The triple pattern is {@code this rdfs:subPropertyOf property}).
-     *
-     * @param property {@link OntObjectProperty}, not {@code null}
-     * @return {@link OntStatement} to allow subsequent annotations adding
-     */
-    default OntStatement addSubPropertyOfStatement(OntObjectProperty property) {
-        return addStatement(RDFS.subPropertyOf, property);
-    }
-
-    /**
      * Adds a new inverse-of statement.
      *
      * @param other {@link OntObjectProperty}, not {@code null}
@@ -474,7 +452,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      *
      * @param range {@link OntClass}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
-     * @see #addRangeStatement(OntClass)
+     * @see #addRangeStatement(Resource)
      */
     default OntObjectProperty addRange(OntClass range) {
         addRangeStatement(range);
@@ -487,7 +465,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      *
      * @param ce {@link OntClass}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
-     * @see #addDomainStatement(OntClass)
+     * @see #addDomainStatement(Resource)
      */
     @Override
     default OntObjectProperty addDomain(OntClass ce) {

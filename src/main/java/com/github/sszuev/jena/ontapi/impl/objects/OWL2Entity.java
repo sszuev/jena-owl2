@@ -1,11 +1,11 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
-import com.github.sszuev.jena.ontapi.common.OntMaker;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.common.Vocabulary;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
@@ -48,7 +48,7 @@ public enum OWL2Entity {
     OBJECT_PROPERTY(OWL.ObjectProperty, OntObjectProperty.Named.class, OntOPEImpl.NamedPropertyImpl.class, Vocabulary.Entities::getObjectProperties),
     INDIVIDUAL(OWL.NamedIndividual, OntIndividual.Named.class, OntIndividualImpl.NamedImpl.class, Vocabulary.Entities::getIndividuals) {
         @Override
-        OntFilter createPrimaryFilter() {
+        EnhNodeFilter createPrimaryFilter() {
             return (n, g) -> n.isURI() && filterType(n, g);
         }
 
@@ -86,8 +86,8 @@ public enum OWL2Entity {
         }
     },
     ;
-    private static final OntFinder ENTITY_FINDER = Factories.createFinder(e -> e.getResourceType().asNode(), values());
-    public static final ObjectFactory ALL = Factories.createFrom(ENTITY_FINDER,
+    private static final EnhNodeFinder ENTITY_FINDER = OntEnhNodeFactories.createFinder(e -> e.getResourceType().asNode(), values());
+    public static final EnhNodeFactory ALL = OntEnhNodeFactories.createFrom(ENTITY_FINDER,
             Arrays.stream(values()).map(OWL2Entity::getActualType));
 
     final Class<? extends OntObjectImpl> impl;
@@ -195,16 +195,16 @@ public enum OWL2Entity {
     /**
      * Creates a factory for the entity.
      *
-     * @return {@link ObjectFactory}
+     * @return {@link EnhNodeFactory}
      */
-    public ObjectFactory createFactory() {
-        OntFinder finder = new OntFinder.ByType(resourceType);
-        OntFilter filter = createPrimaryFilter();
-        OntMaker maker = new OntMaker.WithType(impl, resourceType).restrict(createIllegalPunningsFilter());
-        return Factories.createCommon(classType, maker, finder, filter);
+    public EnhNodeFactory createFactory() {
+        EnhNodeFinder finder = new EnhNodeFinder.ByType(resourceType);
+        EnhNodeFilter filter = createPrimaryFilter();
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, resourceType).restrict(createIllegalPunningsFilter());
+        return OntEnhNodeFactories.createCommon(classType, maker, finder, filter);
     }
 
-    OntFilter createIllegalPunningsFilter() {
+    EnhNodeFilter createIllegalPunningsFilter() {
         return (n, eg) -> {
             Graph g = eg.asGraph();
             for (Node t : bannedTypes(eg)) {
@@ -214,11 +214,11 @@ public enum OWL2Entity {
         };
     }
 
-    OntFilter createPrimaryFilter() {
-        OntFilter builtInEntity = (n, g) -> builtInURIs(g).contains(n);
-        OntFilter modelEntity = new OntFilter.HasType(resourceType).and(createIllegalPunningsFilter());
-        OntFilter entity = modelEntity.or(builtInEntity);
-        return OntFilter.URI.and(entity);
+    EnhNodeFilter createPrimaryFilter() {
+        EnhNodeFilter builtInEntity = (n, g) -> builtInURIs(g).contains(n);
+        EnhNodeFilter modelEntity = new EnhNodeFilter.HasType(resourceType).and(createIllegalPunningsFilter());
+        EnhNodeFilter entity = modelEntity.or(builtInEntity);
+        return EnhNodeFilter.URI.and(entity);
     }
 
 }

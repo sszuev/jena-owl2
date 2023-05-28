@@ -1,7 +1,5 @@
 package com.github.sszuev.jena.ontapi.common;
 
-import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.OntModelFactory;
 import com.github.sszuev.jena.ontapi.OntVocabulary;
 import com.github.sszuev.jena.ontapi.impl.objects.OWL2Entity;
 import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationImpl;
@@ -42,7 +40,6 @@ import org.apache.jena.rdf.model.Alt;
 import org.apache.jena.rdf.model.Bag;
 import org.apache.jena.rdf.model.Container;
 import org.apache.jena.rdf.model.Literal;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
@@ -94,7 +91,7 @@ public class OntPersonalities {
      *
      * @see org.apache.jena.enhanced.BuiltinPersonalities#model
      */
-    private static final Personality<RDFNode> STANDARD_PERSONALITY = new Personality<RDFNode>()
+    private static final Personality<RDFNode> RDF_PERSONALITY = new Personality<RDFNode>()
             .add(Resource.class, ResourceImpl.factory)
             .add(Property.class, PropertyImpl.factory)
             .add(Literal.class, LiteralImpl.factory)
@@ -109,8 +106,8 @@ public class OntPersonalities {
     /**
      * Default personality builder. Private access since this constant is mutable.
      */
-    private static final PersonalityBuilder ONT_PERSONALITY_BUILDER = new PersonalityBuilder()
-            .addPersonality(STANDARD_PERSONALITY)
+    private static final PersonalityBuilder OWL_ONT_PERSONALITY_BUILDER = new PersonalityBuilder()
+            .addPersonality(RDF_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OntObjectImpl.ONT_OBJECT_FACTORY)
 
@@ -221,6 +218,7 @@ public class OntPersonalities {
             .add(OntSWRL.Atom.class, OntSWRLImpl.SWRL_ATOM_FACTORY)
             .add(OntSWRL.Imp.class, OntSWRLImpl.SWRL_IMP_FACTORY)
             .add(OntSWRL.class, OntSWRLImpl.SWRL_OBJECT_FACTORY);
+
     /**
      * Personalities which don't care about the owl-entities "punnings" (no restriction on the type declarations).
      *
@@ -232,6 +230,7 @@ public class OntPersonalities {
             .setReserved(RESERVED)
             .setPunnings(PunningsMode.LAX.getVocabulary())
             .build();
+
     /**
      * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
      * <ul>
@@ -253,6 +252,7 @@ public class OntPersonalities {
             .setReserved(RESERVED)
             .setPunnings(PunningsMode.STRICT.getVocabulary())
             .build();
+
     /**
      * The week variant of previous constant: there are two forbidden intersections:
      * <ul>
@@ -268,23 +268,7 @@ public class OntPersonalities {
             .setReserved(RESERVED)
             .setPunnings(PunningsMode.MEDIUM.getVocabulary())
             .build();
-    /**
-     * Use {@link PunningsMode#MEDIUM} by default as a trade-off between the specification and the number of checks,
-     * which are usually not necessary and only load the system.
-     */
-    private static OntPersonality personality = OWL2_PERSONALITY_MEDIUM;
 
-    /**
-     * Returns the standard jena {@link Personality} as modifiable copy.
-     * It contains {@code 10} standard resource factories which are used by RDFS model
-     * ({@link Model}, the default model implementation).
-     *
-     * @return {@link Personality} of {@link RDFNode}s
-     * @see org.apache.jena.enhanced.BuiltinPersonalities#model
-     */
-    public static Personality<RDFNode> getStandardPersonality() {
-        return STANDARD_PERSONALITY.copy();
-    }
 
     /**
      * Returns a fresh copy of {@link PersonalityBuilder} with {@code 93} resource factories inside
@@ -294,29 +278,7 @@ public class OntPersonalities {
      * @return {@link PersonalityBuilder}
      */
     public static PersonalityBuilder getPersonalityBuilder() {
-        return ONT_PERSONALITY_BUILDER.copy();
-    }
-
-    /**
-     * Gets a system-wide personalities.
-     *
-     * @return {@link OntPersonality}
-     * @see OntModelFactory
-     */
-    public static OntPersonality getPersonality() {
-        return personality;
-    }
-
-    /**
-     * Sets a system-wide personalities.
-     *
-     * @param other {@link OntPersonality}, not {@code null}
-     * @return {@link OntPersonality}, a previous associated system-wide personalities
-     */
-    public static OntPersonality setPersonality(OntPersonality other) {
-        OntPersonality res = personality;
-        personality = OntJenaException.notNull(other, "Null personality specified.");
-        return res;
+        return OWL_ONT_PERSONALITY_BUILDER.copy();
     }
 
     /**
@@ -408,7 +370,7 @@ public class OntPersonalities {
          */
         MEDIUM,
         /**
-         * Allow everything.
+         * Allow any entity type intersections.
          */
         LAX,
         ;

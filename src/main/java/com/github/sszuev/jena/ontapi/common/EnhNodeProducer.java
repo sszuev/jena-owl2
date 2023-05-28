@@ -16,11 +16,11 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * To make some preparation while creating (create main triple).
  * Also, to create new instance of the resource ({@link EnhNode}).
- * Used in factory ({@link CommonFactoryImpl}).
+ * Used in factory ({@link CommonEnhNodeFactoryImpl}).
  * <p>
  * Created @ssz on 07.11.2016.
  */
-public interface OntMaker {
+public interface EnhNodeProducer {
 
     /**
      * Wraps the given {@code node} as a {@link EnhNode Jena RDFNode}.
@@ -38,47 +38,45 @@ public interface OntMaker {
      * @param node {@link Node}
      * @param eg   {@link EnhGraph}
      */
-    default void make(Node node, EnhGraph eg) {
+    default void insert(Node node, EnhGraph eg) {
         throw new OntJenaException.Unsupported();
     }
 
     /**
-     * Returns a {@link OntFilter}, that is used as tester to decide does this maker support graph modification or not.
+     * Returns a {@link EnhNodeFilter}, that is used as tester to decide does this maker support graph modification or not.
      *
-     * @return {@link OntFilter}
+     * @return {@link EnhNodeFilter}
      */
-    default OntFilter getTester() {
-        return OntFilter.FALSE;
+    default EnhNodeFilter getTester() {
+        return EnhNodeFilter.FALSE;
     }
 
     /**
-     * Returns an interface view implementation.
-     *
-     * @return a class-type of a concrete {@link OntObject OWL Object}.
+     * Returns a view string representation.
      */
-    Class<? extends EnhNode> getImpl();
+    String targetName();
 
-    default OntMaker restrict(OntFilter filter) {
+    default EnhNodeProducer restrict(EnhNodeFilter filter) {
         OntJenaException.notNull(filter, "Null restriction filter.");
-        return new OntMaker() {
+        return new EnhNodeProducer() {
             @Override
-            public void make(Node node, EnhGraph eg) {
-                OntMaker.this.make(node, eg);
+            public void insert(Node node, EnhGraph eg) {
+                EnhNodeProducer.this.insert(node, eg);
             }
 
             @Override
-            public OntFilter getTester() {
-                return OntMaker.this.getTester().and(filter);
+            public EnhNodeFilter getTester() {
+                return EnhNodeProducer.this.getTester().and(filter);
             }
 
             @Override
             public EnhNode instance(Node node, EnhGraph eg) {
-                return OntMaker.this.instance(node, eg);
+                return EnhNodeProducer.this.instance(node, eg);
             }
 
             @Override
-            public Class<? extends EnhNode> getImpl() {
-                return OntMaker.this.getImpl();
+            public String targetName() {
+                return EnhNodeProducer.this.targetName();
             }
         };
     }
@@ -88,22 +86,22 @@ public interface OntMaker {
      * <p>
      * Creation in graph is disabled for this maker
      */
-    class Default implements OntMaker {
-        protected final Class<? extends OntObjectImpl> impl;
+    class Default implements EnhNodeProducer {
+        protected final Class<? extends EnhNode> impl;
 
         /**
          * Class must be public and have a public constructor with parameters {@link Node} and {@link EnhGraph}.
          *
          * @param impl {@link OntObject} implementation.
          */
-        public Default(Class<? extends OntObjectImpl> impl) {
+        public Default(Class<? extends EnhNode> impl) {
             this.impl = OntJenaException.notNull(impl, "Null implementation class.");
         }
 
         @Override
-        public void make(Node node, EnhGraph eg) {
+        public void insert(Node node, EnhGraph eg) {
             throw new OntJenaException.Unsupported("Creation is not allowed for node " +
-                    node + " and class " + impl.getSimpleName());
+                    node + " and target " + targetName());
         }
 
         @Override
@@ -111,16 +109,16 @@ public interface OntMaker {
             try {
                 return impl.getDeclaredConstructor(Node.class, EnhGraph.class).newInstance(node, eg);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-                throw new OntJenaException("Can't create instance of " + impl, e);
+                throw new OntJenaException("Can't create instance of " + targetName(), e);
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof JenaException) throw (JenaException) e.getCause();
-                throw new OntJenaException("Can't init " + impl, e);
+                throw new OntJenaException("Can't init " + targetName(), e);
             }
         }
 
         @Override
-        public Class<? extends OntObjectImpl> getImpl() {
-            return impl;
+        public String targetName() {
+            return impl.getSimpleName();
         }
     }
 
@@ -136,13 +134,13 @@ public interface OntMaker {
         }
 
         @Override
-        public void make(Node node, EnhGraph eg) {
+        public void insert(Node node, EnhGraph eg) {
             eg.asGraph().add(Triple.create(node, RDF.type.asNode(), type));
         }
 
         @Override
-        public OntFilter getTester() {
-            return OntFilter.TRUE;
+        public EnhNodeFilter getTester() {
+            return EnhNodeFilter.TRUE;
         }
     }
 }

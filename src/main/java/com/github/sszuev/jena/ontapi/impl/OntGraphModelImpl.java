@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi.impl;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.objects.OntCEImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDRImpl;
@@ -1416,7 +1417,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             throw e;
         } catch (JenaException e) {
             throw new OntJenaException.Conversion(String.format("Failed to convert node <%s> to <%s>",
-                    node, OntObjectImpl.viewAsString(type)), e);
+                    node, OntEnhNodeFactories.viewAsString(type)), e);
         }
     }
 
@@ -1440,7 +1441,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             if (nodes.add(node)) {
                 return getNodeAsInternal(node, type);
             }
-            throw new OntJenaException.Recursion("Can't cast to " + OntObjectImpl.viewAsString(type) + ": " +
+            throw new OntJenaException.Recursion("Can't cast to " + OntEnhNodeFactories.viewAsString(type) + ": " +
                     "graph contains a recursion for node <" + node + ">");
         } catch (OntJenaException.Conversion | PersonalityConfigException r) {
             return null;

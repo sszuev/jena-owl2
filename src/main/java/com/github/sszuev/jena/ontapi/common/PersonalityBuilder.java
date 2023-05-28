@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("WeakerAccess")
 public class PersonalityBuilder {
-    private final Map<Class<? extends OntObject>, ObjectFactory> map;
+    private final Map<Class<? extends OntObject>, EnhNodeFactory> map;
 
     private final Personality<RDFNode> base;
     private OntPersonality.Punnings punnings;
@@ -37,7 +37,7 @@ public class PersonalityBuilder {
         this(new LinkedHashMap<>());
     }
 
-    protected PersonalityBuilder(Map<Class<? extends OntObject>, ObjectFactory> factories) {
+    protected PersonalityBuilder(Map<Class<? extends OntObject>, EnhNodeFactory> factories) {
         this.map = Objects.requireNonNull(factories);
         this.base = new Personality<>();
     }
@@ -95,11 +95,11 @@ public class PersonalityBuilder {
     }
 
     /**
-     * Associates the specified {@link ObjectFactory factory} with the specified {@link OntObject object} type.
+     * Associates the specified {@link EnhNodeFactory factory} with the specified {@link OntObject object} type.
      * If the builder previously contained a mapping for the object type (which is common situation),
      * the old factory is replaced by the specified factory.
      * <p>
-     * Please note: the {@link ObjectFactory factory} must not explicitly refer to another factory,
+     * Please note: the {@link EnhNodeFactory factory} must not explicitly refer to another factory,
      * instead it may contain implicit references through
      * {@link OntEnhGraph#asPersonalityModel(EnhGraph)} method.
      * For example if you need a check, that some {@link Node node} is an OWL-Class inside your factory,
@@ -107,10 +107,10 @@ public class PersonalityBuilder {
      * with the type {@link OntClass.Named}.
      *
      * @param type    {@code Class}-type of the concrete {@link OntObject}.
-     * @param factory {@link ObjectFactory} the factory to produce the instances of the {@code type},
+     * @param factory {@link EnhNodeFactory} the factory to produce the instances of the {@code type},
      * @return this builder
      */
-    public PersonalityBuilder add(Class<? extends OntObject> type, ObjectFactory factory) {
+    public PersonalityBuilder add(Class<? extends OntObject> type, EnhNodeFactory factory) {
         map.put(type, factory);
         return this;
     }

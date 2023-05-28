@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
@@ -70,7 +69,6 @@ public class OntModelFactory {
      * Creates a fresh in-memory Ontology RDF Model with default personalities.
      *
      * @return {@link OntModel}
-     * @see OntPersonalities#getPersonality()
      */
     public static OntModel createModel() {
         return createModel(createDefaultGraph());

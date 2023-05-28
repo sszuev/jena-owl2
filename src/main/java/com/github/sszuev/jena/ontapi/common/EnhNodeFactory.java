@@ -1,8 +1,6 @@
 package com.github.sszuev.jena.ontapi.common;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.model.OntModel;
-import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import org.apache.jena.enhanced.EnhGraph;
@@ -15,15 +13,14 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import java.util.stream.Stream;
 
 /**
- * An {@link OntObject Ontology Object} factory abstraction,
+ * An {@link EnhNode} factory abstraction,
  * that is an ONT-API analogue of the {@link Implementation Jena Implementation Factory}.
  * Used to bind a concrete implementation (i.e. {@link EnhNode enhanced node}) and
- * an interface ({@link OntObject OWL Object}) with a {@link Node Graph Node}.
+ * an interface ({@link com.github.sszuev.jena.ontapi.model.OntObject OWL Object}) with a {@link Node Graph Node}.
  * It is a part of {@link OntPersonality} mechanism to manipulate
- * {@link OntModel OWL2 RDF-model} objects (which happens
- * through {@link OntEnhGraph}).
- * Also note, explicit links between different {@link ObjectFactory} factories are undesirable
- * (for more details see {@link PersonalityBuilder#add(Class, ObjectFactory)} and
+ * {@link com.github.sszuev.jena.ontapi.model.OntModel OWL2 RDF-model} objects (which happens through {@link OntEnhGraph}).
+ * Also note, explicit links between different {@link EnhNodeFactory} factories are undesirable
+ * (for more details see {@link PersonalityBuilder#add(Class, EnhNodeFactory)} and
  * {@link OntEnhGraph}).
  * <p>
  * TODO: consider a possibility to replace {@link EnhGraph} with {@link OntEnhGraph}.
@@ -33,7 +30,7 @@ import java.util.stream.Stream;
  * @see OntPersonality
  * @see OntEnhGraph
  */
-public interface ObjectFactory {
+public interface EnhNodeFactory {
 
     /**
      * Represents the given implementation factory as {@link Implementation Jena Implementation Factory}.
@@ -44,11 +41,11 @@ public interface ObjectFactory {
      * @see OntPersonality#asJenaPersonality(OntPersonality)
      * @see OntEnhGraph#asPersonalityModel(EnhGraph)
      */
-    static Implementation asJenaImplementation(ObjectFactory f) throws OntJenaException {
+    static Implementation asJenaImplementation(EnhNodeFactory f) throws OntJenaException {
         if (f instanceof Implementation) {
             return (Implementation) f;
         }
-        throw new OntJenaException.IllegalArgument("The given OntObjectFactory is not an instance of Jena Implementation.");
+        throw new OntJenaException.IllegalArgument("The given EnhNodeFactory is not an instance of Jena Implementation.");
     }
 
     /**
@@ -88,7 +85,7 @@ public interface ObjectFactory {
      * Creates a new {@link EnhNode} wrapping the given {@link Node} node in the context of the graph {@link EnhGraph}.
      * Unlike the method {@link #createInGraph(Node, EnhGraph)}, this method does not make any changes to the graph.
      *
-     * @param node {@link Node}, the node to be wrapped as {@link OntObject}, not {@code null}
+     * @param node {@link Node}, the node to be wrapped as {@link EnhNode}, not {@code null}
      * @param eg   {@link EnhGraph}, the graph containing the node, not {@code null}
      * @return {@link EnhNode} a new enhanced node presenting the interface that this factory encapsulates
      * @throws OntJenaException in case wrapping is impossible
@@ -103,7 +100,7 @@ public interface ObjectFactory {
      * Makes interface-defined changes in the given graph
      * and returns a new enhanced node, wrapping the given {@link Node}.
      *
-     * @param node {@link Node}, the node to be wrapped as {@link OntObject}, not {@code null}
+     * @param node {@link Node}, the node to be wrapped as {@link EnhNode}, not {@code null}
      * @param eg   {@link EnhGraph}, the graph which would contain the result {@link EnhNode}, not {@code null}
      * @return a new enhanced node
      * @throws OntJenaException in case modification of graph is not allowed for the specified node

@@ -1,10 +1,10 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
@@ -52,8 +52,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public class OntObjectImpl extends ResourceImpl implements OntObject {
 
-    public static final ObjectFactory ONT_OBJECT_FACTORY = Factories.createCommon(OntObjectImpl.class,
-            OntFinder.ANY_SUBJECT, OntFilter.URI.or(OntFilter.BLANK));
+    public static final EnhNodeFactory ONT_OBJECT_FACTORY = OntEnhNodeFactories.createCommon(OntObjectImpl.class,
+            EnhNodeFinder.ANY_SUBJECT, EnhNodeFilter.URI.or(EnhNodeFilter.BLANK));
 
     public OntObjectImpl(Node n, EnhGraph m) {
         super(n, m);
@@ -91,16 +91,6 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
     protected static Optional<OntStatement> getOptionalRootStatement(OntObjectImpl subject, Resource type) {
         if (!subject.hasProperty(RDF.type, checkNamed(type))) return Optional.empty();
         return Optional.of(subject.getModel().createStatement(subject, RDF.type, type).asRootStatement());
-    }
-
-    /**
-     * Answers a short form of a given class-type.
-     *
-     * @param type {@code Class}-type, not {@code null}
-     * @return String
-     */
-    public static String viewAsString(Class<? extends RDFNode> type) {
-        return type.getName().replace(OntObject.class.getPackage().getName() + ".", "");
     }
 
     /**
@@ -651,7 +641,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
     public <T extends RDFNode> T getRequiredObject(Property predicate, Class<T> view) {
         return object(predicate, view)
                 .orElseThrow(() -> new OntJenaException(
-                        String.format("Can't find required object [%s @%s %s]", this, predicate, viewAsString(view))));
+                        String.format("Can't find required object [%s @%s %s]", this, predicate, OntEnhNodeFactories.viewAsString(view))));
     }
 
     /**
@@ -754,7 +744,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
     @Override
     public String toString() {
         Class<? extends RDFNode> view = getActualClass();
-        return view == null ? super.toString() : String.format("[%s]%s", viewAsString(view), asNode());
+        return view == null ? super.toString() : String.format("[%s]%s", OntEnhNodeFactories.viewAsString(view), asNode());
     }
 
 }

@@ -1,8 +1,8 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotation;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
@@ -66,7 +66,7 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
             , EXTRA_ROOT_TYPES.stream()).collect(Collectors.toUnmodifiableList());
     public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = ModelUtils.asUnmodifiableNodeSet(EXTRA_ROOT_TYPES);
     private static final Set<Node> REQUIRED_PROPERTY_NODES = ModelUtils.asUnmodifiableNodeSet(REQUIRED_PROPERTIES);
-    public static final ObjectFactory OWL2_ANNOTATION_FACTORY = Factories.createCommon(OntAnnotationImpl.class,
+    public static final EnhNodeFactory OWL2_ANNOTATION_FACTORY = OntEnhNodeFactories.createCommon(OntAnnotationImpl.class,
             OntAnnotationImpl::listRootAnnotations,
             OntAnnotationImpl::testAnnotation);
     private static final Node AXIOM = OWL.Axiom.asNode();

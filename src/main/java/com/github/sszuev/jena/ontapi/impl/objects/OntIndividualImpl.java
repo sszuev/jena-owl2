@@ -1,10 +1,10 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -50,11 +50,11 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
                     RDF.first, SWRL.argument1, SWRL.argument2)
             .map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
 
-    private static final OntFinder FINDER = OntFinder.ANY_SUBJECT_AND_OBJECT;
-    public static final ObjectFactory OWL2_ANONYMOUS_INDIVIDUAL_FACTORY = Factories.createCommon(AnonymousImpl.class, FINDER,
+    private static final EnhNodeFinder FINDER = EnhNodeFinder.ANY_SUBJECT_AND_OBJECT;
+    public static final EnhNodeFactory OWL2_ANONYMOUS_INDIVIDUAL_FACTORY = OntEnhNodeFactories.createCommon(AnonymousImpl.class, FINDER,
             OntIndividualImpl::testAnonymousIndividual);
 
-    public static final ObjectFactory OWL2_INDIVIDUAL_FACTORY = Factories.createFrom(FINDER, Named.class, Anonymous.class);
+    public static final EnhNodeFactory OWL2_INDIVIDUAL_FACTORY = OntEnhNodeFactories.createFrom(FINDER, Named.class, Anonymous.class);
 
     public OntIndividualImpl(Node n, EnhGraph m) {
         super(n, m);

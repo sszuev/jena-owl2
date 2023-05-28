@@ -186,7 +186,7 @@ public interface OntVocabulary {
      */
     class Factory {
 
-        public static final OntVocabulary DUMMY = new Impl(Collections.emptyMap());
+        public static final OntVocabulary RDFS_VOCABULARY = new Impl(Collections.emptyMap());
         public static final OntVocabulary OWL_VOCABULARY = new OWLImpl();
         public static final OntVocabulary DC_VOCABULARY = new DCImpl();
         public static final OntVocabulary SKOS_VOCABULARY = new SKOSImpl();

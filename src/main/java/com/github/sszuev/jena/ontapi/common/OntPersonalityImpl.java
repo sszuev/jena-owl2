@@ -53,8 +53,8 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
      * @param type    Interface (OntObject)
      * @param factory Factory to crete object
      */
-    public void register(Class<? extends OntObject> type, ObjectFactory factory) {
-        super.add(Objects.requireNonNull(type, "Null type."), ObjectFactory.asJenaImplementation(factory));
+    public void register(Class<? extends OntObject> type, EnhNodeFactory factory) {
+        super.add(Objects.requireNonNull(type, "Null type."), EnhNodeFactory.asJenaImplementation(factory));
     }
 
     /**
@@ -75,11 +75,11 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
      * Gets factory for {@link OntObject}.
      *
      * @param type Interface (OntObject type)
-     * @return {@link ObjectFactory} factory
+     * @return {@link EnhNodeFactory} factory
      */
     @Override
-    public ObjectFactory getObjectFactory(Class<? extends OntObject> type) {
-        return (ObjectFactory) OntJenaException.notNull(getImplementation(type),
+    public EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type) {
+        return (EnhNodeFactory) OntJenaException.notNull(getImplementation(type),
                 "Can't find factory for the object type " + type);
     }
 

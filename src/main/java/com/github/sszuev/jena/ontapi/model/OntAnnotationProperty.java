@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi.model;
 
-import com.github.sszuev.jena.ontapi.OntJenaException;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDFS;
@@ -50,33 +49,6 @@ public interface OntAnnotationProperty extends OntProperty, OntNamedProperty<Ont
      */
     @Override
     Stream<Resource> ranges();
-
-    /**
-     * Adds domain statement {@code A rdfs:domain U},
-     * where {@code A} is this annotation property and {@code U} is any IRI.
-     *
-     * @param domain uri-{@link Resource}, not {@code null}
-     * @return {@link OntStatement} to allow subsequent annotations adding
-     * @throws OntJenaException in case of anonymous resource is specified
-     * @see #domains()
-     * @see #removeDomain(Resource)
-     * @see #addDomain(Resource)
-     * @see #addRangeStatement(Resource)
-     */
-    OntStatement addDomainStatement(Resource domain);
-
-    /**
-     * Adds range statement {@code A rdfs:range U}, where {@code A} is an annotation property, {@code U} is any IRI.
-     *
-     * @param range uri-{@link Resource}, not {@code null}
-     * @return {@link OntStatement} to allow subsequent annotations adding
-     * @throws OntJenaException in case of input is anonymous resource
-     * @see #ranges()
-     * @see #removeRange(Resource)
-     * @see #addRange(Resource)
-     * @see #addDomainStatement(Resource)
-     */
-    OntStatement addRangeStatement(Resource range);
 
     /**
      * {@inheritDoc}
@@ -163,17 +135,6 @@ public interface OntAnnotationProperty extends OntProperty, OntNamedProperty<Ont
     default OntAnnotationProperty removeSuperProperty(Resource property) {
         remove(RDFS.subPropertyOf, property);
         return this;
-    }
-
-    /**
-     * Adds the given property as super property returning a new statement to annotate.
-     * The triple pattern is {@code this rdfs:subPropertyOf property}).
-     *
-     * @param property {@link OntAnnotationProperty}, not {@code null}
-     * @return {@link OntStatement} to allow subsequent annotations adding
-     */
-    default OntStatement addSubPropertyOfStatement(OntAnnotationProperty property) {
-        return addStatement(RDFS.subPropertyOf, property);
     }
 
 }

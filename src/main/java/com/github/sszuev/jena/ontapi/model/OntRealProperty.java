@@ -107,7 +107,7 @@ public interface OntRealProperty extends OntProperty {
      *
      * @param ce {@link OntClass}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
-     * @see #addDomainStatement(OntClass)
+     * @see #addDomainStatement(Resource)
      */
     OntRealProperty addDomain(OntClass ce);
 
@@ -227,18 +227,6 @@ public interface OntRealProperty extends OntProperty {
      */
     default OntStatement addFunctionalDeclaration() {
         return addStatement(RDF.type, OWL.FunctionalProperty);
-    }
-
-    /**
-     * Adds a statement {@code P rdfs:domain C},
-     * where {@code P} is this property expression and {@code C} is the specified class expression.
-     *
-     * @param ce {@link OntClass class expression}, not null
-     * @return {@link OntStatement} to allow the subsequent addition of annotations
-     * @see #addDomain(OntClass)
-     */
-    default OntStatement addDomainStatement(OntClass ce) {
-        return addStatement(RDFS.domain, ce);
     }
 
     /**

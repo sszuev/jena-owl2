@@ -14,16 +14,16 @@ import java.util.stream.Collectors;
 
 /**
  * To filter resources.
- * Used by {@link CommonFactoryImpl default factory} and {@link MultiFactoryImpl} implementations as a component.
+ * Used by {@link CommonEnhNodeFactoryImpl default factory} and {@link CompositeEnhNodeFactoryImpl} implementations as a component.
  * <p>
  * Created @ssz on 07.11.2016.
  */
 @FunctionalInterface
-public interface OntFilter {
-    OntFilter TRUE = (n, g) -> true;
-    OntFilter FALSE = (n, g) -> false;
-    OntFilter URI = (n, g) -> n.isURI();
-    OntFilter BLANK = (n, g) -> n.isBlank();
+public interface EnhNodeFilter {
+    EnhNodeFilter TRUE = (n, g) -> true;
+    EnhNodeFilter FALSE = (n, g) -> false;
+    EnhNodeFilter URI = (n, g) -> n.isURI();
+    EnhNodeFilter BLANK = (n, g) -> n.isBlank();
 
     /**
      * Tests if the given {@link Node node} suits the encapsulated conditions in bounds of the specified {@link EnhGraph graph}.
@@ -34,7 +34,7 @@ public interface OntFilter {
      */
     boolean test(Node n, EnhGraph g);
 
-    default OntFilter and(OntFilter other) {
+    default EnhNodeFilter and(EnhNodeFilter other) {
         if (Objects.requireNonNull(other, "Null and-filter.").equals(TRUE)) {
             return this;
         }
@@ -44,7 +44,7 @@ public interface OntFilter {
         return (Node n, EnhGraph g) -> this.test(n, g) && other.test(n, g);
     }
 
-    default OntFilter or(OntFilter other) {
+    default EnhNodeFilter or(EnhNodeFilter other) {
         if (Objects.requireNonNull(other, "Null or-filter.").equals(TRUE)) {
             return TRUE;
         }
@@ -54,21 +54,21 @@ public interface OntFilter {
         return (Node n, EnhGraph g) -> this.test(n, g) || other.test(n, g);
     }
 
-    default OntFilter negate() {
+    default EnhNodeFilter negate() {
         if (this.equals(TRUE)) return FALSE;
         if (this.equals(FALSE)) return TRUE;
         return (Node n, EnhGraph g) -> !test(n, g);
     }
 
-    default OntFilter accumulate(OntFilter... filters) {
-        OntFilter res = this;
-        for (OntFilter o : filters) {
+    default EnhNodeFilter accumulate(EnhNodeFilter... filters) {
+        EnhNodeFilter res = this;
+        for (EnhNodeFilter o : filters) {
             res = res.and(o);
         }
         return res;
     }
 
-    class HasPredicate implements OntFilter {
+    class HasPredicate implements EnhNodeFilter {
         protected final Node predicate;
 
         public HasPredicate(Property predicate) {
@@ -81,7 +81,7 @@ public interface OntFilter {
         }
     }
 
-    class HasType implements OntFilter {
+    class HasType implements EnhNodeFilter {
         protected final Node type;
 
         public HasType(Resource type) {
@@ -94,7 +94,7 @@ public interface OntFilter {
         }
     }
 
-    class OneOf implements OntFilter {
+    class OneOf implements EnhNodeFilter {
         protected final Set<Node> nodes;
 
         public OneOf(Collection<? extends RDFNode> types) {

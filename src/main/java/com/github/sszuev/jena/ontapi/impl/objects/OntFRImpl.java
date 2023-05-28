@@ -1,10 +1,10 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntFacetRestriction;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
@@ -27,30 +27,30 @@ import java.util.Optional;
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestriction {
-    public static final ObjectFactory OWL2_LENGTH_FR_FACTORY = Factories.createCommon(LengthImpl.class,
+    public static final EnhNodeFactory OWL2_LENGTH_FR_FACTORY = OntEnhNodeFactories.createCommon(LengthImpl.class,
             makeFinder(XSD.length), makeFilter(XSD.length));
-    public static final ObjectFactory OWL2_MIN_LENGTH_FR_FACTORY = Factories.createCommon(MinLengthImpl.class,
+    public static final EnhNodeFactory OWL2_MIN_LENGTH_FR_FACTORY = OntEnhNodeFactories.createCommon(MinLengthImpl.class,
             makeFinder(XSD.minLength), makeFilter(XSD.minLength));
-    public static final ObjectFactory OWL2_MAX_LENGTH_FR_FACTORY = Factories.createCommon(MaxLengthImpl.class,
+    public static final EnhNodeFactory OWL2_MAX_LENGTH_FR_FACTORY = OntEnhNodeFactories.createCommon(MaxLengthImpl.class,
             makeFinder(XSD.maxLength), makeFilter(XSD.maxLength));
-    public static final ObjectFactory OWL2_MIN_INCLUSIVE_FR_FACTORY = Factories.createCommon(MinInclusiveImpl.class,
+    public static final EnhNodeFactory OWL2_MIN_INCLUSIVE_FR_FACTORY = OntEnhNodeFactories.createCommon(MinInclusiveImpl.class,
             makeFinder(XSD.minInclusive), makeFilter(XSD.minInclusive));
-    public static final ObjectFactory OWL2_MAX_INCLUSIVE_FR_FACTORY = Factories.createCommon(MaxInclusiveImpl.class,
+    public static final EnhNodeFactory OWL2_MAX_INCLUSIVE_FR_FACTORY = OntEnhNodeFactories.createCommon(MaxInclusiveImpl.class,
             makeFinder(XSD.maxInclusive), makeFilter(XSD.maxInclusive));
-    public static final ObjectFactory OWL2_MIN_EXCLUSIVE_FR_FACTORY = Factories.createCommon(MinExclusiveImpl.class,
+    public static final EnhNodeFactory OWL2_MIN_EXCLUSIVE_FR_FACTORY = OntEnhNodeFactories.createCommon(MinExclusiveImpl.class,
             makeFinder(XSD.minExclusive), makeFilter(XSD.minExclusive));
-    public static final ObjectFactory OWL2_MAX_EXCLUSIVE_FR_FACTORY = Factories.createCommon(MaxExclusiveImpl.class,
+    public static final EnhNodeFactory OWL2_MAX_EXCLUSIVE_FR_FACTORY = OntEnhNodeFactories.createCommon(MaxExclusiveImpl.class,
             makeFinder(XSD.maxExclusive), makeFilter(XSD.maxExclusive));
-    public static final ObjectFactory OWL2_TOTAL_DIGITS_FR_FACTORY = Factories.createCommon(TotalDigitsImpl.class,
+    public static final EnhNodeFactory OWL2_TOTAL_DIGITS_FR_FACTORY = OntEnhNodeFactories.createCommon(TotalDigitsImpl.class,
             makeFinder(XSD.totalDigits), makeFilter(XSD.totalDigits));
-    public static final ObjectFactory OWL2_FRACTION_DIGITS_FR_FACTORY = Factories.createCommon(FractionDigitsImpl.class,
+    public static final EnhNodeFactory OWL2_FRACTION_DIGITS_FR_FACTORY = OntEnhNodeFactories.createCommon(FractionDigitsImpl.class,
             makeFinder(XSD.fractionDigits), makeFilter(XSD.fractionDigits));
-    public static final ObjectFactory OWL2_PATTERN_FR_FACTORY = Factories.createCommon(PatternImpl.class,
+    public static final EnhNodeFactory OWL2_PATTERN_FR_FACTORY = OntEnhNodeFactories.createCommon(PatternImpl.class,
             makeFinder(XSD.pattern), makeFilter(XSD.pattern));
-    public static final ObjectFactory OWL2_LANG_RANGE_FR_FACTORY = Factories.createCommon(LangRangeImpl.class,
+    public static final EnhNodeFactory OWL2_LANG_RANGE_FR_FACTORY = OntEnhNodeFactories.createCommon(LangRangeImpl.class,
             makeFinder(RDF.langRange), makeFilter(RDF.langRange));
 
-    public static final ObjectFactory OWL2_FR_FACTORY = Factories.createFrom(OntFinder.ANY_BLANK_SUBJECT
+    public static final EnhNodeFactory OWL2_FR_FACTORY = OntEnhNodeFactories.createFrom(EnhNodeFinder.ANY_BLANK_SUBJECT
             , Length.class
             , MinLength.class
             , MaxLength.class
@@ -67,12 +67,12 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         super(n, m);
     }
 
-    private static OntFinder makeFinder(Property predicate) {
-        return new OntFinder.ByPredicate(predicate);
+    private static EnhNodeFinder makeFinder(Property predicate) {
+        return new EnhNodeFinder.ByPredicate(predicate);
     }
 
-    private static OntFilter makeFilter(Property predicate) {
-        return OntFilter.BLANK.and(
+    private static EnhNodeFilter makeFilter(Property predicate) {
+        return EnhNodeFilter.BLANK.and(
                 (n, g) -> Iterators.anyMatch(g.asGraph().find(n, predicate.asNode(), Node.ANY)
                         .mapWith(Triple::getObject), Node::isLiteral)
         );

@@ -9,43 +9,43 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import java.util.Objects;
 
 /**
- * Default implementation of {@link ObjectFactory}.
+ * Default implementation of {@link EnhNodeFactory}.
  * This is a kind of constructor that consists of three modules:
  * <ul>
- * <li>{@link OntMaker} for initialization and physical creation a node {@link EnhNode} in the graph {@link EnhGraph}.</li>
- * <li>{@link OntFilter} to test the presence of a node in the graph.</li>
- * <li>{@link OntFinder} to search for nodes in the graph.</li>
+ * <li>{@link EnhNodeProducer} for initialization and physical creation a node {@link EnhNode} in the graph {@link EnhGraph}.</li>
+ * <li>{@link EnhNodeFilter} to test the presence of a node in the graph.</li>
+ * <li>{@link EnhNodeFinder} to search for nodes in the graph.</li>
  * </ul>
  * <p>
  * Created @ssz on 07.11.2016.
  */
-public class CommonFactoryImpl extends BaseFactoryImpl {
-    private final OntMaker maker;
-    private final OntFinder finder;
-    private final OntFilter filter;
+public class CommonEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
+    private final EnhNodeProducer maker;
+    private final EnhNodeFinder finder;
+    private final EnhNodeFilter filter;
 
-    public CommonFactoryImpl(OntMaker maker, OntFinder finder, OntFilter filter) {
+    public CommonEnhNodeFactoryImpl(EnhNodeProducer maker, EnhNodeFinder finder, EnhNodeFilter filter) {
         this.maker = Objects.requireNonNull(maker, "Null maker.");
         this.finder = Objects.requireNonNull(finder, "Null finder.");
         this.filter = Objects.requireNonNull(filter, "Null filter.");
     }
 
-    public OntMaker getMaker() {
+    public EnhNodeProducer getMaker() {
         return maker;
     }
 
-    public OntFinder getFinder() {
+    public EnhNodeFinder getFinder() {
         return finder;
     }
 
-    public OntFilter getFilter() {
+    public EnhNodeFilter getFilter() {
         return filter;
     }
 
     @Override
     public EnhNode wrap(Node node, EnhGraph eg) {
         if (!canWrap(node, eg))
-            throw new OntJenaException.Conversion(String.format("Can't wrap node %s to %s", node, maker.getImpl()));
+            throw new OntJenaException.Conversion(String.format("Can't wrap node %s to %s", node, maker.targetName()));
         return createInstance(node, eg);
     }
 
@@ -57,8 +57,8 @@ public class CommonFactoryImpl extends BaseFactoryImpl {
     @Override
     public EnhNode createInGraph(Node node, EnhGraph eg) {
         if (!canCreateInGraph(node, eg))
-            throw new OntJenaException.Creation(String.format("Can't modify graph for %s (%s)", node, maker.getImpl()));
-        maker.make(node, eg);
+            throw new OntJenaException.Creation(String.format("Can't modify graph for %s (%s)", node, maker.targetName()));
+        maker.insert(node, eg);
         return createInstance(node, eg);
     }
 

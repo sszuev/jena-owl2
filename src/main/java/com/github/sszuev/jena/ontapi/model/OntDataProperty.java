@@ -162,29 +162,6 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
     }
 
     /**
-     * Adds a statement {@code R rdfs:range D},
-     * where {@code R} is this data property and {@code D} is the given data range expression.
-     *
-     * @param range {@link OntDataRange}, not {@code null}
-     * @return {@link OntStatement} to allow subsequent annotations adding
-     * @see #addRange(OntDataRange)
-     */
-    default OntStatement addRangeStatement(OntDataRange range) {
-        return addStatement(RDFS.range, range);
-    }
-
-    /**
-     * Adds the given property as super property returning a new statement to annotate.
-     * The triple pattern is {@code this rdfs:subPropertyOf property}).
-     *
-     * @param property {@link OntDataProperty}, not {@code null}
-     * @return {@link OntStatement} to allow subsequent annotations adding
-     */
-    default OntStatement addSubPropertyOfStatement(OntDataProperty property) {
-        return addStatement(RDFS.subPropertyOf, property);
-    }
-
-    /**
      * Creates and returns a new {@link OWL#equivalentProperty owl:equivalentProperty} statement
      * with the given property as an object and this property as a subject.
      *
@@ -241,7 +218,7 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
      *
      * @param range {@link OntDataRange}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
-     * @see #addRangeStatement(OntDataRange)
+     * @see #addRangeStatement(Resource)
      */
     default OntDataProperty addRange(OntDataRange range) {
         addRangeStatement(range);

@@ -1,11 +1,11 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.BaseFactoryImpl;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
+import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -40,28 +40,25 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public class OntDRImpl extends OntObjectImpl implements OntDataRange {
 
-    private static final OntFinder DR_FINDER = new OntFinder.ByType(RDFS.Datatype);
-    private static final OntFilter DR_FILTER = OntFilter.BLANK.and(new OntFilter.HasType(RDFS.Datatype));
-
-    public static final ObjectFactory OWL2_ONE_OF_DR_FACTORY = Factories.createCommon(OneOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.oneOf)));
-    public static final ObjectFactory OWL2_RESTRICTION_DR_FACTORY = Factories.createCommon(RestrictionImpl.class,
-            DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.onDatatype))
-                    .and(new OntFilter.HasPredicate(OWL.withRestrictions)));
-    public static final ObjectFactory OWL2_COMPLEMENT_OF_DR_FACTORY = Factories.createCommon(ComplementOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.datatypeComplementOf)));
-    public static final ObjectFactory OWL2_UNION_OF_DR_FACTORY = Factories.createCommon(UnionOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.unionOf)));
-    public static final ObjectFactory OWL2_INTERSECTION_OF_DR_FACTORY = Factories.createCommon(IntersectionOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new OntFilter.HasPredicate(OWL.intersectionOf)));
-
-    public static final ObjectFactory OWL2_COMPONENTS_DR_FACTORY = Factories.createFrom(DR_FINDER
+    public static final EnhNodeFactory OWL2_DR_FACTORY = DataRangeFactory.createFactory();
+    private static final EnhNodeFinder DR_FINDER = new EnhNodeFinder.ByType(RDFS.Datatype);
+    public static final EnhNodeFactory OWL2_COMPONENTS_DR_FACTORY = OntEnhNodeFactories.createFrom(DR_FINDER
             , OneOf.class
             , Restriction.class
             , UnionOf.class
             , IntersectionOf.class);
-
-    public static final ObjectFactory OWL2_DR_FACTORY = DataRangeFactory.createFactory();
+    private static final EnhNodeFilter DR_FILTER = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(RDFS.Datatype));
+    public static final EnhNodeFactory OWL2_ONE_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(OneOfImpl.class,
+            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.oneOf)));
+    public static final EnhNodeFactory OWL2_RESTRICTION_DR_FACTORY = OntEnhNodeFactories.createCommon(RestrictionImpl.class,
+            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.onDatatype))
+                    .and(new EnhNodeFilter.HasPredicate(OWL.withRestrictions)));
+    public static final EnhNodeFactory OWL2_COMPLEMENT_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(ComplementOfImpl.class,
+            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.datatypeComplementOf)));
+    public static final EnhNodeFactory OWL2_UNION_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(UnionOfImpl.class,
+            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.unionOf)));
+    public static final EnhNodeFactory OWL2_INTERSECTION_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(IntersectionOfImpl.class,
+            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf)));
 
     public OntDRImpl(Node n, EnhGraph m) {
         super(n, m);
@@ -251,31 +248,31 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
     /**
      * A factory to produce {@link OntDataRange}s.
      * <p>
-     * Although it would be easy to produce this factory using {@link Factories#createFrom(OntFinder, Class[])},
+     * Although it would be easy to produce this factory using {@link OntEnhNodeFactories#createFrom(EnhNodeFinder, Class[])},
      * this variant with explicit methods must be a little faster,
      * since there is a reduction of number of some possible repetition calls.
      * Also, everything here is under control.
      * <p>
      * Created by @ssz on 02.02.2019.
      */
-    public static class DataRangeFactory extends BaseFactoryImpl {
+    public static class DataRangeFactory extends BaseEnhNodeFactoryImpl {
         private static final Node TYPE = RDF.Nodes.type;
         private static final Node ANY = Node.ANY;
         private static final Node DATATYPE = RDFS.Datatype.asNode();
 
-        private final ObjectFactory named = WrappedFactoryImpl.of(Named.class);
-        private final ObjectFactory oneOf = WrappedFactoryImpl.of(OneOf.class);
-        private final ObjectFactory complementOf = WrappedFactoryImpl.of(ComplementOf.class);
-        private final ObjectFactory unionOf = WrappedFactoryImpl.of(UnionOf.class);
-        private final ObjectFactory intersectionOf = WrappedFactoryImpl.of(IntersectionOf.class);
-        private final ObjectFactory restriction = WrappedFactoryImpl.of(Restriction.class);
-        private final List<ObjectFactory> anonymous = Stream.of(complementOf
+        private final EnhNodeFactory named = WrappedFactoryImpl.of(Named.class);
+        private final EnhNodeFactory oneOf = WrappedFactoryImpl.of(OneOf.class);
+        private final EnhNodeFactory complementOf = WrappedFactoryImpl.of(ComplementOf.class);
+        private final EnhNodeFactory unionOf = WrappedFactoryImpl.of(UnionOf.class);
+        private final EnhNodeFactory intersectionOf = WrappedFactoryImpl.of(IntersectionOf.class);
+        private final EnhNodeFactory restriction = WrappedFactoryImpl.of(Restriction.class);
+        private final List<EnhNodeFactory> anonymous = Stream.of(complementOf
                 , restriction
                 , oneOf
                 , unionOf
                 , intersectionOf).collect(Collectors.toList());
 
-        public static ObjectFactory createFactory() {
+        public static EnhNodeFactory createFactory() {
             return new DataRangeFactory();
         }
 

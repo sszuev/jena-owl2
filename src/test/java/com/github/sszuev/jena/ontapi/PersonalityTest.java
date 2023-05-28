@@ -1,10 +1,10 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.CommonFactoryImpl;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
-import com.github.sszuev.jena.ontapi.common.OntMaker;
+import com.github.sszuev.jena.ontapi.common.CommonEnhNodeFactoryImpl;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.common.PersonalityBuilder;
@@ -50,7 +50,7 @@ public class PersonalityTest {
 
     public static OntPersonality buildCustomPersonality() {
         OntPersonality from = OntPersonalities.OWL2_PERSONALITY_LAX;
-        ObjectFactory factory = createNamedIndividualFactory();
+        EnhNodeFactory factory = createNamedIndividualFactory();
         OntPersonality res = PersonalityBuilder.from(from)
                 .add(OntIndividual.Named.class, factory)
                 .build();
@@ -62,16 +62,16 @@ public class PersonalityTest {
         return res;
     }
 
-    private static ObjectFactory createNamedIndividualFactory() {
-        OntMaker maker = new OntMaker.Default(IndividualImpl.class) {
+    private static EnhNodeFactory createNamedIndividualFactory() {
+        EnhNodeProducer maker = new EnhNodeProducer.Default(IndividualImpl.class) {
             @Override
             public EnhNode instance(Node node, EnhGraph eg) {
                 return new IndividualImpl(node, eg);
             }
         };
-        OntFinder finder = new OntFinder.ByPredicate(RDF.type);
-        OntFilter filter = OntFilter.URI.and(new OntFilter.HasType(OWL.NamedIndividual));
-        return new CommonFactoryImpl(maker, finder, filter) {
+        EnhNodeFinder finder = new EnhNodeFinder.ByPredicate(RDF.type);
+        EnhNodeFilter filter = EnhNodeFilter.URI.and(new EnhNodeFilter.HasType(OWL.NamedIndividual));
+        return new CommonEnhNodeFactoryImpl(maker, finder, filter) {
             @Override
             public String toString() {
                 return "NamedIndividualFactory";

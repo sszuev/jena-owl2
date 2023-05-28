@@ -1,12 +1,12 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.Factories;
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
-import com.github.sszuev.jena.ontapi.common.OntFilter;
-import com.github.sszuev.jena.ontapi.common.OntFinder;
-import com.github.sszuev.jena.ontapi.common.OntMaker;
+import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -40,27 +40,27 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl implements OntDisjoint<O> {
-    public static final OntFinder PROPERTIES_FINDER = new OntFinder.ByType(OWL.AllDisjointProperties);
+    public static final EnhNodeFinder PROPERTIES_FINDER = new EnhNodeFinder.ByType(OWL.AllDisjointProperties);
 
-    public static final ObjectFactory OWL2_DISJOINT_CLASSES_FACTORY = createFactory(ClassesImpl.class,
+    public static final EnhNodeFactory OWL2_DISJOINT_CLASSES_FACTORY = createFactory(ClassesImpl.class,
             OWL.AllDisjointClasses, OntClass.class, true, OWL.members);
 
-    public static final ObjectFactory OWL2_DIFFERENT_INDIVIDUALS_FACTORY = createFactory(IndividualsImpl.class,
+    public static final EnhNodeFactory OWL2_DIFFERENT_INDIVIDUALS_FACTORY = createFactory(IndividualsImpl.class,
             OWL.AllDifferent, OntIndividual.class, true, OWL.members, OWL.distinctMembers);
 
-    public static final ObjectFactory OWL2_OBJECT_PROPERTIES_FACTORY =
+    public static final EnhNodeFactory OWL2_OBJECT_PROPERTIES_FACTORY =
             createFactory(ObjectPropertiesImpl.class, OWL.AllDisjointProperties, OntObjectProperty.class, false, OWL.members);
 
-    public static final ObjectFactory OWL2_DATA_PROPERTIES_FACTORY = createFactory(DataPropertiesImpl.class,
+    public static final EnhNodeFactory OWL2_DATA_PROPERTIES_FACTORY = createFactory(DataPropertiesImpl.class,
             OWL.AllDisjointProperties, OntDataProperty.class, false, OWL.members);
 
-    public static final ObjectFactory OWL2_PROPERTIES_FACTORY = Factories.createFrom(PROPERTIES_FINDER,
+    public static final EnhNodeFactory OWL2_PROPERTIES_FACTORY = OntEnhNodeFactories.createFrom(PROPERTIES_FINDER,
             ObjectProperties.class,
             DataProperties.class);
 
-    public static final OntFinder DISJOINT_FINDER = Factories.createFinder(OWL.AllDisjointClasses,
+    public static final EnhNodeFinder DISJOINT_FINDER = OntEnhNodeFactories.createFinder(OWL.AllDisjointClasses,
             OWL.AllDifferent, OWL.AllDisjointProperties);
-    public static final ObjectFactory OWL2_DISJOINT_FACTORY = Factories.createFrom(DISJOINT_FINDER,
+    public static final EnhNodeFactory OWL2_DISJOINT_FACTORY = OntEnhNodeFactories.createFrom(DISJOINT_FINDER,
             ObjectProperties.class,
             DataProperties.class,
             Classes.class,
@@ -70,30 +70,30 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         super(n, m);
     }
 
-    private static ObjectFactory createFactory(Class<? extends OntDisjointImpl<?>> impl,
-                                               Resource type,
-                                               Class<? extends RDFNode> view,
-                                               boolean allowEmptyList,
-                                               Property... predicates) {
-        OntMaker maker = new OntMaker.WithType(impl, type);
-        OntFinder finder = new OntFinder.ByType(type);
-        OntFilter filter = OntFilter.BLANK.and(new OntFilter.HasType(type));
-        return Factories.createCommon(maker, finder, filter
+    private static EnhNodeFactory createFactory(Class<? extends OntDisjointImpl<?>> impl,
+                                                Resource type,
+                                                Class<? extends RDFNode> view,
+                                                boolean allowEmptyList,
+                                                Property... predicates) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, type);
+        EnhNodeFinder finder = new EnhNodeFinder.ByType(type);
+        EnhNodeFilter filter = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(type));
+        return OntEnhNodeFactories.createCommon(maker, finder, filter
                 .and(getHasPredicatesFilter(predicates))
                 .and(getHasMembersOfFilter(view, allowEmptyList, predicates)));
     }
 
-    private static OntFilter getHasPredicatesFilter(Property... predicates) {
-        OntFilter res = OntFilter.FALSE;
+    private static EnhNodeFilter getHasPredicatesFilter(Property... predicates) {
+        EnhNodeFilter res = EnhNodeFilter.FALSE;
         for (Property p : predicates) {
-            res = res.or(new OntFilter.HasPredicate(p));
+            res = res.or(new EnhNodeFilter.HasPredicate(p));
         }
         return res;
     }
 
-    private static OntFilter getHasMembersOfFilter(Class<? extends RDFNode> view,
-                                                   boolean allowEmptyList,
-                                                   Property... predicates) {
+    private static EnhNodeFilter getHasMembersOfFilter(Class<? extends RDFNode> view,
+                                                       boolean allowEmptyList,
+                                                       Property... predicates) {
         return (node, eg) -> {
             ExtendedIterator<Node> res = listRoots(node, eg.asGraph(), predicates);
             try {
@@ -153,12 +153,12 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
                                                                            Class<R> resultType,
                                                                            Class<E> memberType,
                                                                            Stream<E> members) {
-        OntJenaException.notNull(members, "Null " + viewAsString(memberType) + " members stream.");
+        OntJenaException.notNull(members, "Null " + OntEnhNodeFactories.viewAsString(memberType) + " members stream.");
         Resource res = model.createResource()
                 .addProperty(RDF.type, type)
                 .addProperty(OWL.members, model.createList(members
                         .peek(x -> OntJenaException.notNull(x,
-                                "OntDisjoint: Null " + viewAsString(memberType) + " is specified"))
+                                "OntDisjoint: Null " + OntEnhNodeFactories.viewAsString(memberType) + " is specified"))
                         .iterator()));
         return model.getNodeAs(res.asNode(), resultType);
     }

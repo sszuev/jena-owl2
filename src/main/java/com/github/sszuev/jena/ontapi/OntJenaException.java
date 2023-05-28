@@ -1,6 +1,6 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.ObjectFactory;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import org.apache.jena.shared.JenaException;
 
 /**
@@ -42,7 +42,7 @@ public class OntJenaException extends JenaException {
      * using {@link org.apache.jena.rdf.model.RDFNode#as as()},
      * and the requested conversion is not possible.
      * This is an analogue of {@link org.apache.jena.ontology.ConversionException},
-     * and it is used mostly by {@link ObjectFactory}.
+     * and it is used mostly by {@link EnhNodeFactory}.
      */
     public static class Conversion extends OntJenaException {
         public Conversion(String message, Throwable cause) {
