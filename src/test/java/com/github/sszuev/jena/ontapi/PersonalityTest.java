@@ -173,7 +173,7 @@ public class PersonalityTest {
             }
         };
         OntPersonality p2 = PersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT).setPunnings(punnings).build();
-        OntEntity.listEntityTypes().forEachRemaining(t -> Assertions.assertEquals(2, p2.getPunnings().get(t).size()));
+        OntEntity.TYPES.forEach(t -> Assertions.assertEquals(2, p2.getPunnings().get(t).size()));
 
         OntModel m2 = OntModelFactory.createModel(m1.getGraph(), p2);
         Assertions.assertEquals(1, m2.individuals().count());

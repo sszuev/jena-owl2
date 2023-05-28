@@ -93,8 +93,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     protected final Map<String, RDFDatatype> dtTypes = new HashMap<>();
     // to control RDF recursion while casting a node to an RDF view, see #fetchNodeAs(Node, Class)
     private final ThreadLocal<Set<Node>> visited = ThreadLocal.withInitial(HashSet::new);
-    // configuration
+
     private final OntModelConfig config;
+    private final Set<Class<? extends OntEntity>> supportedEntityTypes;
 
     /**
      * @param graph       {@link Graph}
@@ -104,6 +105,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public OntGraphModelImpl(Graph graph, OntPersonality personality, OntModelConfig config) {
         super(asUnionGraph(graph), OntPersonality.asJenaPersonality(personality));
         this.config = config;
+        this.supportedEntityTypes = OntEntity.TYPES.stream().filter(personality::supports).collect(Collectors.toSet());
     }
 
     /**
@@ -481,11 +483,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public Stream<OntEntity> ontEntities() {
-        /*return Iter.asStream(listSubjectsWithProperty(RDF.type))
-                .filter(RDFNode::isURIResource)
-                .flatMap(r -> OntEntity.entityTypes().map(t -> getOntEntity(t, r)).filter(Objects::nonNull));*/
-        // this looks faster:
-        return Iterators.asStream(listOntEntities());
+        return supportedEntityTypes.stream().flatMap(this::ontObjects);
     }
 
     /**
@@ -494,10 +492,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      *
      * @return {@link ExtendedIterator Extended Iterator} of {@link OntEntity}s
      * @see #listLocalOntEntities()
-     * @see OntEntity#listEntityTypes()
      */
     public ExtendedIterator<OntEntity> listOntEntities() {
-        return Iterators.flatMap(OntEntity.listEntityTypes(), this::listOntObjects);
+        return Iterators.flatMap(Iterators.create(supportedEntityTypes), this::listOntObjects);
     }
 
     /**
@@ -507,7 +504,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @see #listOntEntities()
      */
     public ExtendedIterator<OntEntity> listLocalOntEntities() {
-        return Iterators.flatMap(OntEntity.listEntityTypes(), this::listLocalOntObjects);
+        return Iterators.flatMap(Iterators.create(supportedEntityTypes), this::listLocalOntObjects);
     }
 
     /**
@@ -517,8 +514,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return {@code Stream} of {@link OntEntity}s.
      */
     public Stream<OntEntity> ambiguousEntities(boolean withImports) {
-        Set<Class<? extends OntEntity>> types = OntEntity.listEntityTypes().toSet();
-        return ontEntities().filter(e -> withImports || e.isLocal()).filter(e -> types.stream()
+        return ontEntities().filter(e -> withImports || e.isLocal()).filter(e -> supportedEntityTypes.stream()
                 .filter(view -> e.canAs(view) && (withImports || e.as(view).isLocal())).count() > 1);
     }
 

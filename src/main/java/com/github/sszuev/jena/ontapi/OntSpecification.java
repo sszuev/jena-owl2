@@ -27,6 +27,14 @@ public class OntSpecification {
     public static final OntSpecification OWL2_MEM =
             new OntSpecification(OntPersonalities.OWL2_PERSONALITY_LAX, null, OntModelConfig.DEFAULT);
 
+    /**
+     * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
+     */
+    public static final OntSpecification RDFS_MEM =
+            new OntSpecification(OntPersonalities.RDFS_PERSONALITY, null, OntModelConfig.DEFAULT);
+
 
     private final OntPersonality personality;
     private final ReasonerFactory reasonerFactory;

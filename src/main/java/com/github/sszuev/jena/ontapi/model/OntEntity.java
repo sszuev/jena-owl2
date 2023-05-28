@@ -6,7 +6,7 @@ import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
-import java.util.stream.Stream;
+import java.util.Set;
 
 /**
  * The base interface for OWL entities, which are always URI-{@link org.apache.jena.rdf.model.Resource}.
@@ -23,14 +23,14 @@ import java.util.stream.Stream;
  */
 public interface OntEntity extends OntObject {
 
-    /**
-     * Returns all entity types as stream.
-     *
-     * @return a {@code Stream} of OWL-entity types
-     */
-    static Stream<Class<? extends OntEntity>> entityTypes() {
-        return Iterators.asStream(listEntityTypes());
-    }
+    Set<Class<? extends OntEntity>> TYPES = Set.of(
+            OntClass.Named.class,
+            OntDataRange.Named.class,
+            OntIndividual.Named.class,
+            OntObjectProperty.Named.class,
+            OntAnnotationProperty.class,
+            OntDataProperty.class
+    );
 
     /**
      * Lists all OWL entity types.
@@ -38,17 +38,19 @@ public interface OntEntity extends OntObject {
      * @return an {@link ExtendedIterator} of OWL entity {@code Class}-types
      */
     static ExtendedIterator<Class<? extends OntEntity>> listEntityTypes() {
-        return Iterators.of(OntClass.Named.class,
+        return Iterators.of(
+                OntClass.Named.class,
                 OntDataRange.Named.class,
                 OntIndividual.Named.class,
                 OntObjectProperty.Named.class,
                 OntAnnotationProperty.class,
-                OntDataProperty.class);
+                OntDataProperty.class
+        );
     }
 
     /**
      * Determines if this is a builtin entity.
-     * In a standard (default) OWL vocabulary an entity is builtin if it is:
+     * In a standard (default) OWL2 vocabulary an entity is builtin if it is:
      * <ul>
      * <li>a {@link OntClass.Named class} and its IRI is either {@code owl:Thing} or {@code owl:Nothing}</li>
      * <li>an {@link OntObjectProperty.Named object property} and its IRI is either {@code owl:topObjectProperty}

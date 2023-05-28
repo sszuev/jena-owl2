@@ -186,38 +186,13 @@ public interface OntVocabulary {
      */
     class Factory {
 
-        public static final OntVocabulary RDFS_VOCABULARY = new Impl(Collections.emptyMap());
+        public static final OntVocabulary RDFS_VOCABULARY = new RDFSImpl();
         public static final OntVocabulary OWL_VOCABULARY = new OWLImpl();
         public static final OntVocabulary DC_VOCABULARY = new DCImpl();
         public static final OntVocabulary SKOS_VOCABULARY = new SKOSImpl();
         public static final OntVocabulary SWRL_VOCABULARY = new SWRLImpl();
-        public static final OntVocabulary DEFAULT_VOCABULARY = create(OWL_VOCABULARY, DC_VOCABULARY, SKOS_VOCABULARY, SWRL_VOCABULARY);
+        public static final OntVocabulary FULL_VOCABULARY = create(OWL_VOCABULARY, DC_VOCABULARY, SKOS_VOCABULARY, SWRL_VOCABULARY);
 
-        /**
-         * The default instance includes OWL, SWRL, DC, SKOS values.
-         */
-        protected static OntVocabulary def = DEFAULT_VOCABULARY;
-
-        /**
-         * Gets a system-wide vocabulary.
-         *
-         * @return {@link OntVocabulary}
-         */
-        public static OntVocabulary get() {
-            return def;
-        }
-
-        /**
-         * Sets a new system-wide vocabulary.
-         *
-         * @param vocabulary {@link OntVocabulary}, not {@code null}
-         * @return {@link OntVocabulary}
-         */
-        public static OntVocabulary set(OntVocabulary vocabulary) {
-            OntVocabulary prev = get();
-            def = Objects.requireNonNull(vocabulary, "Null vocabulary specified.");
-            return prev;
-        }
 
         /**
          * Creates a fresh union vocabulary that combines the given ones.
@@ -333,6 +308,17 @@ public interface OntVocabulary {
                 return (Set<X>) input;
             }
             return input.stream().peek(Objects::requireNonNull).collect(Collectors.toUnmodifiableSet());
+        }
+
+        protected static class RDFSImpl extends Impl {
+            public static final Set<Property> ANNOTATION_PROPERTIES = Set.of(RDFS.label, RDFS.comment, RDFS.seeAlso, RDFS.isDefinedBy);
+            private static final Class<?>[] VOCABULARIES = new Class<?>[]{RDF.class, RDFS.class};
+            public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
+            public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
+
+            protected RDFSImpl() {
+                super(ANNOTATION_PROPERTIES, null, null, null, null, null, PROPERTIES, RESOURCES);
+            }
         }
 
         /**

@@ -80,7 +80,12 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     @Override
     public EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type) {
         return (EnhNodeFactory) OntJenaException.notNull(getImplementation(type),
-                "Can't find factory for the object type " + type);
+                "Unsupported object type " + OntEnhNodeFactories.viewAsString(type));
+    }
+
+    @Override
+    public boolean supports(Class<? extends RDFNode> type) {
+        return getMap().containsKey(type);
     }
 
     @Override

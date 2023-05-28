@@ -150,7 +150,7 @@ public class PersonalityBuilder {
     }
 
     private Class<?>[] getEntityTypes() {
-        return OntEntity.entityTypes().toArray(Class[]::new);
+        return OntEntity.TYPES.toArray(Class[]::new);
     }
 
     /**

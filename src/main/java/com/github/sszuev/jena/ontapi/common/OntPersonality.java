@@ -86,6 +86,14 @@ public interface OntPersonality {
     EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type);
 
     /**
+     * Answers if type is supported.
+     *
+     * @param type {@code Class}
+     * @return {@code boolean}
+     */
+    boolean supports(Class<? extends RDFNode> type);
+
+    /**
      * Makes a full copy of this configuration.
      *
      * @return {@link OntPersonality} a new instance identical to this

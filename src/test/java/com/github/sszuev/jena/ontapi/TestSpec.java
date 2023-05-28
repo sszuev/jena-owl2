@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi;
 public enum TestSpec {
     OWL2_DL_MEM_RDFS_BUILTIN_INF(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF),
     OWL2_MEM(OntSpecification.OWL2_MEM),
+    RDFS_MEM(OntSpecification.RDFS_MEM),
     ;
     public final OntSpecification spec;
 

@@ -35,6 +35,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -61,7 +62,7 @@ import java.util.stream.Stream;
 public class OntModelTest {
 
     @SafeVarargs
-    private static <X> Set<X> toUnmodifiableSet(Collection<? extends X>... lists) {
+    private static <X> Set<X> toSet(Collection<? extends X>... lists) {
         return Arrays.stream(lists).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
     }
 
@@ -90,15 +91,15 @@ public class OntModelTest {
 
         List<OntProperty> actualPEs = ont.ontObjects(OntProperty.class).collect(Collectors.toList());
 
-        Set<Resource> expectedNamed = toUnmodifiableSet(annotationProperties, datatypeProperties, namedObjectProperties);
-        Set<Resource> expectedPEs = toUnmodifiableSet(expectedNamed, inverseObjectProperties);
+        Set<Resource> expectedNamed = toSet(annotationProperties, datatypeProperties, namedObjectProperties);
+        Set<Resource> expectedPEs = toSet(expectedNamed, inverseObjectProperties);
         Assertions.assertEquals(expectedPEs.size(), actualPEs.size());
 
         List<OntNamedProperty> actualNamed = ont.ontObjects(OntNamedProperty.class).collect(Collectors.toList());
         Assertions.assertEquals(expectedNamed.size(), actualNamed.size());
 
         List<OntProperty> actualDOs = ont.ontObjects(OntRealProperty.class).collect(Collectors.toList());
-        Set<Resource> expectedDOs = toUnmodifiableSet(datatypeProperties, namedObjectProperties, inverseObjectProperties);
+        Set<Resource> expectedDOs = toSet(datatypeProperties, namedObjectProperties, inverseObjectProperties);
         Assertions.assertEquals(expectedDOs.size(), actualDOs.size());
 
         Assertions.assertEquals(inverseStatements.size(), ont.objectProperties()
@@ -831,6 +832,26 @@ public class OntModelTest {
             List<OntClass> ces = ont.ontObjects(OntClass.class).collect(Collectors.toList());
             Assertions.assertEquals(0, ces.size());
         });
+    }
+
+    @Test
+    public void testClassesRDFSMem() {
+        Model base = ModelFactory.createDefaultModel();
+        base.createResource("1", OWL.Class);
+        base.createResource("2", RDFS.Datatype);
+        base.createResource("3", RDFS.Class);
+        base.createResource("4", RDFS.Class);
+
+        OntModel m = OntModelFactory.createModel(base.getGraph(), OntSpecification.RDFS_MEM);
+
+        List<OntClass.Named> res1 = m.classes().collect(Collectors.toList());
+        List<OntEntity> res2 = m.ontEntities().collect(Collectors.toList());
+        List<OntClass> res3 = m.ontObjects(OntClass.class).collect(Collectors.toList());
+        List<OntClass> res4 = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
+
+        Stream.of(res1, res2, res3, res4).forEach(x ->
+                Assertions.assertEquals(List.of("3", "4"), x.stream().map(Resource::getURI).sorted().collect(Collectors.toList()))
+        );
     }
 
 }
