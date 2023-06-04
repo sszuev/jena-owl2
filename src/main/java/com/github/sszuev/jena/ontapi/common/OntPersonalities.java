@@ -74,41 +74,10 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class OntPersonalities {
 
+    private static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
+    private static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
     private static final OntPersonality.Builtins OWL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
     private static final OntPersonality.Reserved OWL_RESERVED = createReservedVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
-    /**
-     * Personalities which don't care about the owl-entities "punnings" (no restriction on the type declarations).
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see PunningsMode#LAX
-     */
-    public static final OntPersonality OWL2_PERSONALITY_LAX = getPersonalityBuilder()
-            .setBuiltins(OWL_BUILTINS)
-            .setReserved(OWL_RESERVED)
-            .setPunnings(PunningsMode.LAX.getVocabulary())
-            .build();
-    /**
-     * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
-     * <ul>
-     * <li>{@link OntDataRange.Named}  &lt;-&gt; {@link OntClass.Named}</li>
-     * <li>{@link OntAnnotationProperty} &lt;-&gt; {@link OntObjectProperty.Named}</li>
-     * <li>{@link OntObjectProperty.Named} &lt;-&gt; {@link OntDataProperty}</li>
-     * <li>{@link OntDataProperty} &lt;-&gt; {@link OntAnnotationProperty}</li>
-     * </ul>
-     * each of the pairs above can't exist in the form of OWL-Entity in the same model at the same time.
-     * From specification: "OWL 2 DL imposes certain restrictions:
-     * it requires that a name cannot be used for both a class and a datatype and
-     * that a name can only be used for one kind of property."
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see PunningsMode#STRICT
-     */
-    public static final OntPersonality OWL2_PERSONALITY_STRICT = getPersonalityBuilder()
-            .setBuiltins(OWL_BUILTINS)
-            .setReserved(OWL_RESERVED)
-            .setPunnings(PunningsMode.STRICT.getVocabulary())
-            .build();
-
 
     /**
      * Standard resources. Private access since this constant is mutable.
@@ -126,7 +95,24 @@ public class OntPersonalities {
             .add(ReifiedStatement.class, ReifiedStatementImpl.reifiedStatementFactory)
             .add(RDFList.class, RDFListImpl.factory)
             .add(RDFNode.class, ResourceImpl.rdfNodeFactory);
-
+    /**
+     * For RDFS Ontologies, limited functionality.
+     *
+     * @see <a href='https://www.w3.org/TR/rdf12-schema/'>RDF 1.2 Schema</a>
+     */
+    public static final OntPersonality RDFS_PERSONALITY = new PersonalityBuilder()
+            .addPersonality(RDF_PERSONALITY)
+            .add(OntObject.class, OntObjectImpl.ONT_OBJECT_FACTORY)
+            .add(OntEntity.class, RDFSEntity.ALL)
+            .add(OntIndividual.Anonymous.class, OntIndividualImpl.OWL2_ANONYMOUS_INDIVIDUAL_FACTORY)
+            .add(OntIndividual.class, OntIndividualImpl.OWL2_INDIVIDUAL_FACTORY)
+            .add(OntProperty.class, RDFSEntity.PROPERTY.createFactory())
+            .add(OntClass.class, RDFSEntity.CLASS.createFactory())
+            .add(OntClass.Named.class, RDFSEntity.CLASS.createFactory())
+            .setBuiltins(RDFS_BUILTINS)
+            .setReserved(RDFS_RESERVED)
+            .setPunnings(PunningsMode.LAX.getVocabulary())
+            .build();
     /**
      * Default personality builder. Private access since this constant is mutable.
      */
@@ -257,27 +243,38 @@ public class OntPersonalities {
             .setReserved(OWL_RESERVED)
             .setPunnings(PunningsMode.MEDIUM.getVocabulary())
             .build();
-    private static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
-    private static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
     /**
-     * For RDFS Ontologies, limited functionality.
+     * Personalities which don't care about the owl-entities "punnings" (no restriction on the type declarations).
      *
-     * @see <a href='https://www.w3.org/TR/rdf12-schema/'>RDF 1.2 Schema</a>
+     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
+     * @see PunningsMode#LAX
      */
-    public static final OntPersonality RDFS_PERSONALITY = new PersonalityBuilder()
-            .addPersonality(RDF_PERSONALITY)
-            .add(OntObject.class, OntObjectImpl.ONT_OBJECT_FACTORY)
-            .add(OntEntity.class, RDFSEntity.ALL)
-            .add(OntIndividual.Anonymous.class, OntIndividualImpl.OWL2_ANONYMOUS_INDIVIDUAL_FACTORY)
-            .add(OntIndividual.class, OntIndividualImpl.OWL2_INDIVIDUAL_FACTORY)
-            .add(OntProperty.class, RDFSEntity.PROPERTY.createFactory())
-            .add(OntClass.class, RDFSEntity.CLASS.createFactory())
-            .add(OntClass.Named.class, RDFSEntity.CLASS.createFactory())
-            .setBuiltins(RDFS_BUILTINS)
-            .setReserved(RDFS_RESERVED)
+    public static final OntPersonality OWL2_PERSONALITY_LAX = getPersonalityBuilder()
+            .setBuiltins(OWL_BUILTINS)
+            .setReserved(OWL_RESERVED)
             .setPunnings(PunningsMode.LAX.getVocabulary())
             .build();
-
+    /**
+     * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
+     * <ul>
+     * <li>{@link OntDataRange.Named}  &lt;-&gt; {@link OntClass.Named}</li>
+     * <li>{@link OntAnnotationProperty} &lt;-&gt; {@link OntObjectProperty.Named}</li>
+     * <li>{@link OntObjectProperty.Named} &lt;-&gt; {@link OntDataProperty}</li>
+     * <li>{@link OntDataProperty} &lt;-&gt; {@link OntAnnotationProperty}</li>
+     * </ul>
+     * each of the pairs above can't exist in the form of OWL-Entity in the same model at the same time.
+     * From specification: "OWL 2 DL imposes certain restrictions:
+     * it requires that a name cannot be used for both a class and a datatype and
+     * that a name can only be used for one kind of property."
+     *
+     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
+     * @see PunningsMode#STRICT
+     */
+    public static final OntPersonality OWL2_PERSONALITY_STRICT = getPersonalityBuilder()
+            .setBuiltins(OWL_BUILTINS)
+            .setReserved(OWL_RESERVED)
+            .setPunnings(PunningsMode.STRICT.getVocabulary())
+            .build();
 
     /**
      * Returns a fresh copy of {@link PersonalityBuilder} with {@code 93} resource factories inside
