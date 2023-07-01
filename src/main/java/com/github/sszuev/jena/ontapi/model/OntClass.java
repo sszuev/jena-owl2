@@ -310,6 +310,19 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
+     * Answers a class that is the sub-class of this class.
+     * If there is more than one such class, an arbitrary selection is made.
+     *
+     * @return {@link Optional} wrapping {@link OntClass}
+     */
+    default Optional<OntClass> subClass() {
+        try (Stream<OntStatement> statements = getModel().statements(null, RDFS.subClassOf, this)) {
+            return statements.map(x -> x.getSubject().getAs(OntClass.class))
+                    .filter(Objects::nonNull).findFirst();
+        }
+    }
+
+    /**
      * Lists all direct and indirect super-classes for this class expression, i.e. all super-classes found by inferencer,
      * which usually means entire hierarchy up the tree; this class is not included.
      * The search pattern is {@code C rdfs:subClassOf Ci}.
@@ -321,6 +334,18 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      */
     default Stream<OntClass> superClasses() {
         return superClasses(false);
+    }
+
+    /**
+     * Answers a class that is the super-class of this class.
+     * If there is more than one such class, an arbitrary selection is made.
+     *
+     * @return {@link Optional} wrapping {@link OntClass}
+     */
+    default Optional<OntClass> superClass() {
+        try (Stream<OntClass> classes = objects(RDFS.subClassOf, OntClass.class)) {
+            return classes.findFirst();
+        }
     }
 
     /**

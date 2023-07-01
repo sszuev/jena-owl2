@@ -449,6 +449,9 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> actualAdjacentSubClasses(OntClass clazz, boolean inverse) {
+        if (!config(clazz).useBuiltinHierarchySupport()) {
+            return inverse ? explicitSuperClassesWithoutSelfRef(clazz) : explicitSubClassesWithoutSelfRef(clazz);
+        }
         Set<OntClass> equivalents = equivalentsBySubClassOf(clazz).collect(Collectors.toSet());
         equivalents.add(clazz);
         return equivalents.stream()
@@ -464,6 +467,14 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
 
     static Stream<OntClass> explicitSuperClasses(OntClass clazz) {
         return clazz.objects(RDFS.subClassOf, OntClass.class);
+    }
+
+    static Stream<OntClass> explicitSuperClassesWithoutSelfRef(OntClass clazz) {
+        return explicitSuperClasses(clazz).filter(x -> !x.hasProperty(RDFS.subClassOf, clazz));
+    }
+
+    static Stream<OntClass> explicitSubClassesWithoutSelfRef(OntClass clazz) {
+        return explicitSubClasses(clazz).filter(x -> !clazz.hasProperty(RDFS.subClassOf, x));
     }
 
     static Stream<OntClass> equivalentsBySubClassOf(OntClass clazz) {
