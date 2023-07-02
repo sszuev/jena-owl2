@@ -94,6 +94,61 @@ public class OntClassTest {
         return m;
     }
 
+    private static OntModel createDBCA(OntModel m) {
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        OntClass D = m.createOntClass(NS + "D");
+
+        //     D
+        //    | \
+        // B  |  C
+        //  \ | /
+        //    A
+
+        C.addSubClass(A);
+        B.addSubClass(A);
+        D.addSubClass(C);
+        D.addSubClass(A);
+        return m;
+    }
+
+    private static OntModel createBCA(OntModel m) {
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+
+        // B = C
+        //  \ |
+        //    A
+
+        A.addSuperClass(B);
+        A.addSuperClass(C);
+        B.addSuperClass(C);
+        C.addSuperClass(B);
+        return m;
+    }
+
+    private static Set<String> subClasses(OntModel m, String name, boolean direct) {
+        return m.getOntClass(NS + name).subClasses(direct).map(Resource::getLocalName).collect(Collectors.toSet());
+    }
+
+    private static Set<String> superClasses(OntModel m, String name, boolean direct) {
+        return m.getOntClass(NS + name).superClasses(direct).map(Resource::getLocalName).collect(Collectors.toSet());
+    }
+
+    private static Set<String> subClasses(OntModel m, String name) {
+        return m.getOntClass(NS + name).subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+    }
+
+    private static Set<String> superClasses(OntModel m, String name) {
+        return m.getOntClass(NS + name).superClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+    }
+
+    private static Set<String> individuals(OntModel m, String name, boolean direct) {
+        return m.getOntClass(NS + name).individuals(direct).map(Resource::getLocalName).collect(Collectors.toSet());
+    }
+
     @Test
     public void testCreateCardinalityRestrictions() {
         OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
@@ -106,7 +161,6 @@ public class OntClassTest {
         OntClass.DataMaxCardinality r3 = m.createDataMaxCardinality(dp, 2, m.getRDFSLiteral());
         OntClass.ObjectMinCardinality r4 = m.createObjectMinCardinality(op, 12, m.getOWLThing());
         OntClass.CardinalityRestrictionCE<?, ?> r5 = m.createDataCardinality(dp, 0, m.getDatatype(XSD.xstring));
-
 
         Assertions.assertTrue(r1.isQualified());
         Assertions.assertFalse(r2.isQualified());
@@ -305,6 +359,7 @@ public class OntClassTest {
         OntClass c3 = m.createOntClass("C3"); // root
         OntClass c4 = m.createOntClass("C4"); // root
         OntClass c5 = m.createOntClass("C5"); // root
+
         c1.addSuperClass(c2.addSuperClass(c3));
         c5.addSuperClass(m.getOWLThing());
         OntDataProperty d1 = m.createDataProperty("d1").addDomain(c1);
@@ -364,24 +419,25 @@ public class OntClassTest {
     @Test
     public void testListDeclaredProperties() {
         OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
-        OntClass c1 = m.createOntClass("C1");
-        OntClass c2 = m.createOntClass("C2");
-        OntClass c3 = m.createOntClass("C3");
-        OntClass c4 = m.createOntClass("C4");
-        OntClass c5 = m.createOntClass("C5");
-        c1.addSuperClass(c2);
-        c2.addSuperClass(c3);
-        c3.addSuperClass(c4);
-        c5.addSuperClass(m.getOWLThing());
+        OntClass A = m.createOntClass("A");
+        OntClass B = m.createOntClass("B");
+        OntClass C = m.createOntClass("C");
+        OntClass D = m.createOntClass("D");
+        OntClass E = m.createOntClass("E");
+        A.addSuperClass(B);
+        B.addSuperClass(C);
+        C.addSuperClass(D);
+        E.addSuperClass(m.getOWLThing());
+
         OntDataProperty d1 = m.createDataProperty("d1");
         OntDataProperty d2 = m.createDataProperty("d2");
         OntObjectProperty o1 = m.createObjectProperty("o1");
         OntObjectProperty o2 = m.createObjectProperty("o2");
         o1.addSuperProperty(o2);
         o2.addSuperProperty(m.getOWLTopObjectProperty());
-        d1.addDomain(c1);
-        d2.addDomain(c2);
-        o1.addDomain(c3);
+        d1.addDomain(A);
+        d2.addDomain(B);
+        o1.addDomain(C);
         o2.addDomain(m.getOWLThing());
         m.getOWLBottomDataProperty().addDomain(m.getOWLNothing());
 
@@ -391,20 +447,20 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of(), m.getOWLNothing().declaredProperties(true).collect(Collectors.toSet()));
         Assertions.assertEquals(Set.of(o2), m.getOWLNothing().declaredProperties(false).collect(Collectors.toSet()));
 
-        Assertions.assertEquals(Set.of(d1), c1.declaredProperties(true).collect(Collectors.toSet()));
-        Assertions.assertEquals(Set.of(d1, d2, o1, o2), c1.declaredProperties(false).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(d1), A.declaredProperties(true).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(d1, d2, o1, o2), A.declaredProperties(false).collect(Collectors.toSet()));
 
-        Assertions.assertEquals(Set.of(d2), c2.declaredProperties(true).collect(Collectors.toSet()));
-        Assertions.assertEquals(Set.of(d2, o1, o2), c2.declaredProperties(false).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(d2), B.declaredProperties(true).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(d2, o1, o2), B.declaredProperties(false).collect(Collectors.toSet()));
 
-        Assertions.assertEquals(Set.of(o1), c3.declaredProperties(true).collect(Collectors.toSet()));
-        Assertions.assertEquals(Set.of(o1, o2), c3.declaredProperties(false).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(o1), C.declaredProperties(true).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(o1, o2), C.declaredProperties(false).collect(Collectors.toSet()));
 
-        Assertions.assertEquals(Set.of(o2), c4.declaredProperties(true).collect(Collectors.toSet()));
-        Assertions.assertEquals(Set.of(o2), c4.declaredProperties(false).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(o2), D.declaredProperties(true).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(o2), D.declaredProperties(false).collect(Collectors.toSet()));
 
-        Assertions.assertEquals(Set.of(o2), c5.declaredProperties(true).collect(Collectors.toSet()));
-        Assertions.assertEquals(Set.of(o2), c5.declaredProperties(false).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(o2), E.declaredProperties(true).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(o2), E.declaredProperties(false).collect(Collectors.toSet()));
     }
 
     @Test
@@ -496,23 +552,23 @@ public class OntClassTest {
         //  D   E   F
         OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
 
-        Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> indirectC = subClasses(m, "C");
 
-        Set<String> directD = m.getOntClass(NS + "D").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = subClasses(m, "D", true);
+        Set<String> indirectD = subClasses(m, "D", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = subClasses(m, "E", true);
+        Set<String> indirectE = subClasses(m, "E");
 
-        Set<String> directF = m.getOntClass(NS + "F").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = subClasses(m, "F", true);
+        Set<String> indirectF = subClasses(m, "F", false);
 
         Assertions.assertEquals(Set.of("C", "B"), directA);
         Assertions.assertEquals(Set.of("D", "E"), directB);
@@ -540,25 +596,26 @@ public class OntClassTest {
         //    B   C
         //   / \ / \
         //  D   E   F
+
         OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
 
-        Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> indirectC = subClasses(m, "C");
 
-        Set<String> directD = m.getOntClass(NS + "D").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = subClasses(m, "D", true);
+        Set<String> indirectD = subClasses(m, "D", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = subClasses(m, "E", true);
+        Set<String> indirectE = subClasses(m, "E", false);
 
-        Set<String> directF = m.getOntClass(NS + "F").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = subClasses(m, "F", true);
+        Set<String> indirectF = subClasses(m, "F", false);
 
         Assertions.assertEquals(Set.of("C", "B"), directA);
         Assertions.assertEquals(Set.of("D", "E"), directB);
@@ -592,38 +649,38 @@ public class OntClassTest {
 
         OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
 
-        Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> indirectC = subClasses(m, "C", false);
 
-        Set<String> directD = m.getOntClass(NS + "D").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = subClasses(m, "D", true);
+        Set<String> indirectD = subClasses(m, "D", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = subClasses(m, "E", true);
+        Set<String> indirectE = subClasses(m, "E", false);
 
-        Set<String> directF = m.getOntClass(NS + "F").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = subClasses(m, "F", true);
+        Set<String> indirectF = subClasses(m, "F", false);
 
-        Set<String> directG = m.getOntClass(NS + "G").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectG = m.getOntClass(NS + "G").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directG = subClasses(m, "G", true);
+        Set<String> indirectG = subClasses(m, "G", false);
 
-        Set<String> directH = m.getOntClass(NS + "H").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectH = m.getOntClass(NS + "H").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directH = subClasses(m, "H", true);
+        Set<String> indirectH = subClasses(m, "H", true);
 
-        Set<String> directK = m.getOntClass(NS + "K").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectK = m.getOntClass(NS + "K").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directK = subClasses(m, "K", true);
+        Set<String> indirectK = subClasses(m, "K", false);
 
-        Set<String> directL = m.getOntClass(NS + "L").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectL = m.getOntClass(NS + "L").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directL = subClasses(m, "L", true);
+        Set<String> indirectL = subClasses(m, "L", false);
 
-        Set<String> directM = m.getOntClass(NS + "M").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectM = m.getOntClass(NS + "M").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directM = subClasses(m, "M", true);
+        Set<String> indirectM = subClasses(m, "M", false);
 
         Assertions.assertEquals(Set.of("C", "B"), directA);
         Assertions.assertEquals(Set.of("E", "D"), directB);
@@ -668,38 +725,38 @@ public class OntClassTest {
 
         OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
 
-        Set<String> directA = m.getOntClass(NS + "A").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> indirectC = subClasses(m, "C", false);
 
-        Set<String> directD = m.getOntClass(NS + "D").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = subClasses(m, "D", true);
+        Set<String> indirectD = subClasses(m, "D", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = subClasses(m, "E", true);
+        Set<String> indirectE = subClasses(m, "E", false);
 
-        Set<String> directF = m.getOntClass(NS + "F").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = subClasses(m, "F", true);
+        Set<String> indirectF = subClasses(m, "F", false);
 
-        Set<String> directG = m.getOntClass(NS + "G").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectG = m.getOntClass(NS + "G").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directG = subClasses(m, "G", true);
+        Set<String> indirectG = subClasses(m, "G", false);
 
-        Set<String> directH = m.getOntClass(NS + "H").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectH = m.getOntClass(NS + "H").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directH = subClasses(m, "H", true);
+        Set<String> indirectH = subClasses(m, "H", true);
 
-        Set<String> directK = m.getOntClass(NS + "K").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectK = m.getOntClass(NS + "K").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directK = subClasses(m, "K", true);
+        Set<String> indirectK = subClasses(m, "K", false);
 
-        Set<String> directL = m.getOntClass(NS + "L").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectL = m.getOntClass(NS + "L").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directL = subClasses(m, "L", true);
+        Set<String> indirectL = subClasses(m, "L", false);
 
-        Set<String> directM = m.getOntClass(NS + "M").subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectM = m.getOntClass(NS + "M").subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directM = subClasses(m, "M", true);
+        Set<String> indirectM = subClasses(m, "M", false);
 
         Assertions.assertEquals(Set.of("C", "B"), directA);
         Assertions.assertEquals(Set.of("E", "D"), directB);
@@ -736,6 +793,7 @@ public class OntClassTest {
         //     A
         //     |
         // D = B = C
+
         OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
@@ -745,15 +803,15 @@ public class OntClassTest {
         B.addEquivalentClass(C);
         D.addEquivalentClass(B);
 
-        Set<String> directA = A.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directB = B.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directC = C.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directD = D.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> directD = subClasses(m, "D", true);
 
-        Set<String> indirectA = A.subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = B.subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = C.subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = D.subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = subClasses(m, "A");
+        Set<String> indirectB = subClasses(m, "B", false);
+        Set<String> indirectC = subClasses(m, "C", false);
+        Set<String> indirectD = subClasses(m, "D", false);
 
         Assertions.assertEquals(Set.of("B"), directA);
         Assertions.assertEquals(Set.of(), directB);
@@ -776,22 +834,16 @@ public class OntClassTest {
         // B = C
         //  \ |
         //    A
-        OntModel m = OntModelFactory.createModel(spec.spec);
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        A.addSuperClass(B);
-        A.addSuperClass(C);
-        B.addSuperClass(C);
-        C.addSuperClass(B);
 
-        Set<String> directA = A.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directB = B.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directC = C.subClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        OntModel m = createBCA(OntModelFactory.createModel(spec.spec));
 
-        Set<String> indirectA = A.subClasses().map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = B.subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = C.subClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> directC = subClasses(m, "C", true);
+
+        Set<String> indirectA = subClasses(m, "A");
+        Set<String> indirectB = subClasses(m, "B", false);
+        Set<String> indirectC = subClasses(m, "C", false);
 
         Assertions.assertEquals(Set.of(), directA);
         Assertions.assertEquals(Set.of("A"), directB);
@@ -851,19 +903,20 @@ public class OntClassTest {
         //    B   C
         //   / \ / \
         //  D   E   F
+
         OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
 
-        Set<String> directA = m.getOntClass(NS + "A").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E", false);
 
         Assertions.assertEquals(Set.of(), directA);
         Assertions.assertEquals(Set.of("A"), directB);
@@ -887,25 +940,26 @@ public class OntClassTest {
         //    B   C
         //   / \ / \
         //  D   E   F
+
         OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
 
-        Set<String> directA = m.getOntClass(NS + "A").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
 
-        Set<String> directD = m.getOntClass(NS + "D").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E", false);
 
-        Set<String> directF = m.getOntClass(NS + "F").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
 
         Assertions.assertEquals(Set.of(), directA);
         Assertions.assertEquals(Set.of("A"), directB);
@@ -931,22 +985,16 @@ public class OntClassTest {
         // B = C
         //  \ |
         //    A
-        OntModel m = OntModelFactory.createModel(spec.spec);
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        A.addSuperClass(B);
-        A.addSuperClass(C);
-        B.addSuperClass(C);
-        C.addSuperClass(B);
 
-        Set<String> directA = A.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directB = B.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directC = C.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        OntModel m = createBCA(OntModelFactory.createModel(spec.spec));
 
-        Set<String> indirectA = A.superClasses().map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = B.superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = C.superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> directC = superClasses(m, "C", true);
+
+        Set<String> indirectA = superClasses(m, "A");
+        Set<String> indirectB = superClasses(m, "B", false);
+        Set<String> indirectC = superClasses(m, "C", false);
 
         Assertions.assertEquals(Set.of("B", "C"), directA);
         Assertions.assertEquals(Set.of(), directB);
@@ -974,38 +1022,38 @@ public class OntClassTest {
 
         OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
 
-        Set<String> directA = m.getOntClass(NS + "A").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").superClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B");
 
-        Set<String> directC = m.getOntClass(NS + "C").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
 
-        Set<String> directD = m.getOntClass(NS + "D").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").superClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E");
 
-        Set<String> directF = m.getOntClass(NS + "F").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
 
-        Set<String> directG = m.getOntClass(NS + "G").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectG = m.getOntClass(NS + "G").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directG = superClasses(m, "G", true);
+        Set<String> indirectG = superClasses(m, "G", false);
 
-        Set<String> directH = m.getOntClass(NS + "H").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectH = m.getOntClass(NS + "H").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directH = superClasses(m, "H", true);
+        Set<String> indirectH = superClasses(m, "H", true);
 
-        Set<String> directK = m.getOntClass(NS + "K").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectK = m.getOntClass(NS + "K").superClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directK = superClasses(m, "K", true);
+        Set<String> indirectK = superClasses(m, "K");
 
-        Set<String> directL = m.getOntClass(NS + "L").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectL = m.getOntClass(NS + "L").superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directL = superClasses(m, "L", true);
+        Set<String> indirectL = superClasses(m, "L", false);
 
-        Set<String> directM = m.getOntClass(NS + "M").superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectM = m.getOntClass(NS + "M").superClasses().map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directM = superClasses(m, "M", true);
+        Set<String> indirectM = superClasses(m, "M");
 
         Assertions.assertEquals(Set.of(), directA);
         Assertions.assertEquals(Set.of("A"), directB);
@@ -1044,25 +1092,18 @@ public class OntClassTest {
         // B  |  C
         //  \ | /
         //    A
-        OntModel m = OntModelFactory.createModel(spec.spec);
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        OntClass D = m.createOntClass(NS + "D");
-        C.addSubClass(A);
-        B.addSubClass(A);
-        D.addSubClass(C);
-        D.addSubClass(A);
 
-        Set<String> directA = A.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directB = B.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directC = C.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> directD = D.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        OntModel m = createDBCA(OntModelFactory.createModel(spec.spec));
 
-        Set<String> indirectA = A.superClasses().map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = B.superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = C.superClasses(false).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = D.superClasses(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> directD = superClasses(m, "D", true);
+
+        Set<String> indirectA = superClasses(m, "A");
+        Set<String> indirectB = superClasses(m, "B", false);
+        Set<String> indirectC = superClasses(m, "C", false);
+        Set<String> indirectD = superClasses(m, "D", true);
 
         Assertions.assertEquals(Set.of("B", "C"), directA);
         Assertions.assertEquals(Set.of(), directB);
@@ -1085,37 +1126,38 @@ public class OntClassTest {
         //    B   C
         //   / \ / \
         //  D   E   F
+
         OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
-        OntClass a = m.getOntClass(NS + "A");
-        OntClass b = m.getOntClass(NS + "B");
-        OntClass c = m.getOntClass(NS + "C");
-        OntClass d = m.getOntClass(NS + "D");
-        OntClass e = m.getOntClass(NS + "E");
-        OntClass f = m.getOntClass(NS + "F");
+        OntClass A = m.getOntClass(NS + "A");
+        OntClass B = m.getOntClass(NS + "B");
+        OntClass C = m.getOntClass(NS + "C");
+        OntClass D = m.getOntClass(NS + "D");
+        OntClass E = m.getOntClass(NS + "E");
+        OntClass F = m.getOntClass(NS + "F");
 
-        a.createIndividual(NS + "iA");
-        b.createIndividual(NS + "iB");
-        c.createIndividual(NS + "iC");
-        d.createIndividual(NS + "iD");
-        e.createIndividual(NS + "iE");
+        A.createIndividual(NS + "iA");
+        B.createIndividual(NS + "iB");
+        C.createIndividual(NS + "iC");
+        D.createIndividual(NS + "iD");
+        E.createIndividual(NS + "iE");
 
-        Set<String> directA = a.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = a.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = A.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectA = A.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
 
-        Set<String> directB = b.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = b.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = B.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectB = B.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
 
-        Set<String> directC = c.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = c.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = C.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectC = C.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
 
-        Set<String> directD = d.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = d.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = D.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectD = D.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
 
-        Set<String> directE = e.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = e.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = E.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectE = E.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
 
-        Set<String> directF = f.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = f.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = F.individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectF = F.individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
 
         Assertions.assertEquals(Set.of("iA"), directA);
         Assertions.assertEquals(Set.of("iB"), directB);
@@ -1137,24 +1179,18 @@ public class OntClassTest {
         // B = C
         //  \ |
         //    A
-        OntModel m = OntModelFactory.createModel(spec.spec);
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        A.addSuperClass(B);
-        A.addSuperClass(C);
-        B.addSuperClass(C);
-        C.addSuperClass(B);
+
+        OntModel m = createBCA(OntModelFactory.createModel(spec.spec));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
-        Set<String> directA = m.getOntClass(NS + "A").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = individuals(m, "A", true);
+        Set<String> indirectA = individuals(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = individuals(m, "B", true);
+        Set<String> indirectB = individuals(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = individuals(m, "C", true);
+        Set<String> indirectC = individuals(m, "C", false);
 
         Assertions.assertEquals(Set.of("iA"), directA);
         Assertions.assertEquals(Set.of("iB", "iC"), directB);
@@ -1172,28 +1208,21 @@ public class OntClassTest {
         // B  |  C
         //  \ | /
         //    A
-        OntModel m = OntModelFactory.createModel(spec.spec);
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        OntClass D = m.createOntClass(NS + "D");
-        C.addSubClass(A);
-        B.addSubClass(A);
-        D.addSubClass(C);
-        D.addSubClass(A);
+
+        OntModel m = createDBCA(OntModelFactory.createModel(spec.spec));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
-        Set<String> directA = m.getOntClass(NS + "A").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = individuals(m, "A", true);
+        Set<String> indirectA = individuals(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = individuals(m, "B", true);
+        Set<String> indirectB = individuals(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = individuals(m, "C", true);
+        Set<String> indirectC = individuals(m, "C", false);
 
-        Set<String> directD = m.getOntClass(NS + "D").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = individuals(m, "D", true);
+        Set<String> indirectD = individuals(m, "D", false);
 
         Assertions.assertEquals(Set.of("iA"), directA);
         Assertions.assertEquals(Set.of("iB"), directB);
@@ -1219,41 +1248,42 @@ public class OntClassTest {
         // G  H = K
         //       / \
         //      L   M
+
         OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
-        Set<String> directA = m.getOntClass(NS + "A").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectA = m.getOntClass(NS + "A").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directA = individuals(m, "A", true);
+        Set<String> indirectA = individuals(m, "A", false);
 
-        Set<String> directB = m.getOntClass(NS + "B").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectB = m.getOntClass(NS + "B").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directB = individuals(m, "B", true);
+        Set<String> indirectB = individuals(m, "B", false);
 
-        Set<String> directC = m.getOntClass(NS + "C").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectC = m.getOntClass(NS + "C").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directC = individuals(m, "C", true);
+        Set<String> indirectC = individuals(m, "C", false);
 
-        Set<String> directD = m.getOntClass(NS + "D").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectD = m.getOntClass(NS + "D").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directD = individuals(m, "D", true);
+        Set<String> indirectD = individuals(m, "D", false);
 
-        Set<String> directE = m.getOntClass(NS + "E").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectE = m.getOntClass(NS + "E").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directE = individuals(m, "E", true);
+        Set<String> indirectE = individuals(m, "E", false);
 
-        Set<String> directF = m.getOntClass(NS + "F").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectF = m.getOntClass(NS + "F").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directF = individuals(m, "F", true);
+        Set<String> indirectF = individuals(m, "F", false);
 
-        Set<String> directG = m.getOntClass(NS + "G").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectG = m.getOntClass(NS + "G").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directG = individuals(m, "G", true);
+        Set<String> indirectG = individuals(m, "G", false);
 
-        Set<String> directH = m.getOntClass(NS + "H").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectH = m.getOntClass(NS + "H").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directH = individuals(m, "H", true);
+        Set<String> indirectH = individuals(m, "H", true);
 
-        Set<String> directK = m.getOntClass(NS + "K").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectK = m.getOntClass(NS + "K").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directK = individuals(m, "K", true);
+        Set<String> indirectK = individuals(m, "K", false);
 
-        Set<String> directL = m.getOntClass(NS + "L").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectL = m.getOntClass(NS + "L").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directL = individuals(m, "L", true);
+        Set<String> indirectL = individuals(m, "L", false);
 
-        Set<String> directM = m.getOntClass(NS + "M").individuals(true).map(Resource::getLocalName).collect(Collectors.toSet());
-        Set<String> indirectM = m.getOntClass(NS + "M").individuals(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directM = individuals(m, "M", true);
+        Set<String> indirectM = individuals(m, "M", false);
 
         Assertions.assertEquals(Set.of("iA"), directA);
         Assertions.assertEquals(Set.of("iB"), directB);
