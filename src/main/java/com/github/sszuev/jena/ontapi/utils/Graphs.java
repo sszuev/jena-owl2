@@ -11,7 +11,6 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.Dyadic;
 import org.apache.jena.graph.compose.Polyadic;
-import org.apache.jena.graph.impl.GraphWithPerform;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.graph.GraphWrapper;
@@ -40,10 +39,10 @@ import java.util.stream.Stream;
  * @see GraphUtil
  * @see GraphUtils
  */
-@SuppressWarnings({"WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class Graphs {
 
-    public static final String NULL_ONTOLOGY_IDENTIFIER = "NullOntology";
+    public static final String ANONYMOUS_ONTOLOGY_IDENTIFIER = "AnonymousOntology";
     public static final String RECURSIVE_GRAPH_IDENTIFIER = "Recursion";
 
     /**
@@ -107,15 +106,6 @@ public class Graphs {
         return graph;
     }
 
-    /**
-     * Returns {@code GraphWithPerform} in-memory instance.
-     *
-     * @return {@link GraphWithPerform}
-     */
-    @SuppressWarnings("deprecation")
-    public static GraphWithPerform getGraphWithPerformInMem() {
-        return new GraphMem();
-    }
 
     /**
      * Answers {@code true} if the graph specified is {@code GraphMem}.
@@ -304,7 +294,7 @@ public class Graphs {
             return "(closed)";
         }
         Optional<Node> res = ontologyNode(getBase(graph));
-        if (res.isEmpty()) return NULL_ONTOLOGY_IDENTIFIER;
+        if (res.isEmpty()) return ANONYMOUS_ONTOLOGY_IDENTIFIER;
         List<String> versions = graph.find(res.get(), OWL.versionIRI.asNode(), Node.ANY)
                 .mapWith(Triple::getObject).mapWith(Node::toString).toList();
         if (versions.isEmpty()) {
@@ -405,7 +395,7 @@ public class Graphs {
         return makeImportsTree(graph, g -> {
             if (g.isClosed()) return "Closed(" + printDefaultGraphName.apply(g) + ")";
             String res = getName(g);
-            if (NULL_ONTOLOGY_IDENTIFIER.equals(res)) {
+            if (ANONYMOUS_ONTOLOGY_IDENTIFIER.equals(res)) {
                 res += "(" + printDefaultGraphName.apply(g) + ")";
             }
             return res;

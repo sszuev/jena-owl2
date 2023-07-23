@@ -6,11 +6,17 @@ import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,7 +27,7 @@ import java.util.stream.Collectors;
  * Created by @ssz on 11.05.2019.
  */
 public class OntIndividualTest {
-    private static final String NS = "http://xx#";
+    private static final String NS = "http://jena.hpl.hp.com/testing/ontology#";
 
     @Test
     public void testPositiveAssertions() {
@@ -175,31 +181,83 @@ public class OntIndividualTest {
         Assertions.assertEquals(size, m.size());
     }
 
-    @Test
-    public void testListIndividuals() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD).setNsPrefix("x", NS);
-        m.getOWLThing().createIndividual(NS + "I1").addSameAsStatement(m.createIndividual(NS + "I2"));
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testListIndividuals1(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.spec),
+                "/testdata/list-individuals-test.rdf", Lang.RDFXML);
+        Assertions.assertEquals(Set.of("A0", "A1", "C0", "a0", "a1", "a2", "z0", "z1"),
+                m.individuals().map(Resource::getLocalName).collect(Collectors.toSet()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testListIndividuals2(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        Resource a0 = m.createResource(NS + "A0");
+        m.add(a0, RDF.type, OWL.Class);
+        m.add(OWL.Class, RDF.type, RDFS.Class);
+        Assertions.assertTrue(m.individuals().findFirst().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testListIndividuals3(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        Resource a0 = m.createResource(NS + "A0");
+        m.add(a0, RDF.type, OWL.Class);
+        m.add(OWL.Class, RDF.type, OWL.Class);
+        Assertions.assertTrue(m.individuals().findFirst().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testListIndividuals11(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntClass.Named c0 = m.getOWLThing();
         OntClass.Named c1 = m.createOntClass(NS + "C1");
         OntClass.Named c2 = m.createOntClass(NS + "C2");
         OntClass.Named c3 = m.createOntClass(NS + "C3");
-        m.createIndividual(NS + "I3")
-                .addDifferentIndividual(m.createIndividual(NS + "I4"))
-                .addDifferentIndividual(c3.createIndividual());
-        c1.createIndividual(NS + "I5");
+
+        OntIndividual i1 = c0.createIndividual(NS + "I1");
+        OntIndividual i2 = m.createIndividual(NS + "I2");
+        OntIndividual i3 = m.createIndividual(NS + "I3");
+        OntIndividual i4 = m.createIndividual(NS + "I4");
+        OntIndividual i6 = c3.createIndividual();
+        OntIndividual i5 = c1.createIndividual(NS + "I5");
+
         c2.createIndividual(NS + "I5");
         c2.createIndividual(NS + "I3");
         c3.createIndividual(NS + "I3");
 
+        i1.addSameAsStatement(i2);
+        i3.addDifferentIndividual(i4);
+        i3.addDifferentIndividual(i6);
 
         // class-assertions:
         Assertions.assertEquals(6, m.statements(null, RDF.type, null)
                 .filter(x -> x.getObject().canAs(OntClass.class)).count());
         // all individuals:
         Assertions.assertEquals(6, m.ontObjects(OntIndividual.class).count());
-        // distinct class asserted individuals:
-        Assertions.assertEquals(4, m.individuals().count());
         // named individuals:
         Assertions.assertEquals(5, m.namedIndividuals().peek(x -> Assertions.assertTrue(x.isURIResource())).count());
+
+        // distinct class asserted individuals:
+        Assertions.assertEquals(4, m.individuals().count());
+        Assertions.assertEquals(1, m.individuals().filter(RDFNode::isAnon).count());
+        Assertions.assertEquals(Set.of(i1, i3, i5), m.individuals().filter(it -> !it.isAnon()).collect(Collectors.toSet()));
     }
 
     @Test

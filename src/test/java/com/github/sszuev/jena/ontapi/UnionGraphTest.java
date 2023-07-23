@@ -228,7 +228,7 @@ public class UnionGraphTest {
         Assertions.assertEquals(3, a.listBaseGraphs().toList().size());
         tree = Graphs.importsTreeAsString(a);
         Assertions.assertEquals(5, tree.split("\n").length);
-        Assertions.assertEquals(4, StringUtils.countMatches(tree, Graphs.NULL_ONTOLOGY_IDENTIFIER));
+        Assertions.assertEquals(4, StringUtils.countMatches(tree, Graphs.ANONYMOUS_ONTOLOGY_IDENTIFIER));
         Assertions.assertEquals(1, StringUtils.countMatches(tree, Graphs.RECURSIVE_GRAPH_IDENTIFIER));
 
         Assertions.assertTrue(a.dependsOn(b));

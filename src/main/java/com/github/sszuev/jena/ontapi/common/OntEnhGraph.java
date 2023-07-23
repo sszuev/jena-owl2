@@ -3,12 +3,9 @@ package com.github.sszuev.jena.ontapi.common;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntModel;
-import com.github.sszuev.jena.ontapi.model.OntObject;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.RDFNode;
-
-import java.util.Set;
 
 /**
  * An abstraction to work with {@link OntPersonality}
@@ -25,6 +22,7 @@ import java.util.Set;
  * <p>
  * Created by @ssz on 18.01.2019.
  */
+@SuppressWarnings("unused")
 public interface OntEnhGraph {
 
     /**
@@ -118,14 +116,5 @@ public interface OntEnhGraph {
      * @see OntEnhGraph#getNodeAs(Node, Class)
      */
     <N extends RDFNode> N fetchNodeAs(Node node, Class<N> view);
-
-    /**
-     * Returns all {@link Node}s from the {@link OntPersonality#getReserved() reserved} vocabulary,
-     * that cannot be represented as the specified {@code type} in the model.
-     *
-     * @param type a {@code Class}-type of {@link OntObject}, not {@code null}
-     * @return a {@code Set} of {@link Node}s
-     */
-    Set<Node> getSystemResources(Class<? extends OntObject> type);
 
 }

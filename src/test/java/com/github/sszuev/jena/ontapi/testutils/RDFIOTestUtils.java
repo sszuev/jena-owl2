@@ -22,9 +22,13 @@ public class RDFIOTestUtils {
     }
 
     public static Model loadResourceAsModel(String resource, Lang lang) {
-        Model m = ModelFactory.createDefaultModel();
+        return readResourceToModel(ModelFactory.createDefaultModel(), resource, lang);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <X extends Model> X readResourceToModel(X m, String resource, Lang lang) {
         try (InputStream in = Objects.requireNonNull(RDFIOTestUtils.class.getResourceAsStream(resource))) {
-            return m.read(in, null, lang.getName());
+            return (X) m.read(in, null, lang.getName());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

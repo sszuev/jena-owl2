@@ -47,6 +47,7 @@ import java.util.stream.Stream;
  * <p>
  * Created by @szz on 15.01.2019.
  */
+@SuppressWarnings("unused")
 public interface OntPersonality {
 
     /**
@@ -120,6 +121,14 @@ public interface OntPersonality {
      * @return {@link Reserved}
      */
     Reserved getReserved();
+
+    /**
+     * Gets resources system resources for the specified type.
+     *
+     * @param type {@link OntEntity}
+     * @return Set of {@code Node}s
+     */
+    Set<Node> forbidden(Class<? extends OntEntity> type);
 
     /**
      * Lists all object-types encapsulated by this config, that extend the specified object-type.
