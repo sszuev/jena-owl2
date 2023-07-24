@@ -140,10 +140,11 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
             Function<X, Stream<X>> listAdjacentNodes,
             Function<X, Stream<X>> listExplicitNodes,
             boolean direct) {
+        boolean useBuiltinReasoner = config(object).useBuiltinHierarchySupport();
         if (direct) {
-            return adjacentTreeNodes(object, listAdjacentNodes);
+            return adjacentTreeNodes(object, useBuiltinReasoner, listAdjacentNodes);
         }
-        if (config(object).useBuiltinHierarchySupport()) {
+        if (useBuiltinReasoner) {
             return allTreeNodes(object, listExplicitNodes);
         }
         return listExplicitNodes.apply(object).filter(x -> !object.equals(x));
@@ -192,31 +193,58 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         }
     }
 
-    static <X extends Resource> Stream<X> adjacentTreeNodes(X object, Function<X, Stream<X>> listChildren) {
+    static <X extends Resource> Stream<X> adjacentTreeNodes(X object, boolean useBuiltinReasoner, Function<X, Stream<X>> listChildren) {
         return Iterators.fromSet(() -> {
             Set<X> res = listChildren.apply(object).collect(Collectors.toSet());
-            dropNodesWithSeveralPaths(object, listChildren, res);
+            dropNodesWithSeveralPaths(object, useBuiltinReasoner, listChildren, res);
             return res;
         });
     }
 
-    static <X extends Resource> void dropNodesWithSeveralPaths(X root, Function<X, Stream<X>> listChildren, Set<X> res) {
+    static <X extends Resource> void dropNodesWithSeveralPaths(
+            X root,
+            boolean useBuiltinReasoner,
+            Function<X, Stream<X>> listChildren,
+            Set<X> res
+    ) {
+        for (X child : new HashSet<>(res)) {
+            dropNodesWithSeveralPaths(root, child, useBuiltinReasoner, listChildren, res);
+        }
+    }
+
+    private static <X extends Resource> void dropNodesWithSeveralPaths(
+            X root,
+            X current,
+            boolean useBuiltinReasoner,
+            Function<X, Stream<X>> listChildren,
+            Set<X> res
+    ) {
+        Set<X> forQueue = new HashSet<>(res);
+        if (!useBuiltinReasoner) {
+            forQueue.remove(current);
+        }
+        List<X> queue = new LinkedList<>(forQueue);
         Set<X> seen = new HashSet<>();
-        List<X> queue = new LinkedList<>();
-        queue.add(root);
+        seen.add(current);
         while (queue.size() != 0) {
             X next = queue.remove(0);
             try (Stream<X> children = listChildren.apply(next)) {
                 Iterator<X> it = children.iterator();
                 while (it.hasNext()) {
-                    X x = it.next();
-                    if (seen.add(x)) {
-                        queue.add(x);
+                    X child = it.next();
+                    if (seen.add(child)) {
+                        queue.add(child);
                     } else {
-                        res.remove(x);
-                    }
-                    if (res.isEmpty()) {
-                        return;
+                        if (!useBuiltinReasoner && child.equals(root)) {
+                            // detect cycle (A -> B -> C -> A), which means there are two paths for evey node: short and long
+                            // In this case, if there is no reasoner, longest path is ignored;
+                            res.add(current);
+                            return;
+                        }
+                        if (child.equals(current)) {
+                            res.remove(current);
+                            return;
+                        }
                     }
                 }
             }

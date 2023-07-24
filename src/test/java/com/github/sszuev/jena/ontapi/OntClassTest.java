@@ -24,110 +24,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.github.sszuev.jena.ontapi.TestModelFactory.NS;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesABCA;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesABCDEF;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesABCDEFGHKLM;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesBCA;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesDBCA;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesDBFCEA;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesDGCFKBEHAG;
+
 public class OntClassTest {
-    private static final String NS = "http://example.com/test#";
-
-    private static OntModel createABCDEFGHKLMModel(OntModel m) {
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        OntClass D = m.createOntClass(NS + "D");
-        OntClass E = m.createOntClass(NS + "E");
-        OntClass F = m.createOntClass(NS + "F");
-        OntClass G = m.createOntClass(NS + "G");
-        OntClass H = m.createOntClass(NS + "H");
-        OntClass K = m.createOntClass(NS + "K");
-        OntClass L = m.createOntClass(NS + "L");
-        OntClass M = m.createOntClass(NS + "M");
-
-        //     A
-        //   /  / \
-        //  /  B   C
-        //  | / \ / \
-        //  D   E   F
-        // / \
-        // G  H = K
-        //       / \
-        //      L   M
-
-        A.addSubClass(D);
-        A.addSubClass(B);
-        A.addSubClass(C);
-
-        B.addSubClass(D);
-        B.addSubClass(E);
-
-        C.addSubClass(E);
-        C.addSubClass(F);
-
-        D.addSubClass(G);
-        D.addSubClass(H);
-
-        H.addSubClass(K);
-
-        K.addSubClass(H);
-        K.addSubClass(L);
-        K.addSubClass(M);
-        return m;
-    }
-
-    private static OntModel createABCDEFModel(OntModel m) {
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        OntClass D = m.createOntClass(NS + "D");
-        OntClass E = m.createOntClass(NS + "E");
-        OntClass F = m.createOntClass(NS + "F");
-
-        //      A
-        //     / \
-        //    B   C
-        //   / \ / \
-        //  D   E   F
-
-        A.addSubClass(B);
-        A.addSubClass(C);
-        B.addSubClass(D);
-        B.addSubClass(E);
-        C.addSubClass(E);
-        C.addSubClass(F);
-        return m;
-    }
-
-    private static OntModel createDBCA(OntModel m) {
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-        OntClass D = m.createOntClass(NS + "D");
-
-        //     D
-        //    | \
-        // B  |  C
-        //  \ | /
-        //    A
-
-        C.addSubClass(A);
-        B.addSubClass(A);
-        D.addSubClass(C);
-        D.addSubClass(A);
-        return m;
-    }
-
-    private static OntModel createBCA(OntModel m) {
-        OntClass A = m.createOntClass(NS + "A");
-        OntClass B = m.createOntClass(NS + "B");
-        OntClass C = m.createOntClass(NS + "C");
-
-        // B = C
-        //  \ |
-        //    A
-
-        A.addSuperClass(B);
-        A.addSuperClass(C);
-        B.addSuperClass(C);
-        C.addSuperClass(B);
-        return m;
-    }
 
     private static Set<String> subClasses(OntModel m, String name, boolean direct) {
         return m.getOntClass(NS + name).subClasses(direct).map(Resource::getLocalName).collect(Collectors.toSet());
@@ -304,8 +210,32 @@ public class OntClassTest {
     }
 
     @ParameterizedTest
-    @EnumSource
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
     public void testIsHierarchyRoot1(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        Assertions.assertTrue(m.getOWLThing().isHierarchyRoot());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testIsHierarchyRoot2(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        Assertions.assertFalse(m.getOWLNothing().isHierarchyRoot());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "RDFS_MEM",
+    })
+    public void testIsHierarchyRoot4(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.spec);
         OntClass a = m.createOntClass(NS + "A");
         OntClass b = m.createOntClass(NS + "B");
@@ -314,41 +244,173 @@ public class OntClassTest {
         Assertions.assertFalse(b.isHierarchyRoot());
     }
 
-    @Test
-    public void testIsHierarchyRoot2() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
-        OntClass c1 = m.createOntClass(":C1");
-        OntClass c2 = m.createOntClass(":C2");
-        OntClass c3 = m.createOntClass(":C3");
-        OntClass c4 = m.createOntClass(":C4");
-        OntClass c5 = m.createOntClass(":C5");
-        OntClass c6 = m.createOntClass(":C6");
-        OntClass c7 = m.createOntClass(":C7");
-        OntClass c8 = m.createOntClass(":C8");
-        OntClass c9 = m.createOntClass(":C9");
-        OntClass c10 = m.getOWLThing();
-        OntClass c11 = m.getOWLNothing();
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM",
+    })
+    public void testIsHierarchyRoot5(TestSpec spec) {
+        // D  THING    G
+        // |    |    / .
+        // C    F   K  .
+        // |    |   |  .
+        // B    E   H  .
+        // |         \ .
+        // A           G
+        OntModel m = createClassesDGCFKBEHAG(OntModelFactory.createModel(spec.spec));
+        OntClass Thing = OWL.Thing.inModel(m).as(OntClass.class);
+        OntClass Nothing = OWL.Nothing.inModel(m).as(OntClass.class);
+        m.getOntClass(NS + "F").addSuperClass(Thing);
 
-        c1.addSuperClass(c2);
-        c2.addSuperClass(c3);
-        c3.addSuperClass(c4);
-        c5.addSuperClass(c6);
-        c6.addSuperClass(c10);
-        c7.addSuperClass(c8);
-        c8.addSuperClass(c9);
-        c9.addSuperClass(c7);
+        Assertions.assertFalse(m.getOntClass(NS + "A").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "B").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "C").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "D").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "E").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "F").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "G").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "H").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "K").isHierarchyRoot());
+        Assertions.assertTrue(Thing.isHierarchyRoot());
+        Assertions.assertFalse(Nothing.isHierarchyRoot());
+    }
 
-        Assertions.assertFalse(c1.isHierarchyRoot());
-        Assertions.assertFalse(c2.isHierarchyRoot());
-        Assertions.assertFalse(c3.isHierarchyRoot());
-        Assertions.assertTrue(c4.isHierarchyRoot());
-        Assertions.assertFalse(c5.isHierarchyRoot());
-        Assertions.assertTrue(c6.isHierarchyRoot());
-        Assertions.assertTrue(c7.isHierarchyRoot());
-        Assertions.assertTrue(c8.isHierarchyRoot());
-        Assertions.assertTrue(c9.isHierarchyRoot());
-        Assertions.assertTrue(c10.isHierarchyRoot());
-        Assertions.assertFalse(c11.isHierarchyRoot());
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+    })
+    public void testIsHierarchyRoot6(TestSpec spec) {
+        // D  THING    G
+        // |    |    / .
+        // C    F   K  .
+        // |    |   |  .
+        // B    E   H  .
+        // |         \ .
+        // A           G
+        OntModel m = createClassesDGCFKBEHAG(OntModelFactory.createModel(spec.spec));
+        OntClass Thing = OWL.Thing.inModel(m).as(OntClass.class);
+        OntClass Nothing = OWL.Nothing.inModel(m).as(OntClass.class);
+        m.getOntClass(NS + "F").addSuperClass(Thing);
+
+        Assertions.assertFalse(m.getOntClass(NS + "A").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "B").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "C").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "D").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "E").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "F").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "G").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "H").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "K").isHierarchyRoot());
+        Assertions.assertTrue(Thing.isHierarchyRoot());
+        Assertions.assertFalse(Nothing.isHierarchyRoot());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM",
+            "RDFS_MEM",
+    })
+    public void testIsHierarchyRoot7(TestSpec spec) {
+        // D        G
+        // |      / .
+        // C  F  K  .
+        // |  |  |  .
+        // B  E  H  .
+        // |      \ .
+        // A        G
+        OntModel m = createClassesDGCFKBEHAG(TestModelFactory.createClassesDGCFKBEHAG(OntModelFactory.createModel(spec.spec)));
+
+        Assertions.assertFalse(m.getOntClass(NS + "A").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "B").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "C").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "D").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "E").isHierarchyRoot());
+        Assertions.assertTrue(m.getOntClass(NS + "F").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "G").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "H").isHierarchyRoot());
+        Assertions.assertFalse(m.getOntClass(NS + "K").isHierarchyRoot());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM",
+            "RDFS_MEM",
+    })
+    public void testIsHierarchyRoot8(TestSpec spec) {
+        //     A
+        //   /  / \
+        //  /  B   C
+        //  | / \ / \
+        //  D   E   F
+        // / \
+        // G  H = K
+        //       / \
+        //      L   M
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
+
+        boolean isHierarchyRootA = m.getOntClass(NS + "A").isHierarchyRoot();
+        boolean isHierarchyRootB = m.getOntClass(NS + "B").isHierarchyRoot();
+        boolean isHierarchyRootC = m.getOntClass(NS + "C").isHierarchyRoot();
+        boolean isHierarchyRootD = m.getOntClass(NS + "D").isHierarchyRoot();
+        boolean isHierarchyRootE = m.getOntClass(NS + "E").isHierarchyRoot();
+        boolean isHierarchyRootF = m.getOntClass(NS + "F").isHierarchyRoot();
+        boolean isHierarchyRootG = m.getOntClass(NS + "G").isHierarchyRoot();
+        boolean isHierarchyRootH = m.getOntClass(NS + "H").isHierarchyRoot();
+        boolean isHierarchyRootK = m.getOntClass(NS + "K").isHierarchyRoot();
+        boolean isHierarchyRootL = m.getOntClass(NS + "L").isHierarchyRoot();
+        boolean isHierarchyRootM = m.getOntClass(NS + "M").isHierarchyRoot();
+
+        Assertions.assertTrue(isHierarchyRootA);
+        Assertions.assertFalse(isHierarchyRootB);
+        Assertions.assertFalse(isHierarchyRootC);
+        Assertions.assertFalse(isHierarchyRootD);
+        Assertions.assertFalse(isHierarchyRootE);
+        Assertions.assertFalse(isHierarchyRootF);
+        Assertions.assertFalse(isHierarchyRootG);
+        Assertions.assertFalse(isHierarchyRootH);
+        Assertions.assertTrue(isHierarchyRootK);
+        Assertions.assertFalse(isHierarchyRootL);
+        Assertions.assertFalse(isHierarchyRootM);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+    })
+    public void testIsHierarchyRoot9(TestSpec spec) {
+        //     A
+        //   /  / \
+        //  /  B   C
+        //  | / \ / \
+        //  D   E   F
+        // / \
+        // G  H = K
+        //       / \
+        //      L   M
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
+
+        boolean isHierarchyRootA = m.getOntClass(NS + "A").isHierarchyRoot();
+        boolean isHierarchyRootB = m.getOntClass(NS + "B").isHierarchyRoot();
+        boolean isHierarchyRootC = m.getOntClass(NS + "C").isHierarchyRoot();
+        boolean isHierarchyRootD = m.getOntClass(NS + "D").isHierarchyRoot();
+        boolean isHierarchyRootE = m.getOntClass(NS + "E").isHierarchyRoot();
+        boolean isHierarchyRootF = m.getOntClass(NS + "F").isHierarchyRoot();
+        boolean isHierarchyRootG = m.getOntClass(NS + "G").isHierarchyRoot();
+        boolean isHierarchyRootH = m.getOntClass(NS + "H").isHierarchyRoot();
+        boolean isHierarchyRootK = m.getOntClass(NS + "K").isHierarchyRoot();
+        boolean isHierarchyRootL = m.getOntClass(NS + "L").isHierarchyRoot();
+        boolean isHierarchyRootM = m.getOntClass(NS + "M").isHierarchyRoot();
+
+        Assertions.assertTrue(isHierarchyRootA);
+        Assertions.assertFalse(isHierarchyRootB);
+        Assertions.assertFalse(isHierarchyRootC);
+        Assertions.assertFalse(isHierarchyRootD);
+        Assertions.assertFalse(isHierarchyRootE);
+        Assertions.assertFalse(isHierarchyRootF);
+        Assertions.assertFalse(isHierarchyRootG);
+        Assertions.assertFalse(isHierarchyRootH);
+        Assertions.assertFalse(isHierarchyRootK);
+        Assertions.assertFalse(isHierarchyRootL);
+        Assertions.assertFalse(isHierarchyRootM);
     }
 
     @Test
@@ -505,14 +567,15 @@ public class OntClassTest {
     @EnumSource(names = {
             "OWL2_MEM",
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "RDFS_MEM",
     })
     public void testListSubClasses1(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.spec);
-        OntClass a = m.createOntClass(NS + "A");
-        a.addSubClass(a);
+        OntClass A = m.createOntClass(NS + "A");
+        A.addSubClass(A);
 
-        Assertions.assertTrue(a.subClasses(true).findFirst().isEmpty());
-        Assertions.assertTrue(a.subClasses(false).findFirst().isEmpty());
+        Assertions.assertTrue(A.subClasses(true).findFirst().isEmpty());
+        Assertions.assertTrue(A.subClasses(false).findFirst().isEmpty());
     }
 
     @ParameterizedTest
@@ -550,7 +613,7 @@ public class OntClassTest {
         //    B   C
         //   / \ / \
         //  D   E   F
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -597,7 +660,7 @@ public class OntClassTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -637,7 +700,7 @@ public class OntClassTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
     })
     public void testListSubClasses4Inf(TestSpec spec) {
-        //     A
+        //      A
         //   /  / \
         //  /  B   C
         //  | / \ / \
@@ -647,7 +710,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -713,7 +776,7 @@ public class OntClassTest {
             "RDFS_MEM",
     })
     public void testListSubClasses4NoInf(TestSpec spec) {
-        //     A
+        //      A
         //   /  / \
         //  /  B   C
         //  | / \ / \
@@ -723,7 +786,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -835,7 +898,7 @@ public class OntClassTest {
         //  \ |
         //    A
 
-        OntModel m = createBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> directB = subClasses(m, "B", true);
@@ -852,6 +915,103 @@ public class OntClassTest {
         Assertions.assertEquals(Set.of(), indirectA);
         Assertions.assertEquals(Set.of("A", "C"), indirectB);
         Assertions.assertEquals(Set.of("A", "B"), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM",
+            "RDFS_MEM",
+    })
+    public void testListSubClasses11(TestSpec spec) {
+        //    A
+        //  / .
+        // B  .
+        // |  .
+        // C  .
+        //  \ .
+        //    A
+
+        OntModel m = createClassesABCA(OntModelFactory.createModel(spec.spec));
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> directC = subClasses(m, "C", true);
+
+        Set<String> indirectA = subClasses(m, "A", false);
+        Set<String> indirectB = subClasses(m, "B", false);
+        Set<String> indirectC = subClasses(m, "C", false);
+
+        Assertions.assertEquals(Set.of("B"), directA);
+        Assertions.assertEquals(Set.of("C"), directB);
+        Assertions.assertEquals(Set.of("A"), directC);
+
+        Assertions.assertEquals(Set.of("B"), indirectA);
+        Assertions.assertEquals(Set.of("C"), indirectB);
+        Assertions.assertEquals(Set.of("A"), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+    })
+    public void testListSubClasses12(TestSpec spec) {
+        //    A
+        //  / .
+        // B  .
+        // |  .
+        // C  .
+        //  \ .
+        //    A
+
+        OntModel m = createClassesABCA(OntModelFactory.createModel(spec.spec));
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> directC = subClasses(m, "C", true);
+
+        Set<String> indirectA = subClasses(m, "A", false);
+        Set<String> indirectB = subClasses(m, "B", false);
+        Set<String> indirectC = subClasses(m, "C", false);
+
+        Assertions.assertEquals(Set.of(), directA);
+        Assertions.assertEquals(Set.of(), directB);
+        Assertions.assertEquals(Set.of(), directC);
+
+        Assertions.assertEquals(Set.of("B", "C"), indirectA);
+        Assertions.assertEquals(Set.of("A", "C"), indirectB);
+        Assertions.assertEquals(Set.of("A", "B"), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "RDFS_MEM",
+    })
+    public void testListSubClasses15(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        A.addSubClass(B);
+        B.addSubClass(A);
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
+
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
+
+        System.out.println("DIRECT-A::" + directA);
+        System.out.println("DIRECT-B::" + directB);
+
+        System.out.println("INDIRECT-A::" + indirectA);
+        System.out.println("INDIRECT-B::" + indirectB);
+
+        Assertions.assertEquals(Set.of(), directA);
+        Assertions.assertEquals(Set.of(), directB);
+
+        Assertions.assertEquals(Set.of("B"), indirectA);
+        Assertions.assertEquals(Set.of("A"), indirectB);
     }
 
     @ParameterizedTest
@@ -904,7 +1064,7 @@ public class OntClassTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);
@@ -941,7 +1101,7 @@ public class OntClassTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);
@@ -986,7 +1146,7 @@ public class OntClassTest {
         //  \ |
         //    A
 
-        OntModel m = createBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> directB = superClasses(m, "B", true);
@@ -1020,7 +1180,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);
@@ -1093,7 +1253,7 @@ public class OntClassTest {
         //  \ | /
         //    A
 
-        OntModel m = createDBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesDBCA(OntModelFactory.createModel(spec.spec));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> directB = superClasses(m, "B", true);
@@ -1118,6 +1278,103 @@ public class OntClassTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM",
+            "RDFS_MEM",
+    })
+    public void testListSuperClasses9(TestSpec spec) {
+        //    D
+        //  /  \
+        // B    F
+        // |    |
+        // C    E
+        //  \  /
+        //    A
+
+        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.spec));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
+
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B", false);
+
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
+
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E", false);
+
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
+
+        Assertions.assertEquals(Set.of("C", "E"), directA);
+        Assertions.assertEquals(Set.of("D"), directB);
+        Assertions.assertEquals(Set.of("B"), directC);
+        Assertions.assertEquals(Set.of(), directD);
+        Assertions.assertEquals(Set.of("F"), directE);
+        Assertions.assertEquals(Set.of("D"), directF);
+
+        Assertions.assertEquals(Set.of("C", "E"), indirectA);
+        Assertions.assertEquals(Set.of("D"), indirectB);
+        Assertions.assertEquals(Set.of("B"), indirectC);
+        Assertions.assertEquals(Set.of(), indirectD);
+        Assertions.assertEquals(Set.of("F"), indirectE);
+        Assertions.assertEquals(Set.of("D"), indirectF);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+    })
+    public void testListSuperClasses10(TestSpec spec) {
+        //    D
+        //  /  \
+        // B    F
+        // |    |
+        // C    E
+        //  \  /
+        //    A
+
+        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.spec));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
+
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B", false);
+
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
+
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E", false);
+
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
+
+        Assertions.assertEquals(Set.of("C", "E"), directA);
+        Assertions.assertEquals(Set.of("D"), directB);
+        Assertions.assertEquals(Set.of("B"), directC);
+        Assertions.assertEquals(Set.of(), directD);
+        Assertions.assertEquals(Set.of("F"), directE);
+        Assertions.assertEquals(Set.of("D"), directF);
+
+        Assertions.assertEquals(Set.of("B", "C", "D", "E", "F"), indirectA);
+        Assertions.assertEquals(Set.of("D"), indirectB);
+        Assertions.assertEquals(Set.of("B", "D"), indirectC);
+        Assertions.assertEquals(Set.of(), indirectD);
+        Assertions.assertEquals(Set.of("D", "F"), indirectE);
+        Assertions.assertEquals(Set.of("D"), indirectF);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
     })
     public void testListIndividuals1(TestSpec spec) {
@@ -1127,7 +1384,7 @@ public class OntClassTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createABCDEFModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
         OntClass A = m.getOntClass(NS + "A");
         OntClass B = m.getOntClass(NS + "B");
         OntClass C = m.getOntClass(NS + "C");
@@ -1180,7 +1437,7 @@ public class OntClassTest {
         //  \ |
         //    A
 
-        OntModel m = createBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.spec));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = individuals(m, "A", true);
@@ -1209,7 +1466,7 @@ public class OntClassTest {
         //  \ | /
         //    A
 
-        OntModel m = createDBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesDBCA(OntModelFactory.createModel(spec.spec));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = individuals(m, "A", true);
@@ -1249,7 +1506,7 @@ public class OntClassTest {
         //       / \
         //      L   M
 
-        OntModel m = createABCDEFGHKLMModel(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = individuals(m, "A", true);
