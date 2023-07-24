@@ -6,6 +6,22 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 class TestModelFactory {
     static final String NS = "http://example.com/test#";
 
+    static OntModel createClassesABCD(OntModel m) {
+        //    A
+        //  / |
+        // B  C
+        //     \
+        //      D
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        OntClass D = m.createOntClass(NS + "D");
+        A.addSubClass(B);
+        A.addSubClass(C);
+        C.addSubClass(D);
+        return m;
+    }
+
     static OntModel createClassesABCDEFGHKLM(OntModel m) {
         //      A
         //   / |  \
