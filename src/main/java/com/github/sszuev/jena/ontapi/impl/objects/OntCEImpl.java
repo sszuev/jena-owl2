@@ -47,8 +47,12 @@ import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDFS;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -370,25 +374,66 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         try (Stream<OntClass> domains = property.domains()) {
             if (!domains.allMatch(domain -> {
                 if (domain.equals(OWL.Thing) || domain.equals(RDFS.Resource)) {
+                    // there are some well-known values we ignore
                     return true;
                 }
                 isGlobal.set(false);
                 if (clazz.equals(domain)) {
+                    // if this class is actually in the domain (as opposed to one of this class's
+                    // super-classes), then we've detected the direct property case
                     seenDirect.set(true);
-                    return true;
                 } else {
-                    try (Stream<OntClass> superClasses = clazz.superClasses(false)) {
-                        return superClasses.anyMatch(domain::equals);
-                    }
+                    // there is a class in the domain of p that is not a super-class of this class
+                    return canProveSuperClass(clazz, domain);
                 }
+                return true;
             })) {
                 return false;
             }
             if (direct) {
+                // if we're looking for direct props, we must either have seen the direct case
+                // or it's a global prop and this is a root class
                 return seenDirect.get() || (isGlobal.get() && clazz.isHierarchyRoot());
             }
+            // not direct, we must either found a global or a super-class prop
+            // otherwise the 'return false' above would have kicked in
             return true;
         }
+    }
+
+    /**
+     * Answers true if we can demonstrate that the class specified as first parameter class has the second parameter as a super-class.
+     * If this model has a reasoner, this is equivalent to asking if the sub-class relation holds.
+     * Otherwise, we simulate basic reasoning by searching upwards through the class hierarchy.
+     * @param clazz potential subclass
+     * @param candidate for super class of {@code clazz}
+     * @return {@code true} if we can show that {@code candidate} is a super-class of {@code clazz}
+     */
+    protected static boolean canProveSuperClass(OntClass clazz, OntClass candidate) {
+        Set<OntClass> seen = new HashSet<>();
+        Deque<OntClass> queue = new ArrayDeque<>();
+        queue.add(clazz);
+        while (!queue.isEmpty()) {
+            OntClass current = queue.removeFirst();
+            if (seen.contains(current)) {
+                continue;
+            }
+            seen.add(current);
+            if (current.equals(candidate)) {
+                return true;
+            }
+            try (Stream<OntClass> classStream = current.superClasses(false)) {
+                Iterator<OntClass> classIterator = classStream.iterator();
+                while (classIterator.hasNext()) {
+                    OntClass next = classIterator.next();
+                    if (next.equals(candidate)) {
+                        return true;
+                    }
+                    queue.add(next);
+                }
+            }
+        }
+        return false;
     }
 
     public static boolean isHierarchyRoot(OntClass clazz) {
@@ -1371,7 +1416,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
             return res;
         }
 
-        public Factory map(Node n, EnhGraph eg) {
+        private Factory map(Node n, EnhGraph eg) {
             if (n.isURI()) {
                 if (Factory.CLASS.factory.canWrap(n, eg)) {
                     return Factory.CLASS;

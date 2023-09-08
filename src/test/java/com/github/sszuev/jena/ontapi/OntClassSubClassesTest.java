@@ -480,12 +480,6 @@ public class OntClassSubClassesTest {
         Set<String> directB = subClasses(m, "B", true);
         Set<String> indirectB = subClasses(m, "B", false);
 
-        System.out.println("DIRECT-A::" + directA);
-        System.out.println("DIRECT-B::" + directB);
-
-        System.out.println("INDIRECT-A::" + indirectA);
-        System.out.println("INDIRECT-B::" + indirectB);
-
         Assertions.assertEquals(Set.of(), directA);
         Assertions.assertEquals(Set.of(), directB);
 
