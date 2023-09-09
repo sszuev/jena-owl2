@@ -15,6 +15,8 @@ import java.util.Objects;
 public class OntSpecification {
     /**
      * A specification for OWL models that are stored in memory and use fast but incomplete builtin OWL inference engine for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */
     public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF =
             new OntSpecification(OntPersonalities.OWL2_PERSONALITY_STRICT, null, OntModelConfig.DEFAULT.useBuiltinHierarchySupport(true));
@@ -29,6 +31,9 @@ public class OntSpecification {
 
     /**
      * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
+     * TODO: Jena allows to represent virtually any RDF declaration as any Ontology type
+     *  (e.g. `_x: rdf:type rdf:Property` as `org.apache.jena.ontology.ObjectProperty`);
+     *  It is strange, but we have to offer RDFS_MEM_COMPATIBLE spec ...
      *
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
      */

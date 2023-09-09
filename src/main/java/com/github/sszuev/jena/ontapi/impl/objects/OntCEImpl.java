@@ -356,22 +356,20 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         model.deleteOntList(clazz, OWL.hasKey, clazz.findHasKey(rdfList).orElse(null));
     }
 
-    public static Stream<OntRealProperty> declaredProperties(OntClass clazz, boolean direct) {
+    public static Stream<OntProperty> declaredProperties(OntClass clazz, boolean direct) {
         OntModel m = clazz.getModel();
-        Stream<OntRealProperty> properties = Stream.concat(
-                m.statements(null, RDF.type, OWL.ObjectProperty).map(s -> s.getSubject().getAs(OntObjectProperty.class)),
-                m.statements(null, RDF.type, OWL.DatatypeProperty).map(s -> s.getSubject().getAs(OntDataProperty.class))
-        );
-        return properties.filter(p -> p != null && testDomain(clazz, p, direct)).map(p -> p.as(OntRealProperty.class));
+        Stream<OntProperty> properties = Stream.of(OWL.ObjectProperty, OWL.DatatypeProperty, OWL.AnnotationProperty)
+                .flatMap(type -> m.statements(null, RDF.type, type).map(s -> s.getSubject().getAs(OntProperty.class)));
+        return properties.filter(p -> p != null && testDomain(clazz, p, direct)).distinct();
     }
 
-    public static boolean testDomain(OntClass clazz, OntRealProperty property, boolean direct) {
+    public static boolean testDomain(OntClass clazz, OntProperty property, boolean direct) {
         if (property.isURIResource() && property.as(OntEntity.class).isBuiltIn()) {
             return false;
         }
         AtomicBoolean isGlobal = new AtomicBoolean(true);
         AtomicBoolean seenDirect = new AtomicBoolean(false);
-        try (Stream<OntClass> domains = property.domains()) {
+        try (Stream<? extends Resource> domains = property.domains()) {
             if (!domains.allMatch(domain -> {
                 if (domain.equals(OWL.Thing) || domain.equals(RDFS.Resource)) {
                     // there are some well-known values we ignore
@@ -405,11 +403,12 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
      * Answers true if we can demonstrate that the class specified as first parameter class has the second parameter as a super-class.
      * If this model has a reasoner, this is equivalent to asking if the sub-class relation holds.
      * Otherwise, we simulate basic reasoning by searching upwards through the class hierarchy.
-     * @param clazz potential subclass
+     *
+     * @param clazz     potential subclass
      * @param candidate for super class of {@code clazz}
      * @return {@code true} if we can show that {@code candidate} is a super-class of {@code clazz}
      */
-    protected static boolean canProveSuperClass(OntClass clazz, OntClass candidate) {
+    protected static boolean canProveSuperClass(OntClass clazz, Resource candidate) {
         Set<OntClass> seen = new HashSet<>();
         Deque<OntClass> queue = new ArrayDeque<>();
         queue.add(clazz);
@@ -591,7 +590,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     }
 
     @Override
-    public Stream<OntRealProperty> declaredProperties(boolean direct) {
+    public Stream<OntProperty> declaredProperties(boolean direct) {
         return declaredProperties(this, direct);
     }
 

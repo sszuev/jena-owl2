@@ -62,17 +62,17 @@ public class JenaReasonerTest {
 
     @Test
     public void testValidation1() {
-        validationTest("/testdata/dttest1.nt", false);
+        validationTest("/dttest1.nt", false);
     }
 
     @Test
     public void testValidation2() {
-        validationTest("/testdata/dttest2.nt", false);
+        validationTest("/dttest2.nt", false);
     }
 
     @Test
     public void testValidation3() {
-        validationTest("/testdata/dttest3.nt", true);
+        validationTest("/dttest3.nt", true);
     }
 
 

@@ -145,7 +145,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     boolean hasDeclaredProperty(OntRealProperty property, boolean direct);
 
     /**
-     * Returns a {@code Stream} over the {@link OntRealProperty properties} associated with a frame-like view of this class.
+     * Returns a {@code Stream} over the {@link OntProperty properties} associated with a frame-like view of this class.
      * This captures an intuitive notion of the <em>properties of a class</em>.
      * This can be useful in presenting an ontology class in a user interface,
      * for example by automatically constructing a form to instantiate instances of the class.
@@ -158,10 +158,10 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *
      * @param direct {@code boolean}: if {@code true} analyses only the directly adjacent domains in the sub-class relation,
      *               otherwise takes into account the class hierarchy
-     * @return a <b>distinct</b> {@code Stream} of {@link OntRealProperty object and date properties}, attached to this class
+     * @return a <b>distinct</b> {@code Stream} of {@link OntProperty object, datatype and annotation properties}, attached to this class
      * @see #properties()
      */
-    Stream<OntRealProperty> declaredProperties(boolean direct);
+    Stream<OntProperty> declaredProperties(boolean direct);
 
     /**
      * Answers true if this class is one of the roots of the local class hierarchy.
@@ -293,6 +293,16 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
         return getModel().statements(null, RDFS.domain, this)
                 .map(s -> s.getSubject().getAs(OntProperty.class))
                 .filter(Objects::nonNull);
+    }
+
+    /**
+     * Equivalent to {@code this.declaredProperties(false)}
+     *
+     * @return a <b>distinct</b> {@code Stream} of (object, datatype & annotations properties), attached to this class
+     * @see #declaredProperties(boolean)
+     */
+    default Stream<OntProperty> declaredProperties() {
+        return declaredProperties(false);
     }
 
     /**

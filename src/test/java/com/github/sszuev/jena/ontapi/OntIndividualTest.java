@@ -188,7 +188,7 @@ public class OntIndividualTest {
     })
     public void testListIndividuals1(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.spec),
-                "/testdata/list-individuals-test.rdf", Lang.RDFXML);
+                "/list-individuals-test.rdf", Lang.RDFXML);
         Assertions.assertEquals(Set.of("A0", "A1", "C0", "a0", "a1", "a2", "z0", "z1"),
                 m.individuals().map(Resource::getLocalName).collect(Collectors.toSet()));
     }

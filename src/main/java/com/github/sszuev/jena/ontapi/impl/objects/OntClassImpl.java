@@ -6,6 +6,7 @@ import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntList;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -77,7 +78,7 @@ public class OntClassImpl extends OntObjectImpl implements OntClass.Named {
     }
 
     @Override
-    public Stream<OntRealProperty> declaredProperties(boolean direct) {
+    public Stream<OntProperty> declaredProperties(boolean direct) {
         return OntCEImpl.declaredProperties(this, direct);
     }
 
