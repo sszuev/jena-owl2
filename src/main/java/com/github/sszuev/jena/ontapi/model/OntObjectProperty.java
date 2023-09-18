@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 /**
  * A common interface for any Ontology Object Property Expression.
- * In OWL2 there are two types of object property expressions:
+ * In OWL2, there are two types of object property expressions:
  * named object property (entity) and InverseOf anonymous property expression.
  * Range values for this property expression are restricted to individuals
  * (as distinct from datatype valued {@link OntDataProperty properties}).
@@ -33,7 +33,8 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      * {@inheritDoc}
      *
      * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
-     *               i.e. eliminate any properties for which there is a longer route to reach that parent under the sub-property relation
+     *               i.e. eliminate any properties for which 
+     *               there is a longer route to reach that parent under the sub-property relation
      * @return <b>distinct</b> {@code Stream} of object property expressions
      * @see #propertyChains()
      */
@@ -44,7 +45,8 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      * {@inheritDoc}
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
-     *               i.e. eliminate any property for which there is a longer route to reach that parent under the super-property relation
+     *               i.e. eliminate any property for 
+     *               which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of object property expressions
      * @see #propertyChains()
      */
@@ -78,7 +80,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      * at object positions with the predicate {@link OWL#propertyChainAxiom owl:propertyChainAxiom}.
      * The resulting rdf-list will consist of all the elements of the specified collection
      * in the given order with the possibility of duplication.
-     * Note: Any {@code null}s in collection will cause {@link OntJenaException.IllegalArgument exception}.
+     * Note: Any {@code null}s in a collection will cause {@link OntJenaException.IllegalArgument exception}.
      *
      * @param properties {@link Collection} (preferably {@link List}) of {@link OntObjectProperty object property expression}s
      * @return {@link OntList} of {@link OntObjectProperty}s
@@ -119,9 +121,9 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     }
 
     /**
-     * Gets all direct or indirect ranges which present in RDF graph.
+     * Gets all direct or indirect ranges that present in RDF graph.
      * Indirect ranges are calculated using {@code OntClass.subClasses(true)} relationship.
-     * For example consider the following statements (if someone has some dog, then this dog is a Dog):
+     * For example, consider the following statements (if someone has some dog, then this dog is a Dog):
      * <pre>
      * {@code
      * :Dog rdf:type owl:Class .
@@ -249,7 +251,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
 
     /**
      * Finds the <b>first</b> {@code PropertyChain} logical construction
-     * attached to this property for the specified []-list as object.
+     * attached to this property for the specified []-list as an object.
      *
      * @param list {@link RDFNode}
      * @return {@code Optional} around the {@link OntList ontology []-list}
@@ -276,7 +278,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     /**
      * Lists all members from the right part of statement {@code P owl:propertyChainAxiom ( P1 ... Pn )},
      * where {@code P} is this property.
-     * Note: the result ignores repetitions, e.g. for
+     * Note: the result ignores repetitions, e.g., for
      * {@code SubObjectPropertyOf( ObjectPropertyChain( :hasParent :hasParent ) :hasGrandparent )},
      * it returns only {@code :hasParent} property.
      *
@@ -292,17 +294,17 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      * {@inheritDoc}
      */
     @Override
-    default Stream<OntClass.RestrictionCE<OntObjectProperty>> referringRestrictions() {
+    default Stream<OntClass.Restriction<OntObjectProperty>> referringRestrictions() {
         //noinspection unchecked
-        return getModel().ontObjects(OntClass.RestrictionCE.class)
+        return getModel().ontObjects(OntClass.Restriction.class)
                 .filter(r -> r.getProperty().equals(this))
-                .map(r -> (OntClass.RestrictionCE<OntObjectProperty>) r);
+                .map(r -> (OntClass.Restriction<OntObjectProperty>) r);
     }
 
     /**
      * Creates a property chain {@link OntList ontology list}
      * and returns the statement {@code P owl:propertyChainAxiom ( P1 ... Pn )} to allow the addition of annotations.
-     * About RDF Graph annotation specification see, for example,
+     * See RDF Graph annotation specification, for example,
      * <a href="https://www.w3.org/TR/owl2-mapping-to-rdf/#Translation_of_Annotations">2.3.1 Axioms that Generate a Main Triple</a>.
      *
      * @param properties Array of {@link OntObjectProperty}s without {@code null}s
@@ -504,7 +506,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     }
 
     /**
-     * Adds a new inverse-of statement, returns this property instance.
+     * Adds a new inverse-of a statement, returns this property instance.
      *
      * @param other {@link OntObjectProperty}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
@@ -517,7 +519,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     }
 
     /**
-     * Adds a new sub-property-of chain statement and returns this object itself.
+     * Adds a new sub-property-of a chain statement and returns this object itself.
      * Note: the method saves a collection order with possible duplicates.
      *
      * @param properties an {@code Array} of {@link OntObjectProperty object properties}
@@ -530,7 +532,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     }
 
     /**
-     * Adds a new sub-property-of chain statement and returns this object itself.
+     * Adds a new sub-property-of a chain statement and returns this object itself.
      * Note: the method saves a collection order with possible duplicates.
      *
      * @param properties a {@code Collection} of {@link OntObjectProperty object properties}
@@ -590,7 +592,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
 
     /**
      * Removes the statement with the predicate {@link OWL#inverseOf owl:inverseOf}
-     * and the given object property as object.
+     * and the given object property as an object.
      * If the argument is {@code null}, all {@code owl:inverseOf} statements will be removed for this object property.
      * No-op in case there is no {@code owl:inverseOf} statements.
      *
@@ -803,7 +805,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
     /**
      * Interface encapsulating an Ontology Named Object Property.
      * It is a URI-{@link Resource Resource} and an extension to the standard jena {@link Property}.
-     * Also? it is an {@link OntEntity OWL Entity} and {@link OntRealProperty real ontology property}.
+     * Also? It is an {@link OntEntity OWL Entity} and {@link OntRealProperty real ontology property}.
      * <p>
      * Created @ssz on 01.11.2016.
      *

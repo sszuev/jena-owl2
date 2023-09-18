@@ -8,10 +8,10 @@ import com.github.sszuev.jena.ontapi.vocabulary.XSD;
  * <p>
  * Created by @ssz on 09.05.2019.
  *
- * @param <R> - return type, a subtype of {@link OntClass.CardinalityRestrictionCE}
+ * @param <R> - return type, a subtype of {@link OntClass.CardinalityRestriction}
  * @see HasCardinality
  */
-interface SetCardinality<R extends OntClass.CardinalityRestrictionCE<?, ?>> {
+interface SetCardinality<R extends OntClass.CardinalityRestriction<?, ?>> {
 
     /**
      * Sets a new cardinality value.

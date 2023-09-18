@@ -126,7 +126,7 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
         }
     }
 
-    public static class OneOfImpl extends ComponentsDRImpl<Literal> implements OneOf {
+    public static class OneOfImpl extends CombinationImpl<Literal> implements OneOf {
         public OneOfImpl(Node n, EnhGraph m) {
             super(n, m, OWL.oneOf, Literal.class);
         }
@@ -137,7 +137,7 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
         }
     }
 
-    public static class RestrictionImpl extends ComponentsDRImpl<OntFacetRestriction> implements Restriction {
+    public static class RestrictionImpl extends CombinationImpl<OntFacetRestriction> implements Restriction {
         public RestrictionImpl(Node n, EnhGraph m) {
             super(n, m, OWL.withRestrictions, OntFacetRestriction.class);
         }
@@ -175,7 +175,7 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
 
     }
 
-    public static class UnionOfImpl extends ComponentsDRImpl<OntDataRange> implements UnionOf {
+    public static class UnionOfImpl extends CombinationImpl<OntDataRange> implements UnionOf {
         public UnionOfImpl(Node n, EnhGraph m) {
             super(n, m, OWL.unionOf, OntDataRange.class);
         }
@@ -186,7 +186,7 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
         }
     }
 
-    public static class IntersectionOfImpl extends ComponentsDRImpl<OntDataRange> implements IntersectionOf {
+    public static class IntersectionOfImpl extends CombinationImpl<OntDataRange> implements IntersectionOf {
 
         public IntersectionOfImpl(Node n, EnhGraph m) {
             super(n, m, OWL.intersectionOf, OntDataRange.class);
@@ -203,11 +203,11 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
      *
      * @param <N> {@link RDFNode}
      */
-    protected static abstract class ComponentsDRImpl<N extends RDFNode> extends OntDRImpl implements ComponentsDR<N> {
+    protected static abstract class CombinationImpl<N extends RDFNode> extends OntDRImpl implements Combination<N> {
         protected final Property predicate;
         protected final Class<N> type;
 
-        protected ComponentsDRImpl(Node n, EnhGraph m, Property predicate, Class<N> type) {
+        protected CombinationImpl(Node n, EnhGraph m, Property predicate, Class<N> type) {
             super(n, m);
             this.predicate = OntJenaException.notNull(predicate, "Null predicate.");
             this.type = OntJenaException.notNull(type, "Null view.");

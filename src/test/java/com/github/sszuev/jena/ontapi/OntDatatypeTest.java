@@ -39,7 +39,7 @@ public class OntDatatypeTest {
 
         Assertions.assertEquals(3, m.ontObjects(OntFacetRestriction.class).count());
         Assertions.assertEquals(2, m.ontObjects(OntDataRange.class).count());
-        Assertions.assertEquals(1, m.ontObjects(OntDataRange.ComponentsDR.class).count());
+        Assertions.assertEquals(1, m.ontObjects(OntDataRange.Combination.class).count());
         Assertions.assertEquals(d2, m.ontObjects(OntDataRange.class).filter(s -> s.canAs(OntDataRange.ComplementOf.class))
                 .findFirst().orElseThrow(AssertionError::new));
         Assertions.assertEquals(d3, m.ontObjects(OntDataRange.class).filter(s -> s.canAs(OntDataRange.Restriction.class))
@@ -94,7 +94,7 @@ public class OntDatatypeTest {
 
 
         Set<RDFNode> expected = new HashSet<>(Arrays.asList(l2, l3, fr3, fr1, fr2));
-        Set<RDFNode> actual = m.ontObjects(OntDataRange.ComponentsDR.class)
+        Set<RDFNode> actual = m.ontObjects(OntDataRange.Combination.class)
                 .map(x -> x.getList())
                 .map(x -> x.as(RDFList.class))
                 .map(RDFList::asJavaList)

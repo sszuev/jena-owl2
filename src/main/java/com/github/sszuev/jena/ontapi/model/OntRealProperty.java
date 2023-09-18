@@ -35,7 +35,7 @@ public interface OntRealProperty extends OntProperty {
 
     /**
      * Lists all property ranges,
-     * i.e. all objects from statements with this property as subject and {@code rdfs:range} as predicate.
+     * i.e. all objects from statements with this property as a subject and {@code rdfs:range} as predicate.
      *
      * @return {@code Stream} of {@link OntObject ontology object}s
      */
@@ -132,7 +132,7 @@ public interface OntRealProperty extends OntProperty {
     /**
      * Removes the equivalent property statement
      * (a statement with the predicate {@link OWL#equivalentProperty owl:equivalentProperty})
-     * for the specified resource (considered as object), including the corresponding statement's annotations.
+     * for the specified resource (considered as an object), including the corresponding statement's annotations.
      * No-op in case no such equivalent property relationship is found.
      * Removes all triples with predicate {@code owl:equivalentProperty} (and all theirs annotation triples)
      * if {@code null} is given.
@@ -145,7 +145,7 @@ public interface OntRealProperty extends OntProperty {
     /**
      * Removes the {@code owl:propertyDisjointWith} statement
      * (a statement with the predicate {@link OWL#propertyDisjointWith owl:propertyDisjointWith})
-     * for the specified resource (considered as object), including the corresponding statement's annotations.
+     * for the specified resource (considered as an object), including the corresponding statement's annotations.
      * No-op in case no such disjoint property relationship is found.
      * Removes all triples with predicate {@code owl:propertyDisjointWith} (and all theirs annotation triples)
      * if {@code null} is given.
@@ -174,7 +174,7 @@ public interface OntRealProperty extends OntProperty {
      *
      * @return a {@code Stream} whose values are the restrictions from the local model that reference this property.
      */
-    Stream<? extends OntClass.RestrictionCE<? extends OntRealProperty>> referringRestrictions();
+    Stream<? extends OntClass.Restriction<? extends OntRealProperty>> referringRestrictions();
 
     /**
      * Lists all the declared domain class expressions of this property expression.
@@ -189,9 +189,9 @@ public interface OntRealProperty extends OntProperty {
     }
 
     /**
-     * Gets all direct or indirect domains which present in RDF graph.
+     * Gets all direct or indirect domains that present in RDF graph.
      * Indirect domains are calculated using {@code OntClass.superClasses(true)} relationship.
-     * For example consider the following statements (only people can have names):
+     * For example, consider the following statements (only people can have names):
      * <pre>
      * {@code
      * :Primate rdf:type owl:Class .
@@ -208,7 +208,7 @@ public interface OntRealProperty extends OntProperty {
      * :hasName rdfs:domain :Primate .
      * }
      * </pre>
-     * The same true for object properties: if "only people can have dogs" then "only primates can have dogs"
+     * The same is true for object properties: if "only people can have dogs" then "only primates can have dogs"
      *
      * @param direct if {@code true} the method behaves the same as {@link #domains()}
      * @return {@code Stream} of {@link OntClass class expression}s, distinct

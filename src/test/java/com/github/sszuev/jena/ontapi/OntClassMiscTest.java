@@ -32,7 +32,7 @@ public class OntClassMiscTest {
         OntClass.DataMinCardinality r2 = m.createDataMinCardinality(dp, 1, null);
         OntClass.DataMaxCardinality r3 = m.createDataMaxCardinality(dp, 2, m.getRDFSLiteral());
         OntClass.ObjectMinCardinality r4 = m.createObjectMinCardinality(op, 12, m.getOWLThing());
-        OntClass.CardinalityRestrictionCE<?, ?> r5 = m.createDataCardinality(dp, 0, m.getDatatype(XSD.xstring));
+        OntClass.CardinalityRestriction<?, ?> r5 = m.createDataCardinality(dp, 0, m.getDatatype(XSD.xstring));
 
         Assertions.assertTrue(r1.isQualified());
         Assertions.assertFalse(r2.isQualified());
@@ -149,7 +149,7 @@ public class OntClassMiscTest {
         Assertions.assertEquals(3, e3.setComponents(Arrays.asList(c1, c2, m.getOWLThing())).getList().members().count());
 
         Set<RDFNode> expected = new HashSet<>(Arrays.asList(i1, i4, c1, c2, m.getOWLThing()));
-        Set<RDFNode> actual = m.ontObjects(OntClass.ComponentsCE.class)
+        Set<RDFNode> actual = m.ontObjects(OntClass.Combination.class)
                 .map(x -> x.getList())
                 .map(x -> x.as(RDFList.class))
                 .map(RDFList::asJavaList)

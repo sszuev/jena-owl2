@@ -10,12 +10,12 @@ import org.apache.jena.vocabulary.RDFS;
 import java.util.stream.Stream;
 
 /**
- * Interface encapsulating an Ontology (Named) Data Property.
+ * Interface encapsulating the Ontology (Named) Data Property.
  * This is an extension to the standard jena {@link Property},
  * the {@link OntEntity OWL Entity} and the {@link OntRealProperty real property} interfaces.
  * Range values for this property are {@link OntDataRange datarange} values
  * (as distinct from object property expression valued {@link OntObjectProperty properties}).
- * In OWL2 a Data Property cannot be anonymous.
+ * In OWL2, a Data Property cannot be anonymous.
  * <p>
  * Created @ssz on 01.11.2016.
  *
@@ -37,7 +37,8 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
      * {@inheritDoc}
      *
      * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
-     *               i.e. eliminate any properties for which there is a longer route to reach that parent under the sub-property relation
+     *               i.e. eliminate any properties for which
+     *               there is a longer route to reach that parent under the sub-property relation
      * @return <b>distinct</b> {@code Stream} of datatype properties
      */
     @Override
@@ -47,7 +48,8 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
      * {@inheritDoc}
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
-     *               i.e. eliminate any property for which there is a longer route to reach that parent under the super-property relation
+     *               i.e. eliminate any property for which
+     *               there is a longer route to reach that parent under the super-property relation               
      * @return <b>distinct</b> {@code Stream} of datatype properties
      */
     @Override
@@ -78,7 +80,7 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
     }
 
     /**
-     * Returns all property ranges (the statement pattern: {@code R rdfs:range D}).
+     * Returns all-property ranges (the statement pattern: {@code R rdfs:range D}).
      *
      * @return {@code Stream} of {@link OntDataRange}s
      */
@@ -154,11 +156,11 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
      * {@inheritDoc}
      */
     @Override
-    default Stream<OntClass.RestrictionCE<OntDataProperty>> referringRestrictions() {
+    default Stream<OntClass.Restriction<OntDataProperty>> referringRestrictions() {
         //noinspection unchecked
-        return getModel().ontObjects(OntClass.RestrictionCE.class)
+        return getModel().ontObjects(OntClass.Restriction.class)
                 .filter(r -> r.getProperty().equals(this))
-                .map(r -> (OntClass.RestrictionCE<OntDataProperty>) r);
+                .map(r -> (OntClass.Restriction<OntDataProperty>) r);
     }
 
     /**
@@ -206,7 +208,7 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
      *
      * @param range {@link Resource}, that represents a {@link OntDataRange data range}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
-     * @throws org.apache.jena.enhanced.UnsupportedPolymorphismException in case wrong resource is specified
+     * @throws org.apache.jena.enhanced.UnsupportedPolymorphismException in case the wrong resource is specified
      */
     default OntDataProperty addRange(Resource range) {
         return addRange(range.inModel(getModel()).as(OntDataRange.class));

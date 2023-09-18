@@ -66,7 +66,7 @@ public class OntExpressionTest {
         Assertions.assertEquals(l2, r4.getValue());
 
         Set<RDFNode> expected = new HashSet<>(Arrays.asList(dt2, c2, i2, l2));
-        Set<RDFNode> actual = m.ontObjects(OntClass.ComponentRestrictionCE.class)
+        Set<RDFNode> actual = m.ontObjects(OntClass.ComponentRestriction.class)
                 .map(x -> x.getValue()).collect(Collectors.toSet());
         Assertions.assertEquals(expected, actual);
     }
@@ -115,7 +115,7 @@ public class OntExpressionTest {
         Assertions.assertEquals(op1, r3.getProperty());
 
         Set<OntRealProperty> actual = new HashSet<>(Arrays.asList(dp2, op2, op1));
-        Set<OntRealProperty> expected = m.ontObjects(OntClass.UnaryRestrictionCE.class)
+        Set<OntRealProperty> expected = m.ontObjects(OntClass.UnaryRestriction.class)
                 .map(x -> x.getProperty()).collect(Collectors.toSet());
         Assertions.assertEquals(expected, actual);
     }
@@ -137,7 +137,7 @@ public class OntExpressionTest {
         Assertions.assertEquals(3, r2.getCardinality());
 
         long expected = 6 + 3;
-        long actual = m.ontObjects(OntClass.CardinalityRestrictionCE.class).mapToLong(x -> x.getCardinality()).sum();
+        long actual = m.ontObjects(OntClass.CardinalityRestriction.class).mapToLong(x -> x.getCardinality()).sum();
         Assertions.assertEquals(expected, actual);
     }
 

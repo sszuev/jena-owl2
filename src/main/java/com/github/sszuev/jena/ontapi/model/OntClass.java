@@ -641,49 +641,49 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createObjectSomeValuesFrom(OntObjectProperty, OntClass)
      */
-    interface ObjectSomeValuesFrom extends ComponentRestrictionCE<OntClass, OntObjectProperty>,
+    interface ObjectSomeValuesFrom extends ComponentRestriction<OntClass, OntObjectProperty>,
             SetValue<OntClass, ObjectSomeValuesFrom>, SetProperty<OntObjectProperty, ObjectSomeValuesFrom> {
     }
 
     /**
      * @see OntModel#createDataSomeValuesFrom(OntDataProperty, OntDataRange)
      */
-    interface DataSomeValuesFrom extends ComponentRestrictionCE<OntDataRange, OntDataProperty>,
+    interface DataSomeValuesFrom extends ComponentRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, DataSomeValuesFrom>, SetProperty<OntDataProperty, DataSomeValuesFrom> {
     }
 
     /**
      * @see OntModel#createObjectAllValuesFrom(OntObjectProperty, OntClass)
      */
-    interface ObjectAllValuesFrom extends ComponentRestrictionCE<OntClass, OntObjectProperty>,
+    interface ObjectAllValuesFrom extends ComponentRestriction<OntClass, OntObjectProperty>,
             SetValue<OntClass, ObjectAllValuesFrom>, SetProperty<OntObjectProperty, ObjectAllValuesFrom> {
     }
 
     /**
      * @see OntModel#createDataAllValuesFrom(OntDataProperty, OntDataRange)
      */
-    interface DataAllValuesFrom extends ComponentRestrictionCE<OntDataRange, OntDataProperty>,
+    interface DataAllValuesFrom extends ComponentRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, DataAllValuesFrom>, SetProperty<OntDataProperty, DataAllValuesFrom> {
     }
 
     /**
      * @see OntModel#createObjectHasValue(OntObjectProperty, OntIndividual)
      */
-    interface ObjectHasValue extends ComponentRestrictionCE<OntIndividual, OntObjectProperty>,
+    interface ObjectHasValue extends ComponentRestriction<OntIndividual, OntObjectProperty>,
             SetValue<OntIndividual, ObjectHasValue>, SetProperty<OntObjectProperty, ObjectHasValue> {
     }
 
     /**
      * @see OntModel#createDataHasValue(OntDataProperty, Literal)
      */
-    interface DataHasValue extends ComponentRestrictionCE<Literal, OntDataProperty>,
+    interface DataHasValue extends ComponentRestriction<Literal, OntDataProperty>,
             SetValue<Literal, DataHasValue>, SetProperty<OntDataProperty, DataHasValue> {
     }
 
     /**
      * @see OntModel#createObjectMinCardinality(OntObjectProperty, int, OntClass)
      */
-    interface ObjectMinCardinality extends CardinalityRestrictionCE<OntClass, OntObjectProperty>,
+    interface ObjectMinCardinality extends CardinalityRestriction<OntClass, OntObjectProperty>,
             SetValue<OntClass, ObjectMinCardinality>,
             SetProperty<OntObjectProperty, ObjectMinCardinality>,
             SetCardinality<ObjectMinCardinality> {
@@ -692,7 +692,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createDataMinCardinality(OntDataProperty, int, OntDataRange)
      */
-    interface DataMinCardinality extends CardinalityRestrictionCE<OntDataRange, OntDataProperty>,
+    interface DataMinCardinality extends CardinalityRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, DataMinCardinality>,
             SetProperty<OntDataProperty, DataMinCardinality>,
             SetCardinality<DataMinCardinality> {
@@ -701,7 +701,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createDataMaxCardinality(OntDataProperty, int, OntDataRange)
      */
-    interface ObjectMaxCardinality extends CardinalityRestrictionCE<OntClass, OntObjectProperty>,
+    interface ObjectMaxCardinality extends CardinalityRestriction<OntClass, OntObjectProperty>,
             SetValue<OntClass, ObjectMaxCardinality>,
             SetProperty<OntObjectProperty, ObjectMaxCardinality>,
             SetCardinality<ObjectMaxCardinality> {
@@ -710,7 +710,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createDataMaxCardinality(OntDataProperty, int, OntDataRange)
      */
-    interface DataMaxCardinality extends CardinalityRestrictionCE<OntDataRange, OntDataProperty>,
+    interface DataMaxCardinality extends CardinalityRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, DataMaxCardinality>,
             SetProperty<OntDataProperty, DataMaxCardinality>,
             SetCardinality<DataMaxCardinality> {
@@ -719,7 +719,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createObjectCardinality(OntObjectProperty, int, OntClass)
      */
-    interface ObjectCardinality extends CardinalityRestrictionCE<OntClass, OntObjectProperty>,
+    interface ObjectCardinality extends CardinalityRestriction<OntClass, OntObjectProperty>,
             SetValue<OntClass, ObjectCardinality>,
             SetProperty<OntObjectProperty, ObjectCardinality>,
             SetCardinality<ObjectCardinality> {
@@ -728,7 +728,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createDataCardinality(OntDataProperty, int, OntDataRange)
      */
-    interface DataCardinality extends CardinalityRestrictionCE<OntDataRange, OntDataProperty>,
+    interface DataCardinality extends CardinalityRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, DataCardinality>,
             SetProperty<OntDataProperty, DataCardinality>,
             SetCardinality<DataCardinality> {
@@ -737,25 +737,25 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createHasSelf(OntObjectProperty)
      */
-    interface HasSelf extends UnaryRestrictionCE<OntObjectProperty>, SetProperty<OntObjectProperty, HasSelf> {
+    interface HasSelf extends UnaryRestriction<OntObjectProperty>, SetProperty<OntObjectProperty, HasSelf> {
     }
 
     /**
      * @see OntModel#createObjectUnionOf(Collection)
      */
-    interface UnionOf extends ComponentsCE<OntClass>, SetComponents<OntClass, UnionOf> {
+    interface UnionOf extends Combination<OntClass>, SetComponents<OntClass, UnionOf> {
     }
 
     /**
      * @see OntModel#createObjectOneOf(Collection)
      */
-    interface OneOf extends ComponentsCE<OntIndividual>, SetComponents<OntIndividual, OneOf> {
+    interface OneOf extends Combination<OntIndividual>, SetComponents<OntIndividual, OneOf> {
     }
 
     /**
      * @see OntModel#createObjectIntersectionOf(Collection)
      */
-    interface IntersectionOf extends ComponentsCE<OntClass>, SetComponents<OntClass, IntersectionOf> {
+    interface IntersectionOf extends Combination<OntClass>, SetComponents<OntClass, IntersectionOf> {
     }
 
     /**
@@ -767,14 +767,14 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createDataAllValuesFrom(Collection, OntDataRange)
      */
-    interface NaryDataAllValuesFrom extends NaryRestrictionCE<OntDataRange, OntDataProperty>,
+    interface NaryDataAllValuesFrom extends NaryRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, NaryDataAllValuesFrom>, SetProperties<OntDataProperty, NaryDataAllValuesFrom> {
     }
 
     /**
      * @see OntModel#createDataSomeValuesFrom(Collection, OntDataRange)
      */
-    interface NaryDataSomeValuesFrom extends NaryRestrictionCE<OntDataRange, OntDataProperty>,
+    interface NaryDataSomeValuesFrom extends NaryRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, NaryDataSomeValuesFrom>, SetProperties<OntDataProperty, NaryDataSomeValuesFrom> {
     }
 
@@ -1062,21 +1062,13 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      */
 
     /**
-     * An abstraction for Boolean Connectives (with exclude of {@link ComplementOf}) and Enumeration of Individuals.
-     *
-     * @param <O> a component type
-     */
-    interface ComponentsCE<O extends OntObject> extends OntClass, HasRDFNodeList<O> {
-    }
-
-    /**
      * An abstraction for Cardinality Restrictions.
      *
      * @param <O> a value type
      * @param <P> any subtype of {@link OntRealProperty}
      */
-    interface CardinalityRestrictionCE<O extends OntObject, P extends OntRealProperty>
-            extends HasCardinality, ComponentRestrictionCE<O, P> {
+    interface CardinalityRestriction<O extends OntObject, P extends OntRealProperty>
+            extends HasCardinality, ComponentRestriction<O, P> {
     }
 
     /**
@@ -1086,28 +1078,28 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @param <O> a value type
      * @param <P> any subtype of {@link OntRealProperty}
      */
-    interface ComponentRestrictionCE<O extends RDFNode, P extends OntRealProperty>
-            extends UnaryRestrictionCE<P>, HasValue<O> {
+    interface ComponentRestriction<O extends RDFNode, P extends OntRealProperty>
+            extends UnaryRestriction<P>, HasValue<O> {
     }
 
     /**
-     * An abstraction that unites all {@link RestrictionCE Restriction}s
+     * An abstraction that unites all {@link Restriction Restriction}s
      * with the predicate {@link OWL#onProperties owl:onProperties}.
      *
      * @param <O> a value type
      * @param <P> any subtype of {@link OntRealProperty}
      */
-    interface NaryRestrictionCE<O extends OntObject, P extends OntRealProperty>
-            extends RestrictionCE<P>, HasProperties<P>, HasValue<O> {
+    interface NaryRestriction<O extends OntObject, P extends OntRealProperty>
+            extends Restriction<P>, HasProperties<P>, HasValue<O> {
     }
 
     /**
-     * An abstract class expression that unites all {@link RestrictionCE Restriction}s
+     * An abstract class expression that unites all {@link Restriction Restriction}s
      * with the predicate {@link OWL#onProperty owl:onProperty}.
      *
      * @param <P> any subtype of {@link OntRealProperty}
      */
-    interface UnaryRestrictionCE<P extends OntRealProperty> extends RestrictionCE<P> {
+    interface UnaryRestriction<P extends OntRealProperty> extends Restriction<P> {
     }
 
     /**
@@ -1115,6 +1107,15 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *
      * @param <P> any subtype of {@link OntRealProperty}
      */
-    interface RestrictionCE<P extends OntRealProperty> extends OntClass, HasProperty<P> {
+    interface Restriction<P extends OntRealProperty> extends OntClass, HasProperty<P> {
+    }
+
+    /**
+     * An abstract class expression that unites class expressions consisting of multiple components.
+     * There are three kinds of such expressions: {@link UnionOf}, {@link IntersectionOf} and {@link OneOf}.
+     *
+     * @param <O> a component type
+     */
+    interface Combination<O extends OntObject> extends OntClass, HasRDFNodeList<O> {
     }
 }

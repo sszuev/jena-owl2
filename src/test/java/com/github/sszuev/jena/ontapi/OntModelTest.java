@@ -123,8 +123,8 @@ public class OntModelTest {
         int actualCEsCount = ces.size();
         Assertions.assertEquals(expectedCEsCount, actualCEsCount);
 
-        List<OntClass.RestrictionCE> restrictionCEs = m.ontObjects(OntClass.RestrictionCE.class).collect(Collectors.toList());
-        Assertions.assertEquals(m.listStatements(null, RDF.type, OWL.Restriction).toSet().size(), restrictionCEs.size());
+        List<OntClass.Restriction> restrictions = m.ontObjects(OntClass.Restriction.class).collect(Collectors.toList());
+        Assertions.assertEquals(m.listStatements(null, RDF.type, OWL.Restriction).toSet().size(), restrictions.size());
 
         List<OntClass.ObjectSomeValuesFrom> objectSomeValuesFromCEs = m.ontObjects(OntClass.ObjectSomeValuesFrom.class)
                 .collect(Collectors.toList());
@@ -779,8 +779,8 @@ public class OntModelTest {
 
         Assertions.assertEquals(3, m.ontObjects(OntIndividual.class).count(), "Incorrect count of individuals");
         Assertions.assertEquals(4, m.ontObjects(OntClass.class).count(), "Incorrect count of class expressions");
-        Assertions.assertEquals(2, m.ontObjects(OntClass.RestrictionCE.class).count(), "Incorrect count of restrictions");
-        Assertions.assertEquals(1, m.ontObjects(OntClass.CardinalityRestrictionCE.class).count(),
+        Assertions.assertEquals(2, m.ontObjects(OntClass.Restriction.class).count(), "Incorrect count of restrictions");
+        Assertions.assertEquals(1, m.ontObjects(OntClass.CardinalityRestriction.class).count(),
                 "Incorrect count of cardinality restrictions");
         Assertions.assertEquals(3, m.ontObjects(OntDataRange.Named.class).count(), "Incorrect count of datatype entities");
         Assertions.assertEquals(1, m.ontObjects(OntDataProperty.class).count(), "Incorrect count of data properties");

@@ -157,11 +157,11 @@ public class OntPersonalities {
             .add(OntClass.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_CLASS)
             .add(OntClass.NaryDataAllValuesFrom.class, OWL2ObjectFactories.NARY_DATA_ALL_VALUES_FROM_CLASS)
             .add(OntClass.NaryDataSomeValuesFrom.class, OWL2ObjectFactories.NARY_DATA_SOME_VALUES_FROM_CLASS)
-            .add(OntClass.ComponentsCE.class, OWL2ObjectFactories.ANY_COMPONENTS_CLASS)
-            .add(OntClass.CardinalityRestrictionCE.class, OWL2ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
-            .add(OntClass.ComponentRestrictionCE.class, OWL2ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
-            .add(OntClass.UnaryRestrictionCE.class, OWL2ObjectFactories.ANY_PROPERTY_RESTRICTION_CLASS)
-            .add(OntClass.RestrictionCE.class, OWL2ObjectFactories.ANY_RESTRICTION_CLASS)
+            .add(OntClass.Combination.class, OWL2ObjectFactories.ANY_COMPONENTS_CLASS)
+            .add(OntClass.CardinalityRestriction.class, OWL2ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
+            .add(OntClass.ComponentRestriction.class, OWL2ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
+            .add(OntClass.UnaryRestriction.class, OWL2ObjectFactories.ANY_PROPERTY_RESTRICTION_CLASS)
+            .add(OntClass.Restriction.class, OWL2ObjectFactories.ANY_RESTRICTION_CLASS)
             .add(OntClass.class, OWL2ObjectFactories.ANY_CLASS)
 
             // data ranges:
@@ -170,7 +170,7 @@ public class OntPersonalities {
             .add(OntDataRange.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_DATARANGE)
             .add(OntDataRange.UnionOf.class, OWL2ObjectFactories.UNION_OF_DATARANGE)
             .add(OntDataRange.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_DATARANGE)
-            .add(OntDataRange.ComponentsDR.class, OWL2ObjectFactories.ANY_COMPONENTS_DATARANGE)
+            .add(OntDataRange.Combination.class, OWL2ObjectFactories.ANY_COMPONENTS_DATARANGE)
             .add(OntDataRange.class, OWL2ObjectFactories.ANY_DATARANGE)
 
             // facet restrictions:

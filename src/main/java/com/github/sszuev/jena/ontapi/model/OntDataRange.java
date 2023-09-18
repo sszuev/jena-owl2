@@ -50,21 +50,21 @@ public interface OntDataRange extends OntObject, AsNamed<OntDataRange.Named> {
      * @see <a href='https://www.w3.org/TR/owl2-syntax/#Intersection_of_Data_Ranges'>7.1 Intersection of Data Ranges</a>
      * @see OntModel#createDataIntersectionOf(Collection)
      */
-    interface IntersectionOf extends ComponentsDR<OntDataRange>, SetComponents<OntDataRange, IntersectionOf> {
+    interface IntersectionOf extends Combination<OntDataRange>, SetComponents<OntDataRange, IntersectionOf> {
     }
 
     /**
      * @see <a href='https://www.w3.org/TR/owl2-syntax/#Union_of_Data_Ranges'>7.2 Union of Data Ranges</a>
      * @see OntModel#createDataUnionOf(Collection)
      */
-    interface UnionOf extends ComponentsDR<OntDataRange>, SetComponents<OntDataRange, UnionOf> {
+    interface UnionOf extends Combination<OntDataRange>, SetComponents<OntDataRange, UnionOf> {
     }
 
     /**
      * @see <a href='https://www.w3.org/TR/owl2-syntax/#Enumeration_of_Literals'>7.4 Enumeration of Literals</a>
      * @see OntModel#createDataOneOf(Collection)
      */
-    interface OneOf extends ComponentsDR<Literal>, SetComponents<Literal, OneOf> {
+    interface OneOf extends Combination<Literal>, SetComponents<Literal, OneOf> {
     }
 
     /**
@@ -73,7 +73,7 @@ public interface OntDataRange extends OntObject, AsNamed<OntDataRange.Named> {
      * @see OntModel#createFacetRestriction(Class, Literal)
      * @see OntModel#createDataRestriction(Named, Collection)
      */
-    interface Restriction extends ComponentsDR<OntFacetRestriction>,
+    interface Restriction extends Combination<OntFacetRestriction>,
             SetComponents<OntFacetRestriction, Restriction>, SetValue<Named, Restriction>, HasValue<Named> {
         /**
          * {@inheritDoc}
@@ -99,11 +99,11 @@ public interface OntDataRange extends OntObject, AsNamed<OntDataRange.Named> {
     }
 
     /**
-     * An abstract DataRange Expression with {@link OntList} support.
+     * An abstract datarange that unites DataRanges consisting of multiple components.
      *
      * @param <N> {@link RDFNode}
      */
-    interface ComponentsDR<N extends RDFNode> extends OntDataRange, HasRDFNodeList<N> {
+    interface Combination<N extends RDFNode> extends OntDataRange, HasRDFNodeList<N> {
     }
 
     /**

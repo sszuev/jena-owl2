@@ -14,7 +14,7 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 interface HasProperty<P extends OntRealProperty> {
     /**
      * Gets the property,
-     * that this {@link OntClass.UnaryRestrictionCE} has inside its RDF structure
+     * that this {@link OntClass.UnaryRestriction} has inside its RDF structure
      * on predicate {@link OWL#onProperty owl:onProperty}.
      *
      * @return {@link P}
