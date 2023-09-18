@@ -8,7 +8,6 @@ import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntNamedProperty;
-import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Resource;
@@ -48,9 +47,7 @@ public enum RDFSEntity {
     },
     ;
 
-    private static final EnhNodeFinder ENTITY_FINDER = OntEnhNodeFactories.createFinder(RDF.Property, RDFS.Class);
-    public static final EnhNodeFactory ALL = OntEnhNodeFactories.createFrom(ENTITY_FINDER, OntProperty.class, OntClass.class);
-
+    public static final EnhNodeFinder ENTITY_FINDER = OntEnhNodeFactories.createFinder(RDF.Property, RDFS.Class);
 
     static EnhNodeFactory createFactory(
             Class<? extends OntObjectImpl> impl,

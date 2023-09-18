@@ -40,25 +40,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public class OntDRImpl extends OntObjectImpl implements OntDataRange {
 
-    public static final EnhNodeFactory OWL2_DR_FACTORY = DataRangeFactory.createFactory();
-    private static final EnhNodeFinder DR_FINDER = new EnhNodeFinder.ByType(RDFS.Datatype);
-    public static final EnhNodeFactory OWL2_COMPONENTS_DR_FACTORY = OntEnhNodeFactories.createFrom(DR_FINDER
-            , OneOf.class
-            , Restriction.class
-            , UnionOf.class
-            , IntersectionOf.class);
-    private static final EnhNodeFilter DR_FILTER = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(RDFS.Datatype));
-    public static final EnhNodeFactory OWL2_ONE_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(OneOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.oneOf)));
-    public static final EnhNodeFactory OWL2_RESTRICTION_DR_FACTORY = OntEnhNodeFactories.createCommon(RestrictionImpl.class,
-            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.onDatatype))
-                    .and(new EnhNodeFilter.HasPredicate(OWL.withRestrictions)));
-    public static final EnhNodeFactory OWL2_COMPLEMENT_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(ComplementOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.datatypeComplementOf)));
-    public static final EnhNodeFactory OWL2_UNION_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(UnionOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.unionOf)));
-    public static final EnhNodeFactory OWL2_INTERSECTION_OF_DR_FACTORY = OntEnhNodeFactories.createCommon(IntersectionOfImpl.class,
-            DR_FINDER, DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf)));
+    public static final EnhNodeFinder DR_FINDER = new EnhNodeFinder.ByType(RDFS.Datatype);
+    public static final EnhNodeFilter DR_FILTER = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(RDFS.Datatype));
 
     public OntDRImpl(Node n, EnhGraph m) {
         super(n, m);

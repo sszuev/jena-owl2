@@ -1,9 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
@@ -52,9 +49,6 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public class OntObjectImpl extends ResourceImpl implements OntObject {
 
-    public static final EnhNodeFactory ONT_OBJECT_FACTORY = OntEnhNodeFactories.createCommon(OntObjectImpl.class,
-            EnhNodeFinder.ANY_SUBJECT, EnhNodeFilter.URI.or(EnhNodeFilter.BLANK));
-
     public OntObjectImpl(Node n, EnhGraph m) {
         super(n, m);
     }
@@ -66,7 +60,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      * @param subject {@link OntObjectImpl}, the subject
      * @param type    URI-{@link Resource}, the type
      * @return Optional around {@link OntStatement}, which is never empty
-     * @throws OntJenaException.IllegalState in case there is no root statement
+     * @throws OntJenaException.IllegalState in the case, there is no root statement
      *                                       within the graph for the specified parameters
      */
     protected static Optional<OntStatement> getRequiredRootStatement(OntObjectImpl subject, Resource type)
@@ -181,7 +175,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
                                                      Set<X> res) {
         List<X> queue = new LinkedList<>();
         queue.add(root);
-        while (queue.size() != 0) {
+        while (!queue.isEmpty()) {
             X next = queue.remove(0);
             try (Stream<X> children = listChildren.apply(next)) {
                 children.forEach(x -> {
@@ -226,7 +220,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         List<X> queue = new LinkedList<>(forQueue);
         Set<X> seen = new HashSet<>();
         seen.add(current);
-        while (queue.size() != 0) {
+        while (!queue.isEmpty()) {
             X next = queue.remove(0);
             try (Stream<X> children = listChildren.apply(next)) {
                 Iterator<X> it = children.iterator();
@@ -237,7 +231,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
                     } else {
                         if (!useBuiltinReasoner && child.equals(root)) {
                             // detect cycle (A -> B -> C -> A), which means there are two paths for evey node: short and long
-                            // In this case, if there is no reasoner, longest path is ignored;
+                            // In this case, if there is no reasoner, the longest path is ignored;
                             res.add(current);
                             return;
                         }
@@ -363,7 +357,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
     }
 
     /**
-     * Gets the content of the object, i.e. it's all characteristic statements (see {@link #listSpec()}),
+     * Gets the content of the object, i.e., it's all characteristic statements (see {@link #listSpec()}),
      * plus all the additional statements in which this object is the subject,
      * excluding those of them whose predicate is an annotation property.
      *
@@ -377,8 +371,8 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
 
     /**
      * Finds the <b>first</b> declaration root statement.
-     * The graph may contain several triples with predicate {@code rdf:type} and this ontology object as subject.
-     * In this case the result is unpredictable.
+     * The graph may contain several triples with predicate {@code rdf:type} and this ontology object as a subject.
+     * In this case, the result is unpredictable.
      *
      * @return Optional around {@link OntStatement} that supports plain annotation assertions
      */
@@ -428,13 +422,13 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
 
     /**
      * Returns an ont-statement with the given subject and property.
-     * If more than one statement that match the patter exists in the model,
+     * If more than one statement that matches the patter exists in the model,
      * it is undefined which will be returned.
      * If none exist, an exception is thrown.
      *
      * @param property {@link Property}, the predicate
      * @return {@link OntStatement}
-     * @throws PropertyNotFoundException no statement are found
+     * @throws PropertyNotFoundException no statement is found
      */
     @Override
     public OntStatement getRequiredProperty(Property property) throws PropertyNotFoundException {
@@ -442,7 +436,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
     }
 
     /**
-     * Lists all statements for the given predicates and this ontology object as subject.
+     * Lists all statements for the given predicates and this ontology object as a subject.
      *
      * @param properties Array of {@link Property properties}
      * @return {@code ExtendedIterator} of {@link OntStatement}s
@@ -626,7 +620,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
 
     /**
      * Adds an annotation assertion.
-     * It could be expanded to bulk form by adding sub-annotation.
+     * It could be expanded to a bulk form by adding sub-annotation.
      *
      * @param property {@link OntAnnotationProperty}, Named annotation property.
      * @param value    {@link RDFNode} the value: uri-resource, literal or anonymous individual.
@@ -657,7 +651,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
     /**
      * Returns an object from a first found statement with specified predicate.
      * Since the order in the graph is undefined
-     * in case there are more than one statement for a property the result is unpredictable.
+     * in case there is more than one statement for a property, the result is unpredictable.
      *
      * @param predicate {@link Property}
      * @param view      Class

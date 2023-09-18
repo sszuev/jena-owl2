@@ -41,36 +41,14 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl implements OntDisjoint<O> {
     public static final EnhNodeFinder PROPERTIES_FINDER = new EnhNodeFinder.ByType(OWL.AllDisjointProperties);
-
-    public static final EnhNodeFactory OWL2_DISJOINT_CLASSES_FACTORY = createFactory(ClassesImpl.class,
-            OWL.AllDisjointClasses, OntClass.class, true, OWL.members);
-
-    public static final EnhNodeFactory OWL2_DIFFERENT_INDIVIDUALS_FACTORY = createFactory(IndividualsImpl.class,
-            OWL.AllDifferent, OntIndividual.class, true, OWL.members, OWL.distinctMembers);
-
-    public static final EnhNodeFactory OWL2_OBJECT_PROPERTIES_FACTORY =
-            createFactory(ObjectPropertiesImpl.class, OWL.AllDisjointProperties, OntObjectProperty.class, false, OWL.members);
-
-    public static final EnhNodeFactory OWL2_DATA_PROPERTIES_FACTORY = createFactory(DataPropertiesImpl.class,
-            OWL.AllDisjointProperties, OntDataProperty.class, false, OWL.members);
-
-    public static final EnhNodeFactory OWL2_PROPERTIES_FACTORY = OntEnhNodeFactories.createFrom(PROPERTIES_FINDER,
-            ObjectProperties.class,
-            DataProperties.class);
-
     public static final EnhNodeFinder DISJOINT_FINDER = OntEnhNodeFactories.createFinder(OWL.AllDisjointClasses,
             OWL.AllDifferent, OWL.AllDisjointProperties);
-    public static final EnhNodeFactory OWL2_DISJOINT_FACTORY = OntEnhNodeFactories.createFrom(DISJOINT_FINDER,
-            ObjectProperties.class,
-            DataProperties.class,
-            Classes.class,
-            Individuals.class);
 
     public OntDisjointImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
-    private static EnhNodeFactory createFactory(Class<? extends OntDisjointImpl<?>> impl,
+    public static EnhNodeFactory createFactory(Class<? extends OntDisjointImpl<?>> impl,
                                                 Resource type,
                                                 Class<? extends RDFNode> view,
                                                 boolean allowEmptyList,

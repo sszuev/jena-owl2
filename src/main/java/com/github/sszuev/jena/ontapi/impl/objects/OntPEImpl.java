@@ -6,9 +6,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
-import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
-import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
@@ -41,16 +39,11 @@ import java.util.stream.Stream;
 @SuppressWarnings("WeakerAccess")
 public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
 
-    public static final EnhNodeFinder NAMED_PROPERTY_FINDER = OntEnhNodeFactories.createFinder(OWL.AnnotationProperty
-            , OWL.ObjectProperty, OWL.DatatypeProperty);
-
-    public static final EnhNodeFactory OWL2_INVERSE_PROPERTY_FACTORY = createAnonymousObjectPropertyFactory();
-    public static final EnhNodeFactory OWL2_NAMED_PROPERTY_FACTORY = OntEnhNodeFactories.createFrom(NAMED_PROPERTY_FINDER,
-            OntObjectProperty.Named.class, OntDataProperty.class, OntAnnotationProperty.class);
-
-    public static final EnhNodeFactory OWL2_OBJECT_PROPERTY_EXPRESSION_FACTORY = createObjectPropertyExpressionFactory();
-    public static final EnhNodeFactory OWL2_DATA_OR_OBJECT_PROPERTY_FACTORY = createDataOrObjectPropertyFactory();
-    public static final EnhNodeFactory OWL2_PROPERTY_FACTORY = createPropertyExpressionFactory();
+    public static final EnhNodeFinder NAMED_PROPERTY_FINDER = OntEnhNodeFactories.createFinder(
+            OWL.AnnotationProperty,
+            OWL.ObjectProperty,
+            OWL.DatatypeProperty
+    );
 
     public OntPEImpl(Node n, EnhGraph m) {
         super(n, m);
@@ -93,23 +86,6 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
                 throw new OntJenaException.Conversion("Can't convert node " + node + " to Object Property Expression.");
             }
         };
-    }
-
-    public static EnhNodeFactory createDataOrObjectPropertyFactory() {
-        return new PropertiesFactory()
-                .add(OWL.ObjectProperty, OntObjectProperty.Named.class)
-                .add(OWL.DatatypeProperty, OntDataProperty.class);
-    }
-
-    public static EnhNodeFactory createPropertyExpressionFactory() {
-        return new PropertiesFactory()
-                .add(OWL.ObjectProperty, OntObjectProperty.Named.class)
-                .add(OWL.DatatypeProperty, OntDataProperty.class)
-                .add(OWL.AnnotationProperty, OntAnnotationProperty.class);
-    }
-
-    public static EnhNodeFactory createAnonymousObjectPropertyFactory() {
-        return new AnonymousObjectPropertyFactory();
     }
 
     public static Stream<OntClass> declaringClasses(OntRealProperty property, boolean direct) {
@@ -170,10 +146,10 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
         return as(Property.class);
     }
 
-    protected static class PropertiesFactory extends HasAnonymous {
+    public static class PropertiesFactory extends HasAnonymous {
         final List<Factory> factories = new ArrayList<>();
 
-        PropertiesFactory add(Resource declaration, Class<? extends OntProperty> type) {
+        public PropertiesFactory add(Resource declaration, Class<? extends OntProperty> type) {
             factories.add(new Factory(declaration.asNode(), type));
             return this;
         }
@@ -183,7 +159,8 @@ public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
             Graph g = eg.asGraph();
             ExtendedIterator<EnhNode> res = Iterators.distinct(Iterators.flatMap(Iterators.create(factories),
                     f -> g.find(Node.ANY, RDF.Nodes.type, f.nt)
-                            .mapWith(t -> BaseEnhNodeFactoryImpl.safeWrap(t.getSubject(), eg, f.f)).filterDrop(Objects::isNull)));
+                            .mapWith(t -> BaseEnhNodeFactoryImpl.safeWrap(t.getSubject(), eg, f.f))
+                            .filterDrop(Objects::isNull)));
             return Iterators.concat(res, anonymous.iterator(eg));
         }
 

@@ -1,10 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
-import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -40,21 +37,15 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
     private static final String FORBIDDEN_SUBJECTS = Anonymous.class.getName() + ".InSubject";
     private static final String FORBIDDEN_OBJECTS = Anonymous.class.getName() + ".InObject";
 
-    // allowed predicates for subject (the pattern '_:x p ANY'):
+    // allowed predicates for a subject (the pattern '_:x p ANY'):
     private static final Set<Node> FOR_SUBJECT = Stream.of(OWL.sameAs, OWL.differentFrom)
             .map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
-    // allowed predicates for object (the pattern 'ANY p _:x'):
+    // allowed predicates for an object (the pattern 'ANY p _:x'):
     private static final Set<Node> FOR_OBJECT = Stream.of(OWL.sameAs, OWL.differentFrom,
                     OWL.sourceIndividual, OWL.targetIndividual, OWL.hasValue,
                     OWL.annotatedSource, OWL.annotatedTarget,
                     RDF.first, SWRL.argument1, SWRL.argument2)
             .map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
-
-    private static final EnhNodeFinder FINDER = EnhNodeFinder.ANY_SUBJECT_AND_OBJECT;
-    public static final EnhNodeFactory OWL2_ANONYMOUS_INDIVIDUAL_FACTORY = OntEnhNodeFactories.createCommon(AnonymousImpl.class, FINDER,
-            OntIndividualImpl::testAnonymousIndividual);
-
-    public static final EnhNodeFactory OWL2_INDIVIDUAL_FACTORY = OntEnhNodeFactories.createFrom(FINDER, Named.class, Anonymous.class);
 
     public OntIndividualImpl(Node n, EnhGraph m) {
         super(n, m);
@@ -254,7 +245,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
      * and not owl:sameAs, owl:differentFrom, owl:hasValue, owl:sourceIndividual and rdf:first.</li>
      * </ul>
      * <p>
-     * for notations and self-education see our main <a href="https://www.w3.org/TR/owl2-quick-reference/">OWL2 Quick Refs</a>
+     * for notations see <a href="https://www.w3.org/TR/owl2-quick-reference/">OWL2 Quick Refs</a>
      */
     public static class AnonymousImpl extends OntIndividualImpl implements Anonymous {
 

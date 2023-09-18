@@ -1,8 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
-import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotation;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
@@ -66,9 +64,6 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
             , EXTRA_ROOT_TYPES.stream()).collect(Collectors.toUnmodifiableList());
     public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = ModelUtils.asUnmodifiableNodeSet(EXTRA_ROOT_TYPES);
     private static final Set<Node> REQUIRED_PROPERTY_NODES = ModelUtils.asUnmodifiableNodeSet(REQUIRED_PROPERTIES);
-    public static final EnhNodeFactory OWL2_ANNOTATION_FACTORY = OntEnhNodeFactories.createCommon(OntAnnotationImpl.class,
-            OntAnnotationImpl::listRootAnnotations,
-            OntAnnotationImpl::testAnnotation);
     private static final Node AXIOM = OWL.Axiom.asNode();
     private static final Node ANNOTATION = OWL.Annotation.asNode();
 
@@ -82,7 +77,7 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
      * @param model {@link Model}
      * @param base  base ont-statement
      * @param type  owl:Axiom or owl:Annotation
-     * @return {@link OntAnnotation} the anonymous resource with specified type.
+     * @return {@link OntAnnotation} the anonymous resource with a specified type.
      */
     public static OntAnnotation createAnnotation(Model model, Statement base, Resource type) {
         Resource res = Objects.requireNonNull(model).createResource();
@@ -173,8 +168,6 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
         Property p = getRequiredObject(OWL.annotatedProperty, Property.class);
         RDFNode o = getRequiredObject(OWL.annotatedTarget, RDFNode.class);
         return getModel().createStatement(s, p, o);
-        /*return Iter.findFirst(getModel().listOntStatements(s, p, o))
-                .orElseThrow(() -> new OntJenaException("Can't find triple [" + s + ", " + p + ", " + o + "]"));*/
     }
 
     @Override
@@ -202,9 +195,6 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
         return listAnnotatedSources()
                 .mapWith(s -> m.findNodeAs(((OntStatementImpl) s).getSubjectNode(), OntAnnotation.class))
                 .filterDrop(Objects::isNull);
-        /*return getModel().listStatements(null, OWL.annotatedSource, this)
-                .filterKeep(s -> s.getSubject().canAs(OntAnnotation.class))
-                .mapWith(s -> s.getSubject().as(OntAnnotation.class));*/
     }
 
     protected ExtendedIterator<OntStatement> listAnnotatedSources() {

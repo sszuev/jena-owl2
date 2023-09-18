@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * This is an enumeration of all entity (configurable-)factories.
+ * This is an enumeration of all entities (configurable-)factories.
  * <p>
  * Created @ssz on 03.11.2016.
  *
@@ -86,9 +86,6 @@ public enum OWL2Entity {
         }
     },
     ;
-    private static final EnhNodeFinder ENTITY_FINDER = OntEnhNodeFactories.createFinder(e -> e.getResourceType().asNode(), values());
-    public static final EnhNodeFactory ALL = OntEnhNodeFactories.createFrom(ENTITY_FINDER,
-            Arrays.stream(values()).map(OWL2Entity::getActualType));
 
     final Class<? extends OntObjectImpl> impl;
     final Class<? extends OntEntity> classType;
@@ -147,6 +144,14 @@ public enum OWL2Entity {
             if (Objects.equals(e.getActualType(), type)) return Optional.of(e);
         }
         return Optional.empty();
+    }
+
+    public static EnhNodeFactory createAllEntityFactory() {
+        return OntEnhNodeFactories.createFrom(createEntityFinder(), Arrays.stream(values()).map(OWL2Entity::getActualType));
+    }
+
+    public static EnhNodeFinder createEntityFinder() {
+        return OntEnhNodeFactories.createFinder(e -> e.getResourceType().asNode(), values());
     }
 
     /**

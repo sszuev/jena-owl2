@@ -72,126 +72,11 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
     public static final EnhNodeFinder RESTRICTION_FINDER = new EnhNodeFinder.ByType(OWL.Restriction);
     public static final EnhNodeFilter RESTRICTION_FILTER = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(OWL.Restriction));
 
-    public static final EnhNodeFactory OWL2_UNION_OF_CE_FACTORY = createCEFactory(UnionOfImpl.class, OWL.unionOf, RDFList.class);
-    public static final EnhNodeFactory OWL_2INTERSECTION_OF_CE_FACTORY = createCEFactory(IntersectionOfImpl.class,
-            OWL.intersectionOf, RDFList.class);
-    public static final EnhNodeFactory OWL2_ONE_OF_CE_FACTORY = createCEFactory(OneOfImpl.class, OWL.oneOf, RDFList.class);
-    public static final EnhNodeFactory OWL2_COMPLEMENT_OF_CE_FACTORY = createCEFactory(ComplementOfImpl.class,
-            OWL.complementOf, OntClass.class);
-
-    public static final EnhNodeFactory OWL2_OBJECT_SOME_VALUES_OF_CE_FACTORY = createRestrictionFactory(ObjectSomeValuesFromImpl.class,
-            RestrictionType.OBJECT, ObjectRestrictionType.CLASS, OWL.someValuesFrom);
-    public static final EnhNodeFactory OWL2_DATA_SOME_VALUES_OF_CE_FACTORY = createRestrictionFactory(DataSomeValuesFromImpl.class,
-            RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, OWL.someValuesFrom);
-
-    public static final EnhNodeFactory OWL2_OBJECT_ALL_VALUES_OF_CE_FACTORY = createRestrictionFactory(ObjectAllValuesFromImpl.class,
-            RestrictionType.OBJECT, ObjectRestrictionType.CLASS, OWL.allValuesFrom);
-    public static final EnhNodeFactory OWL2_DATA_ALL_VALUES_OF_CE_FACTORY = createRestrictionFactory(DataAllValuesFromImpl.class,
-            RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, OWL.allValuesFrom);
-
-    public static final EnhNodeFactory OWL2_OBJECT_HAS_VALUE_CE_FACTORY = createRestrictionFactory(ObjectHasValueImpl.class,
-            RestrictionType.OBJECT, ObjectRestrictionType.INDIVIDUAL, OWL.hasValue);
-    public static final EnhNodeFactory OWL2_DATA_HAS_VALUE_CE_FACTORY = createRestrictionFactory(DataHasValueImpl.class,
-            RestrictionType.DATA, ObjectRestrictionType.LITERAL, OWL.hasValue);
-
-    public static final EnhNodeFactory OWL2_DATA_MIN_CARDINALITY_CE_FACTORY = createRestrictionFactory(DataMinCardinalityImpl.class,
-            RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, CardinalityType.MIN);
-    public static final EnhNodeFactory OWL2_OBJECT_MIN_CARDINALITY_CE_FACTORY = createRestrictionFactory(ObjectMinCardinalityImpl.class,
-            RestrictionType.OBJECT, ObjectRestrictionType.CLASS, CardinalityType.MIN);
-
-    public static final EnhNodeFactory OWL2_DATA_MAX_CARDINALITY_CE_FACTORY = createRestrictionFactory(DataMaxCardinalityImpl.class,
-            RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, CardinalityType.MAX);
-    public static final EnhNodeFactory OWL2_OBJECT_MAX_CARDINALITY_CE_FACTORY = createRestrictionFactory(ObjectMaxCardinalityImpl.class,
-            RestrictionType.OBJECT, ObjectRestrictionType.CLASS, CardinalityType.MAX);
-
-    public static final EnhNodeFactory OWL2_DATA_CARDINALITY_CE_FACTORY = createRestrictionFactory(DataCardinalityImpl.class,
-            RestrictionType.DATA, ObjectRestrictionType.DATA_RANGE, CardinalityType.EXACTLY);
-    public static final EnhNodeFactory OWL2_OBJECT_CARDINALITY_CE_FACTORY = createRestrictionFactory(ObjectCardinalityImpl.class,
-            RestrictionType.OBJECT, ObjectRestrictionType.CLASS, CardinalityType.EXACTLY);
-
-    public static final EnhNodeFactory OWL2_HAS_SELF_CE_FACTORY = OntEnhNodeFactories.createCommon(new HasSelfMaker(),
-            RESTRICTION_FINDER, EnhNodeFilter.BLANK.and(new HasSelfFilter()));
-
-    //see <a href='https://www.w3.org/TR/owl2-quick-reference/#Class_Expressions'>Restrictions Using n-ary Data Range</a>
-    public static final EnhNodeFactory OWL2_NARY_DATA_ALL_VALUES_FROM_CE_FACTORY = createNaryFactory(NaryDataAllValuesFromImpl.class,
-            OWL.allValuesFrom);
-    public static final EnhNodeFactory OWL2_NARY_DATA_SOME_VALUES_FROM_CE_FACTORY = createNaryFactory(NaryDataSomeValuesFromImpl.class,
-            OWL.someValuesFrom);
-
-    //Boolean Connectives and Enumeration of Individuals:
-    public static final EnhNodeFactory OWL2_COMPONENTS_CE_FACTORY = OntEnhNodeFactories.createFrom(CLASS_FINDER,
-            UnionOf.class,
-            IntersectionOf.class,
-            OneOf.class);
-
-    // Cardinality Restrictions:
-    public static final EnhNodeFactory OWL2_CARDINALITY_RESTRICTION_CE_FACTORY = OntEnhNodeFactories.createFrom(RESTRICTION_FINDER,
-            ObjectMaxCardinality.class,
-            DataMaxCardinality.class,
-            ObjectMinCardinality.class,
-            DataMinCardinality.class,
-            ObjectCardinality.class,
-            DataCardinality.class);
-
-    // Cardinality + Existential/Universal Restrictions + Value Restrictions:
-    public static final EnhNodeFactory OWL2_COMPONENT_RESTRICTION_CE_FACTORY = OntEnhNodeFactories.createFrom(RESTRICTION_FINDER,
-            ObjectMaxCardinality.class,
-            DataMaxCardinality.class,
-            ObjectMinCardinality.class,
-            DataMinCardinality.class,
-            ObjectCardinality.class,
-            DataCardinality.class,
-            ObjectSomeValuesFrom.class,
-            DataSomeValuesFrom.class,
-            ObjectAllValuesFrom.class,
-            DataAllValuesFrom.class,
-            ObjectHasValue.class,
-            DataHasValue.class);
-
-    // Cardinality + Existential/Universal Restrictions + Local reflexivity (hasSelf) + Value Restrictions
-    // (all them have owl:onProperty):
-    public static final EnhNodeFactory OWL2_PROPERTY_RESTRICTION_CE_FACTORY = OntEnhNodeFactories.createFrom(RESTRICTION_FINDER,
-            ObjectMaxCardinality.class,
-            DataMaxCardinality.class,
-            ObjectMinCardinality.class,
-            DataMinCardinality.class,
-            ObjectCardinality.class,
-            DataCardinality.class,
-            ObjectSomeValuesFrom.class,
-            DataSomeValuesFrom.class,
-            ObjectAllValuesFrom.class,
-            DataAllValuesFrom.class,
-            ObjectHasValue.class,
-            DataHasValue.class,
-            HasSelf.class);
-
-    // Cardinality + Existential/Universal Restrictions + N-ary existential/universal +
-    // Local reflexivity (hasSelf) + Value Restrictions:
-    public static final EnhNodeFactory OWL2_RESTRICTION_CE_FACTORY = OntEnhNodeFactories.createFrom(RESTRICTION_FINDER,
-            ObjectMaxCardinality.class,
-            DataMaxCardinality.class,
-            ObjectMinCardinality.class,
-            DataMinCardinality.class,
-            ObjectCardinality.class,
-            DataCardinality.class,
-            ObjectSomeValuesFrom.class,
-            DataSomeValuesFrom.class,
-            ObjectAllValuesFrom.class,
-            DataAllValuesFrom.class,
-            ObjectHasValue.class,
-            DataHasValue.class,
-            NaryDataSomeValuesFrom.class,
-            NaryDataAllValuesFrom.class,
-            HasSelf.class);
-
-    // All:
-    public static final EnhNodeFactory OWL2_CE_FACTORY = ClassExpressionFactory.createFactory();
-
     public OntCEImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
-    protected static EnhNodeFactory createCEFactory(Class<? extends OntCEImpl> impl,
+    public static EnhNodeFactory createCEFactory(Class<? extends OntCEImpl> impl,
                                                     Property predicate,
                                                     Class<? extends RDFNode> view) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Class);
@@ -210,7 +95,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
 
-    protected static EnhNodeFactory createRestrictionFactory(Class<? extends CardinalityRestrictionCEImpl<?, ?, ?>> impl,
+    public static EnhNodeFactory createRestrictionFactory(Class<? extends CardinalityRestrictionCEImpl<?, ?, ?>> impl,
                                                              RestrictionType restrictionType,
                                                              ObjectRestrictionType objectType,
                                                              CardinalityType cardinalityType) {
@@ -221,7 +106,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
-    protected static EnhNodeFactory createRestrictionFactory(Class<? extends ComponentRestrictionCEImpl<?, ?, ?>> impl,
+    public static EnhNodeFactory createRestrictionFactory(Class<? extends ComponentRestrictionCEImpl<?, ?, ?>> impl,
                                                              RestrictionType propertyType,
                                                              ObjectRestrictionType objectType,
                                                              Property predicate) {
@@ -232,7 +117,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
-    protected static EnhNodeFactory createNaryFactory(Class<? extends NaryRestrictionCEImpl<?, ?, ?>> impl,
+    public static EnhNodeFactory createNaryFactory(Class<? extends NaryRestrictionCEImpl<?, ?, ?>> impl,
                                                       Property predicate) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
         EnhNodeFilter filter = RESTRICTION_FILTER
@@ -599,7 +484,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         return isHierarchyRoot(this);
     }
 
-    protected enum ObjectRestrictionType implements PredicateFilterProvider {
+    public enum ObjectRestrictionType implements PredicateFilterProvider {
         CLASS {
             @Override
             public Class<OntClass> view() {
@@ -631,7 +516,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         },
     }
 
-    protected enum RestrictionType implements PredicateFilterProvider {
+    public enum RestrictionType implements PredicateFilterProvider {
         DATA(OntDataProperty.class),
         OBJECT(OntObjectProperty.class),
         ;
@@ -658,7 +543,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    protected enum CardinalityType {
+    public enum CardinalityType {
         EXACTLY(OWL.qualifiedCardinality, OWL.cardinality),
         MAX(OWL.maxQualifiedCardinality, OWL.maxCardinality),
         MIN(OWL.minQualifiedCardinality, OWL.minCardinality);
@@ -1057,13 +942,14 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
 
     /**
      * Abstract base component-restriction class.
-     * It's for CE which has owl:onProperty and some component also (with predicate owl:dataRange,owl:onClass, owl:someValuesFrom, owl:allValuesFrom)
+     * It's for CE which has owl:onProperty and some component also
+     * (with predicate owl:dataRange, owl:onClass, owl:someValuesFrom, owl:allValuesFrom)
      *
      * @param <O> a class-type of {@link RDFNode rdf-node}
      * @param <P> a class-type of {@link OntRealProperty data or object property-expression}
      * @param <R> a subtype of {@link ComponentRestrictionCEImpl}
      */
-    protected static abstract class ComponentRestrictionCEImpl<O extends RDFNode,
+    public static abstract class ComponentRestrictionCEImpl<O extends RDFNode,
             P extends OntRealProperty,
             R extends ComponentRestrictionCEImpl<?, ?, ?>>
             extends OnPropertyRestrictionCEImpl<P, R> implements ComponentRestrictionCE<O, P> {
@@ -1117,7 +1003,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
      * @param <P> either {@link OntObjectProperty} or {@link OntDataProperty}
      * @param <R> subtype of {@link CardinalityRestrictionCEImpl}
      */
-    protected static abstract class CardinalityRestrictionCEImpl<O extends OntObject,
+    public static abstract class CardinalityRestrictionCEImpl<O extends OntObject,
             P extends OntRealProperty,
             R extends CardinalityRestrictionCEImpl<?, ?, ?>>
             extends ComponentRestrictionCEImpl<O, P, R> implements CardinalityRestrictionCE<O, P> {
@@ -1205,7 +1091,7 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    protected static abstract class NaryRestrictionCEImpl<O extends OntObject,
+    public static abstract class NaryRestrictionCEImpl<O extends OntObject,
             P extends OntRealProperty, R extends NaryRestrictionCEImpl<?, ?, ?>>
             extends OntCEImpl implements NaryRestrictionCE<O, P> {
         protected final Property predicate;
@@ -1271,15 +1157,15 @@ public abstract class OntCEImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    protected static class HasSelfFilter implements EnhNodeFilter {
+    public static class HasSelfFilter implements EnhNodeFilter {
         @Override
         public boolean test(Node n, EnhGraph g) {
             return g.asGraph().contains(n, OWL.hasSelf.asNode(), ModelUtils.TRUE.asNode());
         }
     }
 
-    protected static class HasSelfMaker extends EnhNodeProducer.WithType {
-        protected HasSelfMaker() {
+    public static class HasSelfMaker extends EnhNodeProducer.WithType {
+        public HasSelfMaker() {
             super(HasSelfImpl.class, OWL.Restriction);
         }
 

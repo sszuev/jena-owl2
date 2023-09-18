@@ -1,19 +1,9 @@
 package com.github.sszuev.jena.ontapi.common;
 
 import com.github.sszuev.jena.ontapi.OntVocabulary;
-import com.github.sszuev.jena.ontapi.impl.objects.OWL2Entity;
-import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntCEImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntDRImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntFRImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntNPAImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntPEImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntSWRLImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.RDFSEntity;
+import com.github.sszuev.jena.ontapi.impl.factories.OWL2ObjectFactories;
+import com.github.sszuev.jena.ontapi.impl.factories.RDFSObjectFactories;
+import com.github.sszuev.jena.ontapi.impl.factories.SWRLObjectFactories;
 import com.github.sszuev.jena.ontapi.model.OntAnnotation;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -102,13 +92,13 @@ public class OntPersonalities {
      */
     public static final OntPersonality RDFS_PERSONALITY = new PersonalityBuilder()
             .addPersonality(RDF_PERSONALITY)
-            .add(OntObject.class, OntObjectImpl.ONT_OBJECT_FACTORY)
-            .add(OntEntity.class, RDFSEntity.ALL)
-            .add(OntIndividual.Anonymous.class, OntIndividualImpl.OWL2_ANONYMOUS_INDIVIDUAL_FACTORY)
-            .add(OntIndividual.class, OntIndividualImpl.OWL2_INDIVIDUAL_FACTORY)
-            .add(OntProperty.class, RDFSEntity.PROPERTY.createFactory())
-            .add(OntClass.class, RDFSEntity.CLASS.createFactory())
-            .add(OntClass.Named.class, RDFSEntity.CLASS.createFactory())
+            .add(OntObject.class, RDFSObjectFactories.ANY_OBJECT)
+            .add(OntEntity.class, RDFSObjectFactories.ANY_ENTITY)
+            .add(OntIndividual.Anonymous.class, RDFSObjectFactories.ANONYMOUS_INDIVIDUAL)
+            .add(OntIndividual.class, RDFSObjectFactories.NAMED_INDIVIDUAL)
+            .add(OntProperty.class, RDFSObjectFactories.PROPERTY)
+            .add(OntClass.class, RDFSObjectFactories.ANY_CLASS)
+            .add(OntClass.Named.class, RDFSObjectFactories.NAMED_CLASS)
             .setBuiltins(RDFS_BUILTINS)
             .setReserved(RDFS_RESERVED)
             .setPunnings(PunningsMode.LAX.getVocabulary())
@@ -119,115 +109,115 @@ public class OntPersonalities {
     private static final PersonalityBuilder OWL_ONT_PERSONALITY_BUILDER = new PersonalityBuilder()
             .addPersonality(RDF_PERSONALITY)
             // the base ontology object:
-            .add(OntObject.class, OntObjectImpl.ONT_OBJECT_FACTORY)
+            .add(OntObject.class, OWL2ObjectFactories.ANY_OBJECT)
 
             // ont-id:
-            .add(OntID.class, OntIDImpl.ONT_ID_FACTORY)
+            .add(OntID.class, OWL2ObjectFactories.ID)
 
             // annotation object:
-            .add(OntAnnotation.class, OntAnnotationImpl.OWL2_ANNOTATION_FACTORY)
+            .add(OntAnnotation.class, OWL2ObjectFactories.ANNOTATION)
 
             // entities:
-            .add(OntClass.Named.class, OWL2Entity.CLASS.createFactory())
-            .add(OntDataRange.Named.class, OWL2Entity.DATATYPE.createFactory())
-            .add(OntIndividual.Named.class, OWL2Entity.INDIVIDUAL.createFactory())
-            .add(OntObjectProperty.Named.class, OWL2Entity.OBJECT_PROPERTY.createFactory())
-            .add(OntDataProperty.class, OWL2Entity.DATA_PROPERTY.createFactory())
-            .add(OntAnnotationProperty.class, OWL2Entity.ANNOTATION_PROPERTY.createFactory())
-            .add(OntEntity.class, OWL2Entity.ALL)
+            .add(OntClass.Named.class, OWL2ObjectFactories.NAMED_CLASS)
+            .add(OntDataRange.Named.class, OWL2ObjectFactories.NAMED_DATARANGE)
+            .add(OntIndividual.Named.class, OWL2ObjectFactories.NAMED_INDIVIDUAL)
+            .add(OntObjectProperty.Named.class, OWL2ObjectFactories.NAMED_OBJECT_PROPERTY)
+            .add(OntDataProperty.class, OWL2ObjectFactories.DATATYPE_PROPERTY)
+            .add(OntAnnotationProperty.class, OWL2ObjectFactories.ANNOTATION_PROPERTY)
+            .add(OntEntity.class, OWL2ObjectFactories.ANY_ENTITY)
 
             // individuals:
-            .add(OntIndividual.Anonymous.class, OntIndividualImpl.OWL2_ANONYMOUS_INDIVIDUAL_FACTORY)
-            .add(OntIndividual.class, OntIndividualImpl.OWL2_INDIVIDUAL_FACTORY)
+            .add(OntIndividual.Anonymous.class, OWL2ObjectFactories.ANONYMOUS_INDIVIDUAL)
+            .add(OntIndividual.class, OWL2ObjectFactories.ANY_INDIVIDUAL)
 
             // property expressions:
-            .add(OntObjectProperty.Inverse.class, OntPEImpl.OWL2_INVERSE_PROPERTY_FACTORY)
-            .add(OntObjectProperty.class, OntPEImpl.OWL2_OBJECT_PROPERTY_EXPRESSION_FACTORY)
-            .add(OntRealProperty.class, OntPEImpl.OWL2_DATA_OR_OBJECT_PROPERTY_FACTORY)
-            .add(OntNamedProperty.class, OntPEImpl.OWL2_NAMED_PROPERTY_FACTORY)
-            .add(OntProperty.class, OntPEImpl.OWL2_PROPERTY_FACTORY)
+            .add(OntObjectProperty.Inverse.class, OWL2ObjectFactories.INVERSE_OBJECT_PROPERTY)
+            .add(OntObjectProperty.class, OWL2ObjectFactories.OBJECT_PROPERTY)
+            .add(OntRealProperty.class, OWL2ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntNamedProperty.class, OWL2ObjectFactories.ANY_NAMED_PROPERTY)
+            .add(OntProperty.class, OWL2ObjectFactories.ANY_PROPERTY)
 
             // class expressions:
-            .add(OntClass.ObjectSomeValuesFrom.class, OntCEImpl.OWL2_OBJECT_SOME_VALUES_OF_CE_FACTORY)
-            .add(OntClass.DataSomeValuesFrom.class, OntCEImpl.OWL2_DATA_SOME_VALUES_OF_CE_FACTORY)
-            .add(OntClass.ObjectAllValuesFrom.class, OntCEImpl.OWL2_OBJECT_ALL_VALUES_OF_CE_FACTORY)
-            .add(OntClass.DataAllValuesFrom.class, OntCEImpl.OWL2_DATA_ALL_VALUES_OF_CE_FACTORY)
-            .add(OntClass.ObjectHasValue.class, OntCEImpl.OWL2_OBJECT_HAS_VALUE_CE_FACTORY)
-            .add(OntClass.DataHasValue.class, OntCEImpl.OWL2_DATA_HAS_VALUE_CE_FACTORY)
-            .add(OntClass.ObjectMinCardinality.class, OntCEImpl.OWL2_OBJECT_MIN_CARDINALITY_CE_FACTORY)
-            .add(OntClass.DataMinCardinality.class, OntCEImpl.OWL2_DATA_MIN_CARDINALITY_CE_FACTORY)
-            .add(OntClass.ObjectMaxCardinality.class, OntCEImpl.OWL2_OBJECT_MAX_CARDINALITY_CE_FACTORY)
-            .add(OntClass.DataMaxCardinality.class, OntCEImpl.OWL2_DATA_MAX_CARDINALITY_CE_FACTORY)
-            .add(OntClass.ObjectCardinality.class, OntCEImpl.OWL2_OBJECT_CARDINALITY_CE_FACTORY)
-            .add(OntClass.DataCardinality.class, OntCEImpl.OWL2_DATA_CARDINALITY_CE_FACTORY)
-            .add(OntClass.HasSelf.class, OntCEImpl.OWL2_HAS_SELF_CE_FACTORY)
-            .add(OntClass.UnionOf.class, OntCEImpl.OWL2_UNION_OF_CE_FACTORY)
-            .add(OntClass.OneOf.class, OntCEImpl.OWL2_ONE_OF_CE_FACTORY)
-            .add(OntClass.IntersectionOf.class, OntCEImpl.OWL_2INTERSECTION_OF_CE_FACTORY)
-            .add(OntClass.ComplementOf.class, OntCEImpl.OWL2_COMPLEMENT_OF_CE_FACTORY)
-            .add(OntClass.NaryDataAllValuesFrom.class, OntCEImpl.OWL2_NARY_DATA_ALL_VALUES_FROM_CE_FACTORY)
-            .add(OntClass.NaryDataSomeValuesFrom.class, OntCEImpl.OWL2_NARY_DATA_SOME_VALUES_FROM_CE_FACTORY)
-            .add(OntClass.ComponentsCE.class, OntCEImpl.OWL2_COMPONENTS_CE_FACTORY)
-            .add(OntClass.CardinalityRestrictionCE.class, OntCEImpl.OWL2_CARDINALITY_RESTRICTION_CE_FACTORY)
-            .add(OntClass.ComponentRestrictionCE.class, OntCEImpl.OWL2_COMPONENT_RESTRICTION_CE_FACTORY)
-            .add(OntClass.UnaryRestrictionCE.class, OntCEImpl.OWL2_PROPERTY_RESTRICTION_CE_FACTORY)
-            .add(OntClass.RestrictionCE.class, OntCEImpl.OWL2_RESTRICTION_CE_FACTORY)
-            .add(OntClass.class, OntCEImpl.OWL2_CE_FACTORY)
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectAllValuesFrom.class, OWL2ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.DataAllValuesFrom.class, OWL2ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectHasValue.class, OWL2ObjectFactories.OBJECT_HAS_VALUE_CLASS)
+            .add(OntClass.DataHasValue.class, OWL2ObjectFactories.DATA_HAS_VALUE_CLASS)
+            .add(OntClass.ObjectMinCardinality.class, OWL2ObjectFactories.OBJECT_MIN_CARDINALITY_CLASS)
+            .add(OntClass.DataMinCardinality.class, OWL2ObjectFactories.DATA_MIN_CARDINALITY_CLASS)
+            .add(OntClass.ObjectMaxCardinality.class, OWL2ObjectFactories.OBJECT_MAX_CARDINALITY_CLASS)
+            .add(OntClass.DataMaxCardinality.class, OWL2ObjectFactories.DATA_MAX_CARDINALITY_CLASS)
+            .add(OntClass.ObjectCardinality.class, OWL2ObjectFactories.OBJECT_CARDINALITY_CLASS)
+            .add(OntClass.DataCardinality.class, OWL2ObjectFactories.DATA_CARDINALITY_CLASS)
+            .add(OntClass.HasSelf.class, OWL2ObjectFactories.HAS_SELF_CLASS)
+            .add(OntClass.UnionOf.class, OWL2ObjectFactories.UNION_OF_CLASS)
+            .add(OntClass.OneOf.class, OWL2ObjectFactories.ONE_OF_CLASS)
+            .add(OntClass.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_CLASS)
+            .add(OntClass.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_CLASS)
+            .add(OntClass.NaryDataAllValuesFrom.class, OWL2ObjectFactories.NARY_DATA_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.NaryDataSomeValuesFrom.class, OWL2ObjectFactories.NARY_DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ComponentsCE.class, OWL2ObjectFactories.ANY_COMPONENTS_CLASS)
+            .add(OntClass.CardinalityRestrictionCE.class, OWL2ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
+            .add(OntClass.ComponentRestrictionCE.class, OWL2ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
+            .add(OntClass.UnaryRestrictionCE.class, OWL2ObjectFactories.ANY_PROPERTY_RESTRICTION_CLASS)
+            .add(OntClass.RestrictionCE.class, OWL2ObjectFactories.ANY_RESTRICTION_CLASS)
+            .add(OntClass.class, OWL2ObjectFactories.ANY_CLASS)
 
             // data ranges:
-            .add(OntDataRange.OneOf.class, OntDRImpl.OWL2_ONE_OF_DR_FACTORY)
-            .add(OntDataRange.Restriction.class, OntDRImpl.OWL2_RESTRICTION_DR_FACTORY)
-            .add(OntDataRange.ComplementOf.class, OntDRImpl.OWL2_COMPLEMENT_OF_DR_FACTORY)
-            .add(OntDataRange.UnionOf.class, OntDRImpl.OWL2_UNION_OF_DR_FACTORY)
-            .add(OntDataRange.IntersectionOf.class, OntDRImpl.OWL2_INTERSECTION_OF_DR_FACTORY)
-            .add(OntDataRange.ComponentsDR.class, OntDRImpl.OWL2_COMPONENTS_DR_FACTORY)
-            .add(OntDataRange.class, OntDRImpl.OWL2_DR_FACTORY)
+            .add(OntDataRange.OneOf.class, OWL2ObjectFactories.ONE_OF_DATARANGE)
+            .add(OntDataRange.Restriction.class, OWL2ObjectFactories.RESTRICTION_DATARANGE)
+            .add(OntDataRange.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_DATARANGE)
+            .add(OntDataRange.UnionOf.class, OWL2ObjectFactories.UNION_OF_DATARANGE)
+            .add(OntDataRange.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_DATARANGE)
+            .add(OntDataRange.ComponentsDR.class, OWL2ObjectFactories.ANY_COMPONENTS_DATARANGE)
+            .add(OntDataRange.class, OWL2ObjectFactories.ANY_DATARANGE)
 
             // facet restrictions:
-            .add(OntFacetRestriction.Length.class, OntFRImpl.OWL2_LENGTH_FR_FACTORY)
-            .add(OntFacetRestriction.MinLength.class, OntFRImpl.OWL2_MIN_LENGTH_FR_FACTORY)
-            .add(OntFacetRestriction.MaxLength.class, OntFRImpl.OWL2_MAX_LENGTH_FR_FACTORY)
-            .add(OntFacetRestriction.MinInclusive.class, OntFRImpl.OWL2_MIN_INCLUSIVE_FR_FACTORY)
-            .add(OntFacetRestriction.MaxInclusive.class, OntFRImpl.OWL2_MAX_INCLUSIVE_FR_FACTORY)
-            .add(OntFacetRestriction.MinExclusive.class, OntFRImpl.OWL2_MIN_EXCLUSIVE_FR_FACTORY)
-            .add(OntFacetRestriction.MaxExclusive.class, OntFRImpl.OWL2_MAX_EXCLUSIVE_FR_FACTORY)
-            .add(OntFacetRestriction.Pattern.class, OntFRImpl.OWL2_PATTERN_FR_FACTORY)
-            .add(OntFacetRestriction.TotalDigits.class, OntFRImpl.OWL2_TOTAL_DIGITS_FR_FACTORY)
-            .add(OntFacetRestriction.FractionDigits.class, OntFRImpl.OWL2_FRACTION_DIGITS_FR_FACTORY)
-            .add(OntFacetRestriction.LangRange.class, OntFRImpl.OWL2_LANG_RANGE_FR_FACTORY)
-            .add(OntFacetRestriction.class, OntFRImpl.OWL2_FR_FACTORY)
+            .add(OntFacetRestriction.Length.class, OWL2ObjectFactories.LENGTH_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MinLength.class, OWL2ObjectFactories.MIN_LENGTH_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MaxLength.class, OWL2ObjectFactories.MAX_LENGTH_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MinInclusive.class, OWL2ObjectFactories.MIN_INCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MaxInclusive.class, OWL2ObjectFactories.MAX_INCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MinExclusive.class, OWL2ObjectFactories.MIN_EXCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MaxExclusive.class, OWL2ObjectFactories.MAX_EXCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.Pattern.class, OWL2ObjectFactories.PATTERN_FACET_RESTRICTION)
+            .add(OntFacetRestriction.TotalDigits.class, OWL2ObjectFactories.TOTAL_DIGITS_FACET_RESTRICTION)
+            .add(OntFacetRestriction.FractionDigits.class, OWL2ObjectFactories.FRACTION_DIGITS_FACET_RESTRICTION)
+            .add(OntFacetRestriction.LangRange.class, OWL2ObjectFactories.LANG_RANGE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.class, OWL2ObjectFactories.ANY_FACET_RESTRICTION)
 
             // negative property assertions:
-            .add(OntNegativeAssertion.WithObjectProperty.class, OntNPAImpl.OWL2_OBJECT_NPA_FACTORY)
-            .add(OntNegativeAssertion.WithDataProperty.class, OntNPAImpl.OWL2_DATA_NPA_FACTORY)
-            .add(OntNegativeAssertion.class, OntNPAImpl.OWL2_NPA_FACTORY)
+            .add(OntNegativeAssertion.WithObjectProperty.class, OWL2ObjectFactories.OBJECT_NEGATIVE_PROPERTY_ASSERTION)
+            .add(OntNegativeAssertion.WithDataProperty.class, OWL2ObjectFactories.DATA_NEGATIVE_PROPERTY_ASSERTION)
+            .add(OntNegativeAssertion.class, OWL2ObjectFactories.ANY_NEGATIVE_PROPERTY_ASSERTION)
 
             // disjoint anonymous collections:
-            .add(OntDisjoint.Classes.class, OntDisjointImpl.OWL2_DISJOINT_CLASSES_FACTORY)
-            .add(OntDisjoint.Individuals.class, OntDisjointImpl.OWL2_DIFFERENT_INDIVIDUALS_FACTORY)
-            .add(OntDisjoint.ObjectProperties.class, OntDisjointImpl.OWL2_OBJECT_PROPERTIES_FACTORY)
-            .add(OntDisjoint.DataProperties.class, OntDisjointImpl.OWL2_DATA_PROPERTIES_FACTORY)
-            .add(OntDisjoint.Properties.class, OntDisjointImpl.OWL2_PROPERTIES_FACTORY)
-            .add(OntDisjoint.class, OntDisjointImpl.OWL2_DISJOINT_FACTORY)
+            .add(OntDisjoint.Classes.class, OWL2ObjectFactories.CLASSES_DISJOINT)
+            .add(OntDisjoint.Individuals.class, OWL2ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
+            .add(OntDisjoint.ObjectProperties.class, OWL2ObjectFactories.OBJECT_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.DataProperties.class, OWL2ObjectFactories.DATA_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.Properties.class, OWL2ObjectFactories.ANY_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT)
 
             // SWRL objects:
-            .add(OntSWRL.Variable.class, OntSWRLImpl.SWRL_VARIABLE_FACTORY)
-            .add(OntSWRL.Builtin.class, OntSWRLImpl.SWRL_BUILTIN_FACTORY)
-            .add(OntSWRL.IArg.class, OntSWRLImpl.SWRL_IARG_FACTORY)
-            .add(OntSWRL.DArg.class, OntSWRLImpl.SWRL_DARG_FACTORY)
-            .add(OntSWRL.Arg.class, OntSWRLImpl.SWRL_ARG_FACTORY)
-            .add(OntSWRL.Atom.WithBuiltin.class, OntSWRLImpl.SWRL_BUILT_IN_ATOM_FACTORY)
-            .add(OntSWRL.Atom.WithClass.class, OntSWRLImpl.SWRL_CLASS_ATOM_FACTORY)
-            .add(OntSWRL.Atom.WithDataRange.class, OntSWRLImpl.SWRL_DATA_RANGE_ATOM_FACTORY)
-            .add(OntSWRL.Atom.WithObjectProperty.class, OntSWRLImpl.SWRL_INDIVIDUAL_ATOM_FACTORY)
-            .add(OntSWRL.Atom.WithDataProperty.class, OntSWRLImpl.SWRL_DATA_VALUED_ATOM_FACTORY)
-            .add(OntSWRL.Atom.WithDifferentIndividuals.class, OntSWRLImpl.SWRL_DIFFERENT_INDIVIDUALS_ATOM_FACTORY)
-            .add(OntSWRL.Atom.WithSameIndividuals.class, OntSWRLImpl.SWRL_SAME_INDIVIDUALS_ATOM_FACTORY)
-            .add(OntSWRL.Atom.Unary.class, OntSWRLImpl.SWRL_UNARY_FACTORY)
-            .add(OntSWRL.Atom.Binary.class, OntSWRLImpl.SWRL_BINARY_FACTORY)
-            .add(OntSWRL.Atom.class, OntSWRLImpl.SWRL_ATOM_FACTORY)
-            .add(OntSWRL.Imp.class, OntSWRLImpl.SWRL_IMP_FACTORY)
-            .add(OntSWRL.class, OntSWRLImpl.SWRL_OBJECT_FACTORY);
+            .add(OntSWRL.Variable.class, SWRLObjectFactories.VARIABLE_SWRL)
+            .add(OntSWRL.Builtin.class, SWRLObjectFactories.BUILTIN_SWRL)
+            .add(OntSWRL.IArg.class, SWRLObjectFactories.IARG_SWRL)
+            .add(OntSWRL.DArg.class, SWRLObjectFactories.DARG_SWRL)
+            .add(OntSWRL.Arg.class, SWRLObjectFactories.ANY_ARG_SWRL)
+            .add(OntSWRL.Atom.WithBuiltin.class, SWRLObjectFactories.BUILT_IN_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithClass.class, SWRLObjectFactories.CLASS_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithDataRange.class, SWRLObjectFactories.DATA_RANGE_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithObjectProperty.class, SWRLObjectFactories.INDIVIDUAL_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithDataProperty.class, SWRLObjectFactories.DATA_VALUED_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithDifferentIndividuals.class, SWRLObjectFactories.DIFFERENT_INDIVIDUALS_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithSameIndividuals.class, SWRLObjectFactories.SAME_INDIVIDUALS_ATOM_SWRL)
+            .add(OntSWRL.Atom.Unary.class, SWRLObjectFactories.ANY_UNARY_ATOM_SWRL)
+            .add(OntSWRL.Atom.Binary.class, SWRLObjectFactories.ANY_BINARY_ATOM_SWRL)
+            .add(OntSWRL.Atom.class, SWRLObjectFactories.ANY_ATOM_SWRL)
+            .add(OntSWRL.Imp.class, SWRLObjectFactories.IMPL_SWRL)
+            .add(OntSWRL.class, SWRLObjectFactories.ANY_OBJECT_SWRL);
     /**
      * The week variant of previous constant: there are two forbidden intersections:
      * <ul>
