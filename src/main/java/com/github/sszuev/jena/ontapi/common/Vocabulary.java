@@ -38,7 +38,7 @@ public interface Vocabulary<T extends Resource> {
     Set<Node> get(Class<? extends T> type) throws OntJenaException;
 
     /**
-     * A technical interface to describe vocabulary for {@link OntEntity OWL Entity} types.
+     * A technical interface to describe vocabulary for {@link OntEntity ONT Entity} types.
      * <p>
      * Created by @ssz on 18.01.2019.
      *

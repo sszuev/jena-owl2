@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A {@link OntModel Ontology RDF Model} configuration object,
+ * A {@link OntModel Ontology RDF Model} configuration object
  * that serves for the following purposes:
  * <ul>
  * <li>Defines a set of permitted mappings from [interface] Class objects
@@ -32,18 +32,11 @@ import java.util.stream.Stream;
  * <li>Defines a set of OWL punnings</li>
  * <li>Defines a set of reserved {@link Resource}s and {@link Property}s, that cannot be used as OWL Entities</li>
  * </ul>
- * <b>NOTE</b>: the instance of this interface must also extend {@link Personality Jena Personality}
+ * <b>NOTE</b>: The instance of this interface must also extend {@link Personality Jena Personality}
  * with a generic type {@link RDFNode RDFNode}.
- * Unfortunately, the Jena {@code Personality} is a concrete and mutable class,
- * this fact makes it unacceptable to use it directly within the ONT-API.
- * Also, there is one more related restriction: the RDF model must implement not only
- * the main interface {@link OntModel Ont[Graph]Model}
- * (that provides high-level access to ontological objects) but also
- * the interface {@link OntEnhGraph PersonalityModel} (enhanced view of graph)
- * in order to have access to this class.
  * <p>
  * Instances of this class must be unmodifiable and
- * the {@link PersonalityBuilder builder} should be used to create instances with different settings.
+ * the {@link OntObjectPersonalityBuilder builder} should be used to create instances with different settings.
  * <p>
  * Created by @szz on 15.01.2019.
  */
@@ -87,7 +80,7 @@ public interface OntPersonality {
     EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type);
 
     /**
-     * Answers if type is supported.
+     * Answers if a type is supported.
      *
      * @param type {@code Class}
      * @return {@code boolean}

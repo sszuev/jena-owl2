@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * It is a part of {@link OntPersonality} mechanism to manipulate
  * {@link com.github.sszuev.jena.ontapi.model.OntModel OWL2 RDF-model} objects (which happens through {@link OntEnhGraph}).
  * Also note, explicit links between different {@link EnhNodeFactory} factories are undesirable
- * (for more details see {@link PersonalityBuilder#add(Class, EnhNodeFactory)} and
+ * (for more details see {@link OntObjectPersonalityBuilder#add(Class, EnhNodeFactory)} and
  * {@link OntEnhGraph}).
  * <p>
  * TODO: consider a possibility to replace {@link EnhGraph} with {@link OntEnhGraph}.

@@ -18,7 +18,7 @@ import org.apache.jena.rdf.model.RDFNode;
  * But using this interface it is possible to build safe implicit links and
  * replacing one factory with a custom implementation will not break the whole model.
  * More about this see in the description for
- * the method {@link PersonalityBuilder#add(Class, EnhNodeFactory)}.
+ * the method {@link OntObjectPersonalityBuilder#add(Class, EnhNodeFactory)}.
  * <p>
  * Created by @ssz on 18.01.2019.
  */

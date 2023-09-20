@@ -64,10 +64,10 @@ import java.util.stream.Collectors;
 @SuppressWarnings("WeakerAccess")
 public class OntPersonalities {
 
-    private static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
-    private static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
-    private static final OntPersonality.Builtins OWL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
-    private static final OntPersonality.Reserved OWL_RESERVED = createReservedVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
+    public static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
+    public static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
+    public static final OntPersonality.Builtins OWL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
+    public static final OntPersonality.Reserved OWL_RESERVED = createReservedVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
 
     /**
      * Standard resources. Private access since this constant is mutable.
@@ -90,12 +90,13 @@ public class OntPersonalities {
      *
      * @see <a href='https://www.w3.org/TR/rdf12-schema/'>RDF 1.2 Schema</a>
      */
-    public static final OntPersonality RDFS_PERSONALITY = new PersonalityBuilder()
+    public static final OntPersonality RDFS_PERSONALITY = new OntObjectPersonalityBuilder()
             .addPersonality(RDF_PERSONALITY)
             .add(OntObject.class, RDFSObjectFactories.ANY_OBJECT)
             .add(OntEntity.class, RDFSObjectFactories.ANY_ENTITY)
+            .add(OntIndividual.Named.class, RDFSObjectFactories.NAMED_INDIVIDUAL)
             .add(OntIndividual.Anonymous.class, RDFSObjectFactories.ANONYMOUS_INDIVIDUAL)
-            .add(OntIndividual.class, RDFSObjectFactories.NAMED_INDIVIDUAL)
+            .add(OntIndividual.class, RDFSObjectFactories.ANY_INDIVIDUAL)
             .add(OntProperty.class, RDFSObjectFactories.PROPERTY)
             .add(OntClass.class, RDFSObjectFactories.ANY_CLASS)
             .add(OntClass.Named.class, RDFSObjectFactories.NAMED_CLASS)
@@ -106,7 +107,7 @@ public class OntPersonalities {
     /**
      * Default personality builder. Private access since this constant is mutable.
      */
-    private static final PersonalityBuilder OWL_ONT_PERSONALITY_BUILDER = new PersonalityBuilder()
+    private static final OntObjectPersonalityBuilder OWL2_ONT_OBJECT_PERSONALITY_BUILDER = new OntObjectPersonalityBuilder()
             .addPersonality(RDF_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OWL2ObjectFactories.ANY_OBJECT)
@@ -267,14 +268,14 @@ public class OntPersonalities {
             .build();
 
     /**
-     * Returns a fresh copy of {@link PersonalityBuilder} with {@code 93} resource factories inside
+     * Returns a fresh copy of {@link OntObjectPersonalityBuilder} with {@code 93} resource factories inside
      * ({@code 10} standard + {@code 87} ontological).
      * The returned instance contains everything needed, and can be modified to build a new {@link OntPersonality}.
      *
-     * @return {@link PersonalityBuilder}
+     * @return {@link OntObjectPersonalityBuilder}
      */
-    public static PersonalityBuilder getPersonalityBuilder() {
-        return OWL_ONT_PERSONALITY_BUILDER.copy();
+    public static OntObjectPersonalityBuilder getPersonalityBuilder() {
+        return OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy();
     }
 
     /**

@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 public class OntClassImpl extends OntObjectImpl implements OntClass.Named {
 
     public OntClassImpl(Node n, EnhGraph eg) {
-        super(checkNamed(n), eg);
+        super(n, eg);
     }
 
     @Override

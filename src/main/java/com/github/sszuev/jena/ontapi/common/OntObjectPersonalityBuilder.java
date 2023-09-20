@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * Created by @szz on 17.01.2019.
  */
 @SuppressWarnings("WeakerAccess")
-public class PersonalityBuilder {
+public class OntObjectPersonalityBuilder {
     private final Map<Class<? extends OntObject>, EnhNodeFactory> map;
 
     private final Personality<RDFNode> base;
@@ -33,24 +33,24 @@ public class PersonalityBuilder {
     private OntPersonality.Builtins builtins;
     private OntPersonality.Reserved reserved;
 
-    public PersonalityBuilder() {
+    public OntObjectPersonalityBuilder() {
         this(new LinkedHashMap<>());
     }
 
-    protected PersonalityBuilder(Map<Class<? extends OntObject>, EnhNodeFactory> factories) {
+    protected OntObjectPersonalityBuilder(Map<Class<? extends OntObject>, EnhNodeFactory> factories) {
         this.map = Objects.requireNonNull(factories);
         this.base = new Personality<>();
     }
 
     /**
      * Makes a full copy of the given {@link OntPersonality}
-     * in the form of modifiable {@link PersonalityBuilder builder}.
+     * in the form of modifiable {@link OntObjectPersonalityBuilder builder}.
      *
      * @param from {@link OntPersonality} to copy settings, not {@code null}
-     * @return {@link PersonalityBuilder}
+     * @return {@link OntObjectPersonalityBuilder}
      */
-    public static PersonalityBuilder from(OntPersonality from) {
-        return new PersonalityBuilder()
+    public static OntObjectPersonalityBuilder from(OntPersonality from) {
+        return new OntObjectPersonalityBuilder()
                 .addPersonality(OntPersonality.asJenaPersonality(from))
                 .setPunnings(from.getPunnings())
                 .setBuiltins(from.getBuiltins())
@@ -83,10 +83,10 @@ public class PersonalityBuilder {
     /**
      * Makes a full copy of this builder.
      *
-     * @return {@link PersonalityBuilder}, a copy
+     * @return {@link OntObjectPersonalityBuilder}, a copy
      */
-    public PersonalityBuilder copy() {
-        PersonalityBuilder res = new PersonalityBuilder(new LinkedHashMap<>(this.map));
+    public OntObjectPersonalityBuilder copy() {
+        OntObjectPersonalityBuilder res = new OntObjectPersonalityBuilder(new LinkedHashMap<>(this.map));
         res.addPersonality(base.copy());
         if (punnings != null) res.setPunnings(punnings);
         if (builtins != null) res.setBuiltins(builtins);
@@ -110,7 +110,7 @@ public class PersonalityBuilder {
      * @param factory {@link EnhNodeFactory} the factory to produce the instances of the {@code type},
      * @return this builder
      */
-    public PersonalityBuilder add(Class<? extends OntObject> type, EnhNodeFactory factory) {
+    public OntObjectPersonalityBuilder add(Class<? extends OntObject> type, EnhNodeFactory factory) {
         map.put(type, factory);
         return this;
     }
@@ -122,7 +122,7 @@ public class PersonalityBuilder {
      * @return this builder
      * @see Personality#add(Personality)
      */
-    public PersonalityBuilder addPersonality(Personality<RDFNode> from) {
+    public OntObjectPersonalityBuilder addPersonality(Personality<RDFNode> from) {
         this.base.add(Objects.requireNonNull(from));
         return this;
     }
@@ -133,7 +133,7 @@ public class PersonalityBuilder {
      * @param punnings {@link OntPersonality.Punnings}, not {@code null}
      * @return this builder
      */
-    public PersonalityBuilder setPunnings(OntPersonality.Punnings punnings) {
+    public OntObjectPersonalityBuilder setPunnings(OntPersonality.Punnings punnings) {
         this.punnings = hasSpec(punnings, getEntityTypes());
         return this;
     }
@@ -144,7 +144,7 @@ public class PersonalityBuilder {
      * @param builtins {@link OntPersonality.Builtins}, not {@code null}
      * @return this builder
      */
-    public PersonalityBuilder setBuiltins(OntPersonality.Builtins builtins) {
+    public OntObjectPersonalityBuilder setBuiltins(OntPersonality.Builtins builtins) {
         this.builtins = hasSpec(builtins, getEntityTypes());
         return this;
     }
@@ -159,7 +159,7 @@ public class PersonalityBuilder {
      * @param reserved {@link OntPersonality.Reserved}, not {@code null}
      * @return this builder
      */
-    public PersonalityBuilder setReserved(OntPersonality.Reserved reserved) {
+    public OntObjectPersonalityBuilder setReserved(OntPersonality.Reserved reserved) {
         this.reserved = hasSpec(reserved, Resource.class, Property.class);
         return this;
     }

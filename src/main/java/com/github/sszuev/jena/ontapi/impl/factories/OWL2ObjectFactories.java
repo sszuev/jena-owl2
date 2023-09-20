@@ -4,7 +4,6 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
-import com.github.sszuev.jena.ontapi.impl.objects.OWL2Entity;
 import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntCEImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDRImpl;
@@ -51,13 +50,13 @@ public final class OWL2ObjectFactories {
             OntAnnotationImpl::testAnnotation
     );
 
-    public static final EnhNodeFactory ANY_ENTITY = OWL2Entity.createAllEntityFactory();
-    public static final EnhNodeFactory NAMED_CLASS = OWL2Entity.CLASS.createFactory();
-    public static final EnhNodeFactory NAMED_DATARANGE = OWL2Entity.DATATYPE.createFactory();
-    public static final EnhNodeFactory ANNOTATION_PROPERTY = OWL2Entity.ANNOTATION_PROPERTY.createFactory();
-    public static final EnhNodeFactory DATATYPE_PROPERTY = OWL2Entity.DATA_PROPERTY.createFactory();
-    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OWL2Entity.OBJECT_PROPERTY.createFactory();
-    public static final EnhNodeFactory NAMED_INDIVIDUAL = OWL2Entity.INDIVIDUAL.createFactory();
+    public static final EnhNodeFactory ANY_ENTITY = OWLEntityFactories.createAnyEntityFactory();
+    public static final EnhNodeFactory NAMED_CLASS = OWLEntityFactories.CLASS.createThisEntityFactory();
+    public static final EnhNodeFactory NAMED_DATARANGE = OWLEntityFactories.DATATYPE.createThisEntityFactory();
+    public static final EnhNodeFactory ANNOTATION_PROPERTY = OWLEntityFactories.ANNOTATION_PROPERTY.createThisEntityFactory();
+    public static final EnhNodeFactory DATATYPE_PROPERTY = OWLEntityFactories.DATA_PROPERTY.createThisEntityFactory();
+    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OWLEntityFactories.OBJECT_PROPERTY.createThisEntityFactory();
+    public static final EnhNodeFactory NAMED_INDIVIDUAL = OWLEntityFactories.INDIVIDUAL.createThisEntityFactory();
     public static final EnhNodeFactory ANONYMOUS_INDIVIDUAL = OntEnhNodeFactories.createCommon(
             OntIndividualImpl.AnonymousImpl.class,
             EnhNodeFinder.ANY_SUBJECT_AND_OBJECT,

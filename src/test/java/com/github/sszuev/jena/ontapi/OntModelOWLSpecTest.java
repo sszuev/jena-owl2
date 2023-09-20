@@ -35,9 +35,10 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
-import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +60,7 @@ import java.util.stream.Stream;
  * <p>
  * Created @ssz on 07.11.2016.
  */
-public class OntModelTest {
+public class OntModelOWLSpecTest {
 
     @SafeVarargs
     private static <X> Set<X> toSet(Collection<? extends X>... lists) {
@@ -198,7 +199,7 @@ public class OntModelTest {
         long numClasses = 36;
 
         OntModel m = OntModelFactory.createModel();
-        try (InputStream in = OntModelTest.class.getResourceAsStream("/koala.owl")) {
+        try (InputStream in = OntModelOWLSpecTest.class.getResourceAsStream("/koala.owl")) {
             m.read(in, null, Lang.RDFXML.getName());
         }
 
@@ -265,7 +266,7 @@ public class OntModelTest {
     @Test
     public void testKoalaProperties() throws IOException {
         OntModel m = OntModelFactory.createModel();
-        try (InputStream in = OntModelTest.class.getResourceAsStream("/koala.owl")) {
+        try (InputStream in = OntModelOWLSpecTest.class.getResourceAsStream("/koala.owl")) {
             m.read(in, null, Lang.RDFXML.getName());
         }
         simplePropertiesValidation(m);
@@ -789,9 +790,13 @@ public class OntModelTest {
         Assertions.assertEquals(6, m.ontObjects(OntEntity.class).count(), "Incorrect count of entities");
     }
 
-    @Test
-    public void testHierarchyRoots() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testListHierarchyRoots(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
         m.setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c0 = m.createOntClass(":C0");
         OntClass c1 = m.createOntClass(":C1");
@@ -833,26 +838,5 @@ public class OntModelTest {
             Assertions.assertEquals(0, ces.size());
         });
     }
-
-    @Test
-    public void testClassesRDFSMem() {
-        Model base = ModelFactory.createDefaultModel();
-        base.createResource("1", OWL.Class);
-        base.createResource("2", RDFS.Datatype);
-        base.createResource("3", RDFS.Class);
-        base.createResource("4", RDFS.Class);
-
-        OntModel m = OntModelFactory.createModel(base.getGraph(), OntSpecification.RDFS_MEM);
-
-        List<OntClass.Named> res1 = m.classes().collect(Collectors.toList());
-        List<OntEntity> res2 = m.ontEntities().collect(Collectors.toList());
-        List<OntClass> res3 = m.ontObjects(OntClass.class).collect(Collectors.toList());
-        List<OntClass> res4 = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
-
-        Stream.of(res1, res2, res3, res4).forEach(x ->
-                Assertions.assertEquals(List.of("3", "4"), x.stream().map(Resource::getURI).sorted().collect(Collectors.toList()))
-        );
-    }
-
 }
 

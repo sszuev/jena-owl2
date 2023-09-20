@@ -12,6 +12,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.shared.JenaException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.BiFunction;
 
 /**
  * To make some preparation while creating (create main triple).
@@ -87,15 +88,18 @@ public interface EnhNodeProducer {
      * Creation in graph is disabled for this maker
      */
     class Default implements EnhNodeProducer {
-        protected final Class<? extends EnhNode> impl;
+        private final Class<? extends EnhNode> impl;
+        private final BiFunction<Node, EnhGraph, EnhNode> producer;
 
         /**
          * Class must be public and have a public constructor with parameters {@link Node} and {@link EnhGraph}.
          *
-         * @param impl {@link OntObject} implementation.
+         * @param impl     {@link OntObject} implementation
+         * @param producer factory to create new instance, if {@code null} reflection is used
          */
-        public Default(Class<? extends EnhNode> impl) {
+        public Default(Class<? extends EnhNode> impl, BiFunction<Node, EnhGraph, EnhNode> producer) {
             this.impl = OntJenaException.notNull(impl, "Null implementation class.");
+            this.producer = producer;
         }
 
         @Override
@@ -106,6 +110,10 @@ public interface EnhNodeProducer {
 
         @Override
         public EnhNode instance(Node node, EnhGraph eg) {
+            return producer != null ? producer.apply(node, eg) : createUsingReflection(node, eg);
+        }
+
+        private EnhNode createUsingReflection(Node node, EnhGraph eg) {
             try {
                 return impl.getDeclaredConstructor(Node.class, EnhGraph.class).newInstance(node, eg);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
@@ -129,7 +137,13 @@ public interface EnhNodeProducer {
         protected final Node type;
 
         public WithType(Class<? extends OntObjectImpl> impl, Resource type) {
-            super(impl);
+            this(impl, type, null);
+        }
+
+        public WithType(Class<? extends OntObjectImpl> impl,
+                        Resource type,
+                        BiFunction<Node, EnhGraph, EnhNode> producer) {
+            super(impl, producer);
             this.type = OntJenaException.notNull(type, "Null type.").asNode();
         }
 

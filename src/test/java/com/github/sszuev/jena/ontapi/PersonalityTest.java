@@ -5,9 +5,9 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
+import com.github.sszuev.jena.ontapi.common.OntObjectPersonalityBuilder;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
-import com.github.sszuev.jena.ontapi.common.PersonalityBuilder;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -51,7 +51,7 @@ public class PersonalityTest {
     public static OntPersonality buildCustomPersonality() {
         OntPersonality from = OntPersonalities.OWL2_PERSONALITY_LAX;
         EnhNodeFactory factory = createNamedIndividualFactory();
-        OntPersonality res = PersonalityBuilder.from(from)
+        OntPersonality res = OntObjectPersonalityBuilder.from(from)
                 .add(OntIndividual.Named.class, factory)
                 .build();
         Assertions.assertEquals(97, res.types().count());
@@ -63,7 +63,7 @@ public class PersonalityTest {
     }
 
     private static EnhNodeFactory createNamedIndividualFactory() {
-        EnhNodeProducer maker = new EnhNodeProducer.Default(IndividualImpl.class) {
+        EnhNodeProducer maker = new EnhNodeProducer.Default(IndividualImpl.class, null) {
             @Override
             public EnhNode instance(Node node, EnhGraph eg) {
                 return new IndividualImpl(node, eg);
@@ -92,7 +92,7 @@ public class PersonalityTest {
         g.createResource(clazz, OWL.Class).addProperty(RDFS.subClassOf, agent);
 
 
-        OntPersonality p1 = PersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
+        OntPersonality p1 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
                 .setBuiltins(OntPersonalities.createBuiltinsVocabulary(OntVocabulary.Factory.OWL_VOCABULARY)).build();
         OntModel m1 = OntModelFactory.createModel(g.getGraph(), p1);
         Assertions.assertEquals(1, m1.classes().count());
@@ -102,7 +102,7 @@ public class PersonalityTest {
 
         OntVocabulary SIMPLE_FOAF_VOC = OntVocabulary.Factory.create(OWL.Class, agent, document);
         OntVocabulary voc = OntVocabulary.Factory.create(OntVocabulary.Factory.OWL_VOCABULARY, SIMPLE_FOAF_VOC);
-        OntPersonality p2 = PersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
+        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
                 .setBuiltins(OntPersonalities.createBuiltinsVocabulary(voc)).build();
         OntModel m2 = OntModelFactory.createModel(g.getGraph(), p2);
 
@@ -128,7 +128,7 @@ public class PersonalityTest {
         Assertions.assertEquals(2, m1.ontObjects(OntIndividual.class).count());
 
         OntVocabulary voc = OntVocabulary.Factory.create(RDF.Property, p);
-        OntPersonality p2 = PersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
+        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
                 .setReserved(OntPersonalities.createReservedVocabulary(voc)).build();
         OntModel m2 = OntModelFactory.createModel(g.getGraph(), p2);
         Assertions.assertEquals(1, m2.ontObjects(OntIndividual.class).count());
@@ -172,7 +172,7 @@ public class PersonalityTest {
                 return Collections.unmodifiableSet(res);
             }
         };
-        OntPersonality p2 = PersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT).setPunnings(punnings).build();
+        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT).setPunnings(punnings).build();
         OntEntity.TYPES.forEach(t -> Assertions.assertEquals(2, p2.getPunnings().get(t).size()));
 
         OntModel m2 = OntModelFactory.createModel(m1.getGraph(), p2);

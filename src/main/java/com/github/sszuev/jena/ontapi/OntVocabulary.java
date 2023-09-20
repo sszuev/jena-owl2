@@ -37,9 +37,9 @@ import java.util.stream.Stream;
  * A schema is a java class containing public static final constants.
  * Schemas are usually located inside the packages
  * {@link com.github.sszuev.jena.ontapi.vocabulary} and {@link org.apache.jena.vocabulary}.
- * There are two kind of property/resources described by this vocabulary: system and builtin.
+ * There are two kinds of property/resources described by this vocabulary: system and builtin.
  * A system resource/property is simply a URI defined in any scheme.
- * A builtin resource/property is a URI with known type, that does not require explicit declaration.
+ * A builtin resource/property is a URI with a known type that does not require explicit declaration.
  * Note that all methods of this interface return unmodifiable {@code Set}s.
  * <p>
  * Created by @ssz on 04.04.2017.
@@ -51,7 +51,7 @@ public interface OntVocabulary {
     /**
      * Answers a {@code Set} of system/builtin {@link Resource}s for the specified URI-{@code key}.
      * A URI-{@code key} - is a schema URI that determines a family of desired resources.
-     * For example to get all resources a key {@link RDFS#Resource rdfs:Resource} should be used,
+     * For example, to get all resources a key {@link RDFS#Resource rdfs:Resource} should be used,
      * because it is a supertype of everything.
      *
      * @param key String, not {@code null}
@@ -133,7 +133,7 @@ public interface OntVocabulary {
 
     /**
      * Returns all reserved resources:
-     * OWL entities can not have an uri belonging to the return collection.
+     * OWL entities cannot have an uri belonging to the return collection.
      *
      * @return {@code Set} of {@link Resource Resources}
      */
@@ -143,34 +143,12 @@ public interface OntVocabulary {
 
     /**
      * Returns all reserved properties:
-     * OWL2 ontology can not contain assertion with predicate belonging to the return collection.
+     * OWL2 ontology cannot contain assertion with predicate belonging to the return collection.
      *
      * @return {@code Set} of {@link Property Properties}
      */
     default Set<Property> getSystemProperties() {
         return get(RDF.Property);
-    }
-
-    /**
-     * Returns a {@code Set} of all {@link Resource}s.
-     *
-     * @return {@code Set} of {@link Resource Resources}
-     */
-    default Set<Resource> getSystemALL() {
-        return Stream.of(getSystemProperties(), getSystemResources())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    /**
-     * Answers a {@code Set} containing all builtin properties (annotation, object or datatype).
-     *
-     * @return {@code Set} of {@link Property Properties}
-     */
-    default Set<Property> getBuiltinOWLProperties() {
-        return Stream.of(getBuiltinAnnotationProperties(), getBuiltinDatatypeProperties(), getBuiltinObjectProperties())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -215,7 +193,7 @@ public interface OntVocabulary {
         /**
          * Creates a {@link OntVocabulary} that contains the specified mapping ({@code key -> Set}).
          *
-         * @param key    an URI-{@link Resource}, not {@code null}
+         * @param key    a URI-{@link Resource}, not {@code null}
          * @param values an {@code Array} with {@link Resource}s to map, not {@code null}
          * @return a {@link OntVocabulary} with single (specified) mapping
          */
@@ -226,7 +204,7 @@ public interface OntVocabulary {
         /**
          * Creates a {@link OntVocabulary} that contains the specified mapping ({@code key -> Set}).
          *
-         * @param key    an URI-{@link Resource}, not {@code null}
+         * @param key    a URI-{@link Resource}, not {@code null}
          * @param values a {@code Collection} of {@link Resource}s to map, not {@code null}
          * @return a {@link OntVocabulary} with single (specified) mapping
          */
@@ -317,7 +295,7 @@ public interface OntVocabulary {
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
             protected RDFSImpl() {
-                super(ANNOTATION_PROPERTIES, null, null, null, null, null, PROPERTIES, RESOURCES);
+                super(ANNOTATION_PROPERTIES, null, null, Set.of(RDFS.Resource), null, null, PROPERTIES, RESOURCES);
             }
         }
 

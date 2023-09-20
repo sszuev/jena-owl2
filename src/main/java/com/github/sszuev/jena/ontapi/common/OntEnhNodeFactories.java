@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi.common;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.EnhNode;
 import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Graph;
@@ -14,7 +15,9 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -25,19 +28,37 @@ import java.util.stream.Stream;
 public class OntEnhNodeFactories {
 
     @SafeVarargs
-    public static EnhNodeFactory createFrom(EnhNodeFinder finder, Class<? extends OntObject>... types) {
-        return createFrom(finder, Arrays.stream(types));
+    public static EnhNodeFactory createFrom(EnhNodeFinder finder,
+                                            Class<? extends OntObject> type,
+                                            Class<? extends OntObject>... types) {
+        return createFrom(finder,
+                Stream.concat(Stream.of(type), Arrays.stream(types)).collect(Collectors.toList()).stream());
     }
 
-    public static EnhNodeFactory createFrom(EnhNodeFinder finder, Stream<Class<? extends OntObject>> types) {
+    public static EnhNodeFactory createFrom(EnhNodeFinder finder,
+                                            Stream<Class<? extends OntObject>> types) {
         return createMulti(finder, types.map(WrappedFactoryImpl::new));
+    }
+
+    public static EnhNodeFactory createFrom(EnhNodeFinder finder,
+                                            EnhNodeFactory factory,
+                                            EnhNodeFactory... factories) {
+        return createMulti(finder,
+                Stream.concat(Stream.of(factory), Arrays.stream(factories)).collect(Collectors.toList()).stream());
     }
 
     public static EnhNodeFactory createCommon(Class<? extends EnhNode> impl,
                                               EnhNodeFinder finder,
                                               EnhNodeFilter filter,
                                               EnhNodeFilter... additional) {
-        return createCommon(new EnhNodeProducer.Default(impl), finder, filter, additional);
+        return createCommon(new EnhNodeProducer.Default(impl, null), finder, filter, additional);
+    }
+
+    public static EnhNodeFactory createCommon(Class<? extends EnhNode> impl,
+                                              BiFunction<Node, EnhGraph, EnhNode> producer,
+                                              EnhNodeFinder finder,
+                                              EnhNodeFilter filter) {
+        return createCommon(new EnhNodeProducer.Default(impl, producer), finder, filter);
     }
 
     public static EnhNodeFactory createCommon(EnhNodeProducer maker, EnhNodeFinder finder, EnhNodeFilter primary, EnhNodeFilter... additional) {

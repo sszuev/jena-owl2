@@ -64,7 +64,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
     }
 
     public static EnhNodeFactory makeAtomFactory(Class<? extends AtomImpl<?>> view, Resource type) {
-        return OntEnhNodeFactories.createCommon(new EnhNodeProducer.Default(view),
+        return OntEnhNodeFactories.createCommon(new EnhNodeProducer.Default(view, null),
                 new EnhNodeFinder.ByType(type), EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(type)));
     }
 

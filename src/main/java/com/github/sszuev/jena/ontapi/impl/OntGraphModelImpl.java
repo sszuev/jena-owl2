@@ -58,6 +58,7 @@ import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.shared.JenaException;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.util.iterator.NullIterator;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.io.InputStream;
@@ -171,7 +172,12 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      */
     public static <M extends EnhGraph & OntEnhGraph, O extends OntObject> ExtendedIterator<O> listOntObjects(M m,
                                                                                                              Class<? extends O> type) {
-        return m.getOntPersonality().getObjectFactory(type).iterator(m).mapWith(e -> m.getNodeAs(e.asNode(), type));
+        OntPersonality p = m.getOntPersonality();
+        if (p.supports(type)) {
+            return p.getObjectFactory(type).iterator(m).mapWith(e -> m.getNodeAs(e.asNode(), type));
+        } else {
+            return NullIterator.instance();
+        }
     }
 
     /**
@@ -508,9 +514,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     }
 
     /**
-     * Gets 'punnings', i.e. the {@link OntEntity}s which have not only single type.
+     * Gets 'punnings', i.e. the {@link OntEntity}s which have not only a single type.
      *
-     * @param withImports if it false takes into account only base model
+     * @param withImports if it false takes into account only the base model
      * @return {@code Stream} of {@link OntEntity}s.
      */
     public Stream<OntEntity> ambiguousEntities(boolean withImports) {
@@ -1365,7 +1371,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @param type {@link Class}-type
      * @param <N>  any subtype of {@link RDFNode}
      * @return {@link RDFNode} or {@code null}
-     * @throws RuntimeException unexpected misconfiguration (RDF recursion, wrong input, personality mismatch, etc)
+     * @throws RuntimeException unexpected misconfiguration (RDF recursion, wrong input, personality mismatch, etc.)
      * @see #getNodeAs(Node, Class)
      */
     @Override
