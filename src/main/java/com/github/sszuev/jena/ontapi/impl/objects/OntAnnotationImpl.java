@@ -11,9 +11,7 @@ import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
-import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -60,12 +58,10 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
     };
     public static final Set<Resource> EXTRA_ROOT_TYPES =
             Set.of(OWL.AllDisjointClasses, OWL.AllDisjointProperties, OWL.AllDifferent, OWL.NegativePropertyAssertion);
-    public static final List<Resource> ROOT_TYPES = Stream.concat(Stream.of(OWL.Axiom, OWL.Annotation)
-            , EXTRA_ROOT_TYPES.stream()).collect(Collectors.toUnmodifiableList());
-    public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = ModelUtils.asUnmodifiableNodeSet(EXTRA_ROOT_TYPES);
-    private static final Set<Node> REQUIRED_PROPERTY_NODES = ModelUtils.asUnmodifiableNodeSet(REQUIRED_PROPERTIES);
-    private static final Node AXIOM = OWL.Axiom.asNode();
-    private static final Node ANNOTATION = OWL.Annotation.asNode();
+    public static final List<Resource> ROOT_TYPES = Stream.concat(
+            Stream.of(OWL.Axiom, OWL.Annotation),
+            EXTRA_ROOT_TYPES.stream()).collect(Collectors.toUnmodifiableList()
+    );
 
     public OntAnnotationImpl(Node n, EnhGraph m) {
         super(n, m);
@@ -89,49 +85,6 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
         res.addProperty(OWL.annotatedProperty, base.getPredicate());
         res.addProperty(OWL.annotatedTarget, base.getObject());
         return res.as(OntAnnotation.class);
-    }
-
-    /**
-     * Lists all root {@link Node}s of top-level {@link OntAnnotation}s in the given model.
-     * In OWL2 a top-level annotation must have one of the following {@code rdf:type}s:
-     * {@link OWL#Axiom owl:Axiom}, {@link OWL#AllDisjointClasses owl:AllDisjointClasses},
-     * {@link OWL#AllDisjointProperties owl:AllDisjointProperties}, {@link OWL#AllDifferent owl:AllDifferent} or
-     * {@link OWL#NegativePropertyAssertion owl:NegativePropertyAssertion}
-     *
-     * @param eg {@link EnhGraph} model to search in
-     * @return {@link ExtendedIterator} of {@link Node}s
-     */
-    public static ExtendedIterator<Node> listRootAnnotations(EnhGraph eg) {
-        return Iterators.flatMap(Iterators.of(AXIOM).andThen(EXTRA_ROOT_TYPES_AS_NODES.iterator()),
-                        t -> eg.asGraph().find(Node.ANY, RDF.Nodes.type, t))
-                .mapWith(Triple::getSubject);
-    }
-
-    public static boolean testAnnotation(Node node, EnhGraph graph) {
-        return testAnnotation(node, graph.asGraph());
-    }
-
-    public static boolean testAnnotation(Node node, Graph graph) {
-        if (!node.isBlank()) return false;
-        ExtendedIterator<Node> types = graph.find(node, RDF.Nodes.type, Node.ANY).mapWith(Triple::getObject);
-        try {
-            while (types.hasNext()) {
-                Node t = types.next();
-                if (AXIOM.equals(t) || ANNOTATION.equals(t)) {
-                    // test spec
-                    Set<Node> props = graph.find(node, Node.ANY, Node.ANY).mapWith(Triple::getPredicate).toSet();
-                    return props.containsAll(REQUIRED_PROPERTY_NODES);
-                }
-                // special cases: owl:AllDisjointClasses, owl:AllDisjointProperties,
-                // owl:AllDifferent or owl:NegativePropertyAssertion
-                if (OntAnnotationImpl.EXTRA_ROOT_TYPES_AS_NODES.contains(t)) {
-                    return true;
-                }
-            }
-        } finally {
-            types.close();
-        }
-        return false;
     }
 
     private static <S> S removeMin(Set<S> notEmptySet,

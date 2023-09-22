@@ -1,7 +1,5 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
-import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
@@ -31,11 +29,6 @@ import java.util.Optional;
 @SuppressWarnings("WeakerAccess")
 public abstract class OntNPAImpl<P extends OntRealProperty, T extends RDFNode>
         extends OntObjectImpl implements OntNegativeAssertion<P, T> {
-
-    public static final EnhNodeFinder NPA_FINDER = new EnhNodeFinder.ByType(OWL.NegativePropertyAssertion);
-    public static final EnhNodeFilter NPA_FILTER = EnhNodeFilter.BLANK
-            .and(new EnhNodeFilter.HasPredicate(OWL.sourceIndividual))
-            .and(new EnhNodeFilter.HasPredicate(OWL.assertionProperty));
 
     public OntNPAImpl(Node n, EnhGraph m) {
         super(n, m);

@@ -34,7 +34,6 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -46,7 +45,7 @@ import java.util.function.Function;
  *
  * @see OntEntity
  */
-enum OWLEntityFactories {
+enum OntEntities {
     CLASS(OWL.Class, OntClass.Named.class, OntClassImpl.class, Vocabulary.Entities::getClasses) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
@@ -136,10 +135,10 @@ enum OWLEntityFactories {
      * @param impl           class-implementation
      * @param extractNodeSet to retrieve {@link Node}s
      */
-    OWLEntityFactories(Resource resourceType,
-                       Class<? extends OntEntity> classType,
-                       Class<? extends OntObjectImpl> impl,
-                       Function<Vocabulary.Entities, Set<Node>> extractNodeSet) {
+    OntEntities(Resource resourceType,
+                Class<? extends OntEntity> classType,
+                Class<? extends OntObjectImpl> impl,
+                Function<Vocabulary.Entities, Set<Node>> extractNodeSet) {
         this.classType = classType;
         this.resourceType = resourceType;
         this.impl = impl;
@@ -147,23 +146,11 @@ enum OWLEntityFactories {
     }
 
     /**
-     * Creates a factory for all entities.
-     *
-     * @return {@link EnhNodeFactory}
-     */
-    public static EnhNodeFactory createAnyEntityFactory() {
-        return OntEnhNodeFactories.createFrom(
-                OntEnhNodeFactories.createFinder(e -> e.resourceType.asNode(), values()),
-                Arrays.stream(values()).map(it -> it.classType)
-        );
-    }
-
-    /**
      * Creates a factory for this entity.
      *
      * @return {@link EnhNodeFactory}
      */
-    public EnhNodeFactory createThisEntityFactory() {
+    public EnhNodeFactory createFactory() {
         EnhNodeFinder finder = new EnhNodeFinder.ByType(resourceType);
         EnhNodeFilter filter = createPrimaryFilter();
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, resourceType, this::newInstance)
@@ -203,7 +190,7 @@ enum OWLEntityFactories {
             @Override
             public boolean test(Node n, EnhGraph eg) {
                 Graph g = eg.asGraph();
-                for (Node t : OWLEntityFactories.this.bannedTypes(eg)) {
+                for (Node t : OntEntities.this.bannedTypes(eg)) {
                     if (g.contains(n, RDF.Nodes.type, t)) return false;
                 }
                 return true;
@@ -211,7 +198,7 @@ enum OWLEntityFactories {
 
             @Override
             public String toString() {
-                return OWLEntityFactories.this.name() + "::illegalPunningsFilter";
+                return OntEntities.this.name() + "::illegalPunningsFilter";
             }
         };
     }
@@ -220,12 +207,12 @@ enum OWLEntityFactories {
         return new EnhNodeFilter() {
             @Override
             public boolean test(Node n, EnhGraph g) {
-                return OWLEntityFactories.this.builtInURIs(g).contains(n);
+                return OntEntities.this.builtInURIs(g).contains(n);
             }
 
             @Override
             public String toString() {
-                return OWLEntityFactories.this.name() + "::builtInFilter";
+                return OntEntities.this.name() + "::builtInFilter";
             }
         };
     }

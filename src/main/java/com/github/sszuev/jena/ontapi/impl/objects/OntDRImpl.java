@@ -1,12 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
-import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
-import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntFacetRestriction;
@@ -16,7 +10,6 @@ import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
-import org.apache.jena.enhanced.EnhNode;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
@@ -26,10 +19,8 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDFS;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -39,9 +30,6 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("WeakerAccess")
 public class OntDRImpl extends OntObjectImpl implements OntDataRange {
-
-    public static final EnhNodeFinder DR_FINDER = new EnhNodeFinder.ByType(RDFS.Datatype);
-    public static final EnhNodeFilter DR_FILTER = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(RDFS.Datatype));
 
     public OntDRImpl(Node n, EnhGraph m) {
         super(n, m);
@@ -228,79 +216,4 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
         }
     }
 
-    /**
-     * A factory to produce {@link OntDataRange}s.
-     * <p>
-     * Although it would be easy to produce this factory using {@link OntEnhNodeFactories#createFrom(EnhNodeFinder, Class[])},
-     * this variant with explicit methods must be a little faster,
-     * since there is a reduction of number of some possible repetition calls.
-     * Also, everything here is under control.
-     * <p>
-     * Created by @ssz on 02.02.2019.
-     */
-    public static class DataRangeFactory extends BaseEnhNodeFactoryImpl {
-        private static final Node TYPE = RDF.Nodes.type;
-        private static final Node ANY = Node.ANY;
-        private static final Node DATATYPE = RDFS.Datatype.asNode();
-
-        private final EnhNodeFactory named = WrappedFactoryImpl.of(Named.class);
-        private final EnhNodeFactory oneOf = WrappedFactoryImpl.of(OneOf.class);
-        private final EnhNodeFactory complementOf = WrappedFactoryImpl.of(ComplementOf.class);
-        private final EnhNodeFactory unionOf = WrappedFactoryImpl.of(UnionOf.class);
-        private final EnhNodeFactory intersectionOf = WrappedFactoryImpl.of(IntersectionOf.class);
-        private final EnhNodeFactory restriction = WrappedFactoryImpl.of(Restriction.class);
-        private final List<EnhNodeFactory> anonymous = Stream.of(complementOf
-                , restriction
-                , oneOf
-                , unionOf
-                , intersectionOf).collect(Collectors.toList());
-
-        public static EnhNodeFactory createFactory() {
-            return new DataRangeFactory();
-        }
-
-        @Override
-        public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {
-            return eg.asGraph().find(ANY, TYPE, DATATYPE)
-                    .mapWith(t -> t.getSubject().isURI() ?
-                            safeWrap(t.getSubject(), eg, named) :
-                            safeWrap(t.getSubject(), eg, anonymous))
-                    .filterDrop(Objects::isNull);
-        }
-
-        @Override
-        public EnhNode createInstance(Node node, EnhGraph eg) {
-            if (node.isURI())
-                return safeWrap(node, eg, named);
-            if (!node.isBlank())
-                return null;
-            if (!eg.asGraph().contains(node, TYPE, DATATYPE))
-                return null;
-            return safeWrap(node, eg, anonymous);
-        }
-
-        @Override
-        public boolean canWrap(Node node, EnhGraph eg) {
-            if (node.isURI()) {
-                return named.canWrap(node, eg);
-            }
-            if (!node.isBlank()) return false;
-            if (!eg.asGraph().contains(node, TYPE, DATATYPE))
-                return false;
-            return canWrap(node, eg, anonymous);
-        }
-
-        @Override
-        public EnhNode wrap(Node node, EnhGraph eg) {
-            if (node.isURI())
-                return named.wrap(node, eg);
-            OntJenaException.Conversion ex = new OntJenaException.Conversion("Can't convert node " + node +
-                    " to Data Range Expression.");
-            if (!node.isBlank())
-                throw ex;
-            if (!eg.asGraph().contains(node, TYPE, DATATYPE))
-                throw ex;
-            return wrap(node, eg, ex, anonymous);
-        }
-    }
 }

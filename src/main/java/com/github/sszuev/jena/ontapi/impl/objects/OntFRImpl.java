@@ -1,17 +1,13 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
-import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntFacetRestriction;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
-import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
@@ -28,17 +24,6 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
 
     public OntFRImpl(Node n, EnhGraph m) {
         super(n, m);
-    }
-
-    public static EnhNodeFinder makeFinder(Property predicate) {
-        return new EnhNodeFinder.ByPredicate(predicate);
-    }
-
-    public static EnhNodeFilter makeFilter(Property predicate) {
-        return EnhNodeFilter.BLANK.and(
-                (n, g) -> Iterators.anyMatch(g.asGraph().find(n, predicate.asNode(), Node.ANY)
-                        .mapWith(Triple::getObject), Node::isLiteral)
-        );
     }
 
     private static Property predicate(Class<?> view) {

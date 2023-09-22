@@ -10,6 +10,7 @@ import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.enhanced.UnsupportedPolymorphismException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
@@ -116,5 +117,12 @@ public class OntModelRDFSSpecTest {
         Assertions.assertTrue(i1.canAs(OntIndividual.class));
         Assertions.assertTrue(i2.canAs(OntIndividual.class));
         Assertions.assertTrue(i3.canAs(OntIndividual.class));
+    }
+
+    @Test
+    public void testUnsupportedObjects() {
+        OntModel m = OntModelFactory.createModel(OntSpecification.RDFS_MEM);
+        Resource x = m.createResource("x", OWL.DatatypeProperty);
+        Assertions.assertThrows(UnsupportedPolymorphismException.class, () -> x.as(OntDataProperty.class));
     }
 }
