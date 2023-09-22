@@ -70,7 +70,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
      */
     public Set<OntClass> getClasses(boolean direct) {
         Stream<OntClass> directClasses = explicitClassTypes(this)
-                .flatMap(it -> Stream.concat(OntCEImpl.equivalentsBySubClassOf(it), Stream.of(it)));
+                .flatMap(it -> Stream.concat(OntClassImpl.equivalentsBySubClassOf(it), Stream.of(it)));
         if (direct) {
             return directClasses.collect(Collectors.toSet());
         }

@@ -9,7 +9,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntCEImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -47,7 +47,7 @@ final class OntClasses {
     public static final EnhNodeFilter RESTRICTION_FILTER = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(OWL.Restriction));
 
     public static EnhNodeFactory createCEFactory(
-            Class<? extends OntCEImpl> impl,
+            Class<? extends OntClassImpl> impl,
             Property predicate,
             Class<? extends RDFNode> view) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Class);
@@ -66,10 +66,10 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
 
-    public static EnhNodeFactory createRestrictionFactory(Class<? extends OntCEImpl.CardinalityRestrictionImpl<?, ?, ?>> impl,
+    public static EnhNodeFactory createRestrictionFactory(Class<? extends OntClassImpl.CardinalityRestrictionImpl<?, ?, ?>> impl,
                                                           RestrictionType restrictionType,
                                                           ObjectRestrictionType objectType,
-                                                          OntCEImpl.CardinalityType cardinalityType) {
+                                                          OntClassImpl.CardinalityType cardinalityType) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
         EnhNodeFilter filter = RESTRICTION_FILTER
                 .and(getCardinalityFilter(cardinalityType, objectType.view()))
@@ -77,7 +77,7 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
-    public static EnhNodeFactory createRestrictionFactory(Class<? extends OntCEImpl.ComponentRestrictionImpl<?, ?, ?>> impl,
+    public static EnhNodeFactory createRestrictionFactory(Class<? extends OntClassImpl.ComponentRestrictionImpl<?, ?, ?>> impl,
                                                           RestrictionType propertyType,
                                                           ObjectRestrictionType objectType,
                                                           Property predicate) {
@@ -88,7 +88,7 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
-    public static EnhNodeFactory createNaryFactory(Class<? extends OntCEImpl.NaryRestrictionImpl<?, ?, ?>> impl,
+    public static EnhNodeFactory createNaryFactory(Class<? extends OntClassImpl.NaryRestrictionImpl<?, ?, ?>> impl,
                                                    Property predicate) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
         EnhNodeFilter filter = RESTRICTION_FILTER
@@ -97,7 +97,7 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
-    public static EnhNodeFilter getCardinalityFilter(OntCEImpl.CardinalityType type, Class<? extends RDFNode> objectType) {
+    public static EnhNodeFilter getCardinalityFilter(OntClassImpl.CardinalityType type, Class<? extends RDFNode> objectType) {
         return (n, g) -> type.isNonQualified(n, g) || type.isQualified(n, g, objectType);
     }
 
@@ -465,7 +465,7 @@ final class OntClasses {
 
     public static class HasSelfMaker extends EnhNodeProducer.WithType {
         public HasSelfMaker() {
-            super(OntCEImpl.HasSelfImpl.class, OWL.Restriction);
+            super(OntClassImpl.HasSelfImpl.class, OWL.Restriction);
         }
 
         @Override

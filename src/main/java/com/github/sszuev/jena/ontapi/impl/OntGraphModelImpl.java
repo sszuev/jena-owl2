@@ -5,10 +5,10 @@ import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
-import com.github.sszuev.jena.ontapi.impl.objects.OntCEImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntDRImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntFRImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntFacetRestrictionImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntListImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
@@ -807,139 +807,139 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public <T extends OntFacetRestriction> T createFacetRestriction(Class<T> view, Literal literal) {
-        return OntFRImpl.create(this, view, literal);
+        return OntFacetRestrictionImpl.create(this, view, literal);
     }
 
     @Override
     public OntDataRange.OneOf createDataOneOf(Collection<Literal> values) {
-        return OntDRImpl.createOneOf(this, values.stream());
+        return OntDataRangeImpl.createOneOf(this, values.stream());
     }
 
     @Override
     public OntDataRange.Restriction createDataRestriction(OntDataRange.Named datatype, Collection<OntFacetRestriction> values) {
-        return OntDRImpl.createRestriction(this, datatype, values.stream());
+        return OntDataRangeImpl.createRestriction(this, datatype, values.stream());
     }
 
     @Override
     public OntDataRange.ComplementOf createDataComplementOf(OntDataRange other) {
-        return OntDRImpl.createComplementOf(this, other);
+        return OntDataRangeImpl.createComplementOf(this, other);
     }
 
     @Override
     public OntDataRange.UnionOf createDataUnionOf(Collection<OntDataRange> values) {
-        return OntDRImpl.createUnionOf(this, values.stream());
+        return OntDataRangeImpl.createUnionOf(this, values.stream());
     }
 
     @Override
     public OntDataRange.IntersectionOf createDataIntersectionOf(Collection<OntDataRange> values) {
-        return OntDRImpl.createIntersectionOf(this, values.stream());
+        return OntDataRangeImpl.createIntersectionOf(this, values.stream());
     }
 
     @Override
     public OntClass.ObjectSomeValuesFrom createObjectSomeValuesFrom(OntObjectProperty property, OntClass ce) {
-        return OntCEImpl.createComponentRestrictionCE(this,
+        return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.ObjectSomeValuesFrom.class, property, ce, OWL.someValuesFrom);
     }
 
     @Override
     public OntClass.DataSomeValuesFrom createDataSomeValuesFrom(OntDataProperty property, OntDataRange dr) {
-        return OntCEImpl.createComponentRestrictionCE(this,
+        return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.DataSomeValuesFrom.class, property, dr, OWL.someValuesFrom);
     }
 
     @Override
     public OntClass.ObjectAllValuesFrom createObjectAllValuesFrom(OntObjectProperty property, OntClass ce) {
-        return OntCEImpl.createComponentRestrictionCE(this,
+        return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.ObjectAllValuesFrom.class, property, ce, OWL.allValuesFrom);
     }
 
     @Override
     public OntClass.DataAllValuesFrom createDataAllValuesFrom(OntDataProperty property, OntDataRange dr) {
-        return OntCEImpl.createComponentRestrictionCE(this,
+        return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.DataAllValuesFrom.class, property, dr, OWL.allValuesFrom);
     }
 
     @Override
     public OntClass.ObjectHasValue createObjectHasValue(OntObjectProperty property, OntIndividual individual) {
-        return OntCEImpl.createComponentRestrictionCE(this,
+        return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.ObjectHasValue.class, property, individual, OWL.hasValue);
     }
 
     @Override
     public OntClass.DataHasValue createDataHasValue(OntDataProperty property, Literal literal) {
-        return OntCEImpl.createComponentRestrictionCE(this, OntClass.DataHasValue.class, property, literal, OWL.hasValue);
+        return OntClassImpl.createComponentRestrictionCE(this, OntClass.DataHasValue.class, property, literal, OWL.hasValue);
     }
 
     @Override
     public OntClass.ObjectMinCardinality createObjectMinCardinality(OntObjectProperty property, int cardinality, OntClass ce) {
-        return OntCEImpl.createCardinalityRestrictionCE(this,
+        return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.ObjectMinCardinality.class, property, cardinality, ce);
     }
 
     @Override
     public OntClass.DataMinCardinality createDataMinCardinality(OntDataProperty property, int cardinality, OntDataRange dr) {
-        return OntCEImpl.createCardinalityRestrictionCE(this,
+        return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.DataMinCardinality.class, property, cardinality, dr);
     }
 
     @Override
     public OntClass.ObjectMaxCardinality createObjectMaxCardinality(OntObjectProperty property, int cardinality, OntClass ce) {
-        return OntCEImpl.createCardinalityRestrictionCE(this,
+        return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.ObjectMaxCardinality.class, property, cardinality, ce);
     }
 
     @Override
     public OntClass.DataMaxCardinality createDataMaxCardinality(OntDataProperty property, int cardinality, OntDataRange dr) {
-        return OntCEImpl.createCardinalityRestrictionCE(this,
+        return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.DataMaxCardinality.class, property, cardinality, dr);
     }
 
     @Override
     public OntClass.ObjectCardinality createObjectCardinality(OntObjectProperty property, int cardinality, OntClass ce) {
-        return OntCEImpl.createCardinalityRestrictionCE(this,
+        return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.ObjectCardinality.class, property, cardinality, ce);
     }
 
     @Override
     public OntClass.DataCardinality createDataCardinality(OntDataProperty property, int cardinality, OntDataRange dr) {
-        return OntCEImpl.createCardinalityRestrictionCE(this, OntClass.DataCardinality.class, property, cardinality, dr);
+        return OntClassImpl.createCardinalityRestrictionCE(this, OntClass.DataCardinality.class, property, cardinality, dr);
     }
 
     @Override
     public OntClass.UnionOf createObjectUnionOf(Collection<OntClass> classes) {
-        return OntCEImpl.createComponentsCE(this, OntClass.UnionOf.class, OntClass.class, OWL.unionOf, classes.stream());
+        return OntClassImpl.createComponentsCE(this, OntClass.UnionOf.class, OntClass.class, OWL.unionOf, classes.stream());
     }
 
     @Override
     public OntClass.IntersectionOf createObjectIntersectionOf(Collection<OntClass> classes) {
-        return OntCEImpl.createComponentsCE(this,
+        return OntClassImpl.createComponentsCE(this,
                 OntClass.IntersectionOf.class, OntClass.class, OWL.intersectionOf, classes.stream());
     }
 
     @Override
     public OntClass.OneOf createObjectOneOf(Collection<OntIndividual> individuals) {
-        return OntCEImpl.createComponentsCE(this,
+        return OntClassImpl.createComponentsCE(this,
                 OntClass.OneOf.class, OntIndividual.class, OWL.oneOf, individuals.stream());
     }
 
     @Override
     public OntClass.HasSelf createHasSelf(OntObjectProperty property) {
-        return OntCEImpl.createHasSelf(this, property);
+        return OntClassImpl.createHasSelf(this, property);
     }
 
     @Override
     public OntClass.NaryDataAllValuesFrom createDataAllValuesFrom(Collection<OntDataProperty> properties, OntDataRange dr) {
-        return OntCEImpl.createNaryRestrictionCE(this, OntClass.NaryDataAllValuesFrom.class, dr, properties);
+        return OntClassImpl.createNaryRestrictionCE(this, OntClass.NaryDataAllValuesFrom.class, dr, properties);
     }
 
     @Override
     public OntClass.NaryDataSomeValuesFrom createDataSomeValuesFrom(Collection<OntDataProperty> properties, OntDataRange dr) {
-        return OntCEImpl.createNaryRestrictionCE(this, OntClass.NaryDataSomeValuesFrom.class, dr, properties);
+        return OntClassImpl.createNaryRestrictionCE(this, OntClass.NaryDataSomeValuesFrom.class, dr, properties);
     }
 
     @Override
     public OntClass.ComplementOf createObjectComplementOf(OntClass ce) {
-        return OntCEImpl.createComplementOf(this, ce);
+        return OntClassImpl.createComplementOf(this, ce);
     }
 
     @Override

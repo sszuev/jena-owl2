@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
-import com.github.sszuev.jena.ontapi.impl.objects.OntCEImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -72,7 +72,7 @@ public class OntModelOWLSpecTest {
     }
 
     private static void testPizzaCEs(Model m, Property predicate, List<? extends OntClass> ces) {
-        String type = ces.isEmpty() ? null : ((OntCEImpl) ces.get(0)).getActualClass().getSimpleName();
+        String type = ces.isEmpty() ? null : ((OntClassImpl) ces.get(0)).getActualClass().getSimpleName();
         Assertions.assertEquals(m.listSubjectsWithProperty(predicate).toSet().size(), ces.size(), "Incorrect count of " + type);
     }
 

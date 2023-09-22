@@ -8,13 +8,13 @@ import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.common.Vocabulary;
-import com.github.sszuev.jena.ontapi.impl.objects.OntAPropertyImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntDPropertyImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntDatatypeImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationPropertyImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntDataPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntOPEImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntObjectPropertyImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleClassImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleDataRangeImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -46,34 +46,34 @@ import java.util.function.Function;
  * @see OntEntity
  */
 enum OntEntities {
-    CLASS(OWL.Class, OntClass.Named.class, OntClassImpl.class, Vocabulary.Entities::getClasses) {
+    CLASS(OWL.Class, OntClass.Named.class, OntSimpleClassImpl.class, Vocabulary.Entities::getClasses) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
-            return new OntClassImpl(OntObjectImpl.checkNamed(node), graph);
+            return new OntSimpleClassImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    DATATYPE(RDFS.Datatype, OntDataRange.Named.class, OntDatatypeImpl.class, Vocabulary.Entities::getDatatypes) {
+    DATATYPE(RDFS.Datatype, OntDataRange.Named.class, OntSimpleDataRangeImpl.class, Vocabulary.Entities::getDatatypes) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
-            return new OntDatatypeImpl(OntObjectImpl.checkNamed(node), graph);
+            return new OntSimpleDataRangeImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    ANNOTATION_PROPERTY(OWL.AnnotationProperty, OntAnnotationProperty.class, OntAPropertyImpl.class, Vocabulary.Entities::getAnnotationProperties) {
+    ANNOTATION_PROPERTY(OWL.AnnotationProperty, OntAnnotationProperty.class, OntAnnotationPropertyImpl.class, Vocabulary.Entities::getAnnotationProperties) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
-            return new OntAPropertyImpl(OntObjectImpl.checkNamed(node), graph);
+            return new OntAnnotationPropertyImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    DATA_PROPERTY(OWL.DatatypeProperty, OntDataProperty.class, OntDPropertyImpl.class, Vocabulary.Entities::getDatatypeProperties) {
+    DATA_PROPERTY(OWL.DatatypeProperty, OntDataProperty.class, OntDataPropertyImpl.class, Vocabulary.Entities::getDatatypeProperties) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
-            return new OntDPropertyImpl(OntObjectImpl.checkNamed(node), graph);
+            return new OntDataPropertyImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    OBJECT_PROPERTY(OWL.ObjectProperty, OntObjectProperty.Named.class, OntOPEImpl.NamedPropertyImpl.class, Vocabulary.Entities::getObjectProperties) {
+    OBJECT_PROPERTY(OWL.ObjectProperty, OntObjectProperty.Named.class, OntObjectPropertyImpl.NamedPropertyImpl.class, Vocabulary.Entities::getObjectProperties) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
-            return new OntOPEImpl.NamedPropertyImpl(OntObjectImpl.checkNamed(node), graph);
+            return new OntObjectPropertyImpl.NamedPropertyImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
     INDIVIDUAL(OWL.NamedIndividual, OntIndividual.Named.class, OntIndividualImpl.NamedImpl.class, Vocabulary.Entities::getIndividuals) {

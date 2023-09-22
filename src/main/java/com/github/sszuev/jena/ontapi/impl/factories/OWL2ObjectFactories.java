@@ -5,13 +5,13 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntCEImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntDRImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntFRImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntFacetRestrictionImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntNPAImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntNegativePropertyAssertionImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -89,94 +89,94 @@ public final class OWL2ObjectFactories {
             .add(OWL.AnnotationProperty, OntAnnotationProperty.class);
 
     public static final EnhNodeFactory UNION_OF_CLASS = OntClasses.createCEFactory(
-            OntCEImpl.UnionOfImpl.class,
+            OntClassImpl.UnionOfImpl.class,
             OWL.unionOf,
             RDFList.class
     );
     public static final EnhNodeFactory INTERSECTION_OF_CLASS = OntClasses.createCEFactory(
-            OntCEImpl.IntersectionOfImpl.class,
+            OntClassImpl.IntersectionOfImpl.class,
             OWL.intersectionOf, RDFList.class
     );
     public static final EnhNodeFactory ONE_OF_CLASS = OntClasses.createCEFactory(
-            OntCEImpl.OneOfImpl.class,
+            OntClassImpl.OneOfImpl.class,
             OWL.oneOf,
             RDFList.class
     );
     public static final EnhNodeFactory COMPLEMENT_OF_CLASS = OntClasses.createCEFactory(
-            OntCEImpl.ComplementOfImpl.class,
+            OntClassImpl.ComplementOfImpl.class,
             OWL.complementOf, OntClass.class
     );
     public static final EnhNodeFactory OBJECT_SOME_VALUES_FROM_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.ObjectSomeValuesFromImpl.class,
+            OntClassImpl.ObjectSomeValuesFromImpl.class,
             OntClasses.RestrictionType.OBJECT,
             OntClasses.ObjectRestrictionType.CLASS,
             OWL.someValuesFrom
     );
     public static final EnhNodeFactory DATA_SOME_VALUES_FROM_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.DataSomeValuesFromImpl.class,
+            OntClassImpl.DataSomeValuesFromImpl.class,
             OntClasses.RestrictionType.DATA,
             OntClasses.ObjectRestrictionType.DATA_RANGE,
             OWL.someValuesFrom
     );
     public static final EnhNodeFactory OBJECT_ALL_VALUES_FROM_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.ObjectAllValuesFromImpl.class,
+            OntClassImpl.ObjectAllValuesFromImpl.class,
             OntClasses.RestrictionType.OBJECT,
             OntClasses.ObjectRestrictionType.CLASS,
             OWL.allValuesFrom
     );
     public static final EnhNodeFactory DATA_ALL_VALUES_FROM_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.DataAllValuesFromImpl.class,
+            OntClassImpl.DataAllValuesFromImpl.class,
             OntClasses.RestrictionType.DATA,
             OntClasses.ObjectRestrictionType.DATA_RANGE,
             OWL.allValuesFrom
     );
     public static final EnhNodeFactory OBJECT_HAS_VALUE_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.ObjectHasValueImpl.class,
+            OntClassImpl.ObjectHasValueImpl.class,
             OntClasses.RestrictionType.OBJECT,
             OntClasses.ObjectRestrictionType.INDIVIDUAL,
             OWL.hasValue
     );
     public static final EnhNodeFactory DATA_HAS_VALUE_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.DataHasValueImpl.class,
+            OntClassImpl.DataHasValueImpl.class,
             OntClasses.RestrictionType.DATA,
             OntClasses.ObjectRestrictionType.LITERAL,
             OWL.hasValue
     );
     public static final EnhNodeFactory DATA_MIN_CARDINALITY_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.DataMinCardinalityImpl.class,
+            OntClassImpl.DataMinCardinalityImpl.class,
             OntClasses.RestrictionType.DATA,
             OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OntCEImpl.CardinalityType.MIN
+            OntClassImpl.CardinalityType.MIN
     );
     public static final EnhNodeFactory OBJECT_MIN_CARDINALITY_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.ObjectMinCardinalityImpl.class,
+            OntClassImpl.ObjectMinCardinalityImpl.class,
             OntClasses.RestrictionType.OBJECT,
             OntClasses.ObjectRestrictionType.CLASS,
-            OntCEImpl.CardinalityType.MIN
+            OntClassImpl.CardinalityType.MIN
     );
     public static final EnhNodeFactory DATA_MAX_CARDINALITY_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.DataMaxCardinalityImpl.class,
+            OntClassImpl.DataMaxCardinalityImpl.class,
             OntClasses.RestrictionType.DATA,
             OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OntCEImpl.CardinalityType.MAX
+            OntClassImpl.CardinalityType.MAX
     );
     public static final EnhNodeFactory OBJECT_MAX_CARDINALITY_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.ObjectMaxCardinalityImpl.class,
+            OntClassImpl.ObjectMaxCardinalityImpl.class,
             OntClasses.RestrictionType.OBJECT,
             OntClasses.ObjectRestrictionType.CLASS,
-            OntCEImpl.CardinalityType.MAX
+            OntClassImpl.CardinalityType.MAX
     );
     public static final EnhNodeFactory DATA_CARDINALITY_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.DataCardinalityImpl.class,
+            OntClassImpl.DataCardinalityImpl.class,
             OntClasses.RestrictionType.DATA,
             OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OntCEImpl.CardinalityType.EXACTLY
+            OntClassImpl.CardinalityType.EXACTLY
     );
     public static final EnhNodeFactory OBJECT_CARDINALITY_CLASS = OntClasses.createRestrictionFactory(
-            OntCEImpl.ObjectCardinalityImpl.class,
+            OntClassImpl.ObjectCardinalityImpl.class,
             OntClasses.RestrictionType.OBJECT,
             OntClasses.ObjectRestrictionType.CLASS,
-            OntCEImpl.CardinalityType.EXACTLY
+            OntClassImpl.CardinalityType.EXACTLY
     );
     public static final EnhNodeFactory HAS_SELF_CLASS = OntEnhNodeFactories.createCommon(
             new OntClasses.HasSelfMaker(),
@@ -185,11 +185,11 @@ public final class OWL2ObjectFactories {
     );
     // see <a href='https://www.w3.org/TR/owl2-quick-reference/#Class_Expressions'>Restrictions Using n-ary Data Range</a>
     public static final EnhNodeFactory NARY_DATA_ALL_VALUES_FROM_CLASS = OntClasses.createNaryFactory(
-            OntCEImpl.NaryDataAllValuesFromImpl.class,
+            OntClassImpl.NaryDataAllValuesFromImpl.class,
             OWL.allValuesFrom
     );
     public static final EnhNodeFactory NARY_DATA_SOME_VALUES_FROM_CLASS = OntClasses.createNaryFactory(
-            OntCEImpl.NaryDataSomeValuesFromImpl.class,
+            OntClassImpl.NaryDataSomeValuesFromImpl.class,
             OWL.someValuesFrom
     );
     // Boolean Connectives and Enumeration of Individuals:
@@ -267,29 +267,29 @@ public final class OWL2ObjectFactories {
     public static final EnhNodeFactory ANY_CLASS = OntClasses.ClassExpressionFactory.createFactory();
 
     public static final EnhNodeFactory ONE_OF_DATARANGE = OntEnhNodeFactories.createCommon(
-            OntDRImpl.OneOfImpl.class,
+            OntDataRangeImpl.OneOfImpl.class,
             OntDataRanges.DR_FINDER,
             OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
     );
     public static final EnhNodeFactory RESTRICTION_DATARANGE = OntEnhNodeFactories.createCommon(
-            OntDRImpl.RestrictionImpl.class,
+            OntDataRangeImpl.RestrictionImpl.class,
             OntDataRanges.DR_FINDER,
             OntDataRanges.DR_FILTER
                     .and(new EnhNodeFilter.HasPredicate(OWL.onDatatype))
                     .and(new EnhNodeFilter.HasPredicate(OWL.withRestrictions))
     );
     public static final EnhNodeFactory COMPLEMENT_OF_DATARANGE = OntEnhNodeFactories.createCommon(
-            OntDRImpl.ComplementOfImpl.class,
+            OntDataRangeImpl.ComplementOfImpl.class,
             OntDataRanges.DR_FINDER,
             OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.datatypeComplementOf))
     );
     public static final EnhNodeFactory UNION_OF_DATARANGE = OntEnhNodeFactories.createCommon(
-            OntDRImpl.UnionOfImpl.class,
+            OntDataRangeImpl.UnionOfImpl.class,
             OntDataRanges.DR_FINDER,
             OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.unionOf))
     );
     public static final EnhNodeFactory INTERSECTION_OF_DATARANGE = OntEnhNodeFactories.createCommon(
-            OntDRImpl.IntersectionOfImpl.class,
+            OntDataRangeImpl.IntersectionOfImpl.class,
             OntDataRanges.DR_FINDER,
             OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf))
     );
@@ -303,57 +303,57 @@ public final class OWL2ObjectFactories {
     public static final EnhNodeFactory ANY_DATARANGE = OntDataRanges.DataRangeFactory.createFactory();
 
     public static final EnhNodeFactory LENGTH_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.LengthImpl.class,
+            OntFacetRestrictionImpl.LengthImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.length),
             OntDataRanges.makeFacetRestrictionFilter(XSD.length)
     );
     public static final EnhNodeFactory MIN_LENGTH_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.MinLengthImpl.class,
+            OntFacetRestrictionImpl.MinLengthImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.minLength),
             OntDataRanges.makeFacetRestrictionFilter(XSD.minLength)
     );
     public static final EnhNodeFactory MAX_LENGTH_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.MaxLengthImpl.class,
+            OntFacetRestrictionImpl.MaxLengthImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.maxLength),
             OntDataRanges.makeFacetRestrictionFilter(XSD.maxLength)
     );
     public static final EnhNodeFactory MIN_INCLUSIVE_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.MinInclusiveImpl.class,
+            OntFacetRestrictionImpl.MinInclusiveImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.minInclusive),
             OntDataRanges.makeFacetRestrictionFilter(XSD.minInclusive)
     );
     public static final EnhNodeFactory MAX_INCLUSIVE_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.MaxInclusiveImpl.class,
+            OntFacetRestrictionImpl.MaxInclusiveImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.maxInclusive),
             OntDataRanges.makeFacetRestrictionFilter(XSD.maxInclusive)
     );
     public static final EnhNodeFactory MIN_EXCLUSIVE_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.MinExclusiveImpl.class,
+            OntFacetRestrictionImpl.MinExclusiveImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.minExclusive),
             OntDataRanges.makeFacetRestrictionFilter(XSD.minExclusive)
     );
     public static final EnhNodeFactory MAX_EXCLUSIVE_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.MaxExclusiveImpl.class,
+            OntFacetRestrictionImpl.MaxExclusiveImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.maxExclusive),
             OntDataRanges.makeFacetRestrictionFilter(XSD.maxExclusive)
     );
     public static final EnhNodeFactory TOTAL_DIGITS_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.TotalDigitsImpl.class,
+            OntFacetRestrictionImpl.TotalDigitsImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.totalDigits),
             OntDataRanges.makeFacetRestrictionFilter(XSD.totalDigits)
     );
     public static final EnhNodeFactory FRACTION_DIGITS_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.FractionDigitsImpl.class,
+            OntFacetRestrictionImpl.FractionDigitsImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.fractionDigits),
             OntDataRanges.makeFacetRestrictionFilter(XSD.fractionDigits)
     );
     public static final EnhNodeFactory PATTERN_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.PatternImpl.class,
+            OntFacetRestrictionImpl.PatternImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(XSD.pattern),
             OntDataRanges.makeFacetRestrictionFilter(XSD.pattern)
     );
     public static final EnhNodeFactory LANG_RANGE_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
-            OntFRImpl.LangRangeImpl.class,
+            OntFacetRestrictionImpl.LangRangeImpl.class,
             OntDataRanges.makeFacetRestrictionFinder(RDF.langRange),
             OntDataRanges.makeFacetRestrictionFilter(RDF.langRange)
     );
@@ -415,13 +415,13 @@ public final class OWL2ObjectFactories {
     );
 
     public static final EnhNodeFactory OBJECT_NEGATIVE_PROPERTY_ASSERTION = OntEnhNodeFactories.createCommon(
-            OntNPAImpl.ObjectAssertionImpl.class,
+            OntNegativePropertyAssertionImpl.ObjectAssertionImpl.class,
             OntProperties.NEGATIVE_PROPERTY_ASSERTION_FINDER,
             OntProperties.NEGATIVE_PROPERTY_ASSERTION_FILTER,
             new EnhNodeFilter.HasPredicate(OWL.targetIndividual)
     );
     public static final EnhNodeFactory DATA_NEGATIVE_PROPERTY_ASSERTION = OntEnhNodeFactories.createCommon(
-            OntNPAImpl.DataAssertionImpl.class,
+            OntNegativePropertyAssertionImpl.DataAssertionImpl.class,
             OntProperties.NEGATIVE_PROPERTY_ASSERTION_FINDER,
             OntProperties.NEGATIVE_PROPERTY_ASSERTION_FILTER,
             new EnhNodeFilter.HasPredicate(OWL.targetValue)

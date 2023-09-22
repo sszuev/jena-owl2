@@ -20,9 +20,9 @@ import java.util.Optional;
  * Created by @ssz on 16.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestriction {
+public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements OntFacetRestriction {
 
-    public OntFRImpl(Node n, EnhGraph m) {
+    public OntFacetRestrictionImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
@@ -57,7 +57,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         return getRequiredObject(predicate(getActualClass()), Literal.class);
     }
 
-    public static class LengthImpl extends OntFRImpl implements Length {
+    public static class LengthImpl extends OntFacetRestrictionImpl implements Length {
         public LengthImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -68,7 +68,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class MinLengthImpl extends OntFRImpl implements MinLength {
+    public static class MinLengthImpl extends OntFacetRestrictionImpl implements MinLength {
         public MinLengthImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -79,7 +79,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class MaxLengthImpl extends OntFRImpl implements MaxLength {
+    public static class MaxLengthImpl extends OntFacetRestrictionImpl implements MaxLength {
         public MaxLengthImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -90,7 +90,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class MinInclusiveImpl extends OntFRImpl implements MinInclusive {
+    public static class MinInclusiveImpl extends OntFacetRestrictionImpl implements MinInclusive {
         public MinInclusiveImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -101,7 +101,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class MaxInclusiveImpl extends OntFRImpl implements MaxInclusive {
+    public static class MaxInclusiveImpl extends OntFacetRestrictionImpl implements MaxInclusive {
         public MaxInclusiveImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -112,7 +112,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class MinExclusiveImpl extends OntFRImpl implements MinExclusive {
+    public static class MinExclusiveImpl extends OntFacetRestrictionImpl implements MinExclusive {
         public MinExclusiveImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -123,7 +123,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class MaxExclusiveImpl extends OntFRImpl implements MaxExclusive {
+    public static class MaxExclusiveImpl extends OntFacetRestrictionImpl implements MaxExclusive {
         public MaxExclusiveImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -134,7 +134,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class PatternImpl extends OntFRImpl implements Pattern {
+    public static class PatternImpl extends OntFacetRestrictionImpl implements Pattern {
         public PatternImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -145,7 +145,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class TotalDigitsImpl extends OntFRImpl implements TotalDigits {
+    public static class TotalDigitsImpl extends OntFacetRestrictionImpl implements TotalDigits {
         public TotalDigitsImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -156,7 +156,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class FractionDigitsImpl extends OntFRImpl implements FractionDigits {
+    public static class FractionDigitsImpl extends OntFacetRestrictionImpl implements FractionDigits {
         public FractionDigitsImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -167,7 +167,7 @@ public abstract class OntFRImpl extends OntObjectImpl implements OntFacetRestric
         }
     }
 
-    public static class LangRangeImpl extends OntFRImpl implements LangRange {
+    public static class LangRangeImpl extends OntFacetRestrictionImpl implements LangRange {
         public LangRangeImpl(Node n, EnhGraph m) {
             super(n, m);
         }

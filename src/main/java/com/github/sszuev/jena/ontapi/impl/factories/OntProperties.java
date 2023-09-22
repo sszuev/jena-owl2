@@ -7,7 +7,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntOPEImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntObjectPropertyImpl;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
@@ -167,7 +167,7 @@ final class OntProperties {
 
         @Override
         public EnhNode createInstance(Node node, EnhGraph eg) {
-            return new OntOPEImpl.InversePropertyImpl(node, eg);
+            return new OntObjectPropertyImpl.InversePropertyImpl(node, eg);
         }
 
         private ExtendedIterator<Triple> listTriples(Node node, EnhGraph eg) {

@@ -15,9 +15,9 @@ import java.util.Optional;
  * Created @ssz on 03.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class OntDatatypeImpl extends OntObjectImpl implements OntDataRange.Named {
+public class OntSimpleDataRangeImpl extends OntObjectImpl implements OntDataRange.Named {
 
-    public OntDatatypeImpl(Node n, EnhGraph g) {
+    public OntSimpleDataRangeImpl(Node n, EnhGraph g) {
         super(checkNamed(n), g);
     }
 

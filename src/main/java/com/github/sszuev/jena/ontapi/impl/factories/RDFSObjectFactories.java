@@ -6,10 +6,10 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
-import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntRPropertyImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleClassImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntSimplePropertyImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntObject;
@@ -40,10 +40,10 @@ public final class RDFSObjectFactories {
     );
 
     public static EnhNodeFactory NAMED_CLASS = createFactory(
-            OntClassImpl.class,
+            OntSimpleClassImpl.class,
             OntClass.Named.class,
             RDFS.Class,
-            OntClassImpl::new,
+            OntSimpleClassImpl::new,
             RDFSObjectFactories::isNamedClass
     );
 
@@ -62,18 +62,18 @@ public final class RDFSObjectFactories {
     );
 
     public static EnhNodeFactory PROPERTY = createFactory(
-            OntRPropertyImpl.class,
+            OntSimplePropertyImpl.class,
             OntProperty.class,
             RDF.Property,
-            OntRPropertyImpl::new,
+            OntSimplePropertyImpl::new,
             RDFSObjectFactories::isAnyProperty
     );
 
     public static EnhNodeFactory ANY_CLASS = createFactory(
-            OntClassImpl.class,
+            OntSimpleClassImpl.class,
             OntClass.class,
             RDFS.Class,
-            OntClassImpl::new,
+            OntSimpleClassImpl::new,
             RDFSObjectFactories::isAnyClass
     );
 

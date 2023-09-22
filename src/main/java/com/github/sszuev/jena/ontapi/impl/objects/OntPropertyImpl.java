@@ -20,19 +20,19 @@ import java.util.stream.Stream;
  * Created by @ssz on 08.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public abstract class OntPEImpl extends OntObjectImpl implements OntProperty {
+public abstract class OntPropertyImpl extends OntObjectImpl implements OntProperty {
 
-    public OntPEImpl(Node n, EnhGraph m) {
+    public OntPropertyImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
     public static Stream<OntClass> declaringClasses(OntRealProperty property, boolean direct) {
         Set<OntClass> domains = property.domains()
                 .flatMap(clazz -> Stream.concat(Stream.of(clazz), clazz.subClasses(false)))
-                .filter(OntCEImpl::isNotBuiltin)
+                .filter(OntClassImpl::isNotBuiltin)
                 .collect(Collectors.toSet());
         if (domains.isEmpty()) {
-            Stream<OntClass> res = property.getModel().ontObjects(OntClass.class).filter(OntCEImpl::isNotBuiltin);
+            Stream<OntClass> res = property.getModel().ontObjects(OntClass.class).filter(OntClassImpl::isNotBuiltin);
             if (!direct) {
                 return res;
             } else {

@@ -27,10 +27,10 @@ import java.util.Optional;
  * Created by @ssz on 15.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public abstract class OntNPAImpl<P extends OntRealProperty, T extends RDFNode>
+public abstract class OntNegativePropertyAssertionImpl<P extends OntRealProperty, T extends RDFNode>
         extends OntObjectImpl implements OntNegativeAssertion<P, T> {
 
-    public OntNPAImpl(Node n, EnhGraph m) {
+    public OntNegativePropertyAssertionImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
@@ -84,7 +84,7 @@ public abstract class OntNPAImpl<P extends OntRealProperty, T extends RDFNode>
         return getRequiredObject(OWL.assertionProperty, propertyClass());
     }
 
-    public static class ObjectAssertionImpl extends OntNPAImpl<OntObjectProperty, OntIndividual> implements WithObjectProperty {
+    public static class ObjectAssertionImpl extends OntNegativePropertyAssertionImpl<OntObjectProperty, OntIndividual> implements WithObjectProperty {
         public ObjectAssertionImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -112,7 +112,7 @@ public abstract class OntNPAImpl<P extends OntRealProperty, T extends RDFNode>
 
     }
 
-    public static class DataAssertionImpl extends OntNPAImpl<OntDataProperty, Literal> implements WithDataProperty {
+    public static class DataAssertionImpl extends OntNegativePropertyAssertionImpl<OntDataProperty, Literal> implements WithDataProperty {
         public DataAssertionImpl(Node n, EnhGraph m) {
             super(n, m);
         }

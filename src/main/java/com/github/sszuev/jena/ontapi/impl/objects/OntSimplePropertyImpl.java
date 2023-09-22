@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 /**
  * Simple direct {@link OntProperty} implementation to use with RDFS Specifications.
  */
-public class OntRPropertyImpl extends OntPEImpl implements OntProperty, OntEntity, Property {
+public class OntSimplePropertyImpl extends OntPropertyImpl implements OntProperty, OntEntity, Property {
 
-    public OntRPropertyImpl(Node n, EnhGraph m) {
+    public OntSimplePropertyImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 

@@ -29,9 +29,9 @@ import java.util.stream.Stream;
  * Created by @ssz on 16.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class OntDRImpl extends OntObjectImpl implements OntDataRange {
+public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
 
-    public OntDRImpl(Node n, EnhGraph m) {
+    public OntDataRangeImpl(Node n, EnhGraph m) {
         super(n, m);
     }
 
@@ -86,7 +86,7 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
         return getRequiredRootStatement(this, RDFS.Datatype);
     }
 
-    public static class ComplementOfImpl extends OntDRImpl implements ComplementOf {
+    public static class ComplementOfImpl extends OntDataRangeImpl implements ComplementOf {
         public ComplementOfImpl(Node n, EnhGraph m) {
             super(n, m);
         }
@@ -187,11 +187,11 @@ public class OntDRImpl extends OntObjectImpl implements OntDataRange {
     }
 
     /**
-     * An abstract super-class for {@link OneOf}, {@link Restriction}, {@link UnionOf}, {@link IntersectionOf}.
+     * An abstract superclass for {@link OneOf}, {@link Restriction}, {@link UnionOf}, {@link IntersectionOf}.
      *
      * @param <N> {@link RDFNode}
      */
-    protected static abstract class CombinationImpl<N extends RDFNode> extends OntDRImpl implements Combination<N> {
+    protected static abstract class CombinationImpl<N extends RDFNode> extends OntDataRangeImpl implements Combination<N> {
         protected final Property predicate;
         protected final Class<N> type;
 

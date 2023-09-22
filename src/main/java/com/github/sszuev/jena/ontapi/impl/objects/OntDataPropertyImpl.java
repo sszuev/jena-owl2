@@ -20,9 +20,9 @@ import java.util.stream.Stream;
  * <p>
  * Created @ssz on 03.11.2016.
  */
-public class OntDPropertyImpl extends OntPEImpl implements OntDataProperty {
+public class OntDataPropertyImpl extends OntPropertyImpl implements OntDataProperty {
 
-    public OntDPropertyImpl(Node n, EnhGraph g) {
+    public OntDataPropertyImpl(Node n, EnhGraph g) {
         super(n, g);
     }
 
@@ -48,11 +48,11 @@ public class OntDPropertyImpl extends OntPEImpl implements OntDataProperty {
 
     @Override
     public OntNegativeAssertion.WithDataProperty addNegativeAssertion(OntIndividual source, Literal target) {
-        return OntNPAImpl.create(getModel(), source, this, target);
+        return OntNegativePropertyAssertionImpl.create(getModel(), source, this, target);
     }
 
     @Override
-    public OntDPropertyImpl setFunctional(boolean functional) {
+    public OntDataPropertyImpl setFunctional(boolean functional) {
         changeRDFType(OWL.FunctionalProperty, functional);
         return this;
     }

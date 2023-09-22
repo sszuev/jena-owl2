@@ -33,9 +33,9 @@ import java.util.stream.Stream;
  * Created @ssz on 03.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public abstract class OntOPEImpl extends OntPEImpl implements OntObjectProperty {
+public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements OntObjectProperty {
 
-    public OntOPEImpl(Node n, EnhGraph g) {
+    public OntObjectPropertyImpl(Node n, EnhGraph g) {
         super(n, g);
     }
 
@@ -51,12 +51,12 @@ public abstract class OntOPEImpl extends OntPEImpl implements OntObjectProperty 
 
     @Override
     public Stream<OntClass> declaringClasses(boolean direct) {
-        return OntPEImpl.declaringClasses(this, direct);
+        return OntPropertyImpl.declaringClasses(this, direct);
     }
 
     @Override
     public OntNegativeAssertion.WithObjectProperty addNegativeAssertion(OntIndividual source, OntIndividual target) {
-        return OntNPAImpl.create(getModel(), source, this, target);
+        return OntNegativePropertyAssertionImpl.create(getModel(), source, this, target);
     }
 
     @Override
@@ -70,53 +70,53 @@ public abstract class OntOPEImpl extends OntPEImpl implements OntObjectProperty 
     }
 
     @Override
-    public OntOPEImpl removePropertyChain(Resource rdfList) throws OntJenaException.IllegalArgument {
+    public OntObjectPropertyImpl removePropertyChain(Resource rdfList) throws OntJenaException.IllegalArgument {
         getModel().deleteOntList(this, OWL.propertyChainAxiom, findPropertyChain(rdfList).orElse(null));
         return this;
     }
 
     @Override
-    protected OntOPEImpl changeRDFType(Resource type, boolean add) {
+    protected OntObjectPropertyImpl changeRDFType(Resource type, boolean add) {
         super.changeRDFType(type, add);
         return this;
     }
 
     @Override
-    public OntOPEImpl setFunctional(boolean functional) {
+    public OntObjectPropertyImpl setFunctional(boolean functional) {
         return changeRDFType(OWL.FunctionalProperty, functional);
     }
 
     @Override
-    public OntOPEImpl setInverseFunctional(boolean inverseFunctional) {
+    public OntObjectPropertyImpl setInverseFunctional(boolean inverseFunctional) {
         return changeRDFType(OWL.InverseFunctionalProperty, inverseFunctional);
     }
 
     @Override
-    public OntOPEImpl setSymmetric(boolean symmetric) {
+    public OntObjectPropertyImpl setSymmetric(boolean symmetric) {
         return changeRDFType(OWL.SymmetricProperty, symmetric);
     }
 
     @Override
-    public OntOPEImpl setAsymmetric(boolean asymmetric) {
+    public OntObjectPropertyImpl setAsymmetric(boolean asymmetric) {
         return changeRDFType(OWL.AsymmetricProperty, asymmetric);
     }
 
     @Override
-    public OntOPEImpl setTransitive(boolean transitive) {
+    public OntObjectPropertyImpl setTransitive(boolean transitive) {
         return changeRDFType(OWL.TransitiveProperty, transitive);
     }
 
     @Override
-    public OntOPEImpl setReflexive(boolean reflexive) {
+    public OntObjectPropertyImpl setReflexive(boolean reflexive) {
         return changeRDFType(OWL.ReflexiveProperty, reflexive);
     }
 
     @Override
-    public OntOPEImpl setIrreflexive(boolean irreflexive) {
+    public OntObjectPropertyImpl setIrreflexive(boolean irreflexive) {
         return changeRDFType(OWL.IrreflexiveProperty, irreflexive);
     }
 
-    public static class NamedPropertyImpl extends OntOPEImpl implements Named {
+    public static class NamedPropertyImpl extends OntObjectPropertyImpl implements Named {
 
         public NamedPropertyImpl(Node n, EnhGraph g) {
             super(n, g);
@@ -167,7 +167,7 @@ public abstract class OntOPEImpl extends OntPEImpl implements OntObjectProperty 
         }
     }
 
-    public static class InversePropertyImpl extends OntOPEImpl implements Inverse {
+    public static class InversePropertyImpl extends OntObjectPropertyImpl implements Inverse {
 
         public InversePropertyImpl(Node n, EnhGraph g) {
             super(n, g);
