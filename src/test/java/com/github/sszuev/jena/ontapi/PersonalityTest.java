@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 public class PersonalityTest {
 
     public static OntPersonality buildCustomPersonality() {
-        OntPersonality from = OntPersonalities.OWL2_PERSONALITY_LAX;
+        OntPersonality from = OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS;
         EnhNodeFactory factory = createNamedIndividualFactory();
         OntPersonality res = OntObjectPersonalityBuilder.from(from)
                 .add(OntIndividual.Named.class, factory)
@@ -92,7 +92,7 @@ public class PersonalityTest {
         g.createResource(clazz, OWL.Class).addProperty(RDFS.subClassOf, agent);
 
 
-        OntPersonality p1 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
+        OntPersonality p1 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
                 .setBuiltins(OntPersonalities.createBuiltinsVocabulary(OntVocabulary.Factory.OWL_VOCABULARY)).build();
         OntModel m1 = OntModelFactory.createModel(g.getGraph(), p1);
         Assertions.assertEquals(1, m1.classes().count());
@@ -102,7 +102,7 @@ public class PersonalityTest {
 
         OntVocabulary SIMPLE_FOAF_VOC = OntVocabulary.Factory.create(OWL.Class, agent, document);
         OntVocabulary voc = OntVocabulary.Factory.create(OntVocabulary.Factory.OWL_VOCABULARY, SIMPLE_FOAF_VOC);
-        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
+        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
                 .setBuiltins(OntPersonalities.createBuiltinsVocabulary(voc)).build();
         OntModel m2 = OntModelFactory.createModel(g.getGraph(), p2);
 
@@ -128,7 +128,7 @@ public class PersonalityTest {
         Assertions.assertEquals(2, m1.ontObjects(OntIndividual.class).count());
 
         OntVocabulary voc = OntVocabulary.Factory.create(RDF.Property, p);
-        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT)
+        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
                 .setReserved(OntPersonalities.createReservedVocabulary(voc)).build();
         OntModel m2 = OntModelFactory.createModel(g.getGraph(), p2);
         Assertions.assertEquals(1, m2.ontObjects(OntIndividual.class).count());
@@ -137,7 +137,7 @@ public class PersonalityTest {
     @Test
     public void testPersonalityPunnings() {
         String ns = "http://x#";
-        OntModel m1 = OntModelFactory.createModel(org.apache.jena.graph.Factory.createGraphMem(), OntPersonalities.OWL2_PERSONALITY_STRICT)
+        OntModel m1 = OntModelFactory.createModel(org.apache.jena.graph.Factory.createGraphMem(), OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
                 .setNsPrefixes(OntModelFactory.STANDARD)
                 .setNsPrefix("x", ns);
         OntClass.Named c1 = m1.createOntClass(ns + "C1");
@@ -153,7 +153,7 @@ public class PersonalityTest {
         Assertions.assertEquals(1, m1.datatypes().count());
 
         OntPersonality.Punnings punnings = new OntPersonality.Punnings() {
-            final OntPersonality.Punnings base = OntPersonalities.OWL2_PERSONALITY_STRICT.getPunnings();
+            final OntPersonality.Punnings base = OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS.getPunnings();
 
             @Override
             public Set<Node> get(Class<? extends OntObject> type) throws OntJenaException {
@@ -172,7 +172,7 @@ public class PersonalityTest {
                 return Collections.unmodifiableSet(res);
             }
         };
-        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT).setPunnings(punnings).build();
+        OntPersonality p2 = OntObjectPersonalityBuilder.from(OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS).setPunnings(punnings).build();
         OntEntity.TYPES.forEach(t -> Assertions.assertEquals(2, p2.getPunnings().get(t).size()));
 
         OntModel m2 = OntModelFactory.createModel(m1.getGraph(), p2);
@@ -184,7 +184,7 @@ public class PersonalityTest {
     @Test
     public void testClassDatatypePunn() {
         String ns = "http://ex.com#";
-        OntModel m = OntModelFactory.createModel(OntModelFactory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX)
+        OntModel m = OntModelFactory.createModel(OntModelFactory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS)
                 .setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass(ns + "class1");
         OntClass c2 = m.createOntClass(ns + "class2");
@@ -199,7 +199,7 @@ public class PersonalityTest {
         Assertions.assertEquals(3, m.ontObjects(OntClass.class).count());
         // add punn:
         m.createDatatype(ns + "class1");
-        OntModel m2 = OntModelFactory.createModel(m.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_STRICT);
+        OntModel m2 = OntModelFactory.createModel(m.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS);
 
         try {
             m2.createDatatype(ns + "class2");
@@ -214,7 +214,7 @@ public class PersonalityTest {
         Assertions.assertEquals(1, m2.ontObjects(OntDisjoint.Individuals.class).count());
         List<OntClass> ces = m2.ontObjects(OntClass.class).collect(Collectors.toList());
         Assertions.assertEquals(1, ces.size(), "Wrong ces list: " + ces);
-        OntModel m3 = OntModelFactory.createModel(m2.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_LAX);
+        OntModel m3 = OntModelFactory.createModel(m2.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS);
         Assertions.assertEquals(1, m3.datatypes().count());
         Assertions.assertEquals(2, m3.classes().count());
         Assertions.assertEquals(1, m3.ontObjects(OntDisjoint.Individuals.class).count());
@@ -224,7 +224,7 @@ public class PersonalityTest {
     @Test
     public void testPropertyPunn() {
         String ns = "http://ex.com#";
-        OntModel m = OntModelFactory.createModel(OntModelFactory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX)
+        OntModel m = OntModelFactory.createModel(OntModelFactory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS)
                 .setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass(ns + "class1");
         OntObjectProperty.Named p1 = m.createObjectProperty(ns + "prop1");
@@ -245,7 +245,7 @@ public class PersonalityTest {
         // add punns:
         m.createDataProperty(ns + "prop1");
         m.createAnnotationProperty(ns + "prop2");
-        OntModel m2 = OntModelFactory.createModel(m.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_STRICT);
+        OntModel m2 = OntModelFactory.createModel(m.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS);
 
         try {
             m2.createDataProperty(ns + "prop2");
@@ -261,7 +261,7 @@ public class PersonalityTest {
         List<OntClass> ces = m2.ontObjects(OntClass.class).collect(Collectors.toList());
         // no ObjectSomeValuesFrom, no ObjectCardinality
         Assertions.assertEquals(2, ces.size(), "Wrong ces list: " + ces);
-        OntModel m3 = OntModelFactory.createModel(m2.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_LAX);
+        OntModel m3 = OntModelFactory.createModel(m2.getBaseGraph(), OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS);
         Assertions.assertEquals(1, m3.dataProperties().count());
         Assertions.assertEquals(1, m3.annotationProperties().count());
         Assertions.assertEquals(2, m3.objectProperties().count());
@@ -274,7 +274,7 @@ public class PersonalityTest {
         OntPersonality personality = buildCustomPersonality();
 
         String ns = "http://ex.com#";
-        OntModel m = OntModelFactory.createModel(OntModelFactory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX)
+        OntModel m = OntModelFactory.createModel(OntModelFactory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS)
                 .setNsPrefixes(OntModelFactory.STANDARD); // STANDARD PERSONALITY
         OntClass c1 = m.createOntClass(ns + "class1");
         OntDataProperty p1 = m.createDataProperty(ns + "prop1");
@@ -307,7 +307,7 @@ public class PersonalityTest {
         Assertions.assertEquals(3, disjoint2.members().count());
 
         // BACK TO STANDARD PERSONALITY
-        OntModel m3 = OntModelFactory.createModel(m2.getGraph(), OntPersonalities.OWL2_PERSONALITY_MEDIUM);
+        OntModel m3 = OntModelFactory.createModel(m2.getGraph(), OntPersonalities.OWL2_PERSONALITY_MEDIUM_PUNNS);
         Assertions.assertEquals(2, m3.namedIndividuals().count());
         Assertions.assertEquals(6, m3.ontObjects(OntIndividual.class).count());
         OntDisjoint.Individuals disjoint3 = m3.ontObjects(OntDisjoint.Individuals.class).findFirst()

@@ -11,10 +11,10 @@ import com.github.sszuev.jena.ontapi.common.Vocabulary;
 import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDataPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntNamedDataRangeImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleClassImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleDataRangeImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -46,16 +46,16 @@ import java.util.function.Function;
  * @see OntEntity
  */
 enum OntEntities {
-    CLASS(OWL.Class, OntClass.Named.class, OntSimpleClassImpl.class, Vocabulary.Entities::getClasses) {
+    CLASS(OWL.Class, OntClass.Named.class, OntSimpleClassImpl.NamedImpl.class, Vocabulary.Entities::getClasses) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
-            return new OntSimpleClassImpl(OntObjectImpl.checkNamed(node), graph);
+            return new OntSimpleClassImpl.NamedImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    DATATYPE(RDFS.Datatype, OntDataRange.Named.class, OntSimpleDataRangeImpl.class, Vocabulary.Entities::getDatatypes) {
+    DATATYPE(RDFS.Datatype, OntDataRange.Named.class, OntNamedDataRangeImpl.class, Vocabulary.Entities::getDatatypes) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
-            return new OntSimpleDataRangeImpl(OntObjectImpl.checkNamed(node), graph);
+            return new OntNamedDataRangeImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
     ANNOTATION_PROPERTY(OWL.AnnotationProperty, OntAnnotationProperty.class, OntAnnotationPropertyImpl.class, Vocabulary.Entities::getAnnotationProperties) {

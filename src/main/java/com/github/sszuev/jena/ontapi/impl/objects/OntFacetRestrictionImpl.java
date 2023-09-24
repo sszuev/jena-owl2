@@ -38,7 +38,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         if (FractionDigits.class.equals(view)) return XSD.fractionDigits;
         if (Pattern.class.equals(view)) return XSD.pattern;
         if (LangRange.class.equals(view)) return RDF.langRange;
-        throw new OntJenaException.Unsupported("Unsupported facet restriction " + view);
+        throw new OntJenaException.IllegalArgument("Unsupported facet restriction " + view);
     }
 
     public static <T extends OntFacetRestriction> T create(OntGraphModelImpl model, Class<T> view, Literal literal) {

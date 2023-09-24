@@ -32,7 +32,7 @@ final class OntProperties {
             OWL.DatatypeProperty
     );
     public static final EnhNodeFinder NEGATIVE_PROPERTY_ASSERTION_FINDER = new EnhNodeFinder.ByType(OWL.NegativePropertyAssertion);
-    public static final EnhNodeFilter NEGATIVE_PROPERTY_ASSERTION_FILTER = EnhNodeFilter.BLANK
+    public static final EnhNodeFilter NEGATIVE_PROPERTY_ASSERTION_FILTER = EnhNodeFilter.ANON
             .and(new EnhNodeFilter.HasPredicate(OWL.sourceIndividual))
             .and(new EnhNodeFilter.HasPredicate(OWL.assertionProperty));
 

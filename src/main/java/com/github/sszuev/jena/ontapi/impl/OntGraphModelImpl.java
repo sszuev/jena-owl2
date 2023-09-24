@@ -550,9 +550,10 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public <T extends OntEntity> T createOntEntity(Class<T> type, String iri) {
         try {
             return createOntObject(type, iri);
-        } catch (OntJenaException.Creation e) { // illegal punning:
-            throw new OntJenaException.Creation(String.format("Can't add entity [%s: %s]: perhaps it's illegal punning.",
-                    type.getSimpleName(), iri), e);
+        } catch (OntJenaException.Creation e) {
+            // illegal punning ?
+            throw new OntJenaException.Creation(String.format("Unable to create entity [%s: <%s>].",
+                    type.getName().replace(type.getPackageName() + ".", ""), iri), e);
         }
     }
 
@@ -565,6 +566,11 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return {@link OntObject}, new instance
      */
     public <T extends OntObject> T createOntObject(Class<T> type, String uri) {
+        if (!getOntPersonality().supports(type)) {
+            throw new OntJenaException.Unsupported("Attempt to create resource <" + uri + ">. " +
+                    "The type " + type.getName().replace(type.getPackageName() + ".", "") +
+                    " is not supported by specification");
+        }
         return getOntPersonality().getObjectFactory(type).createInGraph(Graphs.createNode(uri), this).as(type);
     }
 

@@ -13,7 +13,7 @@ import org.apache.jena.graph.Node;
  * {@link OntObject Ontology Object}s.
  * Used to bind implementation (node) and interface.
  * Also, in addition to the standard jena methods,
- * this implementation includes nodes search and graph transformation functionality.
+ * this implementation includes nodes' search and graph transformation functionality.
  * <p>
  * Created by @ssz on 03.11.2016.
  */

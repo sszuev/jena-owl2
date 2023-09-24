@@ -32,7 +32,7 @@ final class OntDisjoints {
                                                Property... predicates) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, type);
         EnhNodeFinder finder = new EnhNodeFinder.ByType(type);
-        EnhNodeFilter filter = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(type));
+        EnhNodeFilter filter = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(type));
         return OntEnhNodeFactories.createCommon(maker, finder, filter
                 .and(getHasPredicatesFilter(predicates))
                 .and(getHasMembersOfFilter(view, allowEmptyList, predicates)));

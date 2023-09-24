@@ -35,7 +35,7 @@ final class OntSWRLs {
 
     public static EnhNodeFactory makeAtomFactory(Class<? extends OntSWRLImpl.AtomImpl<?>> view, Resource type) {
         return OntEnhNodeFactories.createCommon(new EnhNodeProducer.Default(view, null),
-                new EnhNodeFinder.ByType(type), EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(type)));
+                new EnhNodeFinder.ByType(type), EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(type)));
     }
 
     public static class SWRLImplFactory extends BaseEnhNodeFactoryImpl {

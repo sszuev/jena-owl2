@@ -10,14 +10,16 @@ import org.apache.jena.vocabulary.RDFS;
 import java.util.Optional;
 
 /**
- * Named entity with rdf:type = rdfs:Datatype
+ * Named entity with {@code rdf:type = rdfs:Datatype}.
+ * Supported by OWL2 only.
+ * In OWL1.1 and RDFS specifications {@code rdfs:Datatype} represents as {@link com.github.sszuev.jena.ontapi.model.OntClass} object.
  * <p>
  * Created @ssz on 03.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class OntSimpleDataRangeImpl extends OntObjectImpl implements OntDataRange.Named {
+public class OntNamedDataRangeImpl extends OntObjectImpl implements OntDataRange.Named {
 
-    public OntSimpleDataRangeImpl(Node n, EnhGraph g) {
+    public OntNamedDataRangeImpl(Node n, EnhGraph g) {
         super(checkNamed(n), g);
     }
 

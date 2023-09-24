@@ -43,8 +43,8 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
     }
 
     @Override
-    public Class<Named> getActualClass() {
-        return Named.class;
+    public Class<? extends OntClass> getActualClass() {
+        return OntClass.class;
     }
 
     @Override
@@ -128,5 +128,22 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
     public OntSimpleClassImpl removeDisjointUnion(Resource rdfList) throws OntJenaException.IllegalArgument {
         getModel().deleteOntList(this, OWL.disjointUnionOf, findDisjointUnion(rdfList).orElse(null));
         return this;
+    }
+
+    public static class NamedImpl extends OntSimpleClassImpl implements OntClass.Named {
+
+        public NamedImpl(Node n, EnhGraph eg) {
+            super(n, eg);
+        }
+
+        @Override
+        public OntClass.Named asNamed() {
+            return this;
+        }
+
+        @Override
+        public Class<Named> getActualClass() {
+            return Named.class;
+        }
     }
 }

@@ -126,7 +126,7 @@ public interface EnhNodeProducer {
 
         @Override
         public String targetName() {
-            return impl.getSimpleName();
+            return impl.getName().replace(impl.getPackageName() + ".", "");
         }
     }
 

@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -108,9 +107,15 @@ public class OntModelOWLSpecTest {
     }
 
     @SuppressWarnings("rawtypes")
-    @Test
-    public void testPizzaLoadCE() {
-        OntModel m = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph());
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testPizzaLoadCE(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.spec);
 
         List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
         int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
@@ -151,28 +156,42 @@ public class OntModelOWLSpecTest {
         testPizzaCEs(m, OWL.minCardinality, objectMinCardinalityCEs);
     }
 
-    @Test
-    public void testPizzaLoadProperties() {
-        simplePropertiesValidation(
-                OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph())
-        );
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testPizzaLoadProperties(TestSpec spec) {
+        simplePropertiesValidation(OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.spec));
     }
 
-    @Test
-    public void testFamilyLoadProperties() {
-        simplePropertiesValidation(
-                OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph())
-        );
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testFamilyLoadProperties(TestSpec spec) {
+        simplePropertiesValidation(OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(), spec.spec));
     }
 
-    @Test
-    public void testPizzaLoadIndividuals() {
-        OntModel m = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph());
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testPizzaLoadIndividuals(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.spec);
         List<OntIndividual> individuals = m.ontObjects(OntIndividual.class).collect(Collectors.toList());
         Map<OntIndividual, Set<OntClass>> classes = individuals.stream()
                 .collect(Collectors.toMap(Function.identity(), i -> i.classes().collect(Collectors.toSet())));
         classes.forEach((i, c) -> c.forEach(x -> Assertions.assertEquals(1, x.individuals()
-                .filter(_i -> Objects.equals(_i, i)).count())));
+                .filter(it -> Objects.equals(it, i)).count())));
 
         Set<Resource> namedIndividuals = m.listSubjectsWithProperty(RDF.type, OWL.NamedIndividual).toSet();
         Set<Resource> anonIndividuals = m.listStatements(null, RDF.type, (RDFNode) null)
@@ -185,8 +204,12 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(expected.size(), individuals.size());
     }
 
-    @Test
-    public void testKoalaCommon() throws IOException {
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testKoalaCommon(TestSpec spec) throws IOException {
         // koala has 4 cardinality restrictions with wrong 'xsd:int' instead of 'xsd:nonNegativeInteger'
         // see issue #56
         // OntClass => 20,
@@ -198,7 +221,7 @@ public class OntModelOWLSpecTest {
         // OntCE$DataHasValue => 3
         long numClasses = 36;
 
-        OntModel m = OntModelFactory.createModel();
+        OntModel m = OntModelFactory.createModel(spec.spec);
         try (InputStream in = OntModelOWLSpecTest.class.getResourceAsStream("/koala.owl")) {
             m.read(in, null, Lang.RDFXML.getName());
         }
@@ -263,9 +286,13 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(statementsCount, m.statements().count());
     }
 
-    @Test
-    public void testKoalaProperties() throws IOException {
-        OntModel m = OntModelFactory.createModel();
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testKoalaProperties(TestSpec spec) throws IOException {
+        OntModel m = OntModelFactory.createModel(spec.spec);
         try (InputStream in = OntModelOWLSpecTest.class.getResourceAsStream("/koala.owl")) {
             m.read(in, null, Lang.RDFXML.getName());
         }
@@ -280,11 +307,16 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(1, m.ontObjects(OntObjectProperty.Inverse.class).count());
     }
 
-    @Test
-    public void testCreateImports() {
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testCreateImports(TestSpec spec) {
         String baseURI = "http://test.com/graph/5";
         String baseNS = baseURI + "#";
-        OntModel base = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel base = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID(baseURI).getModel();
         OntClass.Named cl1 = base.createOntClass(baseNS + "Class1");
         OntClass.Named cl2 = base.createOntClass(baseNS + "Class2");
@@ -306,9 +338,13 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(2, child.ontEntities().filter(OntEntity::isLocal).count());
     }
 
-    @Test
-    public void testAssemblySimplestOntology() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testAssemblySimplestOntology(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
         m.setID("http://example.com/xxx");
 
         String schemaNS = m.getID().getURI() + "#";
@@ -352,19 +388,56 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(42, m.statements().count());
     }
 
-    @Test
-    public void testCreateEntities() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
-        createEntityTest(m, "a-p", OntAnnotationProperty.class);
-        createEntityTest(m, "o-p", OntObjectProperty.Named.class);
-        createEntityTest(m, "d-p", OntDataProperty.class);
-        createEntityTest(m, "c", OntClass.Named.class);
-        createEntityTest(m, "d", OntDataRange.Named.class);
-        createEntityTest(m, "I", OntIndividual.Named.class);
-
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testCreateSimpleEntities(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        createSimpleEntityTest(m, "a-p", OntAnnotationProperty.class);
+        createSimpleEntityTest(m, "o-p", OntObjectProperty.Named.class);
+        createSimpleEntityTest(m, "d-p", OntDataProperty.class);
+        createSimpleEntityTest(m, "c", OntClass.Named.class);
+        if (spec != TestSpec.OWL1_MEM) {
+            createSimpleEntityTest(m, "d", OntDataRange.Named.class);
+        } else  {
+            // no such type in OWL1
+            Assertions.assertThrows(OntJenaException.Unsupported.class,
+                    () -> createSimpleEntityTest(m, "d", OntDataRange.Named.class));
+        }
+        if (spec != TestSpec.OWL1_MEM) {
+            createSimpleEntityTest(m, "I", OntIndividual.Named.class);
+        } else {
+            // can't create naked individual in OWL1 (there is no default class-type)
+            Assertions.assertThrows(OntJenaException.Creation.class,
+                    () -> createSimpleEntityTest(m, "I", OntIndividual.Named.class));
+        }
     }
 
-    private <E extends OntEntity> void createEntityTest(OntModel m, String uri, Class<E> type) {
+    private <E extends OntEntity> void createSimpleEntityTest(OntModel m, String uri, Class<E> type) {
+        E e = m.createOntEntity(type, uri);
+        Assertions.assertEquals(1, e.statements().count());
+        Assertions.assertSame(e, e.as(type));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testCreateAnnotatedEntities(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        createAnnotatedEntityTest(m, "a-p", OntAnnotationProperty.class);
+        createAnnotatedEntityTest(m, "o-p", OntObjectProperty.Named.class);
+        createAnnotatedEntityTest(m, "d-p", OntDataProperty.class);
+        createAnnotatedEntityTest(m, "c", OntClass.Named.class);
+        createAnnotatedEntityTest(m, "d", OntDataRange.Named.class);
+        createAnnotatedEntityTest(m, "I", OntIndividual.Named.class);
+    }
+
+    private <E extends OntEntity> void createAnnotatedEntityTest(OntModel m, String uri, Class<E> type) {
         String pref = "Annotation[" + uri + "]:::";
         E e = m.createOntEntity(type, uri);
         e.addAnnotation(m.getRDFSComment(), pref + "entity of type " + type.getSimpleName())
@@ -375,9 +448,13 @@ public class OntModelOWLSpecTest {
         Assertions.assertSame(e, e.as(type));
     }
 
-    @Test
-    public void testObjectsContent() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testObjectsContent(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
         // properties:
         OntDataProperty p1 = m.createDataProperty("p1");
         OntObjectProperty.Named p2 = m.createObjectProperty("p2");
@@ -446,9 +523,13 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(4, npa1.content().map(ModelUtils::toString).count());
     }
 
-    @Test
-    public void testRemoveObjects() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testRemoveObjects(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
 
         OntClass class1 = m.createOntClass("C-1");
         OntClass class2 = m.createOntClass("C-2");
@@ -461,20 +542,23 @@ public class OntModelOWLSpecTest {
         long size = m.size();
         OntDisjoint<?> d = m.createDisjointClasses(m.getOWLNothing(), class1, class6);
 
-
         m.removeOntObject(d);
 
         Assertions.assertEquals(size, m.statements().count());
 
         m.removeOntObject(class6).removeOntObject(class5).removeOntObject(class4).removeOntObject(p);
 
-
         Assertions.assertEquals(3, m.size());
     }
 
-    @Test
-    public void testModelPrefixes() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testModelPrefixes(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
         m.setID("http://x");
         Assertions.assertEquals(4, m.numPrefixes());
         Assertions.assertEquals(4, m.getBaseGraph().getPrefixMapping().numPrefixes());
@@ -494,15 +578,20 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(6, txt.split("\n").length);
     }
 
-    @Test
-    public void testAdvancedModelImports() {
-        OntModel av1 = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD)
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testAdvancedModelImports(TestSpec spec) {
+        OntModel av1 = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("a").setVersionIRI("v1").getModel();
-        OntModel av2 = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel av2 = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("a").setVersionIRI("v2").getModel();
-        OntModel b = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel b = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("b").getModel();
-        OntModel c = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel c = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("c").getModel();
 
         try {
@@ -555,11 +644,16 @@ public class OntModelOWLSpecTest {
                 .collect(Collectors.toList()));
     }
 
-    @Test
-    public void testCycleModelImports() {
-        OntModel a = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
-        OntModel b = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
-        OntModel c = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testCycleModelImports(TestSpec spec) {
+        OntModel a = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel b = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel c = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
         a.createOntClass("A");
         b.createOntClass("B");
         c.createOntClass("C");
@@ -609,10 +703,15 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(4, c.ontEntities().count());
     }
 
-    @Test
-    public void testOntPropertyOrdinal() {
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testOntPropertyOrdinal(TestSpec spec) {
         Graph g = RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph();
-        OntModel m = OntModelFactory.createModel(g);
+        OntModel m = OntModelFactory.createModel(g, spec.spec);
         OntNamedProperty<?> p = m.getOntEntity(OntNamedProperty.class, m.expandPrefix(":isIngredientOf"));
         Assertions.assertNotNull(p);
         Assertions.assertEquals(0, p.getOrdinal());
@@ -620,10 +719,15 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(0, m.getOWLBottomDataProperty().getOrdinal());
     }
 
-    @Test
-    public void testFamilyListObjects() {
-        OntModel m = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
-                OntPersonalities.OWL2_PERSONALITY_LAX);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testFamilyListObjects(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
+                spec.spec);
         assertOntObjectsCount(m, OntEntity.class, 656);
         assertOntObjectsCount(m, OntNamedProperty.class, 90);
 
@@ -649,9 +753,12 @@ public class OntModelOWLSpecTest {
         // todo: handle all other types
     }
 
-    @Test
-    public void testListIndividualTypes() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+    })
+    public void testListIndividualTypes(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass.Named a = m.createOntClass("A");
         OntClass.Named b = m.createOntClass("B");
         OntClass.Named c = m.createOntClass("C");
@@ -668,7 +775,6 @@ public class OntModelOWLSpecTest {
         OntIndividual i2 = d.createIndividual();
         i2.attachClass(b);
         i1.attachClass(d);
-
 
         Assertions.assertEquals(2, i2.classes(true).count());
         Assertions.assertEquals(5, i2.classes(false).count());
@@ -695,9 +801,13 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(2, m.size());
     }
 
-    @Test
-    public void testDisjointComponents() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testDisjointComponents(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass.Named c1 = m.createOntClass("C1");
         OntClass.Named c2 = m.createOntClass("C1");
         OntObjectProperty.Named op1 = m.createObjectProperty("OP1");
@@ -735,12 +845,16 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(expected, actual);
     }
 
-    @Test
-    public void testCreateDifferentExpressions() {
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testCreateDifferentExpressions(TestSpec spec) {
         String uri = "http://test.com/graph/3";
         String ns = uri + "#";
 
-        OntModel m = OntModelFactory.createModel()
+        OntModel m = OntModelFactory.createModel(spec.spec)
                 .setNsPrefix("test", ns)
                 .setNsPrefixes(OntModelFactory.STANDARD)
                 .setID(uri)

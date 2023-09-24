@@ -251,11 +251,15 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      * @param o {@link OntObject}, not {@code null}
      * @return Class of the given {@link OntObject}
      */
-    @SuppressWarnings("unchecked")
     public static Class<? extends OntObject> findActualClass(OntObject o) {
-        return Arrays.stream(o.getClass().getInterfaces())
+        return findActualClass(o.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Class<? extends OntObject> findActualClass(Class<? extends OntObject> type) {
+        return Arrays.stream(type.getInterfaces())
                 .filter(OntObject.class::isAssignableFrom)
-                .map(c -> (Class<? extends OntObject>) c)
+                .map(klass -> (Class<? extends OntObject>) klass)
                 .findFirst()
                 .orElse(null);
     }

@@ -25,14 +25,14 @@ import java.util.stream.Stream;
 
 final class OntDataRanges {
     public static final EnhNodeFinder DR_FINDER = new EnhNodeFinder.ByType(RDFS.Datatype);
-    public static final EnhNodeFilter DR_FILTER = EnhNodeFilter.BLANK.and(new EnhNodeFilter.HasType(RDFS.Datatype));
+    public static final EnhNodeFilter DR_FILTER = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(RDFS.Datatype));
 
     public static EnhNodeFinder makeFacetRestrictionFinder(Property predicate) {
         return new EnhNodeFinder.ByPredicate(predicate);
     }
 
     public static EnhNodeFilter makeFacetRestrictionFilter(Property predicate) {
-        return EnhNodeFilter.BLANK.and(
+        return EnhNodeFilter.ANON.and(
                 (n, g) -> Iterators.anyMatch(g.asGraph().find(n, predicate.asNode(), Node.ANY)
                         .mapWith(Triple::getObject), Node::isLiteral)
         );

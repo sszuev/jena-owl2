@@ -322,7 +322,7 @@ public class OntListTest {
 
     @Test
     public void testTypedList() {
-        OntGraphModelImpl m = new OntGraphModelImpl(Factory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX, OntModelConfig.DEFAULT);
+        OntGraphModelImpl m = new OntGraphModelImpl(Factory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS, OntModelConfig.DEFAULT);
         m.setNsPrefixes(OntModelFactory.STANDARD);
         Resource a = m.createResource("A");
         Resource b = m.createResource("B");

@@ -262,7 +262,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      */
     @Override
     default Named asNamed() {
-        return as(Named.class);
+        return as(OntClass.Named.class);
     }
 
     /**
@@ -824,14 +824,6 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          * @see #createDisjointUnion(Collection)
          */
         Named removeDisjointUnion(Resource list);
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        default Named asNamed() {
-            return this;
-        }
 
         /**
          * Finds a {@code DisjointUnion} logical construction

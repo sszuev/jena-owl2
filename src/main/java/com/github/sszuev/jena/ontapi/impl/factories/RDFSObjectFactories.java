@@ -36,14 +36,14 @@ public final class RDFSObjectFactories {
     public static final EnhNodeFactory ANY_OBJECT = OntEnhNodeFactories.createCommon(
             OntObjectImpl.class,
             EnhNodeFinder.ANY_SUBJECT,
-            EnhNodeFilter.URI.or(EnhNodeFilter.BLANK)
+            EnhNodeFilter.URI.or(EnhNodeFilter.ANON)
     );
 
     public static EnhNodeFactory NAMED_CLASS = createFactory(
-            OntSimpleClassImpl.class,
+            OntSimpleClassImpl.NamedImpl.class,
             OntClass.Named.class,
             RDFS.Class,
-            OntSimpleClassImpl::new,
+            OntSimpleClassImpl.NamedImpl::new,
             RDFSObjectFactories::isNamedClass
     );
 

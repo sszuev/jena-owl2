@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.common;
 
 import com.github.sszuev.jena.ontapi.OntVocabulary;
+import com.github.sszuev.jena.ontapi.impl.factories.OWL1ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL2ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.RDFSObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.SWRLObjectFactories;
@@ -74,7 +75,7 @@ public class OntPersonalities {
      *
      * @see org.apache.jena.enhanced.BuiltinPersonalities#model
      */
-    private static final Personality<RDFNode> RDF_PERSONALITY = new Personality<RDFNode>()
+    public static final Personality<RDFNode> STANDARD_PERSONALITY = new Personality<RDFNode>()
             .add(Resource.class, ResourceImpl.factory)
             .add(Property.class, PropertyImpl.factory)
             .add(Literal.class, LiteralImpl.factory)
@@ -85,13 +86,15 @@ public class OntPersonalities {
             .add(ReifiedStatement.class, ReifiedStatementImpl.reifiedStatementFactory)
             .add(RDFList.class, RDFListImpl.factory)
             .add(RDFNode.class, ResourceImpl.rdfNodeFactory);
+
+
     /**
      * For RDFS Ontologies, limited functionality.
      *
      * @see <a href='https://www.w3.org/TR/rdf12-schema/'>RDF 1.2 Schema</a>
      */
     public static final OntPersonality RDFS_PERSONALITY = new OntObjectPersonalityBuilder()
-            .addPersonality(RDF_PERSONALITY)
+            .addPersonality(STANDARD_PERSONALITY)
             .add(OntObject.class, RDFSObjectFactories.ANY_OBJECT)
             .add(OntEntity.class, RDFSObjectFactories.ANY_ENTITY)
             .add(OntIndividual.Named.class, RDFSObjectFactories.NAMED_INDIVIDUAL)
@@ -104,11 +107,104 @@ public class OntPersonalities {
             .setReserved(RDFS_RESERVED)
             .setPunnings(PunningsMode.LAX.getVocabulary())
             .build();
+
     /**
-     * Default personality builder. Private access since this constant is mutable.
+     * For OWL1.1 Ontologies, limited functionality.
+     * TODO
+     */
+    private static final OntObjectPersonalityBuilder OWL1_ONT_OBJECT_PERSONALITY_BUILDER = new OntObjectPersonalityBuilder()
+            .addPersonality(STANDARD_PERSONALITY)
+            // the base ontology object:
+            .add(OntObject.class, OWL1ObjectFactories.ANY_OBJECT)
+
+            // ont-id:
+            .add(OntID.class, OWL1ObjectFactories.ID)
+
+            // entities:
+            .add(OntClass.Named.class, OWL1ObjectFactories.NAMED_CLASS)
+            .add(OntIndividual.Named.class, OWL1ObjectFactories.NAMED_INDIVIDUAL)
+            .add(OntObjectProperty.Named.class, OWL1ObjectFactories.NAMED_OBJECT_PROPERTY)
+            .add(OntDataProperty.class, OWL1ObjectFactories.DATATYPE_PROPERTY)
+            .add(OntAnnotationProperty.class, OWL1ObjectFactories.ANNOTATION_PROPERTY)
+            .add(OntEntity.class, OWL1ObjectFactories.ANY_ENTITY)
+
+            // individuals:
+            .add(OntIndividual.Anonymous.class, OWL1ObjectFactories.ANONYMOUS_INDIVIDUAL)
+            .add(OntIndividual.class, OWL1ObjectFactories.ANY_INDIVIDUAL)
+
+            // properties:
+            .add(OntObjectProperty.class, OWL1ObjectFactories.OBJECT_PROPERTY)
+            .add(OntRealProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntNamedProperty.class, OWL1ObjectFactories.ANY_NAMED_PROPERTY)
+            .add(OntProperty.class, OWL1ObjectFactories.ANY_PROPERTY)
+
+            // class expressions:
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL1ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL1ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectAllValuesFrom.class, OWL1ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.DataAllValuesFrom.class, OWL1ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectHasValue.class, OWL1ObjectFactories.OBJECT_HAS_VALUE_CLASS)
+            .add(OntClass.DataHasValue.class, OWL1ObjectFactories.DATA_HAS_VALUE_CLASS)
+            .add(OntClass.ObjectMinCardinality.class, OWL1ObjectFactories.OBJECT_MIN_CARDINALITY_CLASS)
+            .add(OntClass.DataMinCardinality.class, OWL1ObjectFactories.DATA_MIN_CARDINALITY_CLASS)
+            .add(OntClass.ObjectMaxCardinality.class, OWL1ObjectFactories.OBJECT_MAX_CARDINALITY_CLASS)
+            .add(OntClass.DataMaxCardinality.class, OWL1ObjectFactories.DATA_MAX_CARDINALITY_CLASS)
+            .add(OntClass.ObjectCardinality.class, OWL1ObjectFactories.OBJECT_CARDINALITY_CLASS)
+            .add(OntClass.DataCardinality.class, OWL1ObjectFactories.DATA_CARDINALITY_CLASS)
+            .add(OntClass.UnionOf.class, OWL1ObjectFactories.UNION_OF_CLASS)
+            .add(OntClass.OneOf.class, OWL1ObjectFactories.ONE_OF_CLASS)
+            .add(OntClass.IntersectionOf.class, OWL1ObjectFactories.INTERSECTION_OF_CLASS)
+            .add(OntClass.ComplementOf.class, OWL1ObjectFactories.COMPLEMENT_OF_CLASS)
+            .add(OntClass.Combination.class, OWL1ObjectFactories.ANY_COMPONENTS_CLASS)
+            .add(OntClass.CardinalityRestriction.class, OWL1ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
+            .add(OntClass.ComponentRestriction.class, OWL1ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
+            .add(OntClass.UnaryRestriction.class, OWL1ObjectFactories.ANY_PROPERTY_RESTRICTION_CLASS)
+            .add(OntClass.Restriction.class, OWL1ObjectFactories.ANY_RESTRICTION_CLASS)
+            .add(OntClass.class, OWL1ObjectFactories.ANY_CLASS)
+
+            // TODO:
+            // data ranges:
+/*            .add(OntDataRange.OneOf.class, OWL2ObjectFactories.ONE_OF_DATARANGE)
+            .add(OntDataRange.Restriction.class, OWL2ObjectFactories.RESTRICTION_DATARANGE)
+            .add(OntDataRange.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_DATARANGE)
+            .add(OntDataRange.UnionOf.class, OWL2ObjectFactories.UNION_OF_DATARANGE)
+            .add(OntDataRange.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_DATARANGE)
+            .add(OntDataRange.Combination.class, OWL2ObjectFactories.ANY_COMPONENTS_DATARANGE)
+            .add(OntDataRange.class, OWL2ObjectFactories.ANY_DATARANGE)
+
+            // facet restrictions:
+            .add(OntFacetRestriction.Length.class, OWL2ObjectFactories.LENGTH_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MinLength.class, OWL2ObjectFactories.MIN_LENGTH_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MaxLength.class, OWL2ObjectFactories.MAX_LENGTH_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MinInclusive.class, OWL2ObjectFactories.MIN_INCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MaxInclusive.class, OWL2ObjectFactories.MAX_INCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MinExclusive.class, OWL2ObjectFactories.MIN_EXCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.MaxExclusive.class, OWL2ObjectFactories.MAX_EXCLUSIVE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.Pattern.class, OWL2ObjectFactories.PATTERN_FACET_RESTRICTION)
+            .add(OntFacetRestriction.TotalDigits.class, OWL2ObjectFactories.TOTAL_DIGITS_FACET_RESTRICTION)
+            .add(OntFacetRestriction.FractionDigits.class, OWL2ObjectFactories.FRACTION_DIGITS_FACET_RESTRICTION)
+            .add(OntFacetRestriction.LangRange.class, OWL2ObjectFactories.LANG_RANGE_FACET_RESTRICTION)
+            .add(OntFacetRestriction.class, OWL2ObjectFactories.ANY_FACET_RESTRICTION)
+
+            // negative property assertions:
+            .add(OntNegativeAssertion.WithObjectProperty.class, OWL2ObjectFactories.OBJECT_NEGATIVE_PROPERTY_ASSERTION)
+            .add(OntNegativeAssertion.WithDataProperty.class, OWL2ObjectFactories.DATA_NEGATIVE_PROPERTY_ASSERTION)
+            .add(OntNegativeAssertion.class, OWL2ObjectFactories.ANY_NEGATIVE_PROPERTY_ASSERTION)
+
+            // disjoint anonymous collections:
+            .add(OntDisjoint.Classes.class, OWL2ObjectFactories.CLASSES_DISJOINT)
+            .add(OntDisjoint.Individuals.class, OWL2ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
+            .add(OntDisjoint.ObjectProperties.class, OWL2ObjectFactories.OBJECT_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.DataProperties.class, OWL2ObjectFactories.DATA_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.Properties.class, OWL2ObjectFactories.ANY_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT)*/
+            ;
+
+    /**
+     * Default personality builder for OWL2. Private access since this constant is mutable.
      */
     private static final OntObjectPersonalityBuilder OWL2_ONT_OBJECT_PERSONALITY_BUILDER = new OntObjectPersonalityBuilder()
-            .addPersonality(RDF_PERSONALITY)
+            .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OWL2ObjectFactories.ANY_OBJECT)
 
@@ -219,8 +315,36 @@ public class OntPersonalities {
             .add(OntSWRL.Atom.class, SWRLObjectFactories.ANY_ATOM_SWRL)
             .add(OntSWRL.Imp.class, SWRLObjectFactories.IMPL_SWRL)
             .add(OntSWRL.class, SWRLObjectFactories.ANY_OBJECT_SWRL);
+
     /**
-     * The week variant of previous constant: there are two forbidden intersections:
+     * OWL1.1 (Jena-variant) Personality.
+     * This instance does not care about the owl-entities "punnings" (no restriction on the type declarations).
+     *
+     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
+     * @see PunningsMode#LAX
+     */
+    public static final OntPersonality OWL1_PERSONALITY_LAX_PUNNS = OWL1_ONT_OBJECT_PERSONALITY_BUILDER.copy()
+            .setBuiltins(OWL_BUILTINS)
+            .setReserved(OWL_RESERVED)
+            .setPunnings(PunningsMode.LAX.getVocabulary())
+            .build();
+
+    /**
+     * OWL2 Personality.
+     * This instance does not about the owl-entities "punnings" (no restriction on the type declarations).
+     *
+     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
+     * @see PunningsMode#LAX
+     */
+    public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy()
+            .setBuiltins(OWL_BUILTINS)
+            .setReserved(OWL_RESERVED)
+            .setPunnings(PunningsMode.LAX.getVocabulary())
+            .build();
+
+    /**
+     * OWL2 Personality.
+     * The stronger variant of previous constant: there are two forbidden intersections:
      * <ul>
      * <li>{@link OntDataRange.Named}  &lt;-&gt; {@link OntClass.Named}</li>
      * <li>{@link OntObjectProperty.Named} &lt;-&gt; {@link OntDataProperty}</li>
@@ -229,23 +353,14 @@ public class OntPersonalities {
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
      * @see PunningsMode#MEDIUM
      */
-    public static final OntPersonality OWL2_PERSONALITY_MEDIUM = getPersonalityBuilder()
+    public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy()
             .setBuiltins(OWL_BUILTINS)
             .setReserved(OWL_RESERVED)
             .setPunnings(PunningsMode.MEDIUM.getVocabulary())
             .build();
+
     /**
-     * Personalities which don't care about the owl-entities "punnings" (no restriction on the type declarations).
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see PunningsMode#LAX
-     */
-    public static final OntPersonality OWL2_PERSONALITY_LAX = getPersonalityBuilder()
-            .setBuiltins(OWL_BUILTINS)
-            .setReserved(OWL_RESERVED)
-            .setPunnings(PunningsMode.LAX.getVocabulary())
-            .build();
-    /**
+     * OWL2 Personality.
      * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
      * <ul>
      * <li>{@link OntDataRange.Named}  &lt;-&gt; {@link OntClass.Named}</li>
@@ -261,22 +376,11 @@ public class OntPersonalities {
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
      * @see PunningsMode#STRICT
      */
-    public static final OntPersonality OWL2_PERSONALITY_STRICT = getPersonalityBuilder()
+    public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy()
             .setBuiltins(OWL_BUILTINS)
             .setReserved(OWL_RESERVED)
             .setPunnings(PunningsMode.STRICT.getVocabulary())
             .build();
-
-    /**
-     * Returns a fresh copy of {@link OntObjectPersonalityBuilder} with {@code 93} resource factories inside
-     * ({@code 10} standard + {@code 87} ontological).
-     * The returned instance contains everything needed, and can be modified to build a new {@link OntPersonality}.
-     *
-     * @return {@link OntObjectPersonalityBuilder}
-     */
-    public static OntObjectPersonalityBuilder getPersonalityBuilder() {
-        return OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy();
-    }
 
     /**
      * Creates a {@link OntPersonality.Builtins builtins personality vocabulary}

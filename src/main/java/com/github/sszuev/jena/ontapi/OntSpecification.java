@@ -14,20 +14,32 @@ import java.util.Objects;
  */
 public class OntSpecification {
     /**
-     * A specification for OWL models that are stored in memory and use fast but incomplete builtin OWL inference engine for additional entailments.
+     * A specification for Ontology models that are stored in memory
+     * and use fast but incomplete builtin OWL inference engine for additional entailments.
+     * Full support for the OWL v2 specification.
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */
     public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF =
-            new OntSpecification(OntPersonalities.OWL2_PERSONALITY_STRICT, null, OntModelConfig.DEFAULT.useBuiltinHierarchySupport(true));
+            new OntSpecification(OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS, null, OntModelConfig.DEFAULT.useBuiltinHierarchySupport(true));
 
     /**
-     * A specification for OWL models that are stored in memory and do no additional entailment reasoning.
+     * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
+     * Full support for the OWL v2 specification.
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL2_MEM =
-            new OntSpecification(OntPersonalities.OWL2_PERSONALITY_LAX, null, OntModelConfig.DEFAULT);
+            new OntSpecification(OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS, null, OntModelConfig.DEFAULT);
+
+    /**
+     * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
+     * Supports original Jena interpretation of OWL v1.1 specification.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
+     */
+    public static final OntSpecification OWL1_MEM =
+            new OntSpecification(OntPersonalities.OWL1_PERSONALITY_LAX_PUNNS, null, OntModelConfig.DEFAULT);
 
     /**
      * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.

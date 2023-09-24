@@ -53,7 +53,7 @@ public interface EnhNodeFilter {
             return "URI";
         }
     };
-    EnhNodeFilter BLANK = new EnhNodeFilter() {
+    EnhNodeFilter ANON = new EnhNodeFilter() {
         @Override
         public boolean test(Node n, EnhGraph g) {
             return n.isBlank();

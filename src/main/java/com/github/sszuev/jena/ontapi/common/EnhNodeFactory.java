@@ -51,7 +51,7 @@ public interface EnhNodeFactory {
     /**
      * Returns an {@link ExtendedIterator Extended Iterator} over the {@link Node node}s found in the {@link EnhGraph}
      * in the form of {@link EnhNode} with the interface that this factory encapsulates.
-     * It is assumed, that the returned iterator is distinct (does not answer with duplicates).
+     * It is assumed that the returned iterator is distinct (does not answer with duplicates).
      * At least, it must be distinct if the {@code EnhGraph} encapsulates the distinct graph
      * (see also {@link Graphs#isDistinct(Graph)}).
      *
