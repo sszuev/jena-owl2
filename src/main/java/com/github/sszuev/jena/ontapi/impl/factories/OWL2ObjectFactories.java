@@ -377,6 +377,7 @@ public final class OWL2ObjectFactories {
 
     public static final EnhNodeFactory CLASSES_DISJOINT = OntDisjoints.createFactory(
             OntDisjointImpl.ClassesImpl.class,
+            OntDisjointImpl.ClassesImpl::new,
             OWL.AllDisjointClasses,
             OntClass.class,
             true,
@@ -384,6 +385,7 @@ public final class OWL2ObjectFactories {
     );
     public static final EnhNodeFactory DIFFERENT_INDIVIDUALS_DISJOINT = OntDisjoints.createFactory(
             OntDisjointImpl.IndividualsImpl.class,
+            (n, g) -> new OntDisjointImpl.IndividualsImpl(n, g, true),
             OWL.AllDifferent,
             OntIndividual.class,
             true,
@@ -392,6 +394,7 @@ public final class OWL2ObjectFactories {
     );
     public static final EnhNodeFactory OBJECT_PROPERTIES_DISJOINT = OntDisjoints.createFactory(
             OntDisjointImpl.ObjectPropertiesImpl.class,
+            OntDisjointImpl.ObjectPropertiesImpl::new,
             OWL.AllDisjointProperties,
             OntObjectProperty.class,
             false,
@@ -399,6 +402,7 @@ public final class OWL2ObjectFactories {
     );
     public static final EnhNodeFactory DATA_PROPERTIES_DISJOINT = OntDisjoints.createFactory(
             OntDisjointImpl.DataPropertiesImpl.class,
+            OntDisjointImpl.DataPropertiesImpl::new,
             OWL.AllDisjointProperties,
             OntDataProperty.class,
             false,

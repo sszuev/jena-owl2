@@ -10,6 +10,7 @@ import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.enhanced.EnhNode;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -20,17 +21,21 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
+import java.util.function.BiFunction;
+
 final class OntDisjoints {
     public static final EnhNodeFinder PROPERTIES_FINDER = new EnhNodeFinder.ByType(OWL.AllDisjointProperties);
     public static final EnhNodeFinder DISJOINT_FINDER = OntEnhNodeFactories.createFinder(OWL.AllDisjointClasses,
             OWL.AllDifferent, OWL.AllDisjointProperties);
 
-    public static EnhNodeFactory createFactory(Class<? extends OntDisjointImpl<?>> impl,
-                                               Resource type,
-                                               Class<? extends RDFNode> view,
-                                               boolean allowEmptyList,
-                                               Property... predicates) {
-        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, type);
+    public static EnhNodeFactory createFactory(
+            Class<? extends OntDisjointImpl<?>> impl,
+            BiFunction<Node, EnhGraph, EnhNode> producer,
+            Resource type,
+            Class<? extends RDFNode> view,
+            boolean allowEmptyList,
+            Property... predicates) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, type, producer);
         EnhNodeFinder finder = new EnhNodeFinder.ByType(type);
         EnhNodeFilter filter = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(type));
         return OntEnhNodeFactories.createCommon(maker, finder, filter
@@ -39,9 +44,12 @@ final class OntDisjoints {
     }
 
     private static EnhNodeFilter getHasPredicatesFilter(Property... predicates) {
-        EnhNodeFilter res = EnhNodeFilter.FALSE;
-        for (Property p : predicates) {
-            res = res.or(new EnhNodeFilter.HasPredicate(p));
+        if (predicates.length == 0) {
+            throw new IllegalArgumentException();
+        }
+        EnhNodeFilter res = new EnhNodeFilter.HasPredicate(predicates[0]);
+        for (int i = 1; i < predicates.length; i++) {
+            res = res.or(new EnhNodeFilter.HasPredicate(predicates[i]));
         }
         return res;
     }

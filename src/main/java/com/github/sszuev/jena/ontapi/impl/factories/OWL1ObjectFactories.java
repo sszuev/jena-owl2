@@ -6,6 +6,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -197,4 +198,15 @@ public class OWL1ObjectFactories {
     );
     public static final EnhNodeFactory ANY_COMPONENTS_DATARANGE = ONE_OF_DATARANGE;
     public static final EnhNodeFactory ANY_DATARANGE = ONE_OF_DATARANGE;
+
+    public static final EnhNodeFactory DIFFERENT_INDIVIDUALS_DISJOINT = OntDisjoints.createFactory(
+            OntDisjointImpl.IndividualsImpl.class,
+            (n, g) -> new OntDisjointImpl.IndividualsImpl(n, g, true),
+            OWL.AllDifferent,
+            OntIndividual.class,
+            true,
+            OWL.distinctMembers
+    );
+    public static final EnhNodeFactory ANY_DISJOINT = DIFFERENT_INDIVIDUALS_DISJOINT;
+
 }

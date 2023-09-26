@@ -37,7 +37,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
     }
 
     public static Classes createDisjointClasses(OntGraphModelImpl model, Stream<OntClass> classes) {
-        return create(model, OWL.AllDisjointClasses, Classes.class, OntClass.class, classes);
+        return create(model, OWL.AllDisjointClasses, Classes.class, OntClass.class, classes, OWL.members);
     }
 
     /**
@@ -53,29 +53,32 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
      * @see <a href='https://www.w3.org/TR/owl2-quick-reference/#Additional_Vocabulary_in_OWL_2_RDF_Syntax'>4.2 Additional Vocabulary in OWL 2 RDF Syntax</a>
      */
     public static Individuals createDifferentIndividuals(OntGraphModelImpl model, Stream<OntIndividual> individuals) {
-        return create(model, OWL.AllDifferent, Individuals.class, OntIndividual.class, individuals);
+        Property membersPredicate = model.getConfig().useOWLv1Vocabulary() ? OWL.distinctMembers : OWL.members;
+        return create(model, OWL.AllDifferent, Individuals.class, OntIndividual.class, individuals, membersPredicate);
     }
 
     public static ObjectProperties createDisjointObjectProperties(OntGraphModelImpl model, Stream<OntObjectProperty> properties) {
-        return create(model, OWL.AllDisjointProperties, ObjectProperties.class, OntObjectProperty.class, properties);
+        return create(model, OWL.AllDisjointProperties, ObjectProperties.class, OntObjectProperty.class, properties, OWL.members);
     }
 
     public static DataProperties createDisjointDataProperties(OntGraphModelImpl model, Stream<OntDataProperty> properties) {
-        return create(model, OWL.AllDisjointProperties, DataProperties.class, OntDataProperty.class, properties);
+        return create(model, OWL.AllDisjointProperties, DataProperties.class, OntDataProperty.class, properties, OWL.members);
     }
 
     public static <R extends OntDisjoint<?>, E extends OntObject> R create(OntGraphModelImpl model,
                                                                            Resource type,
                                                                            Class<R> resultType,
                                                                            Class<E> memberType,
-                                                                           Stream<E> members) {
+                                                                           Stream<E> members,
+                                                                           Property membersPredicate) {
         OntJenaException.notNull(members, "Null " + OntEnhNodeFactories.viewAsString(memberType) + " members stream.");
+        RDFList items = model.createList(members
+                .peek(x -> OntJenaException.notNull(x,
+                        "OntDisjoint: Null " + OntEnhNodeFactories.viewAsString(memberType) + " is specified"))
+                .iterator());
         Resource res = model.createResource()
                 .addProperty(RDF.type, type)
-                .addProperty(OWL.members, model.createList(members
-                        .peek(x -> OntJenaException.notNull(x,
-                                "OntDisjoint: Null " + OntEnhNodeFactories.viewAsString(memberType) + " is specified"))
-                        .iterator()));
+                .addProperty(membersPredicate, items);
         return model.getNodeAs(res.asNode(), resultType);
     }
 
@@ -134,8 +137,11 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
     }
 
     public static class IndividualsImpl extends OntDisjointImpl<OntIndividual> implements Individuals {
-        public IndividualsImpl(Node n, EnhGraph m) {
+        private final boolean forOWL2;
+
+        public IndividualsImpl(Node n, EnhGraph m, boolean forOWL2) {
             super(n, m);
+            this.forOWL2 = forOWL2;
         }
 
         @Override
@@ -149,7 +155,11 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         }
 
         public ExtendedIterator<Property> listPredicates() {
-            return Iterators.of(getPredicate(), getAlternativePredicate());
+            if (forOWL2) {
+                return Iterators.of(getPredicate(), getAlternativePredicate());
+            } else {
+                return Iterators.of(getAlternativePredicate());
+            }
         }
 
         public ExtendedIterator<OntListImpl<OntIndividual>> lists() {
@@ -161,7 +171,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
 
         @Override
         public OntListImpl<OntIndividual> getList() {
-            Optional<OntListImpl<OntIndividual>> p = findList(getPredicate());
+            Optional<OntListImpl<OntIndividual>> p = forOWL2 ? findList(getPredicate()) : Optional.empty();
             Optional<OntListImpl<OntIndividual>> a = findList(getAlternativePredicate());
             if (p.isPresent() && a.isPresent()) {
                 if (p.get().size() > a.get().size()) return p.get();

@@ -13,6 +13,16 @@ import java.util.Objects;
  * @see org.apache.jena.ontology.OntModelSpec
  */
 public class OntSpecification {
+    public static final OntModelConfig OWL2_CONFIG = OntModelConfig.DEFAULT
+            .useOWLv1Vocabulary(false)
+            .useNamedIndividualDeclaration(true);
+    public static final OntModelConfig OWL1_CONFIG = OntModelConfig.DEFAULT
+            .useOWLv1Vocabulary(true)
+            .useNamedIndividualDeclaration(false);
+    public static final OntModelConfig RDFS_CONFIG = OntModelConfig.DEFAULT
+            .useOWLv1Vocabulary(true) // <- doesn't matter
+            .useNamedIndividualDeclaration(false);
+
     /**
      * A specification for Ontology models that are stored in memory
      * and use fast but incomplete builtin OWL inference engine for additional entailments.
@@ -23,7 +33,7 @@ public class OntSpecification {
     public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF = new OntSpecification(
             OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS,
             null,
-            OntModelConfig.DEFAULT.useBuiltinHierarchySupport(true));
+            OWL2_CONFIG.useBuiltinHierarchySupport(true));
 
     /**
      * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
@@ -34,7 +44,7 @@ public class OntSpecification {
     public static final OntSpecification OWL2_MEM = new OntSpecification(
             OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS,
             null,
-            OntModelConfig.DEFAULT);
+            OWL2_CONFIG);
 
     /**
      * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
@@ -45,7 +55,7 @@ public class OntSpecification {
     public static final OntSpecification OWL1_MEM = new OntSpecification(
             OntPersonalities.OWL1_PERSONALITY_LAX_PUNNS,
             null,
-            OntModelConfig.DEFAULT.useOWLv1Vocabulary(true));
+            OWL1_CONFIG);
 
     /**
      * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
@@ -55,8 +65,10 @@ public class OntSpecification {
      *
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
      */
-    public static final OntSpecification RDFS_MEM =
-            new OntSpecification(OntPersonalities.RDFS_PERSONALITY, null, OntModelConfig.DEFAULT);
+    public static final OntSpecification RDFS_MEM = new OntSpecification(
+            OntPersonalities.RDFS_PERSONALITY,
+            null,
+            RDFS_CONFIG);
 
 
     private final OntPersonality personality;

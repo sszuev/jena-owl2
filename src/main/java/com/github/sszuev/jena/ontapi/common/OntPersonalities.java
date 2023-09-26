@@ -167,15 +167,8 @@ public class OntPersonalities {
             .add(OntDataRange.Combination.class, OWL1ObjectFactories.ANY_COMPONENTS_DATARANGE)
             .add(OntDataRange.class, OWL1ObjectFactories.ANY_DATARANGE)
 
-            /*
-            // disjoint anonymous collections:
-            .add(OntDisjoint.Classes.class, OWL2ObjectFactories.CLASSES_DISJOINT)
-            .add(OntDisjoint.Individuals.class, OWL2ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
-            .add(OntDisjoint.ObjectProperties.class, OWL2ObjectFactories.OBJECT_PROPERTIES_DISJOINT)
-            .add(OntDisjoint.DataProperties.class, OWL2ObjectFactories.DATA_PROPERTIES_DISJOINT)
-            .add(OntDisjoint.Properties.class, OWL2ObjectFactories.ANY_PROPERTIES_DISJOINT)
-            .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT)
-            */
+            .add(OntDisjoint.Individuals.class, OWL1ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
+            .add(OntDisjoint.class, OWL1ObjectFactories.ANY_DISJOINT)
             ;
 
     /**

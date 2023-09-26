@@ -970,9 +970,18 @@ public class OntModelOWLSpecTest {
         OntDataRange.OneOf d2 = m.createDataOneOf(m.createTypedLiteral("A"), m.createLiteral("B"));
         OntDataRange.OneOf d3 = m.createResource("X", OWL.DataRange)
                 .addProperty(OWL.oneOf, m.createList(m.createLiteral("C"))).as(OntDataRange.OneOf.class);
-        Assertions.assertEquals(List.of(42), d1.getList().members().map(Literal::getInt).collect(Collectors.toList()));
-        Assertions.assertEquals(List.of("A", "B"), d2.getList().members().map(Literal::getString).collect(Collectors.toList()));
-        Assertions.assertEquals(List.of("C"), d3.getList().members().map(Literal::getString).collect(Collectors.toList()));
+        Assertions.assertEquals(
+                List.of(42),
+                d1.getList().members().map(Literal::getInt).collect(Collectors.toList())
+        );
+        Assertions.assertEquals(
+                List.of("A", "B"),
+                d2.getList().members().map(Literal::getString).sorted().collect(Collectors.toList())
+        );
+        Assertions.assertEquals(
+                List.of("C"),
+                d3.getList().members().map(Literal::getString).collect(Collectors.toList())
+        );
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDataUnionOf);
 
@@ -985,6 +994,33 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(3, m.ontObjects(OntDataRange.OneOf.class).count());
         Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
         Assertions.assertEquals(0, m.datatypes().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+    })
+    public void testDisjointIndividualsForOWL1(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntIndividual i1 = m.getOWLThing().createIndividual("A");
+        OntIndividual i2 = m.getOWLThing().createIndividual("B");
+        OntDisjoint.Individuals d = m.createDifferentIndividuals(i1, i2);
+        Assertions.assertEquals(
+                List.of("A", "B"),
+                d.members().map(Resource::getURI).sorted().collect(Collectors.toList())
+        );
+
+        Assertions.assertEquals(8, m.statements().count());
+        Assertions.assertEquals(1, m.ontObjects(OntDisjoint.Individuals.class).count());
+        Assertions.assertEquals(1, m.ontObjects(OntDisjoint.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDisjointClasses);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDisjointDataProperties);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDisjointObjectProperties);
+
+        Assertions.assertEquals(8, m.statements().count());
+        Assertions.assertEquals(1, m.ontObjects(OntDisjoint.Individuals.class).count());
+        Assertions.assertEquals(1, m.ontObjects(OntDisjoint.class).count());
     }
 }
 

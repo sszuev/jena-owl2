@@ -46,7 +46,7 @@ public interface OntDisjoint<O extends OntObject> extends OntObject, HasRDFNodeL
          * Since both predicates {@link OWL#members owl:members} and
          * {@link OWL#distinctMembers owl:distinctMembers} are allowed by specification,
          * this method returns most bulky list.
-         * In case both lists have the same dimension, the method choose one that is on predicate {@code owl:members}.
+         * In case both lists have the same dimension, the method chooses one that is on predicate {@code owl:members}.
          * The method {@link OntModel#createDifferentIndividuals(Collection)} also prefers {@code owl:members} predicate.
          * This was done for reasons of uniformity.
          *

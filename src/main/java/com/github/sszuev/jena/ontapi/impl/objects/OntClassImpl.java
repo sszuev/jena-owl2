@@ -154,9 +154,11 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
-        OntIndividual.Named res = model.createIndividual(OntJenaException.notNull(uri, "Null uri"));
-        res.attachClass(source);
-        return res;
+        Resource res = model.createResource(OntJenaException.notNull(uri, "Null uri"), source);
+        if (model.getConfig().useNamedIndividualDeclaration()) {
+            res.addProperty(RDF.type, OWL.NamedIndividual);
+        }
+        return res.as(OntIndividual.Named.class);
     }
 
     public static OntList<OntRealProperty> createHasKey(OntGraphModelImpl m, OntClass clazz, Stream<? extends OntRealProperty> collection) {
