@@ -130,11 +130,11 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                                                                                          Property predicate,
                                                                                          Stream<R> components) {
         OntJenaException.notNull(components, "Null components stream.");
-        Resource res = model.createResource(OWL.Class)
-                .addProperty(predicate, model.createList(components
-                        .peek(x -> OntJenaException.notNull(x,
-                                OntEnhNodeFactories.viewAsString(returnType) + ": null " + OntEnhNodeFactories.viewAsString(componentType) + " member"))
-                        .iterator()));
+        RDFList items = model.createList(components
+                .peek(x -> OntJenaException.notNull(x,
+                        OntEnhNodeFactories.viewAsString(returnType) + ": null " + OntEnhNodeFactories.viewAsString(componentType) + " member"))
+                .iterator());
+        Resource res = model.createResource(OWL.Class).addProperty(predicate, items);
         return model.getNodeAs(res.asNode(), returnType);
     }
 

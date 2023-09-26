@@ -162,42 +162,20 @@ public class OntPersonalities {
             .add(OntClass.Restriction.class, OWL1ObjectFactories.ANY_RESTRICTION_CLASS)
             .add(OntClass.class, OWL1ObjectFactories.ANY_CLASS)
 
-            // TODO:
             // data ranges:
-/*            .add(OntDataRange.OneOf.class, OWL2ObjectFactories.ONE_OF_DATARANGE)
-            .add(OntDataRange.Restriction.class, OWL2ObjectFactories.RESTRICTION_DATARANGE)
-            .add(OntDataRange.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_DATARANGE)
-            .add(OntDataRange.UnionOf.class, OWL2ObjectFactories.UNION_OF_DATARANGE)
-            .add(OntDataRange.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_DATARANGE)
-            .add(OntDataRange.Combination.class, OWL2ObjectFactories.ANY_COMPONENTS_DATARANGE)
-            .add(OntDataRange.class, OWL2ObjectFactories.ANY_DATARANGE)
+            .add(OntDataRange.OneOf.class, OWL1ObjectFactories.ONE_OF_DATARANGE)
+            .add(OntDataRange.Combination.class, OWL1ObjectFactories.ANY_COMPONENTS_DATARANGE)
+            .add(OntDataRange.class, OWL1ObjectFactories.ANY_DATARANGE)
 
-            // facet restrictions:
-            .add(OntFacetRestriction.Length.class, OWL2ObjectFactories.LENGTH_FACET_RESTRICTION)
-            .add(OntFacetRestriction.MinLength.class, OWL2ObjectFactories.MIN_LENGTH_FACET_RESTRICTION)
-            .add(OntFacetRestriction.MaxLength.class, OWL2ObjectFactories.MAX_LENGTH_FACET_RESTRICTION)
-            .add(OntFacetRestriction.MinInclusive.class, OWL2ObjectFactories.MIN_INCLUSIVE_FACET_RESTRICTION)
-            .add(OntFacetRestriction.MaxInclusive.class, OWL2ObjectFactories.MAX_INCLUSIVE_FACET_RESTRICTION)
-            .add(OntFacetRestriction.MinExclusive.class, OWL2ObjectFactories.MIN_EXCLUSIVE_FACET_RESTRICTION)
-            .add(OntFacetRestriction.MaxExclusive.class, OWL2ObjectFactories.MAX_EXCLUSIVE_FACET_RESTRICTION)
-            .add(OntFacetRestriction.Pattern.class, OWL2ObjectFactories.PATTERN_FACET_RESTRICTION)
-            .add(OntFacetRestriction.TotalDigits.class, OWL2ObjectFactories.TOTAL_DIGITS_FACET_RESTRICTION)
-            .add(OntFacetRestriction.FractionDigits.class, OWL2ObjectFactories.FRACTION_DIGITS_FACET_RESTRICTION)
-            .add(OntFacetRestriction.LangRange.class, OWL2ObjectFactories.LANG_RANGE_FACET_RESTRICTION)
-            .add(OntFacetRestriction.class, OWL2ObjectFactories.ANY_FACET_RESTRICTION)
-
-            // negative property assertions:
-            .add(OntNegativeAssertion.WithObjectProperty.class, OWL2ObjectFactories.OBJECT_NEGATIVE_PROPERTY_ASSERTION)
-            .add(OntNegativeAssertion.WithDataProperty.class, OWL2ObjectFactories.DATA_NEGATIVE_PROPERTY_ASSERTION)
-            .add(OntNegativeAssertion.class, OWL2ObjectFactories.ANY_NEGATIVE_PROPERTY_ASSERTION)
-
+            /*
             // disjoint anonymous collections:
             .add(OntDisjoint.Classes.class, OWL2ObjectFactories.CLASSES_DISJOINT)
             .add(OntDisjoint.Individuals.class, OWL2ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
             .add(OntDisjoint.ObjectProperties.class, OWL2ObjectFactories.OBJECT_PROPERTIES_DISJOINT)
             .add(OntDisjoint.DataProperties.class, OWL2ObjectFactories.DATA_PROPERTIES_DISJOINT)
             .add(OntDisjoint.Properties.class, OWL2ObjectFactories.ANY_PROPERTIES_DISJOINT)
-            .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT)*/
+            .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT)
+            */
             ;
 
     /**

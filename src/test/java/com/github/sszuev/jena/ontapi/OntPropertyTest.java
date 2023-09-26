@@ -245,7 +245,7 @@ public class OntPropertyTest {
     @ParameterizedTest
     @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF", "OWL2_MEM"})
     public void testListProperties(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntObjectProperty op = m.createObjectProperty("op");
         OntObjectProperty iop = op.asNamed().createInverse();
         OntDataProperty dp = m.createDataProperty("dp");

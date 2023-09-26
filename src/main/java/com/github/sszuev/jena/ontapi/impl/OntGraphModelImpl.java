@@ -281,6 +281,14 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return (OntPersonality) super.getPersonality();
     }
 
+    public <X extends OntObject> void checkType(Class<X> type) {
+        if (!getOntPersonality().supports(type)) {
+            throw new OntJenaException.Unsupported(
+                    "The type " + type.getName().replace(type.getPackageName() + ".", "") +
+                            " is not supported by the specification");
+        }
+    }
+
     @Override
     public OntID getID() {
         return getNodeAs(Graphs.ontologyNode(getBaseGraph())
@@ -569,7 +577,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         if (!getOntPersonality().supports(type)) {
             throw new OntJenaException.Unsupported("Attempt to create resource <" + uri + ">. " +
                     "The type " + type.getName().replace(type.getPackageName() + ".", "") +
-                    " is not supported by specification");
+                    " is not supported by the specification");
         }
         return getOntPersonality().getObjectFactory(type).createInGraph(Graphs.createNode(uri), this).as(type);
     }
@@ -793,178 +801,211 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public OntDisjoint.Classes createDisjointClasses(Collection<OntClass> classes) {
+        checkType(OntDisjoint.Classes.class);
         return OntDisjointImpl.createDisjointClasses(this, classes.stream());
     }
 
     @Override
     public OntDisjoint.Individuals createDifferentIndividuals(Collection<OntIndividual> individuals) {
+        checkType(OntDisjoint.Individuals.class);
         return OntDisjointImpl.createDifferentIndividuals(this, individuals.stream());
     }
 
     @Override
     public OntDisjoint.ObjectProperties createDisjointObjectProperties(Collection<OntObjectProperty> properties) {
+        checkType(OntDisjoint.ObjectProperties.class);
         return OntDisjointImpl.createDisjointObjectProperties(this, properties.stream());
     }
 
     @Override
     public OntDisjoint.DataProperties createDisjointDataProperties(Collection<OntDataProperty> properties) {
+        checkType(OntDisjoint.DataProperties.class);
         return OntDisjointImpl.createDisjointDataProperties(this, properties.stream());
     }
 
     @Override
     public <T extends OntFacetRestriction> T createFacetRestriction(Class<T> view, Literal literal) {
+        checkType(OntFacetRestriction.class);
         return OntFacetRestrictionImpl.create(this, view, literal);
     }
 
     @Override
     public OntDataRange.OneOf createDataOneOf(Collection<Literal> values) {
+        checkType(OntDataRange.OneOf.class);
         return OntDataRangeImpl.createOneOf(this, values.stream());
     }
 
     @Override
     public OntDataRange.Restriction createDataRestriction(OntDataRange.Named datatype, Collection<OntFacetRestriction> values) {
+        checkType(OntDataRange.Restriction.class);
         return OntDataRangeImpl.createRestriction(this, datatype, values.stream());
     }
 
     @Override
     public OntDataRange.ComplementOf createDataComplementOf(OntDataRange other) {
+        checkType(OntDataRange.ComplementOf.class);
         return OntDataRangeImpl.createComplementOf(this, other);
     }
 
     @Override
     public OntDataRange.UnionOf createDataUnionOf(Collection<OntDataRange> values) {
+        checkType(OntDataRange.UnionOf.class);
         return OntDataRangeImpl.createUnionOf(this, values.stream());
     }
 
     @Override
     public OntDataRange.IntersectionOf createDataIntersectionOf(Collection<OntDataRange> values) {
+        checkType(OntDataRange.IntersectionOf.class);
         return OntDataRangeImpl.createIntersectionOf(this, values.stream());
     }
 
     @Override
     public OntClass.ObjectSomeValuesFrom createObjectSomeValuesFrom(OntObjectProperty property, OntClass ce) {
+        checkType(OntClass.ObjectSomeValuesFrom.class);
         return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.ObjectSomeValuesFrom.class, property, ce, OWL.someValuesFrom);
     }
 
     @Override
     public OntClass.DataSomeValuesFrom createDataSomeValuesFrom(OntDataProperty property, OntDataRange dr) {
+        checkType(OntClass.DataSomeValuesFrom.class);
         return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.DataSomeValuesFrom.class, property, dr, OWL.someValuesFrom);
     }
 
     @Override
     public OntClass.ObjectAllValuesFrom createObjectAllValuesFrom(OntObjectProperty property, OntClass ce) {
+        checkType(OntClass.ObjectAllValuesFrom.class);
         return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.ObjectAllValuesFrom.class, property, ce, OWL.allValuesFrom);
     }
 
     @Override
     public OntClass.DataAllValuesFrom createDataAllValuesFrom(OntDataProperty property, OntDataRange dr) {
+        checkType(OntClass.DataAllValuesFrom.class);
         return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.DataAllValuesFrom.class, property, dr, OWL.allValuesFrom);
     }
 
     @Override
     public OntClass.ObjectHasValue createObjectHasValue(OntObjectProperty property, OntIndividual individual) {
+        checkType(OntClass.ObjectHasValue.class);
         return OntClassImpl.createComponentRestrictionCE(this,
                 OntClass.ObjectHasValue.class, property, individual, OWL.hasValue);
     }
 
     @Override
     public OntClass.DataHasValue createDataHasValue(OntDataProperty property, Literal literal) {
+        checkType(OntClass.DataHasValue.class);
         return OntClassImpl.createComponentRestrictionCE(this, OntClass.DataHasValue.class, property, literal, OWL.hasValue);
     }
 
     @Override
     public OntClass.ObjectMinCardinality createObjectMinCardinality(OntObjectProperty property, int cardinality, OntClass ce) {
+        checkType(OntClass.ObjectMinCardinality.class);
         return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.ObjectMinCardinality.class, property, cardinality, ce);
     }
 
     @Override
     public OntClass.DataMinCardinality createDataMinCardinality(OntDataProperty property, int cardinality, OntDataRange dr) {
+        checkType(OntClass.DataMinCardinality.class);
         return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.DataMinCardinality.class, property, cardinality, dr);
     }
 
     @Override
     public OntClass.ObjectMaxCardinality createObjectMaxCardinality(OntObjectProperty property, int cardinality, OntClass ce) {
+        checkType(OntClass.ObjectMaxCardinality.class);
         return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.ObjectMaxCardinality.class, property, cardinality, ce);
     }
 
     @Override
     public OntClass.DataMaxCardinality createDataMaxCardinality(OntDataProperty property, int cardinality, OntDataRange dr) {
+        checkType(OntClass.DataMaxCardinality.class);
         return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.DataMaxCardinality.class, property, cardinality, dr);
     }
 
     @Override
     public OntClass.ObjectCardinality createObjectCardinality(OntObjectProperty property, int cardinality, OntClass ce) {
+        checkType(OntClass.ObjectCardinality.class);
         return OntClassImpl.createCardinalityRestrictionCE(this,
                 OntClass.ObjectCardinality.class, property, cardinality, ce);
     }
 
     @Override
     public OntClass.DataCardinality createDataCardinality(OntDataProperty property, int cardinality, OntDataRange dr) {
+        checkType(OntClass.DataCardinality.class);
         return OntClassImpl.createCardinalityRestrictionCE(this, OntClass.DataCardinality.class, property, cardinality, dr);
     }
 
     @Override
     public OntClass.UnionOf createObjectUnionOf(Collection<OntClass> classes) {
+        checkType(OntClass.UnionOf.class);
         return OntClassImpl.createComponentsCE(this, OntClass.UnionOf.class, OntClass.class, OWL.unionOf, classes.stream());
     }
 
     @Override
     public OntClass.IntersectionOf createObjectIntersectionOf(Collection<OntClass> classes) {
+        checkType(OntClass.IntersectionOf.class);
         return OntClassImpl.createComponentsCE(this,
                 OntClass.IntersectionOf.class, OntClass.class, OWL.intersectionOf, classes.stream());
     }
 
     @Override
     public OntClass.OneOf createObjectOneOf(Collection<OntIndividual> individuals) {
+        checkType(OntClass.OneOf.class);
         return OntClassImpl.createComponentsCE(this,
                 OntClass.OneOf.class, OntIndividual.class, OWL.oneOf, individuals.stream());
     }
 
     @Override
     public OntClass.HasSelf createHasSelf(OntObjectProperty property) {
+        checkType(OntClass.HasSelf.class);
         return OntClassImpl.createHasSelf(this, property);
     }
 
     @Override
     public OntClass.NaryDataAllValuesFrom createDataAllValuesFrom(Collection<OntDataProperty> properties, OntDataRange dr) {
+        checkType(OntClass.NaryDataAllValuesFrom.class);
         return OntClassImpl.createNaryRestrictionCE(this, OntClass.NaryDataAllValuesFrom.class, dr, properties);
     }
 
     @Override
     public OntClass.NaryDataSomeValuesFrom createDataSomeValuesFrom(Collection<OntDataProperty> properties, OntDataRange dr) {
+        checkType(OntClass.NaryDataSomeValuesFrom.class);
         return OntClassImpl.createNaryRestrictionCE(this, OntClass.NaryDataSomeValuesFrom.class, dr, properties);
     }
 
     @Override
     public OntClass.ComplementOf createObjectComplementOf(OntClass ce) {
+        checkType(OntClass.ComplementOf.class);
         return OntClassImpl.createComplementOf(this, ce);
     }
 
     @Override
     public OntSWRL.Variable createSWRLVariable(String uri) {
+        checkType(OntSWRL.Variable.class);
         return OntSWRLImpl.createVariable(this, uri);
     }
 
     @Override
     public OntSWRL.Atom.WithBuiltin createBuiltInSWRLAtom(Resource predicate, Collection<OntSWRL.DArg> arguments) {
+        checkType(OntSWRL.Atom.WithBuiltin.class);
         return OntSWRLImpl.createBuiltInAtom(this, predicate, arguments);
     }
 
     @Override
     public OntSWRL.Atom.WithClass createClassSWRLAtom(OntClass clazz, OntSWRL.IArg arg) {
+        checkType(OntSWRL.Atom.WithClass.class);
         return OntSWRLImpl.createClassAtom(this, clazz, arg);
     }
 
     @Override
     public OntSWRL.Atom.WithDataRange createDataRangeSWRLAtom(OntDataRange range, OntSWRL.DArg arg) {
+        checkType(OntSWRL.Atom.WithDataRange.class);
         return OntSWRLImpl.createDataRangeAtom(this, range, arg);
     }
 
@@ -972,6 +1013,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public OntSWRL.Atom.WithDataProperty createDataPropertySWRLAtom(OntDataProperty dataProperty,
                                                                     OntSWRL.IArg firstArg,
                                                                     OntSWRL.DArg secondArg) {
+        checkType(OntSWRL.Atom.WithDataProperty.class);
         return OntSWRLImpl.createDataPropertyAtom(this, dataProperty, firstArg, secondArg);
     }
 
@@ -979,24 +1021,28 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public OntSWRL.Atom.WithObjectProperty createObjectPropertySWRLAtom(OntObjectProperty dataProperty,
                                                                         OntSWRL.IArg firstArg,
                                                                         OntSWRL.IArg secondArg) {
+        checkType(OntSWRL.Atom.WithObjectProperty.class);
         return OntSWRLImpl.createObjectPropertyAtom(this, dataProperty, firstArg, secondArg);
     }
 
     @Override
     public OntSWRL.Atom.WithDifferentIndividuals createDifferentIndividualsSWRLAtom(OntSWRL.IArg firstArg,
                                                                                     OntSWRL.IArg secondArg) {
+        checkType(OntSWRL.Atom.WithDifferentIndividuals.class);
         return OntSWRLImpl.createDifferentIndividualsAtom(this, firstArg, secondArg);
     }
 
     @Override
     public OntSWRL.Atom.WithSameIndividuals createSameIndividualsSWRLAtom(OntSWRL.IArg firstArg,
                                                                           OntSWRL.IArg secondArg) {
+        checkType(OntSWRL.Atom.WithSameIndividuals.class);
         return OntSWRLImpl.createSameIndividualsAtom(this, firstArg, secondArg);
     }
 
     @Override
     public OntSWRL.Imp createSWRLImp(Collection<OntSWRL.Atom<?>> head,
                                      Collection<OntSWRL.Atom<?>> body) {
+        checkType(OntSWRL.Atom.Imp.class);
         return OntSWRLImpl.createImp(this, head, body);
     }
 

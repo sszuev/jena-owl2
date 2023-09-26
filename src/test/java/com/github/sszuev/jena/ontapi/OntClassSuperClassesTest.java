@@ -33,7 +33,7 @@ public class OntClassSuperClassesTest {
             "RDFS_MEM",
     })
     public void testSuperClassNE(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass a = m.createOntClass(NS + "A");
         Assertions.assertTrue(a.superClass().isEmpty());
     }
@@ -50,7 +50,7 @@ public class OntClassSuperClassesTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);
@@ -95,7 +95,7 @@ public class OntClassSuperClassesTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);
@@ -131,7 +131,7 @@ public class OntClassSuperClassesTest {
         //  \ |
         //    A
 
-        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> directB = superClasses(m, "B", true);
@@ -165,7 +165,7 @@ public class OntClassSuperClassesTest {
         //       / \
         //      L   M
 
-        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);
@@ -238,7 +238,7 @@ public class OntClassSuperClassesTest {
         //  \ | /
         //    A
 
-        OntModel m = createClassesDBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesDBCA(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> directB = superClasses(m, "B", true);
@@ -268,7 +268,7 @@ public class OntClassSuperClassesTest {
             "RDFS_MEM",
     })
     public void testListSuperClasses7a(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass A = m.createOntClass(NS + "A");
         A.addSuperClass(A);
 
@@ -290,7 +290,7 @@ public class OntClassSuperClassesTest {
         //  \  /
         //    A
 
-        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);
@@ -338,7 +338,7 @@ public class OntClassSuperClassesTest {
         //  \  /
         //    A
 
-        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = superClasses(m, "A", true);
         Set<String> indirectA = superClasses(m, "A", false);

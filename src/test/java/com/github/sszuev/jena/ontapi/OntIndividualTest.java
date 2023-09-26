@@ -187,7 +187,7 @@ public class OntIndividualTest {
             "OWL2_MEM",
     })
     public void testListIndividuals1(TestSpec spec) {
-        OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.spec),
+        OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
                 "/list-individuals-test.rdf", Lang.RDFXML);
         Assertions.assertEquals(Set.of("A0", "A1", "C0", "a0", "a1", "a2", "z0", "z1"),
                 m.individuals().map(Resource::getLocalName).collect(Collectors.toSet()));
@@ -199,7 +199,7 @@ public class OntIndividualTest {
             "OWL2_MEM",
     })
     public void testListIndividuals2(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         Resource a0 = m.createResource(NS + "A0");
         m.add(a0, RDF.type, OWL.Class);
         m.add(OWL.Class, RDF.type, RDFS.Class);
@@ -212,7 +212,7 @@ public class OntIndividualTest {
             "OWL2_MEM",
     })
     public void testListIndividuals3(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         Resource a0 = m.createResource(NS + "A0");
         m.add(a0, RDF.type, OWL.Class);
         m.add(OWL.Class, RDF.type, OWL.Class);
@@ -225,7 +225,7 @@ public class OntIndividualTest {
             "OWL2_MEM",
     })
     public void testListIndividuals11(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass.Named c0 = m.getOWLThing();
         OntClass.Named c1 = m.createOntClass(NS + "C1");
         OntClass.Named c2 = m.createOntClass(NS + "C2");

@@ -50,7 +50,7 @@ public class OntClassIndividualsTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
         OntClass A = m.getOntClass(NS + "A");
         OntClass B = m.getOntClass(NS + "B");
         OntClass C = m.getOntClass(NS + "C");
@@ -103,7 +103,7 @@ public class OntClassIndividualsTest {
         //  \ |
         //    A
 
-        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.inst));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = individuals(m, "A", true);
@@ -132,7 +132,7 @@ public class OntClassIndividualsTest {
         //  \ | /
         //    A
 
-        OntModel m = createClassesDBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesDBCA(OntModelFactory.createModel(spec.inst));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = individuals(m, "A", true);
@@ -172,7 +172,7 @@ public class OntClassIndividualsTest {
         //       / \
         //      L   M
 
-        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.inst));
         m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = individuals(m, "A", true);

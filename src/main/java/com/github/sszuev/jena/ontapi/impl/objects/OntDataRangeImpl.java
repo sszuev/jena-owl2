@@ -36,25 +36,27 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
     }
 
     private static Resource create(OntGraphModelImpl model) {
-        return model.createResource().addProperty(RDF.type, RDFS.Datatype);
+        Resource type = model.getConfig().useOWLv1Vocabulary() ? OWL.DataRange : RDFS.Datatype;
+        return model.createResource().addProperty(RDF.type, type);
     }
 
     public static OneOf createOneOf(OntGraphModelImpl model, Stream<Literal> values) {
         OntJenaException.notNull(values, "Null values stream.");
-        Resource res = create(model)
-                .addProperty(OWL.oneOf, model.createList(values
-                        .peek(f -> OntJenaException.notNull(f, "OntDR: null literal.")).iterator()));
+        RDFList items = model.createList(values
+                .peek(f -> OntJenaException.notNull(f, "OntDR: null literal.")).iterator());
+        Resource res = create(model).addProperty(OWL.oneOf, items);
         return model.getNodeAs(res.asNode(), OneOf.class);
     }
 
     public static Restriction createRestriction(OntGraphModelImpl model, Named dataType, Stream<OntFacetRestriction> values) {
         OntJenaException.notNull(dataType, "Null data-type.");
         OntJenaException.notNull(values, "Null values stream.");
+        RDFList items = model.createList(values
+                .peek(f -> OntJenaException.notNull(f, "OntDR: null faced restriction."))
+                .iterator());
         Resource res = create(model)
                 .addProperty(OWL.onDatatype, dataType)
-                .addProperty(OWL.withRestrictions, model.createList(values
-                        .peek(f -> OntJenaException.notNull(f, "OntDR: null faced restriction."))
-                        .iterator()));
+                .addProperty(OWL.withRestrictions, items);
         return model.getNodeAs(res.asNode(), Restriction.class);
     }
 
@@ -66,24 +68,27 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
 
     public static UnionOf createUnionOf(OntGraphModelImpl model, Stream<OntDataRange> values) {
         OntJenaException.notNull(values, "Null values stream.");
+        RDFList items = model.createList(values
+                .peek(f -> OntJenaException.notNull(f, "OntDR: null data range."))
+                .iterator());
         Resource res = create(model)
-                .addProperty(OWL.unionOf, model.createList(values
-                        .peek(f -> OntJenaException.notNull(f, "OntDR: null data range."))
-                        .iterator()));
+                .addProperty(OWL.unionOf, items);
         return model.getNodeAs(res.asNode(), UnionOf.class);
     }
 
     public static IntersectionOf createIntersectionOf(OntGraphModelImpl model, Stream<OntDataRange> values) {
         OntJenaException.notNull(values, "Null values stream.");
-        Resource res = create(model).addProperty(OWL.intersectionOf, model.createList(values
+        RDFList items = model.createList(values
                 .peek(f -> OntJenaException.notNull(f, "OntDR: null data range."))
-                .iterator()));
+                .iterator());
+        Resource res = create(model).addProperty(OWL.intersectionOf, items);
         return model.getNodeAs(res.asNode(), IntersectionOf.class);
     }
 
     @Override
     public Optional<OntStatement> findRootStatement() {
-        return getRequiredRootStatement(this, RDFS.Datatype);
+        Resource type = config(this).useOWLv1Vocabulary() ? OWL.DataRange : RDFS.Datatype;
+        return getRequiredRootStatement(this, type);
     }
 
     public static class ComplementOfImpl extends OntDataRangeImpl implements ComplementOf {

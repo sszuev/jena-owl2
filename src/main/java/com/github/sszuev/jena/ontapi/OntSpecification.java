@@ -20,8 +20,10 @@ public class OntSpecification {
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */
-    public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF =
-            new OntSpecification(OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS, null, OntModelConfig.DEFAULT.useBuiltinHierarchySupport(true));
+    public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF = new OntSpecification(
+            OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS,
+            null,
+            OntModelConfig.DEFAULT.useBuiltinHierarchySupport(true));
 
     /**
      * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
@@ -29,8 +31,10 @@ public class OntSpecification {
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
-    public static final OntSpecification OWL2_MEM =
-            new OntSpecification(OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS, null, OntModelConfig.DEFAULT);
+    public static final OntSpecification OWL2_MEM = new OntSpecification(
+            OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS,
+            null,
+            OntModelConfig.DEFAULT);
 
     /**
      * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
@@ -38,8 +42,10 @@ public class OntSpecification {
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
-    public static final OntSpecification OWL1_MEM =
-            new OntSpecification(OntPersonalities.OWL1_PERSONALITY_LAX_PUNNS, null, OntModelConfig.DEFAULT);
+    public static final OntSpecification OWL1_MEM = new OntSpecification(
+            OntPersonalities.OWL1_PERSONALITY_LAX_PUNNS,
+            null,
+            OntModelConfig.DEFAULT.useOWLv1Vocabulary(true));
 
     /**
      * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.

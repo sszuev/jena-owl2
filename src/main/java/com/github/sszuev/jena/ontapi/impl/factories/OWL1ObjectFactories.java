@@ -5,6 +5,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -188,4 +189,12 @@ public class OWL1ObjectFactories {
     // All Class Expressions:
     public static final EnhNodeFactory ANY_CLASS = OntClasses.createFactory(false);
 
+    // Data Range Expressions
+    public static final EnhNodeFactory ONE_OF_DATARANGE = OntEnhNodeFactories.createCommon(
+            OntDataRangeImpl.OneOfImpl.class,
+            OntDataRanges.DR_FINDER_OWL1,
+            OntDataRanges.DR_FILTER_OWL1.and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
+    );
+    public static final EnhNodeFactory ANY_COMPONENTS_DATARANGE = ONE_OF_DATARANGE;
+    public static final EnhNodeFactory ANY_DATARANGE = ONE_OF_DATARANGE;
 }

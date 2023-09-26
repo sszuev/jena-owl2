@@ -16,6 +16,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.List;
@@ -24,8 +25,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 final class OntDataRanges {
-    public static final EnhNodeFinder DR_FINDER = new EnhNodeFinder.ByType(RDFS.Datatype);
-    public static final EnhNodeFilter DR_FILTER = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(RDFS.Datatype));
+    public static final EnhNodeFinder DR_FINDER_OWL1 = new EnhNodeFinder.ByType(OWL.DataRange);
+    public static final EnhNodeFilter DR_FILTER_OWL1 = new EnhNodeFilter.HasType(OWL.DataRange);
+
+    public static final EnhNodeFinder DR_FINDER_OWL2 = new EnhNodeFinder.ByType(RDFS.Datatype);
+    public static final EnhNodeFilter DR_FILTER_OWL2 = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(RDFS.Datatype));
 
     public static EnhNodeFinder makeFacetRestrictionFinder(Property predicate) {
         return new EnhNodeFinder.ByPredicate(predicate);

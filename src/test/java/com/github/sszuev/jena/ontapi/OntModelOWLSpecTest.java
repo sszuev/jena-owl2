@@ -25,6 +25,7 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -115,7 +116,7 @@ public class OntModelOWLSpecTest {
     })
     public void testPizzaLoadCE(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(
-                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.spec);
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.inst);
 
         List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
         int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
@@ -164,7 +165,7 @@ public class OntModelOWLSpecTest {
     })
     public void testPizzaLoadProperties(TestSpec spec) {
         simplePropertiesValidation(OntModelFactory.createModel(
-                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.spec));
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.inst));
     }
 
     @ParameterizedTest
@@ -175,7 +176,7 @@ public class OntModelOWLSpecTest {
     })
     public void testFamilyLoadProperties(TestSpec spec) {
         simplePropertiesValidation(OntModelFactory.createModel(
-                RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(), spec.spec));
+                RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(), spec.inst));
     }
 
     @ParameterizedTest
@@ -186,7 +187,7 @@ public class OntModelOWLSpecTest {
     })
     public void testPizzaLoadIndividuals(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(
-                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.spec);
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.inst);
         List<OntIndividual> individuals = m.ontObjects(OntIndividual.class).collect(Collectors.toList());
         Map<OntIndividual, Set<OntClass>> classes = individuals.stream()
                 .collect(Collectors.toMap(Function.identity(), i -> i.classes().collect(Collectors.toSet())));
@@ -221,7 +222,7 @@ public class OntModelOWLSpecTest {
         // OntCE$DataHasValue => 3
         long numClasses = 36;
 
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         try (InputStream in = OntModelOWLSpecTest.class.getResourceAsStream("/koala.owl")) {
             m.read(in, null, Lang.RDFXML.getName());
         }
@@ -292,7 +293,7 @@ public class OntModelOWLSpecTest {
             "OWL2_MEM",
     })
     public void testKoalaProperties(TestSpec spec) throws IOException {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         try (InputStream in = OntModelOWLSpecTest.class.getResourceAsStream("/koala.owl")) {
             m.read(in, null, Lang.RDFXML.getName());
         }
@@ -316,7 +317,7 @@ public class OntModelOWLSpecTest {
     public void testCreateImports(TestSpec spec) {
         String baseURI = "http://test.com/graph/5";
         String baseNS = baseURI + "#";
-        OntModel base = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel base = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID(baseURI).getModel();
         OntClass.Named cl1 = base.createOntClass(baseNS + "Class1");
         OntClass.Named cl2 = base.createOntClass(baseNS + "Class2");
@@ -344,7 +345,7 @@ public class OntModelOWLSpecTest {
             "OWL2_MEM",
     })
     public void testAssemblySimplestOntology(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         m.setID("http://example.com/xxx");
 
         String schemaNS = m.getID().getURI() + "#";
@@ -395,14 +396,14 @@ public class OntModelOWLSpecTest {
             "OWL1_MEM",
     })
     public void testCreateSimpleEntities(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         createSimpleEntityTest(m, "a-p", OntAnnotationProperty.class);
         createSimpleEntityTest(m, "o-p", OntObjectProperty.Named.class);
         createSimpleEntityTest(m, "d-p", OntDataProperty.class);
         createSimpleEntityTest(m, "c", OntClass.Named.class);
         if (spec != TestSpec.OWL1_MEM) {
             createSimpleEntityTest(m, "d", OntDataRange.Named.class);
-        } else  {
+        } else {
             // no such type in OWL1
             Assertions.assertThrows(OntJenaException.Unsupported.class,
                     () -> createSimpleEntityTest(m, "d", OntDataRange.Named.class));
@@ -428,7 +429,7 @@ public class OntModelOWLSpecTest {
             "OWL2_MEM",
     })
     public void testCreateAnnotatedEntities(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         createAnnotatedEntityTest(m, "a-p", OntAnnotationProperty.class);
         createAnnotatedEntityTest(m, "o-p", OntObjectProperty.Named.class);
         createAnnotatedEntityTest(m, "d-p", OntDataProperty.class);
@@ -454,7 +455,7 @@ public class OntModelOWLSpecTest {
             "OWL2_MEM",
     })
     public void testObjectsContent(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         // properties:
         OntDataProperty p1 = m.createDataProperty("p1");
         OntObjectProperty.Named p2 = m.createObjectProperty("p2");
@@ -529,7 +530,7 @@ public class OntModelOWLSpecTest {
             "OWL2_MEM",
     })
     public void testRemoveObjects(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
 
         OntClass class1 = m.createOntClass("C-1");
         OntClass class2 = m.createOntClass("C-2");
@@ -558,7 +559,7 @@ public class OntModelOWLSpecTest {
             "OWL1_MEM",
     })
     public void testModelPrefixes(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         m.setID("http://x");
         Assertions.assertEquals(4, m.numPrefixes());
         Assertions.assertEquals(4, m.getBaseGraph().getPrefixMapping().numPrefixes());
@@ -585,13 +586,13 @@ public class OntModelOWLSpecTest {
             "OWL1_MEM",
     })
     public void testAdvancedModelImports(TestSpec spec) {
-        OntModel av1 = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel av1 = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("a").setVersionIRI("v1").getModel();
-        OntModel av2 = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel av2 = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("a").setVersionIRI("v2").getModel();
-        OntModel b = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel b = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("b").getModel();
-        OntModel c = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD)
+        OntModel c = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD)
                 .setID("c").getModel();
 
         try {
@@ -651,9 +652,9 @@ public class OntModelOWLSpecTest {
             "OWL1_MEM",
     })
     public void testCycleModelImports(TestSpec spec) {
-        OntModel a = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
-        OntModel b = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
-        OntModel c = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel a = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel b = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel c = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         a.createOntClass("A");
         b.createOntClass("B");
         c.createOntClass("C");
@@ -711,7 +712,7 @@ public class OntModelOWLSpecTest {
     })
     public void testOntPropertyOrdinal(TestSpec spec) {
         Graph g = RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph();
-        OntModel m = OntModelFactory.createModel(g, spec.spec);
+        OntModel m = OntModelFactory.createModel(g, spec.inst);
         OntNamedProperty<?> p = m.getOntEntity(OntNamedProperty.class, m.expandPrefix(":isIngredientOf"));
         Assertions.assertNotNull(p);
         Assertions.assertEquals(0, p.getOrdinal());
@@ -727,7 +728,7 @@ public class OntModelOWLSpecTest {
     public void testFamilyListObjects(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(
                 RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
-                spec.spec);
+                spec.inst);
         assertOntObjectsCount(m, OntEntity.class, 656);
         assertOntObjectsCount(m, OntNamedProperty.class, 90);
 
@@ -758,7 +759,7 @@ public class OntModelOWLSpecTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
     })
     public void testListIndividualTypes(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass.Named a = m.createOntClass("A");
         OntClass.Named b = m.createOntClass("B");
         OntClass.Named c = m.createOntClass("C");
@@ -807,7 +808,7 @@ public class OntModelOWLSpecTest {
             "OWL2_MEM",
     })
     public void testDisjointComponents(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass.Named c1 = m.createOntClass("C1");
         OntClass.Named c2 = m.createOntClass("C1");
         OntObjectProperty.Named op1 = m.createObjectProperty("OP1");
@@ -854,7 +855,7 @@ public class OntModelOWLSpecTest {
         String uri = "http://test.com/graph/3";
         String ns = uri + "#";
 
-        OntModel m = OntModelFactory.createModel(spec.spec)
+        OntModel m = OntModelFactory.createModel(spec.inst)
                 .setNsPrefix("test", ns)
                 .setNsPrefixes(OntModelFactory.STANDARD)
                 .setID(uri)
@@ -910,7 +911,7 @@ public class OntModelOWLSpecTest {
             "OWL2_MEM",
     })
     public void testListHierarchyRoots(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         m.setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c0 = m.createOntClass(":C0");
         OntClass c1 = m.createOntClass(":C1");
@@ -951,6 +952,39 @@ public class OntModelOWLSpecTest {
             List<OntClass> ces = ont.ontObjects(OntClass.class).collect(Collectors.toList());
             Assertions.assertEquals(0, ces.size());
         });
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+    })
+    public void testOneOfDataRangeForOWL1(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Combination.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.OneOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
+        Assertions.assertEquals(0, m.datatypes().count());
+
+        OntDataRange.OneOf d1 = m.createDataOneOf(m.createTypedLiteral(42));
+        OntDataRange.OneOf d2 = m.createDataOneOf(m.createTypedLiteral("A"), m.createLiteral("B"));
+        OntDataRange.OneOf d3 = m.createResource("X", OWL.DataRange)
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("C"))).as(OntDataRange.OneOf.class);
+        Assertions.assertEquals(List.of(42), d1.getList().members().map(Literal::getInt).collect(Collectors.toList()));
+        Assertions.assertEquals(List.of("A", "B"), d2.getList().members().map(Literal::getString).collect(Collectors.toList()));
+        Assertions.assertEquals(List.of("C"), d3.getList().members().map(Literal::getString).collect(Collectors.toList()));
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDataUnionOf);
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDataIntersectionOf);
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createDataComplementOf(d1));
+
+        Assertions.assertEquals(3, m.ontObjects(OntDataRange.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntDataRange.Combination.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntDataRange.OneOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
+        Assertions.assertEquals(0, m.datatypes().count());
     }
 }
 

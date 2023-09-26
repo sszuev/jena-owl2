@@ -271,33 +271,33 @@ public final class OWL2ObjectFactories {
     // Data Range Expressions
     public static final EnhNodeFactory ONE_OF_DATARANGE = OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.OneOfImpl.class,
-            OntDataRanges.DR_FINDER,
-            OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
+            OntDataRanges.DR_FINDER_OWL2,
+            OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
     );
     public static final EnhNodeFactory RESTRICTION_DATARANGE = OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.RestrictionImpl.class,
-            OntDataRanges.DR_FINDER,
-            OntDataRanges.DR_FILTER
+            OntDataRanges.DR_FINDER_OWL2,
+            OntDataRanges.DR_FILTER_OWL2
                     .and(new EnhNodeFilter.HasPredicate(OWL.onDatatype))
                     .and(new EnhNodeFilter.HasPredicate(OWL.withRestrictions))
     );
     public static final EnhNodeFactory COMPLEMENT_OF_DATARANGE = OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.ComplementOfImpl.class,
-            OntDataRanges.DR_FINDER,
-            OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.datatypeComplementOf))
+            OntDataRanges.DR_FINDER_OWL2,
+            OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.datatypeComplementOf))
     );
     public static final EnhNodeFactory UNION_OF_DATARANGE = OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.UnionOfImpl.class,
-            OntDataRanges.DR_FINDER,
-            OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.unionOf))
+            OntDataRanges.DR_FINDER_OWL2,
+            OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.unionOf))
     );
     public static final EnhNodeFactory INTERSECTION_OF_DATARANGE = OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.IntersectionOfImpl.class,
-            OntDataRanges.DR_FINDER,
-            OntDataRanges.DR_FILTER.and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf))
+            OntDataRanges.DR_FINDER_OWL2,
+            OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf))
     );
     public static final EnhNodeFactory ANY_COMPONENTS_DATARANGE = OntEnhNodeFactories.createFrom(
-            OntDataRanges.DR_FINDER,
+            OntDataRanges.DR_FINDER_OWL2,
             OntDataRange.OneOf.class,
             OntDataRange.Restriction.class,
             OntDataRange.UnionOf.class,

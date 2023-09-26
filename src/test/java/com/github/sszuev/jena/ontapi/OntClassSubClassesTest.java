@@ -33,7 +33,7 @@ public class OntClassSubClassesTest {
             "RDFS_MEM",
     })
     public void testSubClassNE(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass a = m.createOntClass(NS + "A");
         Assertions.assertTrue(a.subClass().isEmpty());
     }
@@ -45,7 +45,7 @@ public class OntClassSubClassesTest {
             "RDFS_MEM",
     })
     public void testListSubClasses1a(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass A = m.createOntClass(NS + "A");
         A.addSubClass(A);
 
@@ -65,7 +65,7 @@ public class OntClassSubClassesTest {
         //     \
         //      D
 
-        OntModel m = createClassesABCD(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCD(OntModelFactory.createModel(spec.inst));
         OntClass A = m.getOntClass(NS + "A");
         OntClass B = m.getOntClass(NS + "B");
         OntClass C = m.getOntClass(NS + "C");
@@ -92,7 +92,7 @@ public class OntClassSubClassesTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -139,7 +139,7 @@ public class OntClassSubClassesTest {
         //   / \ / \
         //  D   E   F
 
-        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -190,7 +190,7 @@ public class OntClassSubClassesTest {
         //       / \
         //      L   M
 
-        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -265,7 +265,7 @@ public class OntClassSubClassesTest {
         //       / \
         //      L   M
 
-        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCDEFGHKLM(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> indirectA = subClasses(m, "A", false);
@@ -336,7 +336,7 @@ public class OntClassSubClassesTest {
         //     |
         // D = B = C
 
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
         OntClass C = m.createOntClass(NS + "C");
@@ -377,7 +377,7 @@ public class OntClassSubClassesTest {
         //  \ |
         //    A
 
-        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> directB = subClasses(m, "B", true);
@@ -410,7 +410,7 @@ public class OntClassSubClassesTest {
         //  \ .
         //    A
 
-        OntModel m = createClassesABCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCA(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> directB = subClasses(m, "B", true);
@@ -442,7 +442,7 @@ public class OntClassSubClassesTest {
         //  \ .
         //    A
 
-        OntModel m = createClassesABCA(OntModelFactory.createModel(spec.spec));
+        OntModel m = createClassesABCA(OntModelFactory.createModel(spec.inst));
 
         Set<String> directA = subClasses(m, "A", true);
         Set<String> directB = subClasses(m, "B", true);
@@ -468,7 +468,7 @@ public class OntClassSubClassesTest {
             "RDFS_MEM",
     })
     public void testListSubClasses8a(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass A = m.createOntClass(NS + "A");
         OntClass B = m.createOntClass(NS + "B");
         A.addSubClass(B);

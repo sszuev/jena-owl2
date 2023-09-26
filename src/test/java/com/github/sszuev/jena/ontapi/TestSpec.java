@@ -16,9 +16,9 @@ public enum TestSpec {
     OWL1_MEM(OntSpecification.OWL1_MEM),
     RDFS_MEM(OntSpecification.RDFS_MEM),
     ;
-    public final OntSpecification spec;
+    public final OntSpecification inst;
 
-    TestSpec(OntSpecification spec) {
-        this.spec = spec;
+    TestSpec(OntSpecification inst) {
+        this.inst = inst;
     }
 }

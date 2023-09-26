@@ -30,7 +30,7 @@ public class OntClassDeclaredPropertiesTest {
             "OWL2_MEM",
     })
     public void testListDeclaredProperties1(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass A = m.createOntClass("A");
         OntClass B = m.createOntClass("B");
         OntClass C = m.createOntClass("C");
@@ -88,7 +88,7 @@ public class OntClassDeclaredPropertiesTest {
         // C    E
         //  \  /
         //    A
-        OntModel m = TestModelFactory.createClassesDBFCEA(OntModelFactory.createModel(spec.spec));
+        OntModel m = TestModelFactory.createClassesDBFCEA(OntModelFactory.createModel(spec.inst));
 
         Resource d1 = m.createResource(TestModelFactory.NS + "d1", OWL2.DatatypeProperty).addProperty(RDF.type, RDF.Property);
         Resource d2 = m.createResource(TestModelFactory.NS + "d2", OWL2.DatatypeProperty).addProperty(RDF.type, RDF.Property);
@@ -135,7 +135,7 @@ public class OntClassDeclaredPropertiesTest {
             "OWL2_MEM",
     })
     public void testListDeclaredProperties3(TestSpec spec) {
-        OntModel m0 = OntModelFactory.createModel(spec.spec).setID("http://m0").getModel();
+        OntModel m0 = OntModelFactory.createModel(spec.inst).setID("http://m0").getModel();
 
         // in model M0, p0 has class c0 in the domain
         OntClass c0 = m0.createOntClass(TestModelFactory.NS + "c0");
@@ -143,7 +143,7 @@ public class OntClassDeclaredPropertiesTest {
         p0.addDomain(c0);
 
         // in model M1, class c1 is a subClass of c0
-        OntModel m1 = OntModelFactory.createModel(spec.spec);
+        OntModel m1 = OntModelFactory.createModel(spec.inst);
         OntClass c1 = m1.createOntClass(TestModelFactory.NS + "c1");
         c1.addSuperClass(c0);
 
@@ -165,7 +165,7 @@ public class OntClassDeclaredPropertiesTest {
             "OWL2_MEM",
     })
     public void testListDeclaredProperties4(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
 
         // a simple class hierarchy  organism -> vertebrate -> mammal -> dog
         OntClass organism = m.createOntClass(TestModelFactory.NS + "Organism");
@@ -223,7 +223,7 @@ public class OntClassDeclaredPropertiesTest {
             // "RDFS_MEM",
     })
     public void testListDeclaredProperties5(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec);
+        OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass A = m.createOntClass(NS + "A");
         OntClass C = m.createOntClass(NS + "C");
         C.addSuperClass(A);
@@ -248,7 +248,7 @@ public class OntClassDeclaredPropertiesTest {
     })
     public void testListDeclaredProperties6(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
-                OntModelFactory.createModel(spec.spec),
+                OntModelFactory.createModel(spec.inst),
                 "/frame-view-test-ldp.rdf",
                 Lang.RDFXML
         );
@@ -281,7 +281,7 @@ public class OntClassDeclaredPropertiesTest {
     })
     public void testListDeclaredProperties7a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
-                OntModelFactory.createModel(spec.spec),
+                OntModelFactory.createModel(spec.inst),
                 "/frame-view-test-ldp.rdf",
                 Lang.RDFXML
         );
@@ -316,7 +316,7 @@ public class OntClassDeclaredPropertiesTest {
             "OWL2_MEM",
     })
     public void testHasDeclaredProperties1(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.spec).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createObjectUnionOf(m.getOWLThing());
         OntClass c2 = m.createObjectOneOf(m.createIndividual("i1"), m.createIndividual("i2"));
         OntClass c3 = m.createOntClass("C3"); // root
@@ -387,7 +387,7 @@ public class OntClassDeclaredPropertiesTest {
     })
     public void testHasDeclaredProperties3(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
-                OntModelFactory.createModel(spec.spec),
+                OntModelFactory.createModel(spec.inst),
                 "/frame-view-test-ldp.rdf",
                 Lang.RDFXML
         );
