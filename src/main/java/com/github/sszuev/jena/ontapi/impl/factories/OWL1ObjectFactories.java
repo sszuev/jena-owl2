@@ -8,11 +8,19 @@ import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
+import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
+import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.RDFList;
+import org.apache.jena.util.iterator.ExtendedIterator;
 
 public class OWL1ObjectFactories {
 
@@ -31,8 +39,18 @@ public class OWL1ObjectFactories {
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.ANNOTATION_PROPERTY.createFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.DATA_PROPERTY.createFactory();
     public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.OBJECT_PROPERTY.createFactory();
-    public static final EnhNodeFactory NAMED_INDIVIDUAL = RDFSObjectFactories.NAMED_INDIVIDUAL;
-    public static final EnhNodeFactory ANONYMOUS_INDIVIDUAL = RDFSObjectFactories.ANONYMOUS_INDIVIDUAL;
+    public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEnhNodeFactories.createCommon(
+            OntIndividualImpl.NamedImpl.class,
+            OntIndividualImpl.NamedImpl::new,
+            eg -> findIndividuals(eg).filterKeep(Node::isURI),
+            OWL1ObjectFactories::isNamedIndividual
+    );
+    public static final EnhNodeFactory ANONYMOUS_INDIVIDUAL = OntEnhNodeFactories.createCommon(
+            OntIndividualImpl.AnonymousImpl.class,
+            OntIndividualImpl.AnonymousImpl::new,
+            eg -> findIndividuals(eg).filterKeep(Node::isBlank),
+            OWL1ObjectFactories::isAnonymousIndividual
+    );
 
     public static final EnhNodeFactory ANY_ENTITY = OntEnhNodeFactories.createFrom(
             OntEnhNodeFactories.createFinder(e -> e.resourceType.asNode(), OntEntities.values()),
@@ -209,4 +227,26 @@ public class OWL1ObjectFactories {
     );
     public static final EnhNodeFactory ANY_DISJOINT = DIFFERENT_INDIVIDUALS_DISJOINT;
 
+    private static boolean isNamedIndividual(Node n, EnhGraph eg) {
+        return n.isURI() && isIndividual(n, eg);
+    }
+
+    private static boolean isAnonymousIndividual(Node n, EnhGraph eg) {
+        return !n.isURI() && isIndividual(n, eg);
+    }
+
+    private static boolean isIndividual(Node n, EnhGraph eg) {
+        return Iterators.anyMatch(
+                eg.asGraph().find(n, RDF.type.asNode(), Node.ANY)
+                        .mapWith(Triple::getObject),
+                it -> ANY_CLASS.canWrap(it, eg)
+        );
+    }
+
+    private static ExtendedIterator<Node> findIndividuals(EnhGraph eg) {
+        Graph g = eg.asGraph();
+        return g.find(Node.ANY, RDF.type.asNode(), Node.ANY)
+                .filterKeep(t -> ANY_CLASS.canWrap(t.getObject(), eg))
+                .mapWith(Triple::getSubject);
+    }
 }

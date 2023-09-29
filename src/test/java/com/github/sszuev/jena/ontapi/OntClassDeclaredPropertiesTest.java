@@ -28,6 +28,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListDeclaredProperties1(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -78,6 +79,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             //"RDFS_MEM", // TODO: see comment for OntSpecification.RDFS_MEM
     })
     public void testListDeclaredProperties2(TestSpec spec) {
@@ -133,6 +135,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListDeclaredProperties3(TestSpec spec) {
         OntModel m0 = OntModelFactory.createModel(spec.inst).setID("http://m0").getModel();
@@ -163,6 +166,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListDeclaredProperties4(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -217,6 +221,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             // TODO: Jena allows creation an abstract com.github.sszuev.jena.ontapi.model.OntProperty
             //  (which is just `rdf:Property`), ONT-API can't since it contradicts OWL2 specification;
             //  Need to add RDFS_MEM_COMPATIBLE spec which will pretend to be OWL2, see OntSpecification.RDFS_MEM
@@ -245,6 +250,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListDeclaredProperties6(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -278,6 +284,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListDeclaredProperties7a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -383,6 +390,7 @@ public class OntClassDeclaredPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             //"RDFS_MEM", // TODO: see comment for OntSpecification.RDFS_MEM
     })
     public void testHasDeclaredProperties3(TestSpec spec) {

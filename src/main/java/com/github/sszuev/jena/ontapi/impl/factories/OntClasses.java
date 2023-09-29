@@ -394,13 +394,12 @@ final class OntClasses {
                 if (owlV2Support || res != null) {
                     return res;
                 }
-                if (n.isURI()) {
-                    return NAMED_CLASS_FACTORY.canWrap(n, eg) ? NAMED_CLASS_PRODUCER : null;
+                if (n.isBlank()) {
+                    // class with unknown nature, allowed in OWL1.1
+                    return ANON_CLASS_PRODUCER;
                 }
-                // class with unknown nature, allowed in OWL1.1
-                return ANON_CLASS_PRODUCER;
             }
-            return null;
+            return NAMED_CLASS_FACTORY.canWrap(n, eg) ? NAMED_CLASS_PRODUCER : null;
         }
 
         private BiFunction<Node, EnhGraph, EnhNode> forRestrictions(Node n, EnhGraph eg) {

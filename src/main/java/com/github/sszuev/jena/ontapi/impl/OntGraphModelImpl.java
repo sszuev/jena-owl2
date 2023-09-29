@@ -217,9 +217,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                 })
                 .filterKeep(s -> {
                     if (s == null) return false;
-                    // an individual may have a factory with punnings restrictions,
+                    // an individual may have a factory with punning restrictions,
                     // so need to check its type also.
-                    // this time do not cache in model
+                    // this time does not cache in a model
                     OntIndividual i = s.getSubject().getAs(OntIndividual.class);
                     if (i == null) return false;
 

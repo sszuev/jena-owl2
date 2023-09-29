@@ -185,6 +185,7 @@ public class OntIndividualTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListIndividuals1(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
@@ -197,6 +198,7 @@ public class OntIndividualTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListIndividuals2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -210,6 +212,7 @@ public class OntIndividualTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
     })
     public void testListIndividuals3(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);

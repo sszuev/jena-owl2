@@ -30,6 +30,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testSubClassNE(TestSpec spec) {
@@ -40,8 +41,9 @@ public class OntClassSubClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
-            "OWL2_MEM",
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses1a(TestSpec spec) {
@@ -56,6 +58,7 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses2(TestSpec spec) {
@@ -130,6 +133,7 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses3b(TestSpec spec) {
@@ -177,6 +181,7 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses4a(TestSpec spec) {
@@ -329,6 +334,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses5a(TestSpec spec) {
@@ -370,6 +376,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses6a(TestSpec spec) {
@@ -399,6 +406,7 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses7a(TestSpec spec) {
@@ -465,6 +473,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSubClasses8a(TestSpec spec) {

@@ -6,7 +6,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.rdf.model.Resource;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -25,9 +24,16 @@ public class OntClassIndividualsTest {
         return m.getOntClass(NS + name).individuals(direct).map(Resource::getLocalName).collect(Collectors.toSet());
     }
 
-    @Test
-    public void testRemoveIndividual() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+            "RDFS_MEM",
+    })
+    public void testRemoveIndividual(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst)
+                .setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass(":C1");
         OntClass c2 = m.createOntClass(":C2");
         Resource i1 = m.createResource(":I1", c1).addProperty(RDF.type, OWL.NamedIndividual);
@@ -97,7 +103,9 @@ public class OntClassIndividualsTest {
     }
 
     @ParameterizedTest
-    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+    })
     public void testListIndividuals2(TestSpec spec) {
         // B = C
         //  \ |
@@ -124,7 +132,9 @@ public class OntClassIndividualsTest {
     }
 
     @ParameterizedTest
-    @EnumSource(names = {"OWL2_DL_MEM_RDFS_BUILTIN_INF"})
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+    })
     public void testListIndividuals3(TestSpec spec) {
         //     D
         //    | \

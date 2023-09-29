@@ -30,6 +30,7 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testSuperClassNE(TestSpec spec) {
@@ -41,6 +42,7 @@ public class OntClassSuperClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSuperClasses1a(TestSpec spec) {
@@ -124,6 +126,7 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSuperClasses3a(TestSpec spec) {
@@ -229,6 +232,7 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSuperClasses6a(TestSpec spec) {
@@ -265,6 +269,7 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSuperClasses7a(TestSpec spec) {
@@ -279,6 +284,7 @@ public class OntClassSuperClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL1_MEM",
             "RDFS_MEM",
     })
     public void testListSuperClasses8a(TestSpec spec) {
