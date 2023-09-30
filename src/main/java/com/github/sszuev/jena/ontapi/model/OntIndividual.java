@@ -54,7 +54,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
 
     /**
      * {@inheritDoc}
-     * For individuals content also includes negative property assertion statements.
+     * For individuals, content also includes negative property assertion statements.
      *
      * @return {@code Stream} of content {@link OntStatement}s
      */

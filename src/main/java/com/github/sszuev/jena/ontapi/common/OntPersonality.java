@@ -198,7 +198,7 @@ public interface OntPersonality {
      * {@link OWL#sameAs owl:sameAs},
      * since it is used by a model to build individual equality and, therefore, it cannot be used in other cases.
      * An {@link OntModel ontology model} cannot contain an OWL entity with this IRI.
-     * But, of course, all these things are customizable, and vocabularies may contain more or less restrictions.
+     * All these things are customizable, and vocabularies may contain more or less restrictions.
      * <p>
      * Each node obtained from this class must be IRI (i.e. {@code node.isURI() = true}).
      */

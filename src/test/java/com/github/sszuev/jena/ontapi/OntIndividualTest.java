@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -220,6 +221,55 @@ public class OntIndividualTest {
         m.add(a0, RDF.type, OWL.Class);
         m.add(OWL.Class, RDF.type, OWL.Class);
         Assertions.assertTrue(m.individuals().findFirst().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testListIndividuals4(TestSpec spec) {
+        // For inference model
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        Resource a0 = m.createResource(NS + "A0");
+        m.add(a0, RDF.type, OWL.Class);
+        Assertions.assertTrue(m.individuals().findFirst().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testListIndividuals5(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        // a0 should be an individual, since we are punning
+        Resource a0 = m.createResource(NS + "A0");
+        Resource a1 = m.createResource(NS + "A1");
+        m.add(a0, org.apache.jena.vocabulary.RDF.type, org.apache.jena.vocabulary.OWL.Class);
+        m.add(a1, org.apache.jena.vocabulary.RDF.type, org.apache.jena.vocabulary.OWL.Class);
+        m.add(a0, org.apache.jena.vocabulary.RDF.type, a1);
+        Assertions.assertEquals(List.of(NS + "A0"), m.individuals().map(Resource::getURI).collect(Collectors.toList()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+            "RDFS_MEM", // <-- here the difference with Jena's listIndividuals, see OntGraphModelImpl#listIndividuals
+    })
+    public void testListIndividuals6(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
+                "/list-individuals-test-comps.rdf", Lang.RDFXML);
+        Assertions.assertEquals(
+                List.of(
+                        "urn:x-hp:eg/DTPGraphics",
+                        "urn:x-hp:eg/budgetGraphics",
+                        "urn:x-hp:eg/gamingGraphics"),
+                m.individuals().distinct().map(Resource::getURI).sorted().collect(Collectors.toList()));
     }
 
     @ParameterizedTest

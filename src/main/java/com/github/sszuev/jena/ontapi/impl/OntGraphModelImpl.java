@@ -540,6 +540,10 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     /**
      * Returns an {@code ExtendedIterator} over all individuals
      * that participate in class assertion statement {@code a rdf:type C}.
+     * <b>Note:</b> this method behaves differently than
+     * the method {@link org.apache.jena.ontology.impl.OntModelImpl#listIndividuals()}!
+     * The Jena's method does not verify that the right side of the class-assertion is indeed a valid class expression;
+     * it checks only several well-known cases.
      *
      * @return {@link ExtendedIterator} of {@link OntIndividual}s
      */

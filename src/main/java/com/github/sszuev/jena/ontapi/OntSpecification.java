@@ -14,12 +14,15 @@ import java.util.Objects;
  */
 public class OntSpecification {
     public static final OntModelConfig OWL2_CONFIG = OntModelConfig.DEFAULT
+            .useBuiltinHierarchySupport(false)
             .useOWLv1Vocabulary(false)
             .useNamedIndividualDeclaration(true);
     public static final OntModelConfig OWL1_CONFIG = OntModelConfig.DEFAULT
+            .useBuiltinHierarchySupport(false)
             .useOWLv1Vocabulary(true)
             .useNamedIndividualDeclaration(false);
     public static final OntModelConfig RDFS_CONFIG = OntModelConfig.DEFAULT
+            .useBuiltinHierarchySupport(false)
             .useOWLv1Vocabulary(true) // <- doesn't matter
             .useNamedIndividualDeclaration(false);
 

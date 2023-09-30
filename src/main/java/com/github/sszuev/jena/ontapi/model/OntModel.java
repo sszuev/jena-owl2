@@ -58,7 +58,7 @@ public interface OntModel extends Model,
 
     /**
      * Returns the base {@code Graph},
-     * i.e. the primary ontological {@code Graph} that does not contain any sub-graphs hierarchy.
+     * i.e., the primary ontological {@code Graph} that does not contain any subgraph hierarchy.
      * Only the base graph can be edited from this interface view.
      * To get the whole union graph use the method {@link #getGraph()}.
      *
@@ -72,7 +72,8 @@ public interface OntModel extends Model,
      * <p>
      * Since OWL2 graph can only contain single {@code @uri rdf:type owl:Ontology} triple inside itself,
      * in case there are more than one such {@code Resource}s with the type {@link OWL#Ontology owl:Ontology},
-     * the method chooses the most bulky one (i.e. those that contains the largest number of associated statements)
+     * the method chooses the most bulky one
+     * (i.e., those that contains the largest number of associated statements)
      * and all the other triples leave intact.
      * No changes in the {@code Graph} is made.
      * The method works only with the {@link #getBaseGraph() base graph}.
@@ -97,11 +98,11 @@ public interface OntModel extends Model,
     OntID setID(String uri);
 
     /**
-     * Adds a sub model both to the {@code owl:import} section and to the graph hierarchy.
+     * Adds a sub-model both to the {@code owl:import} section and to the graph hierarchy.
      *
      * @param m {@link OntModel ont jena model} to add, not {@code null}
      * @return this model to allow cascading calls
-     * @throws OntJenaException if specified ontology is anonymous
+     * @throws OntJenaException if specified, ontology is anonymous
      *                          or already present in the imports (both as graph and in owl-declaration)
      * @see OntID#addImport(String)
      */
@@ -109,7 +110,7 @@ public interface OntModel extends Model,
 
     /**
      * Removes a sub-model from {@code owl:import} and from the graph hierarchy.
-     * Does nothing, if the specified model does not belong to this ontology.
+     * Does nothing if the specified model does not belong to this ontology.
      * Matching is performed by graph, not uri (see {@link #hasImport(OntModel)} description).
      *
      * @param m {@link OntModel ont jena model} to remove, not {@code null}
@@ -199,7 +200,7 @@ public interface OntModel extends Model,
      * while this method returns only class-asserted individuals.
      * Also notice: the method {@link #namedIndividuals()} must return only explicitly declared named individuals,
      * while this method does not require the declaration {@link OWL#NamedIndividual owl:NamedIndividual}
-     * to be present for an individual: according to the specification it is optional, for more details see
+     * to be present for an individual: according to the specification, it is optional; for more details see
      * <a href="https://www.w3.org/TR/owl2-syntax/#Typing_Constraints_of_OWL_2_DL">5.8.1 Typing Constraints of OWL 2 DL</a>.
      * Also note: in case of valid distinct {@link #getGraph() RDF graph}
      * the returned {@code Stream} is also distinct,
@@ -212,8 +213,8 @@ public interface OntModel extends Model,
 
     /**
      * Returns an ont-entity for the specified type and uri.
-     * This method can also be used to wrap builtin entities, which, in fact, does not belong to the graph,
-     * but can be considered as belonged to the model.
+     * This method can also be used to wrap builtin entities, which, in fact, do not belong to the RDF graph,
+     * but can be considered as belonged to the OWL model.
      * An IRI for such a built-in entity must be in
      * the {@link OntPersonality.Builtins Builtins Vocabulary},
      * otherwise the method returns {@code null}.
@@ -272,7 +273,7 @@ public interface OntModel extends Model,
      * Answers iff the statement belongs to the base graph.
      *
      * @param statement {@link Statement}
-     * @return true if statement is local.
+     * @return true if a statement is local
      * @see OntStatement#isLocal()
      * @see OntObject#isLocal()
      * @see OntModel#localStatements(Resource, Property, RDFNode)
@@ -282,7 +283,7 @@ public interface OntModel extends Model,
     /**
      * Removes the given {@link OntObject Ontology Object} from the graph-model
      * including its {@link OntObject#content() content} and annotations.
-     * This operation does not guarantee clearing all object references:
+     * This operation does not guarantee the removal of all references to objects:
      * it takes into account only statements where the given object in a subject position.
      * For example, in case of deleting an OWL class
      * that is on the right side in a statement with the predicate {@code rdfs:subClassOf},
