@@ -32,8 +32,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Answers a {@code Stream} over all the class expressions
-     * that are declared to be sub-classes of this class expression.
-     * The return {@code Stream} is distinct and this instance is not included into it.
+     * that are declared to be subclasses of this class expression.
+     * The return {@code Stream} is distinct and this instance is not included in it.
      * The flag {@code direct} allows some selectivity over the classes that appear in the {@code Stream}.
      * Consider the following scenario:
      * <pre>{@code
@@ -41,27 +41,31 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *   :C rdfs:subClassOf :A.
      *   :D rdfs:subClassOf :C.
      * }</pre>
-     * (so {@code A} has two sub-classes, {@code B} and {@code C}, and {@code C} has sub-class {@code D})
-     * In a raw model, with no inference support, listing the sub-classes of {@code A} will answer {@code B} and {@code C}.
+     * (so {@code A} has two subclasses, {@code B} and {@code C}, and {@code C} has subclass {@code D})
+     * In a raw model, with no inference support,
+     * listing the subclasses of {@code A} will answer {@code B} and {@code C}.
      * In an inferencing model, {@code rdfs:subClassOf} is known to be transitive, so
-     * the sub-classes iterator will include {@code D}.
-     * The {@code direct} sub-classes are those members of the closure of the subClassOf relation,
+     * the subclasses iterator will include {@code D}.
+     * The {@code direct} subclasses are those members of the closure of the subClassOf relation,
      * restricted to classes that cannot be reached by a longer route,
-     * i.e. the ones that are <em>directly</em> adjacent to the given root.
-     * Thus, the direct sub-classes of {@code A} are {@code B} and {@code C} only, and not {@code D} - even in an inferencing graph.
+     * i.e., the ones that are <em>directly</em> adjacent to the given root.
+     * Thus, the direct subclasses of {@code A} are {@code B} and {@code C} only,
+     * and not {@code D} - even in an inferencing graph.
      * Note that this is not the same as the entailments from the raw graph.
      * Suppose we add to this example:
      * <pre>{@code
      *   :D rdfs:subClassOf :A.
      * }</pre>
-     * Now, in the raw graph, {@code A} has sub-class {@code C}. But the direct sub-classes of {@code A} remain {@code B} and {@code C},
-     * since there is a longer path {@code A-C-D} that means that {@code D} is not a direct sub-class of {@code A}.
-     * The assertion in the raw graph that {@code A} has sub-class {@code D} is essentially redundant,
+     * Now, in the raw graph, {@code A} has subclass {@code C}.
+     * But the direct subclasses of {@code A} remain {@code B} and {@code C},
+     * since there is a longer path {@code A-C-D}
+     * that means that {@code D} is not a direct subclass of {@code A}.
+     * The assertion in the raw graph that {@code A} has subclass {@code D} is essentially redundant,
      * since this can be inferred from the closure of the graph.
      *
-     * @param direct {@code boolean} - if {@code true} answers the directly adjacent classes in the sub-class relation:
-     *               i.e. eliminate any class for which there is a longer route to reach that parent under the sub-class relation;
-     *               if {@code false} answers all sub-classes found by inferencer, which usually means entire hierarchy down the tree;
+     * @param direct {@code boolean} - if {@code true} answers the directly adjacent classes in the subclass relation:
+     *               i.e., eliminate any class for which there is a longer route to reach that parent under the subclass relation;
+     *               if {@code false} answers all subclasses found by inferencer, which usually means entire hierarchy down the tree;
      *               this class is not included
      * @return <b>distinct</b> {@code Stream} of sub {@link OntClass class expression}s
      * @see #subClasses()
@@ -72,8 +76,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Answers a {@code Stream} over the class-expressions
-     * for which this class expression is declared a sub-class.
-     * The return {@code Stream} is distinct and this instance is not included into it.
+     * for which this class expression is declared a subclass.
+     * The return {@code Stream} is distinct and this instance is not included in it.
      * <p>
      * The flag {@code direct} allows some selectivity over the classes that appear in the {@code Stream}.
      * Consider the following scenario:
@@ -82,28 +86,28 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *   :A rdfs:subClassOf :C .
      *   :C rdfs:subClassOf :D .
      * }</pre>
-     * (so {@code A} has super-classes {@code B} and {@code C}, and {@code C} has super-class {@code D})
-     * In a raw model, with no inference support, listing the super-classes of {@code A} will answer {@code B} and {@code C}.
+     * (so {@code A} has superclasses {@code B} and {@code C}, and {@code C} has superclass {@code D})
+     * In a raw model, with no inference support, listing the superclasses of {@code A} will answer {@code B} and {@code C}.
      * In an inferencing model, {@code rdfs:subClassOf} is known to be transitive,
-     * so the super-classes iterator will include {@code D}.
-     * The {@code direct} super-classes are those members of the closure of the inverse-subClassOf relation,
+     * so the superclasses iterator will include {@code D}.
+     * The {@code direct} superclasses are those members of the closure of the inverse-subClassOf relation,
      * restricted to classes that cannot be reached by a longer route,
-     * i.e. the ones that are <em>directly</em> adjacent to the given root.
-     * Thus, the direct super-classes of {@code A} are {@code B} and {@code C} only, and not {@code D} - even in an inferencing graph.
+     * i.e., the ones that are <em>directly</em> adjacent to the given root.
+     * Thus, the direct superclasses of {@code A} are {@code B} and {@code C} only, and not {@code D} - even in an inferencing graph.
      * Note that this is not the same as the entailments from the raw graph.
      * Suppose we add to this example:
      * <pre>{@code
      *   :A rdfs:subClassOf :D .
      * }</pre>
-     * Now, in the raw graph, {@code A} has super-classes {@code B}, {@code C}, {@code D}.
-     * But the direct super-classes of {@code A} remain only {@code B} and C,
-     * since there is a longer path {@code A-C-D} that means that {@code D} is not a direct super-class of {@code A}.
-     * The assertion in the raw graph that {@code A} has super-class {@code D} is essentially redundant,
+     * Now, in the raw graph, {@code A} has superclasses {@code B}, {@code C}, {@code D}.
+     * But the direct superclasses of {@code A} remain only {@code B} and C,
+     * since there is a longer path {@code A-C-D} that means that {@code D} is not a direct superclass of {@code A}.
+     * The assertion in the raw graph that {@code A} has superclass {@code D} is essentially redundant,
      * since this can be inferred from the closure of the graph.
      *
-     * @param direct {@code boolean}: if {@code true} answers the directly adjacent classes in the super-class relation,
-     *               i.e. eliminate any class for which there is a longer route to reach that parent under the super-class relation;
-     *               if {@code false} answers all super-classes found by inferencer, which usually means entire hierarchy up the tree;
+     * @param direct {@code boolean}: if {@code true} answers the directly adjacent classes in the superclass relation,
+     *               i.e., eliminate any class for which there is a longer route to reach that parent under the superclass relation;
+     *               if {@code false} answers all superclasses found by inferencer, which usually means entire hierarchy up the tree;
      *               this class is not included
      * @return <b>distinct</b> {@code Stream} of super {@link OntClass class expression}s
      * @see #superClasses()
@@ -116,7 +120,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * Lists all individuals, directly or indirectly connected to this class.
      * The search pattern is {@code a rdf:type C}, where {@code C} is class expression and {@code a} individual.
      *
-     * @param direct {@code boolean} if true, only direct instances are counted (i.e. not instances of sub-classes of this class)
+     * @param direct {@code boolean} if true, only direct instances are counted (i.e., not instances of subclasses of this class)
      * @return a {@code Stream} of {@link OntIndividual}s
      */
     Stream<OntIndividual> individuals(boolean direct);
@@ -128,16 +132,16 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * A full description of the frame-like view of a class may be found in:
      * <a href="https://jena.apache.org/documentation/notes/rdf-frames.html">Apache Jena: RDF frames how-to</a> for full details.
      * <p>
-     * Note that many cases of determining whether a property is associated with a class depends on RDFS or OWL reasoning.
+     * Note that many cases of determining whether a property is associated with a class depend on RDFS or OWL reasoning.
      * This method may therefore return complete results only in models that have an attached reasoner.
      * For built-in properties the method returns always {@code false}.
-     * If there is no domains for the property, then it is considered as global and is attached to root classes.
+     * If there are no domains for the property, then it is considered as global and is attached to root classes.
      * <p>
      * The behavior of this method must be identical to the behavior of the Jena method
      * {@link org.apache.jena.ontology.OntClass#hasDeclaredProperty(Property, boolean)}.
      *
      * @param property {@link OntRealProperty}, not {@code null}
-     * @param direct   {@code boolean}: if {@code true} analyses only the directly adjacent domains in the sub-class relation,
+     * @param direct   {@code boolean}: if {@code true} analyses only the directly adjacent domains in the subclass relation,
      *                 otherwise takes into account the class hierarchy
      * @return {@code boolean}, {@code true} if the property is associated with this class by its domain, otherwise {@code false}
      * @see org.apache.jena.ontology.OntClass#hasDeclaredProperty(Property, boolean)
@@ -148,7 +152,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * Returns a {@code Stream} over the {@link OntProperty properties} associated with a frame-like view of this class.
      * This captures an intuitive notion of the <em>properties of a class</em>.
      * This can be useful in presenting an ontology class in a user interface,
-     * for example by automatically constructing a form to instantiate instances of the class.
+     * for example, by automatically constructing a form to instantiate instances of the class.
      * The properties in the frame-like view of the class are determined by comparing
      * the domain of properties in this class's {@link OntModel} with the class itself.
      * See: <a href="https://jena.apache.org/documentation/notes/rdf-frames.html">Apache Jena: Presenting RDF as frames</a> for more details.
@@ -156,7 +160,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * The behavior of this method must be identical to the behavior of the Jena method
      * {@link org.apache.jena.ontology.OntClass#listDeclaredProperties(boolean)}}.
      *
-     * @param direct {@code boolean}: if {@code true} analyses only the directly adjacent domains in the sub-class relation,
+     * @param direct {@code boolean}: if {@code true} analyses only the directly adjacent domains in the subclass relation,
      *               otherwise takes into account the class hierarchy
      * @return a <b>distinct</b> {@code Stream} of {@link OntProperty object, datatype and annotation properties}, attached to this class
      * @see #properties()
@@ -165,8 +169,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Answers true if this class is one of the roots of the local class hierarchy.
-     * This will be true if either (i) this class has either {@code owl:Thing} or {@code rdfs:Resource} as a direct super-class,
-     * or (ii) it has no declared super-classes.
+     * This will be true if either (i) this class has either {@code owl:Thing} or {@code rdfs:Resource} as a direct superclass,
+     * or (ii) it has no declared superclasses.
      * <p>
      * {@code owl:Nothing} cannot be root.
      * <p>
@@ -210,7 +214,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * that is attached to this Class Expression using the predicate {@link OWL#hasKey owl:hasKey}.
      * The resulting rdf-list will consist of all the elements of the specified collection
      * in the same order but with exclusion of duplicates.
-     * Note: {@code null}s in collection will cause {@link OntJenaException.IllegalArgument exception}.
+     * Note: {@code null}s in the collection will cause {@link OntJenaException.IllegalArgument exception}.
      * For additional information about {@code HasKey} logical construction see
      * <a href="https://www.w3.org/TR/owl2-syntax/#Keys">9.5 Keys</a> specification.
      *
@@ -306,7 +310,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Lists all direct or indirect sub-classes for this class expression, i.e. all sub-classes found by inferencer,
+     * Lists all direct or indirect subclasses for this class expression, i.e., all subclasses found by inferencer,
      * which usually means entire hierarchy down the tree; this class is not included.
      * The search pattern is {@code Ci rdfs:subClassOf C}.
      * <p>
@@ -320,7 +324,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Answers a class that is the sub-class of this class.
+     * Answers a class that is the subclass of this class.
      * If there is more than one such class, an arbitrary selection is made.
      *
      * @return {@link Optional} wrapping {@link OntClass}
@@ -333,7 +337,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Lists all direct and indirect super-classes for this class expression, i.e. all super-classes found by inferencer,
+     * Lists all direct and indirect superclasses for this class expression, i.e., all superclasses found by inferencer,
      * which usually means entire hierarchy up the tree; this class is not included.
      * The search pattern is {@code C rdfs:subClassOf Ci}.
      * <p>
@@ -347,7 +351,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Answers a class that is the super-class of this class.
+     * Answers a class that is the superclass of this class.
      * If there is more than one such class, an arbitrary selection is made.
      *
      * @return {@link Optional} wrapping {@link OntClass}
@@ -391,7 +395,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Adds the given class as a super class
+     * Adds the given class as a superclass
      * and returns the corresponding statement to provide the ability to add annotations.
      *
      * @param other {@link OntClass}, not {@code null}
@@ -432,7 +436,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Creates an {@code owl:hasKey} statement returning root statement to allow the subsequent annotations adding.
+     * Creates an {@code owl:hasKey} statement returning the root statement to allow the subsequent annotations adding.
      *
      * @param objectProperties the collection of {@link OntObjectProperty}s, not {@code null} and cannot contain {@code null}s
      * @param dataProperties   the collection of {@link OntDataProperty}s, not {@code null} and cannot contain {@code null}s
@@ -446,7 +450,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Adds the given class as a super class
+     * Adds the given class as a superclass
      * and returns this class expression instance to allow cascading calls.
      *
      * @param other {@link OntClass}, not {@code null}
@@ -460,7 +464,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Adds the given class as a sub-class
+     * Adds the given class as a subclass
      * and returns this class expression instance to allow cascading calls.
      *
      * @param other {@link OntClass}, not {@code null}
@@ -542,7 +546,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Removes a super-class relationship for the given resource including all possible annotations.
+     * Removes a superclass relationship for the given resource including all possible annotations.
      * No-op in case no match found.
      * Removes all {@link RDFS#subClassOf rdfs:subClassOf} statements with all their annotations
      * in case {@code null} is specified.
@@ -593,7 +597,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Deletes all {@code HasKey} []-list including its annotations,
-     * i.e. all those statements with the predicate {@link OWL#hasKey owl:hasKey} for which this resource is a subject.
+     * i.e., all those statements with the predicate {@link OWL#hasKey owl:hasKey} for which this resource is a subject.
      *
      * @return <b>this</b> instance to allow cascading calls
      * @throws OntJenaException if the list is not found
@@ -618,7 +622,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Lists all key properties.
-     * I.e. returns all object- and datatype- properties which belong to
+     * I.e., returns all object- and datatype-properties that belong to
      * the {@code C owl:hasKey ( P1 ... Pm R1 ... Rn )} statements,
      * where {@code C} is this class expression,
      * {@code Pi} is a property expression, and {@code Ri} is a data(-type) property.
@@ -801,7 +805,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          * that is attached to this OWL Class using the predicate {@link OWL#disjointUnionOf owl:disjointUnionOf}.
          * The resulting rdf-list will consist of all the elements of the specified collection
          * in the same order but with exclusion of duplicates.
-         * Note: {@code null}s in collection will cause {@link OntJenaException.IllegalArgument exception}.
+         * Note: {@code null}s in the collection will cause {@link OntJenaException.IllegalArgument exception}.
          * For additional information about {@code DisjointUnion} logical construction see
          * <a href="https://www.w3.org/TR/owl2-syntax/#Disjoint_Union_of_Class_Expressions">9.1.4 Disjoint Union of Class Expressions</a>.
          *
@@ -972,7 +976,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
         /**
          * Deletes all {@code DisjointUnion} []-lists including their annotations,
-         * i.e. all those statements with the predicate {@link OWL#disjointUnionOf owl:disjointUnionOf}
+         * i.e., all those statements with the predicate {@link OWL#disjointUnionOf owl:disjointUnionOf}
          * for which this resource is a subject.
          *
          * @return <b>this</b> instance to allow cascading calls
@@ -1064,7 +1068,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * An abstract class expression (Restriction) that has component (i.e. 'filler' in OWL-API terms):
+     * An abstract class expression (Restriction) that has component (i.e., 'filler' in OWL-API terms):
      * all Cardinality Restrictions, Existential/Universal Restrictions, Individual/Literal Value Restrictions.
      *
      * @param <O> a value type

@@ -42,8 +42,9 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         throw new OntJenaException.Conversion(node + " could not be " + Anonymous.class);
     }
 
-    static Stream<OntClass> explicitClassTypes(OntIndividual individual) {
-        return individual.objects(RDF.type, OntClass.class);
+    static Stream<OntClass> declaredClassTypes(OntIndividual individual) {
+        return individual.objects(RDF.type, OntClass.class)
+                .flatMap(it -> Stream.concat(OntClassImpl.equivalentsBySubClassOf(it), Stream.of(it)));
     }
 
     @Override
@@ -60,7 +61,6 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         return listObjects(RDF.type, OntClass.class);
     }
 
-
     /**
      * Returns a {@code Set} of all class-types,
      * including their super-classes if the parameter {@code direct} is {@code false}.
@@ -69,12 +69,15 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
      * @return a {@code Set} of all {@link OntClass class}-types
      */
     public Set<OntClass> getClasses(boolean direct) {
-        Stream<OntClass> directClasses = explicitClassTypes(this)
-                .flatMap(it -> Stream.concat(OntClassImpl.equivalentsBySubClassOf(it), Stream.of(it)));
         if (direct) {
-            return directClasses.collect(Collectors.toSet());
+            Set<OntClass> declared = declaredClassTypes(this).collect(Collectors.toSet());
+            return declared.stream()
+                    .filter(s -> s.subClasses(true).noneMatch(declared::contains))
+                    .collect(Collectors.toSet());
         }
-        return directClasses.flatMap(it -> Stream.concat(Stream.of(it), it.superClasses(false))).collect(Collectors.toSet());
+        return declaredClassTypes(this)
+                .flatMap(it -> Stream.concat(Stream.of(it), it.superClasses(false)))
+                .collect(Collectors.toSet());
     }
 
     @Override

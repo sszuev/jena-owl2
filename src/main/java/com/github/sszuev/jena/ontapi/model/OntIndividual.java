@@ -45,7 +45,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
      * See also {@link OntClass#superClasses(boolean)}.
      *
      * @param direct if {@code true}, only answers those {@link OntClass}s that are direct types of this individual,
-     *               not the super-classes of the class etc
+     *               not the superclasses of the class etc
      * @return <b>distinct</b> {@code Stream} of {@link OntClass class expressions}
      * @see #classes()
      * @see OntClass#superClasses(boolean)
@@ -492,7 +492,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
 
         /**
          * {@inheritDoc}
-         * For an anonymous individual a primary class assertion is also a definition, so its deletion is prohibited.
+         * For an anonymous individual, a primary class assertion is also a definition, so its deletion is prohibited.
          *
          * @param clazz {@link OntClass}, not {@code null}
          * @return <b>this</b> instance to allow cascading calls
