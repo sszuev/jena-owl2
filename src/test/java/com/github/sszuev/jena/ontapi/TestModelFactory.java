@@ -107,7 +107,6 @@ class TestModelFactory {
         D.addSubClass(A);
         return m;
     }
-
     static OntModel createClassesBCA(OntModel m) {
         // B = C
         //  \ |
@@ -119,6 +118,22 @@ class TestModelFactory {
 
         A.addSuperClass(B);
         A.addSuperClass(C);
+        B.addSuperClass(C);
+        C.addSuperClass(B);
+        return m;
+    }
+
+    static OntModel createClassesABC(OntModel m) {
+        //    A
+        //  /  \
+        // B  = C
+
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+
+        B.addSuperClass(A);
+        C.addSuperClass(A);
         B.addSuperClass(C);
         C.addSuperClass(B);
         return m;
@@ -219,6 +234,100 @@ class TestModelFactory {
         C.addSubClass(F);
         F.addSubClass(C);
         F.addSuperClass(G);
+        return m;
+    }
+
+    static OntModel createClassesABCDAEB(OntModel m) {
+        //  A   B
+        //  .\ /.
+        //  . C .
+        //  . | .
+        //  . D .
+        //  ./  .
+        //  A   .   E
+        //   \  .  |
+        //    \ . /
+        //      B
+
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        OntClass D = m.createOntClass(NS + "D");
+        OntClass E = m.createOntClass(NS + "E");
+
+        B.addSuperClass(E);
+        B.addSuperClass(A);
+
+        A.addSuperClass(D);
+        D.addSuperClass(C);
+        C.addSuperClass(A);
+        C.addSuperClass(B);
+        return m;
+    }
+
+    static OntModel createClassesABCDEFBCF(OntModel m) {
+        //      A       B
+        //    /   \   / |
+        //  /       C   |
+        // |      / .   |
+        // |    D   .   |
+        // |  / |   .   |
+        // E    |   .   |
+        //   \  |   .   |
+        //     F ...... F
+        //       \  .
+        //        \ .
+        //          C
+
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        OntClass D = m.createOntClass(NS + "D");
+        OntClass E = m.createOntClass(NS + "E");
+        OntClass F = m.createOntClass(NS + "F");
+
+        C.addSuperClass(F);
+        C.addSuperClass(A);
+        C.addSuperClass(B);
+
+        F.addSuperClass(E);
+        F.addSuperClass(D);
+        F.addSuperClass(B);
+
+        E.addSuperClass(A);
+        E.addSuperClass(D);
+
+        D.addSuperClass(C);
+
+        return m;
+    }
+
+    static OntModel createClassesiAEDcCABiAE(OntModel m) {
+        //         I_AE
+        //         |  .
+        //        D   .
+        //       /    .
+        // C_C  A     .
+        //  \  / \    .
+        //   B    \   .
+        //     \  /   .
+        //       I_A_E
+
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        OntClass C = m.createOntClass(NS + "C");
+        OntClass D = m.createOntClass(NS + "D");
+        OntClass E = m.createOntClass(NS + "E");
+        OntClass complementOf_C = m.createObjectComplementOf(C);
+        OntClass intersectionOf_A_E = m.createObjectIntersectionOf(A, E);
+
+        B.addSuperClass(complementOf_C);
+        B.addSuperClass(A);
+        D.addSuperClass(intersectionOf_A_E);
+        A.addSuperClass(D);
+        intersectionOf_A_E.addSuperClass(A);
+        intersectionOf_A_E.addSuperClass(B);
+
         return m;
     }
 }

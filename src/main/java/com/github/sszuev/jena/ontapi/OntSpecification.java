@@ -29,7 +29,7 @@ public class OntSpecification {
     /**
      * A specification for Ontology models that are stored in memory
      * and use fast but incomplete builtin OWL inference engine for additional entailments.
-     * Full support for the OWL v2 specification.
+     * It supports {@code rdfs:subClassOf} & {@code rdfs:subPropertyOf} hierarchy.
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */

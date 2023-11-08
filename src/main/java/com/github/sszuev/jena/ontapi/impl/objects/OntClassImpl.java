@@ -3,7 +3,10 @@ package com.github.sszuev.jena.ontapi.impl.objects;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
+import com.github.sszuev.jena.ontapi.impl.HasConfig;
+import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
+import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -295,36 +298,20 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
         OntModel m = clazz.getModel();
-        return Iterators.fromSet(() -> {
-                    Set<OntClass> res = direct ?
-                            equivalentsBySubClassOf(clazz).collect(Collectors.toSet()) :
-                            clazz.subClasses(false).collect(Collectors.toSet());
-                    res.add(clazz);
-                    return res;
-                }).flatMap(c -> m.statements(null, RDF.type, c)
-                        .map(i -> i.getSubject().getAs(OntIndividual.class)))
-                .filter(Objects::nonNull).distinct();
+        OntModelConfig config = HasConfig.config(m);
+        if (config != null && config.useBuiltinHierarchySupport()) {
+            // TODO: optimize
+            return clazz.getModel().individuals().filter(i -> i.hasOntClass(clazz, direct));
+        }
+        return subjects(RDF.type, clazz, OntIndividual.class).filter(i -> i.hasOntClass(clazz, direct));
     }
 
     static Stream<OntClass> subClasses(OntClass clazz, boolean direct) {
-        return treeNodes(clazz, x -> actualAdjacentSubClasses(x, false), OntClassImpl::explicitSubClasses, direct);
+        return HierarchySupport.treeNodes(clazz, OntClassImpl::explicitSubClasses, direct);
     }
 
     static Stream<OntClass> superClasses(OntClass clazz, boolean direct) {
-        return treeNodes(clazz, x -> actualAdjacentSubClasses(x, true), OntClassImpl::explicitSuperClasses, direct);
-    }
-
-    static Stream<OntClass> actualAdjacentSubClasses(OntClass clazz, boolean inverse) {
-        if (!config(clazz).useBuiltinHierarchySupport()) {
-            return inverse ? explicitSuperClassesWithoutSelfRef(clazz) : explicitSubClassesWithoutSelfRef(clazz);
-        }
-        Set<OntClass> equivalents = equivalentsBySubClassOf(clazz).collect(Collectors.toSet());
-        equivalents.add(clazz);
-        return equivalents.stream()
-                .flatMap(x -> inverse ? explicitSuperClasses(x) : explicitSubClasses(x))
-                .filter(x -> !equivalents.contains(x))
-                .flatMap(x -> Stream.concat(Stream.of(x), equivalentsBySubClassOf(x)))
-                .distinct();
+        return HierarchySupport.treeNodes(clazz, OntClassImpl::explicitSuperClasses, direct);
     }
 
     static Stream<OntClass> explicitSubClasses(OntClass clazz) {
@@ -333,18 +320,6 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     static Stream<OntClass> explicitSuperClasses(OntClass clazz) {
         return clazz.objects(RDFS.subClassOf, OntClass.class);
-    }
-
-    static Stream<OntClass> explicitSuperClassesWithoutSelfRef(OntClass clazz) {
-        return explicitSuperClasses(clazz).filter(x -> !x.hasProperty(RDFS.subClassOf, clazz));
-    }
-
-    static Stream<OntClass> explicitSubClassesWithoutSelfRef(OntClass clazz) {
-        return explicitSubClasses(clazz).filter(x -> !clazz.hasProperty(RDFS.subClassOf, x));
-    }
-
-    static Stream<OntClass> equivalentsBySubClassOf(OntClass clazz) {
-        return explicitSubClasses(clazz).filter(x -> x.getModel().contains(clazz, RDFS.subClassOf, x));
     }
 
     @Override

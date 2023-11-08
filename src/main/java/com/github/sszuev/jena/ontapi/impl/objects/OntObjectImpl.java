@@ -3,7 +3,6 @@ package com.github.sszuev.jena.ontapi.impl.objects;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
-import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
@@ -29,16 +28,10 @@ import org.apache.jena.util.iterator.NullIterator;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -120,129 +113,6 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
                 .statements(null, predicate, object)
                 .map(x -> x.getSubject().getAs(type))
                 .filter(Objects::nonNull);
-    }
-
-    static OntModelConfig config(OntObject object) {
-        return ((OntGraphModelImpl) object.getModel()).getConfig();
-    }
-
-    /**
-     * see {@code org.apache.jena.ontology.impl.OntResourceImpl#listDirectPropertyValues(Property, String, Class, Property, boolean, boolean)}
-     */
-    static <X extends OntObject> Stream<X> treeNodes(
-            X object,
-            Function<X, Stream<X>> listAdjacentNodes,
-            Function<X, Stream<X>> listExplicitNodes,
-            boolean direct) {
-        boolean useBuiltinReasoner = config(object).useBuiltinHierarchySupport();
-        if (direct) {
-            return adjacentTreeNodes(object, useBuiltinReasoner, listAdjacentNodes);
-        }
-        if (useBuiltinReasoner) {
-            return allTreeNodes(object, listExplicitNodes);
-        }
-        return listExplicitNodes.apply(object).filter(x -> !object.equals(x));
-    }
-
-    /**
-     * For the given object returns a {@code Set} of objects the same type,
-     * that are its children which is determined by the operation {@code listChildren}.
-     *
-     * @param object       {@link X}
-     * @param listChildren a {@code Function} that returns {@code Iterator} for an object of type {@link X}
-     * @param <X>          subtype of {@link Resource}
-     * @return {@code Set} of {@link X}
-     */
-    static <X extends Resource> Stream<X> allTreeNodes(X object, Function<X, ? extends Stream<X>> listChildren) {
-        return Iterators.fromSet(() -> {
-            Set<X> res = new HashSet<>();
-            collectIndirect(object, listChildren, res);
-            res.remove(object);
-            return res;
-        });
-    }
-
-    /**
-     * For the given object recursively collects all children determined by the operation {@code listChildren}.
-     *
-     * @param root         {@link X}
-     * @param listChildren a {@code Function} that returns {@code Iterator} for an object of type {@link X}
-     * @param res          {@code Set} to store result
-     * @param <X>          any subtype of {@link Resource}
-     */
-    static <X extends Resource> void collectIndirect(X root,
-                                                     Function<X, ? extends Stream<X>> listChildren,
-                                                     Set<X> res) {
-        List<X> queue = new LinkedList<>();
-        queue.add(root);
-        while (!queue.isEmpty()) {
-            X next = queue.remove(0);
-            try (Stream<X> children = listChildren.apply(next)) {
-                children.forEach(x -> {
-                    if (res.add(x)) {
-                        queue.add(x);
-                    }
-                });
-            }
-        }
-    }
-
-    static <X extends Resource> Stream<X> adjacentTreeNodes(X object, boolean useBuiltinReasoner, Function<X, Stream<X>> listChildren) {
-        return Iterators.fromSet(() -> {
-            Set<X> res = listChildren.apply(object).collect(Collectors.toSet());
-            dropNodesWithSeveralPaths(object, useBuiltinReasoner, listChildren, res);
-            return res;
-        });
-    }
-
-    static <X extends Resource> void dropNodesWithSeveralPaths(
-            X root,
-            boolean useBuiltinReasoner,
-            Function<X, Stream<X>> listChildren,
-            Set<X> res
-    ) {
-        for (X child : new HashSet<>(res)) {
-            dropNodesWithSeveralPaths(root, child, useBuiltinReasoner, listChildren, res);
-        }
-    }
-
-    private static <X extends Resource> void dropNodesWithSeveralPaths(
-            X root,
-            X current,
-            boolean useBuiltinReasoner,
-            Function<X, Stream<X>> listChildren,
-            Set<X> res
-    ) {
-        Set<X> forQueue = new HashSet<>(res);
-        if (!useBuiltinReasoner) {
-            forQueue.remove(current);
-        }
-        List<X> queue = new LinkedList<>(forQueue);
-        Set<X> seen = new HashSet<>();
-        seen.add(current);
-        while (!queue.isEmpty()) {
-            X next = queue.remove(0);
-            try (Stream<X> children = listChildren.apply(next)) {
-                Iterator<X> it = children.iterator();
-                while (it.hasNext()) {
-                    X child = it.next();
-                    if (seen.add(child)) {
-                        queue.add(child);
-                    } else {
-                        if (!useBuiltinReasoner && child.equals(root)) {
-                            // detect cycle (A -> B -> C -> A), which means there are two paths for evey node: short and long
-                            // In this case, if there is no reasoner, the longest path is ignored;
-                            res.add(current);
-                            return;
-                        }
-                        if (child.equals(current)) {
-                            res.remove(current);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**

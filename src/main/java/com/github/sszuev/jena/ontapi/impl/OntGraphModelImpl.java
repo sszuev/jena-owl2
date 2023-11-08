@@ -88,7 +88,7 @@ import java.util.stream.Stream;
  * @see UnionGraph
  */
 @SuppressWarnings({"WeakerAccess", "SameParameterValue", "unused"})
-public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph {
+public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph, HasConfig {
 
     // the model's types mapper
     protected final Map<String, RDFDatatype> dtTypes = new HashMap<>();
@@ -272,6 +272,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return o == null;
     }
 
+    @Override
     public OntModelConfig getConfig() {
         return config;
     }

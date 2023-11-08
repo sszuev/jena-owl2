@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
@@ -15,6 +16,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Optional;
 import java.util.Set;
@@ -42,14 +44,25 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         throw new OntJenaException.Conversion(node + " could not be " + Anonymous.class);
     }
 
-    static Stream<OntClass> declaredClassTypes(OntIndividual individual) {
-        return individual.objects(RDF.type, OntClass.class)
-                .flatMap(it -> Stream.concat(OntClassImpl.equivalentsBySubClassOf(it), Stream.of(it)));
-    }
-
+    /**
+     * Returns a {@code Stream} of all class-types,
+     * including their super-classes if the parameter {@code direct} is {@code false}.
+     *
+     * @param direct if {@code true} returns only direct types
+     * @return a {@code Stream} of all {@link OntClass class}-types
+     */
     @Override
     public Stream<OntClass> classes(boolean direct) {
-        return Iterators.fromSet(() -> getClasses(direct));
+        return classes(this, direct);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean hasOntClass(OntClass clazz, boolean direct) {
+        return HierarchySupport.contains(this,
+                (OntObject) clazz,
+                it -> (Stream<OntObject>) ((Stream<?>) explicit(it)),
+                direct);
     }
 
     /**
@@ -61,23 +74,19 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         return listObjects(RDF.type, OntClass.class);
     }
 
-    /**
-     * Returns a {@code Set} of all class-types,
-     * including their super-classes if the parameter {@code direct} is {@code false}.
-     *
-     * @param direct if {@code true} returns only direct types, just like {@code #listClasses().toSet()}
-     * @return a {@code Set} of all {@link OntClass class}-types
-     */
-    public Set<OntClass> getClasses(boolean direct) {
-        if (direct) {
-            Set<OntClass> declared = declaredClassTypes(this).collect(Collectors.toSet());
-            return declared.stream()
-                    .filter(s -> s.subClasses(true).noneMatch(declared::contains))
-                    .collect(Collectors.toSet());
+    @SuppressWarnings("unchecked")
+    static Stream<OntClass> classes(OntObject individual, boolean direct) {
+        Stream<?> res = HierarchySupport.treeNodes(individual,
+                it -> (Stream<OntObject>) ((Stream<?>) explicit(it)),
+                direct);
+        return (Stream<OntClass>) res;
+    }
+
+    static Stream<OntClass> explicit(OntObject resource) {
+        if (resource.canAs(OntIndividual.class)) {
+            return resource.objects(RDF.type, OntClass.class);
         }
-        return declaredClassTypes(this)
-                .flatMap(it -> Stream.concat(Stream.of(it), it.superClasses(false)))
-                .collect(Collectors.toSet());
+        return resource.objects(RDFS.subClassOf, OntClass.class);
     }
 
     @Override

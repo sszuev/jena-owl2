@@ -76,6 +76,18 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
     }
 
     /**
+     * Answers {@code true} if the given class is in the class-type closure.
+     *
+     * @param clazz  {@link OntClass} to test
+     * @param direct see {@link OntIndividual#classes(boolean)}
+     * @return true if the specified class found
+     */
+    default boolean hasOntClass(OntClass clazz, boolean direct) {
+        Objects.requireNonNull(clazz);
+        return classes(direct).anyMatch(clazz::equals);
+    }
+
+    /**
      * Lists all same individuals.
      * The pattern to search for is {@code ai owl:sameAs aj}, where {@code ai} is this individual.
      *

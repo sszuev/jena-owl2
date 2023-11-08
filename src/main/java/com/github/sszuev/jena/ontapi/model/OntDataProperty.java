@@ -55,7 +55,6 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
     @Override
     Stream<OntDataProperty> superProperties(boolean direct);
 
-
     /**
      * {@inheritDoc}
      *

@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
+import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -33,17 +34,15 @@ public class OntAnnotationPropertyImpl extends OntPropertyImpl implements OntAnn
 
     @Override
     public Stream<OntAnnotationProperty> superProperties(boolean direct) {
-        return treeNodes(this,
-                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, true),
-                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, true),
+        return HierarchySupport.treeNodes(this,
+                it -> explicitSuperProperties(it, OntAnnotationProperty.class),
                 direct);
     }
 
     @Override
     public Stream<OntAnnotationProperty> subProperties(boolean direct) {
-        return treeNodes(this,
-                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, false),
-                x -> actualAdjacentSubProperties(x, OntAnnotationProperty.class, false),
+        return HierarchySupport.treeNodes(this,
+                it -> explicitSubProperties(it, OntAnnotationProperty.class),
                 direct);
     }
 

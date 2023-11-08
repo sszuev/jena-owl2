@@ -754,36 +754,6 @@ public class OntModelOWLSpecTest {
         // todo: handle all other types
     }
 
-    @ParameterizedTest
-    @EnumSource(names = {
-            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
-    })
-    public void testListIndividualTypes(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
-        OntClass.Named a = m.createOntClass("A");
-        OntClass.Named b = m.createOntClass("B");
-        OntClass.Named c = m.createOntClass("C");
-        OntClass.Named d = m.createOntClass("D");
-        OntClass.Named e = m.createOntClass("E");
-
-        b.addSuperClass(m.createObjectComplementOf(c)).addSuperClass(a);
-        OntClass ae = m.createObjectIntersectionOf(a, e);
-        d.addSuperClass(ae);
-        a.addSuperClass(d);
-        ae.addSuperClass(a).addSuperClass(b);
-
-        OntIndividual i1 = a.createIndividual("i");
-        OntIndividual i2 = d.createIndividual();
-        i2.attachClass(b);
-        i1.attachClass(d);
-
-        Assertions.assertEquals(2, i2.classes(true).count());
-        Assertions.assertEquals(5, i2.classes(false).count());
-
-        Assertions.assertEquals(2, i1.classes(true).count());
-        Assertions.assertEquals(5, i1.classes(false).count());
-    }
-
     @Test
     public void testRemoveStatement() {
         OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);

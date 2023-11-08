@@ -1,7 +1,9 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.impl.HasConfig;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
+import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntFacetRestriction;
 import com.github.sszuev.jena.ontapi.model.OntObject;
@@ -87,7 +89,8 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
 
     @Override
     public Optional<OntStatement> findRootStatement() {
-        Resource type = config(this).useOWLv1Vocabulary() ? OWL.DataRange : RDFS.Datatype;
+        OntModelConfig config = HasConfig.config(getModel());
+        Resource type = config != null && config.useOWLv1Vocabulary() ? OWL.DataRange : RDFS.Datatype;
         return getRequiredRootStatement(this, type);
     }
 
