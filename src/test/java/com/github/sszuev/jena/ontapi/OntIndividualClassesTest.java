@@ -14,10 +14,33 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.github.sszuev.jena.ontapi.TestModelFactory.NS;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesABCDAEB;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesABCDEF;
+import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesAGBCFDE;
 import static com.github.sszuev.jena.ontapi.TestModelFactory.createClassesiAEDcCABiAE;
 import static com.github.sszuev.jena.ontapi.testutils.MiscUtils.hashSetOf;
 
 public class OntIndividualClassesTest {
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+            "RDFS_MEM",
+    })
+    public void testGetOntClass0(TestSpec spec) {
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
+        OntClass A = m.getOntClass(NS + "A");
+        OntIndividual iA = A.createIndividual("iA");
+        Assertions.assertEquals(A, iA.ontClass().orElseThrow());
+    }
 
     @ParameterizedTest
     @EnumSource(names = {
@@ -70,7 +93,7 @@ public class OntIndividualClassesTest {
         //    B   C = F
         //   / \ /
         //  D   E
-        OntModel m = TestModelFactory.createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
+        OntModel m = createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
 
         OntIndividual iA = m.getOntClass(NS + "A").createIndividual("iA");
         OntIndividual iB = m.getOntClass(NS + "B").createIndividual("iB");
@@ -132,7 +155,7 @@ public class OntIndividualClassesTest {
         //    B   C = F
         //   / \ /
         //  D   E
-        OntModel m = TestModelFactory.createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
+        OntModel m = createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
 
         OntIndividual iA = m.getOntClass(NS + "A").createIndividual("iA");
         OntIndividual iB = m.getOntClass(NS + "B").createIndividual("iB");
@@ -190,7 +213,7 @@ public class OntIndividualClassesTest {
         //    B   C = F
         //   / \ /
         //  D   E
-        OntModel m = TestModelFactory.createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
+        OntModel m = createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
         OntClass A = m.getOntClass(NS + "A");
         OntClass B = m.getOntClass(NS + "B");
         OntClass C = m.getOntClass(NS + "C");
@@ -232,7 +255,7 @@ public class OntIndividualClassesTest {
         //    B   C = F
         //   / \ /
         //  D   E
-        OntModel m = TestModelFactory.createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
+        OntModel m = createClassesAGBCFDE(OntModelFactory.createModel(spec.inst));
         OntClass A = m.getOntClass(NS + "A");
         OntClass B = m.getOntClass(NS + "B");
         OntClass C = m.getOntClass(NS + "C");
@@ -277,7 +300,7 @@ public class OntIndividualClassesTest {
         //   \  .  E
         //    \ . /
         //      B
-        OntModel m = TestModelFactory.createClassesABCDAEB(OntModelFactory.createModel(spec.inst));
+        OntModel m = createClassesABCDAEB(OntModelFactory.createModel(spec.inst));
 
         OntClass A = m.getOntClass(NS + "A");
         OntClass B = m.getOntClass(NS + "B");
@@ -314,7 +337,7 @@ public class OntIndividualClassesTest {
         //   \  .  E
         //    \ . /
         //      B
-        OntModel m = TestModelFactory.createClassesABCDAEB(OntModelFactory.createModel(spec.inst));
+        OntModel m = createClassesABCDAEB(OntModelFactory.createModel(spec.inst));
 
         OntClass A = m.getOntClass(NS + "A");
         OntClass B = m.getOntClass(NS + "B");

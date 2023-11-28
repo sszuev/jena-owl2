@@ -9,6 +9,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,7 +68,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
     }
 
     /**
-     * Returns all direct class types.
+     * Returns all class types (direct and indirect).
      *
      * @return {@code Stream} of {@link OntClass}s
      */
@@ -84,7 +85,21 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
      */
     default boolean hasOntClass(OntClass clazz, boolean direct) {
         Objects.requireNonNull(clazz);
-        return classes(direct).anyMatch(clazz::equals);
+        try (Stream<OntClass> classes = classes(direct)) {
+            return classes.anyMatch(clazz::equals);
+        }
+    }
+
+    /**
+     * Answers a class to which this individual belongs,
+     * If there is more than one such class, an arbitrary selection is made.
+     *
+     * @return {@link Optional} wrapping {@code OntClass}
+     */
+    default Optional<OntClass> ontClass() {
+        try (Stream<OntClass> classes = classes(false)) {
+            return classes.findFirst();
+        }
     }
 
     /**
@@ -352,9 +367,11 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
      */
     default OntIndividual removeAssertion(OntNamedProperty property, RDFNode value) {
         statements(property)
-                .filter(x -> x.getPredicate().canAs(OntNamedProperty.class)
-                        && (value == null || value.equals(x.getObject())))
-                .collect(Collectors.toList()).forEach(x -> x.getModel().remove(x.clearAnnotations()));
+                .filter(x ->
+                        x.getPredicate().canAs(OntNamedProperty.class) && (value == null || value.equals(x.getObject()))
+                )
+                .collect(Collectors.toList())
+                .forEach(x -> x.getModel().remove(x.clearAnnotations()));
         return this;
     }
 

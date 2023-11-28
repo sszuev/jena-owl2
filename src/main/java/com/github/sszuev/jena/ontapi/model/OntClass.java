@@ -330,9 +330,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @return {@link Optional} wrapping {@link OntClass}
      */
     default Optional<OntClass> subClass() {
-        try (Stream<OntStatement> statements = getModel().statements(null, RDFS.subClassOf, this)) {
-            return statements.map(x -> x.getSubject().getAs(OntClass.class))
-                    .filter(Objects::nonNull).findFirst();
+        try (Stream<OntClass> classes = subClasses(false)) {
+            return classes.findFirst();
         }
     }
 
@@ -357,7 +356,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @return {@link Optional} wrapping {@link OntClass}
      */
     default Optional<OntClass> superClass() {
-        try (Stream<OntClass> classes = objects(RDFS.subClassOf, OntClass.class)) {
+        try (Stream<OntClass> classes = superClasses(false)) {
             return classes.findFirst();
         }
     }
