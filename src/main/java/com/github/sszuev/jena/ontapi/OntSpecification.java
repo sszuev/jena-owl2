@@ -1,22 +1,11 @@
 package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntConfig;
+import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import org.apache.jena.reasoner.ReasonerFactory;
 
 import java.util.Objects;
-
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL1_CONFIG;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL1_ONT_OBJECT_PERSONALITY;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL2_CONFIG;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL_BUILTINS;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL_RESERVED;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.PunningsMode;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_BUILTINS;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_CONFIG;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_PERSONALITY;
-import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_RESERVED;
 
 /**
  * Encapsulates a description of the components of an ontology model.
@@ -33,11 +22,11 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */
     public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF = new OntSpecification(
-            OWL2_ONT_OBJECT_PERSONALITY()
-                    .setBuiltins(OWL_BUILTINS)
-                    .setReserved(OWL_RESERVED)
-                    .setPunnings(PunningsMode.STRICT.getVocabulary())
-                    .setConfig(OWL2_CONFIG.useBuiltinHierarchySupport(true))
+            OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setPunnings(OntPersonalities.PunningsMode.STRICT.getVocabulary())
+                    .setConfig(OntPersonalities.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
                     .build(),
             null
     );
@@ -49,11 +38,11 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL2_MEM = new OntSpecification(
-            OWL2_ONT_OBJECT_PERSONALITY()
-                    .setBuiltins(OWL_BUILTINS)
-                    .setReserved(OWL_RESERVED)
-                    .setPunnings(PunningsMode.LAX.getVocabulary())
-                    .setConfig(OWL2_CONFIG)
+            OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setConfig(OntPersonalities.OWL2_CONFIG)
                     .build(),
             null
     );
@@ -65,11 +54,11 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL1_MEM = new OntSpecification(
-            OWL1_ONT_OBJECT_PERSONALITY()
-                    .setBuiltins(OWL_BUILTINS)
-                    .setReserved(OWL_RESERVED)
-                    .setPunnings(PunningsMode.LAX.getVocabulary())
-                    .setConfig(OWL1_CONFIG)
+            OntPersonalities.OWL1_ONT_OBJECT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setConfig(OntPersonalities.OWL1_CONFIG)
                     .build(),
             null
     );
@@ -83,11 +72,11 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
      */
     public static final OntSpecification RDFS_MEM = new OntSpecification(
-            RDFS_PERSONALITY()
-                    .setBuiltins(RDFS_BUILTINS)
-                    .setReserved(RDFS_RESERVED)
-                    .setPunnings(PunningsMode.LAX.getVocabulary())
-                    .setConfig(RDFS_CONFIG)
+            OntPersonalities.RDFS_PERSONALITY()
+                    .setBuiltins(OntPersonalities.RDFS_BUILTINS)
+                    .setReserved(OntPersonalities.RDFS_RESERVED)
+                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setConfig(OntPersonalities.RDFS_CONFIG)
                     .build(),
             null
     );

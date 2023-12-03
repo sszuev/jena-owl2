@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -37,7 +38,9 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
     }
 
     private static Resource create(OntGraphModelImpl model) {
-        Resource type = model.getOntPersonality().getConfig().useOWLv1Vocabulary() ? OWL.DataRange : RDFS.Datatype;
+        Resource type = model.getOntPersonality().getConfig().getBoolean(OntModelConfig.USE_OWL_V1_VOCABULARY) ?
+                OWL.DataRange :
+                RDFS.Datatype;
         return model.createResource().addProperty(RDF.type, type);
     }
 
@@ -89,7 +92,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
     @Override
     public Optional<OntStatement> findRootStatement() {
         OntConfig config = OntObjectImpl.config(getModel());
-        Resource type = config != null && config.useOWLv1Vocabulary() ? OWL.DataRange : RDFS.Datatype;
+        Resource type = config != null && config.getBoolean(OntModelConfig.USE_OWL_V1_VOCABULARY) ? OWL.DataRange : RDFS.Datatype;
         return getRequiredRootStatement(this, type);
     }
 

@@ -93,7 +93,7 @@ public class OntModelFactory {
      */
     public static OntModel createModel(Graph graph, OntPersonality personality) {
         OntPersonality withBuiltinHierarchySupport = OntObjectPersonalityBuilder.from(personality)
-                .setConfig(OntPersonalities.OWL2_CONFIG.useBuiltinHierarchySupport(true))
+                .setConfig(OntPersonalities.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
                 .build();
         return createModel(graph, new OntSpecification(withBuiltinHierarchySupport, null));
     }

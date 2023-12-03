@@ -1,72 +1,62 @@
 package com.github.sszuev.jena.ontapi.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Configuration to control {@link com.github.sszuev.jena.ontapi.model.OntModel} and {@link OntPersonality} behavior.
  */
 public class OntConfig {
-    public static final OntConfig DEFAULT = new OntConfig(false, false, false);
+    public static final OntConfig DEFAULT = new OntConfig();
 
-    protected final boolean useBuiltinHierarchySupport;
-    protected final boolean useOWLv1Vocabulary;
-    protected final boolean useNamedIndividualDeclaration;
+    private final Map<String, Object> settings;
 
-    protected OntConfig(
-            boolean useBuiltinHierarchySupport,
-            boolean useOWLv1Vocabulary,
-            boolean useNamedIndividualDeclaration
-    ) {
-        this.useBuiltinHierarchySupport = useBuiltinHierarchySupport;
-        this.useOWLv1Vocabulary = useOWLv1Vocabulary;
-        this.useNamedIndividualDeclaration = useNamedIndividualDeclaration;
+    public OntConfig() {
+        this(new HashMap<>());
     }
 
-    /**
-     * Answers {@code true} if the class/property hierarchies
-     * (e.g., see {@link com.github.sszuev.jena.ontapi.model.OntClass#subClasses()})
-     * are to be inferred by the naked model itself using builtin algorithms.
-     */
-    public boolean useBuiltinHierarchySupport() {
-        return useBuiltinHierarchySupport;
+    protected OntConfig(Map<String, Object> settings) {
+        this.settings = settings;
     }
 
-    /**
-     * Answers {@code true} if OWL1.1 vocabulary should be used in some cases,
-     * i.e. {@code owl:distinctMembers} instead of {@code owl:members},
-     * {@code rdfs:Datatype} instead of {@code owl:DataRange}.
-     */
-    public boolean useOWLv1Vocabulary() {
-        return useOWLv1Vocabulary;
+    public boolean getBoolean(Enum<?> key) {
+        return getBoolean(key.name());
     }
 
-    /**
-     * User {@code owl:NamedIndividual}.
-     */
-    public boolean useNamedIndividualDeclaration() {
-        return useNamedIndividualDeclaration;
+    public boolean getBoolean(String key) {
+        Object value = get(key);
+        if (value == null) {
+            return false;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        throw new IllegalArgumentException("Config contains value for key = " + key + ", but it is not a boolean");
     }
 
-    public OntConfig useBuiltinHierarchySupport(boolean with) {
-        return new OntConfig(
-                with,
-                this.useOWLv1Vocabulary,
-                this.useNamedIndividualDeclaration
-        );
+    public Object get(String key) {
+        return settings.get(key);
     }
 
-    public OntConfig useOWLv1Vocabulary(boolean with) {
-        return new OntConfig(
-                this.useBuiltinHierarchySupport,
-                with,
-                this.useNamedIndividualDeclaration
-        );
+    public OntConfig setTrue(Enum<?> key) {
+        return setBoolean(key, true);
     }
 
-    public OntConfig useNamedIndividualDeclaration(boolean with) {
-        return new OntConfig(
-                this.useBuiltinHierarchySupport,
-                this.useOWLv1Vocabulary,
-                with
-        );
+    public OntConfig setFalse(Enum<?> key) {
+        return setBoolean(key, false);
     }
 
+    public OntConfig setBoolean(Enum<?> key, boolean value) {
+        return setBoolean(key.name(), value);
+    }
+
+    public OntConfig setBoolean(String key, boolean value) {
+        return set(key, value);
+    }
+
+    public OntConfig set(String key, Object value) {
+        Map<String, Object> settings = new HashMap<>(this.settings);
+        settings.put(key, value);
+        return new OntConfig(settings);
+    }
 }

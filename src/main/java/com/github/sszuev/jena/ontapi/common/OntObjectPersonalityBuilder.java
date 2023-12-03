@@ -97,10 +97,10 @@ public class OntObjectPersonalityBuilder {
 
     /**
      * Associates the specified {@link EnhNodeFactory factory} with the specified {@link OntObject object} type.
-     * If the builder previously contained a mapping for the object type (which is common situation),
+     * If the builder previously contained a mapping for the object type,
      * the old factory is replaced by the specified factory.
      * <p>
-     * Please note: the {@link EnhNodeFactory factory} must not explicitly refer to another factory,
+     * Note: the {@link EnhNodeFactory factory} must not explicitly refer to another factory,
      * instead it may contain implicit references through
      * {@link OntEnhGraph#asPersonalityModel(EnhGraph)} method.
      * For example, if you need a check, that some {@link Node node} is an OWL-Class inside your factory,

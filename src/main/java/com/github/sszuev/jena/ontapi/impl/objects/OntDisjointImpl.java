@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -53,7 +54,9 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
      * @see <a href='https://www.w3.org/TR/owl2-quick-reference/#Additional_Vocabulary_in_OWL_2_RDF_Syntax'>4.2 Additional Vocabulary in OWL 2 RDF Syntax</a>
      */
     public static Individuals createDifferentIndividuals(OntGraphModelImpl model, Stream<OntIndividual> individuals) {
-        Property membersPredicate = model.getOntPersonality().getConfig().useOWLv1Vocabulary() ? OWL.distinctMembers : OWL.members;
+        Property membersPredicate = model.getOntPersonality().getConfig().getBoolean(OntModelConfig.USE_OWL_V1_VOCABULARY) ?
+                OWL.distinctMembers :
+                OWL.members;
         return create(model, OWL.AllDifferent, Individuals.class, OntIndividual.class, individuals, membersPredicate);
     }
 

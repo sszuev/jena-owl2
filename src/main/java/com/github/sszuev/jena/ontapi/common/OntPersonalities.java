@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi.common;
 
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.OntVocabulary;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL1ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL2ObjectFactories;
@@ -71,17 +72,17 @@ public class OntPersonalities {
     public static final OntPersonality.Reserved OWL_RESERVED = createReservedVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
 
     public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
-            .useBuiltinHierarchySupport(false)
-            .useOWLv1Vocabulary(false)
-            .useNamedIndividualDeclaration(true);
+            .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+            .setFalse(OntModelConfig.USE_OWL_V1_VOCABULARY)
+            .setTrue(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION);
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
-            .useBuiltinHierarchySupport(false)
-            .useOWLv1Vocabulary(true)
-            .useNamedIndividualDeclaration(false);
+            .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+            .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
+            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION);
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
-            .useBuiltinHierarchySupport(false)
-            .useOWLv1Vocabulary(true) // <- doesn't matter
-            .useNamedIndividualDeclaration(false);
+            .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+            .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
+            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION);
 
     /**
      * Standard resources. Private access since this constant is mutable.
