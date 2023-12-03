@@ -259,12 +259,15 @@ final class OntClasses {
         private static final String NON_NEGATIVE_INTEGER_URI = XSD.nonNegativeInteger.getURI();
 
         private static final EnhNodeFactory NAMED_CLASS_FACTORY = OntEntities.CLASS.createFactory();
-        private static final Collection<EnhNodeFactory> RESTRICTION_FACTORIES =
-                ClassExpressionType.RESTRICTIONS.stream().map(ClassExpressionType::factory)
-                        .collect(Collectors.toUnmodifiableList());
-        private static final Collection<EnhNodeFactory> NON_RESTRICTION_EXPRESSION_FACTORIES =
-                ClassExpressionType.OTHER_EXPRESSIONS.stream().map(ClassExpressionType::factory)
-                        .collect(Collectors.toUnmodifiableList());
+        private static final Collection<EnhNodeFactory> OWL2_RESTRICTION_CE_FACTORIES =
+                ClassExpressionType.classExpressionsFactories(true, true);
+        private static final Collection<EnhNodeFactory> OWL1_RESTRICTION_FACTORIES =
+                ClassExpressionType.classExpressionsFactories(true, false);
+        private static final Collection<EnhNodeFactory> OWL2_NON_RESTRICTION_CE_FACTORIES =
+                ClassExpressionType.classExpressionsFactories(false, true);
+        private static final Collection<EnhNodeFactory> OWL1_NON_RESTRICTION_CE_FACTORIES =
+                ClassExpressionType.classExpressionsFactories(false, false);
+
         private static final BiFunction<Node, EnhGraph, EnhNode> NAMED_CLASS_PRODUCER = OntSimpleClassImpl.NamedImpl::new;
         private static final BiFunction<Node, EnhGraph, EnhNode> ANON_CLASS_PRODUCER = OntSimpleClassImpl::new;
 
@@ -333,7 +336,9 @@ final class OntClasses {
                         if (owlV2Support && n.isURI()) {
                             return safeWrap(n, eg, NAMED_CLASS_FACTORY);
                         }
-                        EnhNode res = safeWrap(n, eg, NON_RESTRICTION_EXPRESSION_FACTORIES);
+                        EnhNode res = safeWrap(
+                                n, eg, owlV2Support ? OWL2_NON_RESTRICTION_CE_FACTORIES : OWL1_NON_RESTRICTION_CE_FACTORIES
+                        );
                         if (owlV2Support || res != null) {
                             return res;
                         }
@@ -348,7 +353,9 @@ final class OntClasses {
                         if (owlV2Support && n.isURI()) {
                             return null;
                         }
-                        return safeWrap(t.getSubject(), eg, RESTRICTION_FACTORIES);
+                        return safeWrap(
+                                t.getSubject(), eg, owlV2Support ? OWL2_RESTRICTION_CE_FACTORIES : OWL1_RESTRICTION_FACTORIES
+                        );
                     });
             return byOWLClass.andThen(byOWLRestriction).filterDrop(Objects::isNull);
         }
@@ -498,44 +505,48 @@ final class OntClasses {
         }
 
         private enum ClassExpressionType implements BiFunction<Node, EnhGraph, EnhNode> {
-            OBJECT_SOME_VALUES_FROM(OntClass.ObjectSomeValuesFrom.class, true),
-            OBJECT_ALL_VALUES_FROM(OntClass.ObjectAllValuesFrom.class, true),
-            OBJECT_MIN_CARDINALITY(OntClass.ObjectMinCardinality.class, true),
-            OBJECT_MAX_CARDINALITY(OntClass.ObjectMaxCardinality.class, true),
-            OBJECT_EXACT_CARDINALITY(OntClass.ObjectCardinality.class, true),
-            OBJECT_HAS_VALUE(OntClass.ObjectHasValue.class, true),
-            OBJECT_HAS_SELF(OntClass.HasSelf.class, true),
+            OBJECT_SOME_VALUES_FROM(OntClass.ObjectSomeValuesFrom.class, true, true),
+            OBJECT_ALL_VALUES_FROM(OntClass.ObjectAllValuesFrom.class, true, true),
+            OBJECT_MIN_CARDINALITY(OntClass.ObjectMinCardinality.class, true, true),
+            OBJECT_MAX_CARDINALITY(OntClass.ObjectMaxCardinality.class, true, true),
+            OBJECT_EXACT_CARDINALITY(OntClass.ObjectCardinality.class, true, true),
+            OBJECT_HAS_VALUE(OntClass.ObjectHasValue.class, true, true),
+            OBJECT_HAS_SELF(OntClass.HasSelf.class, true, false),
 
-            DATA_SOME_VALUES_FROM(OntClass.DataSomeValuesFrom.class, true),
-            DATA_ALL_VALUES_FROM(OntClass.DataAllValuesFrom.class, true),
-            DATA_MIN_CARDINALITY(OntClass.DataMinCardinality.class, true),
-            DATA_MAX_CARDINALITY(OntClass.DataMaxCardinality.class, true),
-            DATA_EXACT_CARDINALITY(OntClass.DataCardinality.class, true),
-            DATA_HAS_VALUE(OntClass.DataHasValue.class, true),
-            DATA_NARY_SOME_VALUES_FROM(OntClass.NaryDataSomeValuesFrom.class, true),
-            DATA_NARY_ALL_VALUES_FROM(OntClass.NaryDataAllValuesFrom.class, true),
+            DATA_SOME_VALUES_FROM(OntClass.DataSomeValuesFrom.class, true, true),
+            DATA_ALL_VALUES_FROM(OntClass.DataAllValuesFrom.class, true, true),
+            DATA_MIN_CARDINALITY(OntClass.DataMinCardinality.class, true, true),
+            DATA_MAX_CARDINALITY(OntClass.DataMaxCardinality.class, true, true),
+            DATA_EXACT_CARDINALITY(OntClass.DataCardinality.class, true, true),
+            DATA_HAS_VALUE(OntClass.DataHasValue.class, true, true),
+            DATA_NARY_SOME_VALUES_FROM(OntClass.NaryDataSomeValuesFrom.class, true, false),
+            DATA_NARY_ALL_VALUES_FROM(OntClass.NaryDataAllValuesFrom.class, true, false),
 
-            UNION_OF(OntClass.UnionOf.class, false),
-            INTERSECTION_OF(OntClass.IntersectionOf.class, false),
-            ONE_OF(OntClass.OneOf.class, false),
-            COMPLEMENT_OF(OntClass.ComplementOf.class, false),
+            UNION_OF(OntClass.UnionOf.class, false, true),
+            INTERSECTION_OF(OntClass.IntersectionOf.class, false, true),
+            ONE_OF(OntClass.OneOf.class, false, true),
+            COMPLEMENT_OF(OntClass.ComplementOf.class, false, true),
             ;
-            private static final Collection<ClassExpressionType> RESTRICTIONS = Arrays.stream(values())
-                    .filter(x -> x.isRestriction)
-                    .collect(Collectors.toUnmodifiableList());
-            private static final Collection<ClassExpressionType> OTHER_EXPRESSIONS = Arrays.stream(values())
-                    .filter(x -> !x.isRestriction)
-                    .collect(Collectors.toUnmodifiableList());
 
             private final Class<? extends OntObject> type;
             private final boolean isRestriction;
+            private final boolean owl1Compatible;
 
-            ClassExpressionType(Class<? extends OntObject> type, boolean restriction) {
+            ClassExpressionType(Class<? extends OntObject> type, boolean restriction, boolean owl1Compatible) {
                 this.type = type;
                 this.isRestriction = restriction;
+                this.owl1Compatible = owl1Compatible;
             }
 
-            public EnhNodeFactory factory() {
+            public static Collection<EnhNodeFactory> classExpressionsFactories(boolean isRestriction, boolean forOWL2) {
+                return Arrays.stream(values())
+                        .filter(x -> isRestriction == x.isRestriction)
+                        .filter(x -> forOWL2 || x.owl1Compatible)
+                        .map(ClassExpressionType::factory)
+                        .collect(Collectors.toUnmodifiableList());
+            }
+
+            EnhNodeFactory factory() {
                 return WrappedFactoryImpl.of(type);
             }
 

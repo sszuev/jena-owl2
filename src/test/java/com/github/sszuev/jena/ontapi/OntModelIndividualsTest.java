@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OntModelIndividualsTest {
-    private static final String NS = "http://jena.hpl.hp.com/testing/ontology#";
+    private static final String NS = "http://ex.com/testing/ontology#";
 
     @ParameterizedTest
     @EnumSource(names = {
@@ -29,7 +29,7 @@ public class OntModelIndividualsTest {
     })
     public void testListIndividuals1(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
-                "/list-individuals-test.rdf", Lang.RDFXML);
+                "/list-syntax-categories-test.rdf", Lang.RDFXML);
         Assertions.assertEquals(Set.of("A0", "A1", "C0", "a0", "a1", "a2", "z0", "z1"),
                 m.individuals().map(Resource::getLocalName).collect(Collectors.toSet()));
     }
@@ -87,9 +87,9 @@ public class OntModelIndividualsTest {
         // a0 should be an individual, since we are punning
         Resource a0 = m.createResource(NS + "A0");
         Resource a1 = m.createResource(NS + "A1");
-        m.add(a0, org.apache.jena.vocabulary.RDF.type, org.apache.jena.vocabulary.OWL.Class);
-        m.add(a1, org.apache.jena.vocabulary.RDF.type, org.apache.jena.vocabulary.OWL.Class);
-        m.add(a0, org.apache.jena.vocabulary.RDF.type, a1);
+        m.add(a0, RDF.type, OWL.Class);
+        m.add(a1, RDF.type, OWL.Class);
+        m.add(a0, RDF.type, a1);
         Assertions.assertEquals(List.of(NS + "A0"), m.individuals().map(Resource::getURI).collect(Collectors.toList()));
     }
 
@@ -98,11 +98,11 @@ public class OntModelIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
             "OWL1_MEM",
-            "RDFS_MEM", // <-- here the difference with Jena's listIndividuals, see OntGraphModelImpl#listIndividuals
+            "RDFS_MEM", // TODO: <-- here the difference with Jena's listIndividuals, see OntGraphModelImpl#listIndividuals
     })
-    public void testListIndividuals6(TestSpec spec) {
+    public void testListIndividuals6a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
-                "/list-individuals-test-comps.rdf", Lang.RDFXML);
+                "/list-syntax-categories-test-comps.rdf", Lang.RDFXML);
         Assertions.assertEquals(
                 List.of(
                         "urn:x-hp:eg/DTPGraphics",
@@ -116,7 +116,7 @@ public class OntModelIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
     })
-    public void testListIndividuals11(TestSpec spec) {
+    public void testListIndividuals8(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass.Named c0 = m.getOWLThing();
         OntClass.Named c1 = m.createOntClass(NS + "C1");
@@ -150,5 +150,23 @@ public class OntModelIndividualsTest {
         Assertions.assertEquals(4, m.individuals().count());
         Assertions.assertEquals(1, m.individuals().filter(RDFNode::isAnon).count());
         Assertions.assertEquals(Set.of(i1, i3, i5), m.individuals().filter(it -> !it.isAnon()).collect(Collectors.toSet()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestSpec.class)
+    public void testListIndividuals9(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+
+        m.createResource("x", m.createResource("X"));
+        m.createResource().addProperty(RDF.type, m.createResource("Y"));
+
+        OntClass clazz = m.createOntClass("Q");
+        clazz.createIndividual("q");
+        clazz.createIndividual();
+
+        List<OntIndividual> individuals = m.individuals().collect(Collectors.toList());
+
+        int expectedNumOfIndividuals = 2;
+        Assertions.assertEquals(expectedNumOfIndividuals, individuals.size());
     }
 }

@@ -21,8 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OntClassDeclaredPropertiesTest {
-    public static final String BASE = "http://jena.hpl.hp.com/testing/ontology";
-    public static final String NS = BASE + "#";
+    private static final String BASE = "http://jena.hpl.hp.com/testing/ontology";
+    private static final String NS = BASE + "#";
 
     @ParameterizedTest
     @EnumSource(names = {
