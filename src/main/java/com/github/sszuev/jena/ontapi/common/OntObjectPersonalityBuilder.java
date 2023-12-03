@@ -26,19 +26,20 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("WeakerAccess")
 public class OntObjectPersonalityBuilder {
-    private final Map<Class<? extends OntObject>, EnhNodeFactory> map;
+    private final Map<Class<? extends OntObject>, EnhNodeFactory> factories;
 
     private final Personality<RDFNode> base;
     private OntPersonality.Punnings punnings;
     private OntPersonality.Builtins builtins;
     private OntPersonality.Reserved reserved;
+    private OntConfig config;
 
     public OntObjectPersonalityBuilder() {
         this(new LinkedHashMap<>());
     }
 
     protected OntObjectPersonalityBuilder(Map<Class<? extends OntObject>, EnhNodeFactory> factories) {
-        this.map = Objects.requireNonNull(factories);
+        this.factories = Objects.requireNonNull(factories);
         this.base = new Personality<>();
     }
 
@@ -54,11 +55,11 @@ public class OntObjectPersonalityBuilder {
                 .addPersonality(OntPersonality.asJenaPersonality(from))
                 .setPunnings(from.getPunnings())
                 .setBuiltins(from.getBuiltins())
-                .setReserved(from.getReserved());
+                .setReserved(from.getReserved())
+                .setConfig(from.getConfig());
     }
 
-    @SuppressWarnings("rawtypes")
-    private static <X extends Vocabulary> X require(X obj, Class<X> type) {
+    private static <X> X require(X obj, Class<X> type) {
         if (obj == null) {
             throw new IllegalStateException("The " + type.getSimpleName() + " Vocabulary must be present in builder.");
         }
@@ -86,7 +87,7 @@ public class OntObjectPersonalityBuilder {
      * @return {@link OntObjectPersonalityBuilder}, a copy
      */
     public OntObjectPersonalityBuilder copy() {
-        OntObjectPersonalityBuilder res = new OntObjectPersonalityBuilder(new LinkedHashMap<>(this.map));
+        OntObjectPersonalityBuilder res = new OntObjectPersonalityBuilder(new LinkedHashMap<>(this.factories));
         res.addPersonality(base.copy());
         if (punnings != null) res.setPunnings(punnings);
         if (builtins != null) res.setBuiltins(builtins);
@@ -102,7 +103,7 @@ public class OntObjectPersonalityBuilder {
      * Please note: the {@link EnhNodeFactory factory} must not explicitly refer to another factory,
      * instead it may contain implicit references through
      * {@link OntEnhGraph#asPersonalityModel(EnhGraph)} method.
-     * For example if you need a check, that some {@link Node node} is an OWL-Class inside your factory,
+     * For example, if you need a check, that some {@link Node node} is an OWL-Class inside your factory,
      * you can use {@link OntEnhGraph#canAs(Class, Node, EnhGraph)}
      * with the type {@link OntClass.Named}.
      *
@@ -111,7 +112,7 @@ public class OntObjectPersonalityBuilder {
      * @return this builder
      */
     public OntObjectPersonalityBuilder add(Class<? extends OntObject> type, EnhNodeFactory factory) {
-        map.put(type, factory);
+        factories.put(type, factory);
         return this;
     }
 
@@ -149,10 +150,6 @@ public class OntObjectPersonalityBuilder {
         return this;
     }
 
-    private Class<?>[] getEntityTypes() {
-        return OntEntity.TYPES.toArray(Class[]::new);
-    }
-
     /**
      * Sets a new reserved personality vocabulary.
      *
@@ -165,15 +162,30 @@ public class OntObjectPersonalityBuilder {
     }
 
     /**
+     * Sets config, which controls OntModel behaviour.
+     *
+     * @param config {@link OntConfig}, not {@code null}
+     * @return this builder
+     */
+    public OntObjectPersonalityBuilder setConfig(OntConfig config) {
+        this.config = Objects.requireNonNull(config);
+        return this;
+    }
+
+    /**
      * Builds a new personality configuration.
      *
      * @return {@link OntPersonality}, fresh instance
      * @throws IllegalStateException in case the builder does not contain require components
      */
     public OntPersonality build() throws IllegalStateException {
-        OntPersonalityImpl res = new OntPersonalityImpl(base, punnings(), builtins(), reserved());
-        map.forEach(res::register);
+        OntPersonalityImpl res = new OntPersonalityImpl(base, config(), punnings(), builtins(), reserved());
+        factories.forEach(res::register);
         return res;
+    }
+
+    private Class<?>[] getEntityTypes() {
+        return OntEntity.TYPES.toArray(Class[]::new);
     }
 
     private OntPersonality.Punnings punnings() {
@@ -186,6 +198,10 @@ public class OntObjectPersonalityBuilder {
 
     private OntPersonality.Reserved reserved() {
         return require(reserved, OntPersonality.Reserved.class);
+    }
+
+    private OntConfig config() {
+        return Objects.requireNonNull(config, "No config is set");
     }
 
 }

@@ -1,8 +1,7 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.OntPersonalities;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
-import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -18,7 +17,7 @@ import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
-import org.apache.jena.graph.Factory;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFList;
@@ -322,7 +321,7 @@ public class OntListTest {
 
     @Test
     public void testTypedList() {
-        OntGraphModelImpl m = new OntGraphModelImpl(Factory.createDefaultGraph(), OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS, OntModelConfig.DEFAULT);
+        OntGraphModelImpl m = new OntGraphModelImpl(GraphMemFactory.createGraphMem(), OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF.getPersonality(), OntConfig.DEFAULT);
         m.setNsPrefixes(OntModelFactory.STANDARD);
         Resource a = m.createResource("A");
         Resource b = m.createResource("B");

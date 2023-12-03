@@ -1,11 +1,22 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.OntPersonalities;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
-import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import org.apache.jena.reasoner.ReasonerFactory;
 
 import java.util.Objects;
+
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL1_CONFIG;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL1_ONT_OBJECT_PERSONALITY;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL2_CONFIG;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL_BUILTINS;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.OWL_RESERVED;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.PunningsMode;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_BUILTINS;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_CONFIG;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_PERSONALITY;
+import static com.github.sszuev.jena.ontapi.common.OntPersonalities.RDFS_RESERVED;
 
 /**
  * Encapsulates a description of the components of an ontology model.
@@ -13,18 +24,6 @@ import java.util.Objects;
  * @see org.apache.jena.ontology.OntModelSpec
  */
 public class OntSpecification {
-    public static final OntModelConfig OWL2_CONFIG = OntModelConfig.DEFAULT
-            .useBuiltinHierarchySupport(false)
-            .useOWLv1Vocabulary(false)
-            .useNamedIndividualDeclaration(true);
-    public static final OntModelConfig OWL1_CONFIG = OntModelConfig.DEFAULT
-            .useBuiltinHierarchySupport(false)
-            .useOWLv1Vocabulary(true)
-            .useNamedIndividualDeclaration(false);
-    public static final OntModelConfig RDFS_CONFIG = OntModelConfig.DEFAULT
-            .useBuiltinHierarchySupport(false)
-            .useOWLv1Vocabulary(true) // <- doesn't matter
-            .useNamedIndividualDeclaration(false);
 
     /**
      * A specification for Ontology models that are stored in memory
@@ -34,9 +33,14 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */
     public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF = new OntSpecification(
-            OntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS,
-            null,
-            OWL2_CONFIG.useBuiltinHierarchySupport(true));
+            OWL2_ONT_OBJECT_PERSONALITY()
+                    .setBuiltins(OWL_BUILTINS)
+                    .setReserved(OWL_RESERVED)
+                    .setPunnings(PunningsMode.STRICT.getVocabulary())
+                    .setConfig(OWL2_CONFIG.useBuiltinHierarchySupport(true))
+                    .build(),
+            null
+    );
 
     /**
      * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
@@ -45,9 +49,14 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL2_MEM = new OntSpecification(
-            OntPersonalities.OWL2_PERSONALITY_LAX_PUNNS,
-            null,
-            OWL2_CONFIG);
+            OWL2_ONT_OBJECT_PERSONALITY()
+                    .setBuiltins(OWL_BUILTINS)
+                    .setReserved(OWL_RESERVED)
+                    .setPunnings(PunningsMode.LAX.getVocabulary())
+                    .setConfig(OWL2_CONFIG)
+                    .build(),
+            null
+    );
 
     /**
      * A specification for Ontology models that are stored in memory and do no additional entailment reasoning.
@@ -56,9 +65,14 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL1_MEM = new OntSpecification(
-            OntPersonalities.OWL1_PERSONALITY_LAX_PUNNS,
-            null,
-            OWL1_CONFIG);
+            OWL1_ONT_OBJECT_PERSONALITY()
+                    .setBuiltins(OWL_BUILTINS)
+                    .setReserved(OWL_RESERVED)
+                    .setPunnings(PunningsMode.LAX.getVocabulary())
+                    .setConfig(OWL1_CONFIG)
+                    .build(),
+            null
+    );
 
     /**
      * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
@@ -69,19 +83,22 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
      */
     public static final OntSpecification RDFS_MEM = new OntSpecification(
-            OntPersonalities.RDFS_PERSONALITY,
-            null,
-            RDFS_CONFIG);
+            RDFS_PERSONALITY()
+                    .setBuiltins(RDFS_BUILTINS)
+                    .setReserved(RDFS_RESERVED)
+                    .setPunnings(PunningsMode.LAX.getVocabulary())
+                    .setConfig(RDFS_CONFIG)
+                    .build(),
+            null
+    );
 
 
     private final OntPersonality personality;
     private final ReasonerFactory reasonerFactory;
-    private final OntModelConfig config;
 
-    public OntSpecification(OntPersonality personality, ReasonerFactory reasonerFactory, OntModelConfig config) {
+    public OntSpecification(OntPersonality personality, ReasonerFactory reasonerFactory) {
         this.personality = Objects.requireNonNull(personality);
         this.reasonerFactory = reasonerFactory;
-        this.config = config == null ? OntModelConfig.DEFAULT : config;
     }
 
     public OntPersonality getPersonality() {
@@ -92,7 +109,7 @@ public class OntSpecification {
         return reasonerFactory;
     }
 
-    public OntModelConfig getConfig() {
-        return config;
+    public OntConfig getConfig() {
+        return personality.getConfig();
     }
 }

@@ -95,6 +95,14 @@ public interface OntPersonality {
     OntPersonality copy();
 
     /**
+     * Returns the config.
+     * Config holds various settings to control model behaviour.
+     *
+     * @return {@link OntConfig}
+     */
+    OntConfig getConfig();
+
+    /**
      * Returns a punnings' vocabulary.
      *
      * @return {@link Punnings}
@@ -116,7 +124,8 @@ public interface OntPersonality {
     Reserved getReserved();
 
     /**
-     * Gets resources system resources for the specified type.
+     * Gets system resources for the specified type.
+     * An entity of the given {@code type} cannot be created with any of the URIs, which this method returns.
      *
      * @param type {@link OntEntity}
      * @return Set of {@code Node}s

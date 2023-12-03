@@ -1,5 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl;
 
+import com.github.sszuev.jena.ontapi.common.OntConfig;
+import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import org.apache.jena.rdf.model.Resource;
@@ -40,7 +42,7 @@ public final class HierarchySupport {
             X object,
             Function<X, Stream<X>> listChildren,
             boolean direct) {
-        OntModelConfig config = HasConfig.config(object.getModel());
+        OntConfig config = OntObjectImpl.config(object.getModel());
         boolean useBuiltinReasoner = config != null && config.useBuiltinHierarchySupport();
         if (direct) {
             return directNodesAsStream(object, useBuiltinReasoner, listChildren);

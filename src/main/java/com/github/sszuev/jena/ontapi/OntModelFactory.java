@@ -1,12 +1,14 @@
 package com.github.sszuev.jena.ontapi;
 
+import com.github.sszuev.jena.ontapi.common.OntObjectPersonalityBuilder;
+import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
-import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.shared.PrefixMapping;
@@ -48,10 +50,9 @@ public class OntModelFactory {
      * Creates default (in-memory) graph implementation.
      *
      * @return {@code GraphMem}
-     * @see Factory#createGraphMem()
      */
     public static Graph createDefaultGraph() {
-        return Factory.createDefaultGraph();
+        return GraphMemFactory.createGraphMem();
     }
 
     /**
@@ -91,8 +92,10 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(Graph graph, OntPersonality personality) {
-        return createModel(graph,
-                new OntSpecification(personality, null, OntSpecification.OWL2_CONFIG.useBuiltinHierarchySupport(true)));
+        OntPersonality withBuiltinHierarchySupport = OntObjectPersonalityBuilder.from(personality)
+                .setConfig(OntPersonalities.OWL2_CONFIG.useBuiltinHierarchySupport(true))
+                .build();
+        return createModel(graph, new OntSpecification(withBuiltinHierarchySupport, null));
     }
 
     /**

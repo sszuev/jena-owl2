@@ -24,13 +24,15 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class OntPersonalityImpl extends Personality<RDFNode> implements OntPersonality {
+    private final OntConfig config;
     private final Punnings punnings;
     private final Builtins builtins;
     private final Reserved reserved;
     private final Map<Class<? extends OntEntity>, Set<Node>> forbidden;
 
-    public OntPersonalityImpl(Personality<RDFNode> other, Punnings punnings, Builtins builtins, Reserved reserved) {
+    public OntPersonalityImpl(Personality<RDFNode> other, OntConfig config, Punnings punnings, Builtins builtins, Reserved reserved) {
         super(Objects.requireNonNull(other, "Null personalities"));
+        this.config = Objects.requireNonNull(config, "Null config");
         this.builtins = Objects.requireNonNull(builtins, "Null builtins vocabulary");
         this.punnings = Objects.requireNonNull(punnings, "Null punnings vocabulary");
         this.reserved = Objects.requireNonNull(reserved, "Null reserved vocabulary");
@@ -38,7 +40,7 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     }
 
     protected OntPersonalityImpl(OntPersonalityImpl other) {
-        this(other, other.getPunnings(), other.getBuiltins(), other.getReserved());
+        this(other, other.getConfig(), other.getPunnings(), other.getBuiltins(), other.getReserved());
     }
 
     private static Map<Class<? extends OntEntity>, Set<Node>> collectForbiddenResources(Reserved reserved, Builtins builtins) {
@@ -124,6 +126,11 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     @Override
     public OntPersonalityImpl copy() {
         return new OntPersonalityImpl(this);
+    }
+
+    @Override
+    public OntConfig getConfig() {
+        return config;
     }
 
 }

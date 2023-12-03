@@ -1,12 +1,11 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
-import com.github.sszuev.jena.ontapi.impl.HasConfig;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
-import com.github.sszuev.jena.ontapi.impl.OntModelConfig;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -158,7 +157,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
         Resource res = model.createResource(OntJenaException.notNull(uri, "Null uri"), source);
-        if (model.getConfig().useNamedIndividualDeclaration()) {
+        if (model.getOntPersonality().getConfig().useNamedIndividualDeclaration()) {
             res.addProperty(RDF.type, OWL.NamedIndividual);
         }
         return res.as(OntIndividual.Named.class);
@@ -298,7 +297,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
         OntModel m = clazz.getModel();
-        OntModelConfig config = HasConfig.config(m);
+        OntConfig config = OntObjectImpl.config(m);
         if (config != null && config.useBuiltinHierarchySupport()) {
             // TODO: optimize
             return clazz.getModel().individuals().filter(i -> i.hasOntClass(clazz, direct));

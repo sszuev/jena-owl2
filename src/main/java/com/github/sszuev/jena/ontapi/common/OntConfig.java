@@ -1,17 +1,16 @@
-package com.github.sszuev.jena.ontapi.impl;
+package com.github.sszuev.jena.ontapi.common;
 
 /**
- * Configuration to control {@link com.github.sszuev.jena.ontapi.model.OntModel} behavior.
- * TODO: this could be a temporary solution.
+ * Configuration to control {@link com.github.sszuev.jena.ontapi.model.OntModel} and {@link OntPersonality} behavior.
  */
-public class OntModelConfig {
-    public static final OntModelConfig DEFAULT = new OntModelConfig(false, false, false);
+public class OntConfig {
+    public static final OntConfig DEFAULT = new OntConfig(false, false, false);
 
     protected final boolean useBuiltinHierarchySupport;
     protected final boolean useOWLv1Vocabulary;
     protected final boolean useNamedIndividualDeclaration;
 
-    protected OntModelConfig(
+    protected OntConfig(
             boolean useBuiltinHierarchySupport,
             boolean useOWLv1Vocabulary,
             boolean useNamedIndividualDeclaration
@@ -46,24 +45,24 @@ public class OntModelConfig {
         return useNamedIndividualDeclaration;
     }
 
-    public OntModelConfig useBuiltinHierarchySupport(boolean with) {
-        return new OntModelConfig(
+    public OntConfig useBuiltinHierarchySupport(boolean with) {
+        return new OntConfig(
                 with,
                 this.useOWLv1Vocabulary,
                 this.useNamedIndividualDeclaration
         );
     }
 
-    public OntModelConfig useOWLv1Vocabulary(boolean with) {
-        return new OntModelConfig(
+    public OntConfig useOWLv1Vocabulary(boolean with) {
+        return new OntConfig(
                 this.useBuiltinHierarchySupport,
                 with,
                 this.useNamedIndividualDeclaration
         );
     }
 
-    public OntModelConfig useNamedIndividualDeclaration(boolean with) {
-        return new OntModelConfig(
+    public OntConfig useNamedIndividualDeclaration(boolean with) {
+        return new OntConfig(
                 this.useBuiltinHierarchySupport,
                 this.useOWLv1Vocabulary,
                 with

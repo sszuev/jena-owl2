@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi.impl;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.UnionGraph;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
@@ -88,22 +89,22 @@ import java.util.stream.Stream;
  * @see UnionGraph
  */
 @SuppressWarnings({"WeakerAccess", "SameParameterValue", "unused"})
-public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph, HasConfig {
+public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph {
 
     // the model's types mapper
     protected final Map<String, RDFDatatype> dtTypes = new HashMap<>();
     // to control RDF recursion while casting a node to an RDF view, see #fetchNodeAs(Node, Class)
     private final ThreadLocal<Set<Node>> visited = ThreadLocal.withInitial(HashSet::new);
 
-    private final OntModelConfig config;
+    private final OntConfig config;
     private final Set<Class<? extends OntEntity>> supportedEntityTypes;
 
     /**
      * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
-     * @param config      {@link OntModelConfig}
+     * @param config      {@link OntConfig}
      */
-    public OntGraphModelImpl(Graph graph, OntPersonality personality, OntModelConfig config) {
+    public OntGraphModelImpl(Graph graph, OntPersonality personality, OntConfig config) {
         super(asUnionGraph(graph), OntPersonality.asJenaPersonality(personality));
         this.config = config;
         this.supportedEntityTypes = OntEntity.TYPES.stream().filter(personality::supports).collect(Collectors.toSet());
@@ -270,11 +271,6 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         if (s != null) return false;
         if (p != null) return false;
         return o == null;
-    }
-
-    @Override
-    public OntModelConfig getConfig() {
-        return config;
     }
 
     @Override

@@ -70,11 +70,25 @@ public class OntPersonalities {
     public static final OntPersonality.Builtins OWL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
     public static final OntPersonality.Reserved OWL_RESERVED = createReservedVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
 
+    public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
+            .useBuiltinHierarchySupport(false)
+            .useOWLv1Vocabulary(false)
+            .useNamedIndividualDeclaration(true);
+    public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
+            .useBuiltinHierarchySupport(false)
+            .useOWLv1Vocabulary(true)
+            .useNamedIndividualDeclaration(false);
+    public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
+            .useBuiltinHierarchySupport(false)
+            .useOWLv1Vocabulary(true) // <- doesn't matter
+            .useNamedIndividualDeclaration(false);
+
     /**
      * Standard resources. Private access since this constant is mutable.
      *
      * @see org.apache.jena.enhanced.BuiltinPersonalities#model
      */
+    @SuppressWarnings("deprecation : ReifiedStatement")
     public static final Personality<RDFNode> STANDARD_PERSONALITY = new Personality<RDFNode>()
             .add(Resource.class, ResourceImpl.factory)
             .add(Property.class, PropertyImpl.factory)
@@ -87,13 +101,12 @@ public class OntPersonalities {
             .add(RDFList.class, RDFListImpl.factory)
             .add(RDFNode.class, ResourceImpl.rdfNodeFactory);
 
-
     /**
      * For RDFS Ontologies, limited functionality.
      *
      * @see <a href='https://www.w3.org/TR/rdf12-schema/'>RDF 1.2 Schema</a>
      */
-    public static final OntPersonality RDFS_PERSONALITY = new OntObjectPersonalityBuilder()
+    private static final OntObjectPersonalityBuilder RDFS_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
             .addPersonality(STANDARD_PERSONALITY)
             .add(OntObject.class, RDFSObjectFactories.ANY_OBJECT)
             .add(OntEntity.class, RDFSObjectFactories.ANY_ENTITY)
@@ -102,17 +115,12 @@ public class OntPersonalities {
             .add(OntIndividual.class, RDFSObjectFactories.ANY_INDIVIDUAL)
             .add(OntProperty.class, RDFSObjectFactories.PROPERTY)
             .add(OntClass.class, RDFSObjectFactories.ANY_CLASS)
-            .add(OntClass.Named.class, RDFSObjectFactories.NAMED_CLASS)
-            .setBuiltins(RDFS_BUILTINS)
-            .setReserved(RDFS_RESERVED)
-            .setPunnings(PunningsMode.LAX.getVocabulary())
-            .build();
+            .add(OntClass.Named.class, RDFSObjectFactories.NAMED_CLASS);
 
     /**
      * For OWL1.1 Ontologies, limited functionality.
-     * TODO
      */
-    private static final OntObjectPersonalityBuilder OWL1_ONT_OBJECT_PERSONALITY_BUILDER = new OntObjectPersonalityBuilder()
+    private static final OntObjectPersonalityBuilder OWL1_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
             .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OWL1ObjectFactories.ANY_OBJECT)
@@ -168,13 +176,12 @@ public class OntPersonalities {
             .add(OntDataRange.class, OWL1ObjectFactories.ANY_DATARANGE)
 
             .add(OntDisjoint.Individuals.class, OWL1ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
-            .add(OntDisjoint.class, OWL1ObjectFactories.ANY_DISJOINT)
-            ;
+            .add(OntDisjoint.class, OWL1ObjectFactories.ANY_DISJOINT);
 
     /**
      * Default personality builder for OWL2. Private access since this constant is mutable.
      */
-    private static final OntObjectPersonalityBuilder OWL2_ONT_OBJECT_PERSONALITY_BUILDER = new OntObjectPersonalityBuilder()
+    private static final OntObjectPersonalityBuilder OWL2_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
             .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OWL2ObjectFactories.ANY_OBJECT)
@@ -288,70 +295,25 @@ public class OntPersonalities {
             .add(OntSWRL.class, SWRLObjectFactories.ANY_OBJECT_SWRL);
 
     /**
-     * OWL1.1 (Jena-variant) Personality.
-     * This instance does not care about the owl-entities "punnings" (no restriction on the type declarations).
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see PunningsMode#LAX
+     * Mutable {@link OntObjectPersonalityBuilder} for RDFS Ontologies.
      */
-    public static final OntPersonality OWL1_PERSONALITY_LAX_PUNNS = OWL1_ONT_OBJECT_PERSONALITY_BUILDER.copy()
-            .setBuiltins(OWL_BUILTINS)
-            .setReserved(OWL_RESERVED)
-            .setPunnings(PunningsMode.LAX.getVocabulary())
-            .build();
+    public static OntObjectPersonalityBuilder RDFS_PERSONALITY() {
+        return RDFS_OBJECT_FACTORIES.copy();
+    }
 
     /**
-     * OWL2 Personality.
-     * This instance does not about the owl-entities "punnings" (no restriction on the type declarations).
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see PunningsMode#LAX
+     * Mutable {@link OntObjectPersonalityBuilder} for OWL1 Ontologies.
      */
-    public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy()
-            .setBuiltins(OWL_BUILTINS)
-            .setReserved(OWL_RESERVED)
-            .setPunnings(PunningsMode.LAX.getVocabulary())
-            .build();
+    public static OntObjectPersonalityBuilder OWL1_ONT_OBJECT_PERSONALITY() {
+        return OWL1_OBJECT_FACTORIES.copy();
+    }
 
     /**
-     * OWL2 Personality.
-     * The stronger variant of previous constant: there are two forbidden intersections:
-     * <ul>
-     * <li>{@link OntDataRange.Named}  &lt;-&gt; {@link OntClass.Named}</li>
-     * <li>{@link OntObjectProperty.Named} &lt;-&gt; {@link OntDataProperty}</li>
-     * </ul>
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see PunningsMode#MEDIUM
+     * Mutable {@link OntObjectPersonalityBuilder} for OWL2 Ontologies.
      */
-    public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy()
-            .setBuiltins(OWL_BUILTINS)
-            .setReserved(OWL_RESERVED)
-            .setPunnings(PunningsMode.MEDIUM.getVocabulary())
-            .build();
-
-    /**
-     * OWL2 Personality.
-     * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
-     * <ul>
-     * <li>{@link OntDataRange.Named}  &lt;-&gt; {@link OntClass.Named}</li>
-     * <li>{@link OntAnnotationProperty} &lt;-&gt; {@link OntObjectProperty.Named}</li>
-     * <li>{@link OntObjectProperty.Named} &lt;-&gt; {@link OntDataProperty}</li>
-     * <li>{@link OntDataProperty} &lt;-&gt; {@link OntAnnotationProperty}</li>
-     * </ul>
-     * each of the pairs above can't exist in the form of OWL-Entity in the same model at the same time.
-     * From specification: "OWL 2 DL imposes certain restrictions:
-     * it requires that a name cannot be used for both a class and a datatype and
-     * that a name can only be used for one kind of property."
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see PunningsMode#STRICT
-     */
-    public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OWL2_ONT_OBJECT_PERSONALITY_BUILDER.copy()
-            .setBuiltins(OWL_BUILTINS)
-            .setReserved(OWL_RESERVED)
-            .setPunnings(PunningsMode.STRICT.getVocabulary())
-            .build();
+    public static OntObjectPersonalityBuilder OWL2_ONT_OBJECT_PERSONALITY() {
+        return OWL2_OBJECT_FACTORIES.copy();
+    }
 
     /**
      * Creates a {@link OntPersonality.Builtins builtins personality vocabulary}
@@ -421,16 +383,22 @@ public class OntPersonalities {
 
     /**
      * A standard personality mode to manage punnings.
+     *
+     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
      */
     public enum PunningsMode {
         /**
-         * The following punnings are considered as illegal and are excluded:
+         * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
          * <ul>
-         * <li>owl:Class &lt;-&gt; rdfs:Datatype</li>
-         * <li>owl:ObjectProperty &lt;-&gt; owl:DatatypeProperty</li>
-         * <li>owl:ObjectProperty &lt;-&gt; owl:AnnotationProperty</li>
+         * <li>Named owl:Class &lt;-&gt; Named rdfs:Datatype</li>
+         * <li>Named owl:ObjectProperty &lt;-&gt; owl:DatatypeProperty</li>
+         * <li>Named owl:ObjectProperty &lt;-&gt; owl:AnnotationProperty</li>
          * <li>owl:AnnotationProperty &lt;-&gt; owl:DatatypeProperty</li>
          * </ul>
+         * each of the pairs above can't exist in the form of OWL-Entity in the same model at the same time.
+         * From specification: "OWL 2 DL imposes certain restrictions:
+         * it requires that a name cannot be used for both a class and a datatype and
+         * that a name can only be used for one kind of property."
          */
         STRICT,
         /**
