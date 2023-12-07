@@ -33,7 +33,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      * {@inheritDoc}
      *
      * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
-     *               i.e. eliminate any properties for which 
+     *               i.e. eliminate any properties for which
      *               there is a longer route to reach that parent under the sub-property relation
      * @return <b>distinct</b> {@code Stream} of object property expressions
      * @see #propertyChains()
@@ -45,7 +45,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      * {@inheritDoc}
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
-     *               i.e. eliminate any property for 
+     *               i.e. eliminate any property for
      *               which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of object property expressions
      * @see #propertyChains()
@@ -288,17 +288,6 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      */
     default Stream<OntObjectProperty> fromPropertyChain() {
         return propertyChains().flatMap(OntList::members).distinct();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    default Stream<OntClass.Restriction<OntObjectProperty>> referringRestrictions() {
-        //noinspection unchecked
-        return getModel().ontObjects(OntClass.Restriction.class)
-                .filter(r -> r.getProperty().equals(this))
-                .map(r -> (OntClass.Restriction<OntObjectProperty>) r);
     }
 
     /**

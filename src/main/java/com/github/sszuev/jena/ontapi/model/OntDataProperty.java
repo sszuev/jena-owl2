@@ -152,17 +152,6 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    default Stream<OntClass.Restriction<OntDataProperty>> referringRestrictions() {
-        //noinspection unchecked
-        return getModel().ontObjects(OntClass.Restriction.class)
-                .filter(r -> r.getProperty().equals(this))
-                .map(r -> (OntClass.Restriction<OntDataProperty>) r);
-    }
-
-    /**
      * Creates and returns a new {@link OWL#equivalentProperty owl:equivalentProperty} statement
      * with the given property as an object and this property as a subject.
      *
@@ -200,17 +189,6 @@ public interface OntDataProperty extends OntRealProperty, OntNamedProperty<OntDa
     default OntDataProperty addSuperProperty(OntDataProperty property) {
         addSubPropertyOfStatement(property);
         return this;
-    }
-
-    /**
-     * Adds a range statement.
-     *
-     * @param range {@link Resource}, that represents a {@link OntDataRange data range}, not {@code null}
-     * @return <b>this</b> instance to allow cascading calls
-     * @throws org.apache.jena.enhanced.UnsupportedPolymorphismException in case the wrong resource is specified
-     */
-    default OntDataProperty addRange(Resource range) {
-        return addRange(range.inModel(getModel()).as(OntDataRange.class));
     }
 
     /**

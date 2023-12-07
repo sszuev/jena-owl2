@@ -726,13 +726,34 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     /**
+     * Base for all {@link Restriction} impls.
+     */
+    public static class RestrictionImpl extends OntClassImpl implements Restriction {
+
+        public RestrictionImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public Optional<OntStatement> findRootStatement() {
+            return getRequiredRootStatement(this, OWL.Restriction);
+        }
+
+        @Override
+        public Class<? extends OntClass> getActualClass() {
+            return OntClass.Restriction.class;
+        }
+    }
+
+    /**
      * Abstract implementation for any restriction with {@code owl:onProperty} predicate.
+     * Can be used instantiate directly if config settings allow.
      *
      * @param <P> a subtype of {@link OntRealProperty Data or Object Property Expression}
      * @param <R> return type for {@link OWL#onProperty} setter
      */
-    protected static abstract class OnPropertyRestrictionImpl<P extends OntRealProperty, R extends OntClassImpl>
-            extends OntClassImpl implements UnaryRestriction<P> {
+    public static class OnPropertyRestrictionImpl<P extends OntRealProperty, R extends OntClassImpl>
+            extends RestrictionImpl implements UnaryRestriction<P> {
         protected final Class<P> propertyView;
 
         /**
@@ -740,14 +761,14 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
          * @param m            {@link EnhGraph}
          * @param propertyType Class-type for {@link OntRealProperty}
          */
-        protected OnPropertyRestrictionImpl(Node n, EnhGraph m, Class<P> propertyType) {
+        public OnPropertyRestrictionImpl(Node n, EnhGraph m, Class<P> propertyType) {
             super(n, m);
             this.propertyView = propertyType;
         }
 
         @Override
-        public Optional<OntStatement> findRootStatement() {
-            return getRequiredRootStatement(this, OWL.Restriction);
+        public Class<? extends OntClass> getActualClass() {
+            return OntClass.UnaryRestriction.class;
         }
 
         @Override

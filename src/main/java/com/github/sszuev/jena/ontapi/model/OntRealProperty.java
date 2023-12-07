@@ -5,6 +5,7 @@ import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDFS;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -174,7 +175,18 @@ public interface OntRealProperty extends OntProperty {
      *
      * @return a {@code Stream} whose values are the restrictions from the local model that reference this property.
      */
-    Stream<? extends OntClass.Restriction<? extends OntRealProperty>> referringRestrictions();
+    default Stream<OntClass.Restriction> referringRestrictions() {
+        //noinspection unchecked
+        return Stream.concat(
+                getModel().statements(null, OWL.onProperty, this)
+                        .map(it -> it.getSubject().getAs(OntClass.UnaryRestriction.class))
+                        .filter(Objects::nonNull),
+                getModel().statements(null, OWL.onProperties, null)
+                        .map(it -> it.getSubject().getAs(OntClass.NaryRestriction.class))
+                        .filter(Objects::nonNull)
+                        .filter(it -> it.getList().contains(OntRealProperty.this))
+        );
+    }
 
     /**
      * Lists all the declared domain class expressions of this property expression.

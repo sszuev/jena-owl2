@@ -91,8 +91,5 @@ interface MutableModel<R extends Model> extends Model {
     R add(Resource s, Property p, String lex, RDFDatatype datatype);
 
     @Override
-    R add(Resource s, Property p, String o, boolean wellFormed);
-
-    @Override
     R add(Resource s, Property p, String lex, String lang);
 }

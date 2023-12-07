@@ -12,7 +12,7 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
  * @param <R> - return type, a subtype of {@link OntClass.Restriction}
  * @see HasProperty
  */
-interface SetProperty<P extends OntRealProperty, R extends OntClass.Restriction<?>> {
+interface SetProperty<P extends OntRealProperty, R extends OntClass.Restriction> {
 
     /**
      * Sets the given property into this Restriction

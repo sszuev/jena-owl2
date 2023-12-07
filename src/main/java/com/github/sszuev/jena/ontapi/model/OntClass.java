@@ -1067,7 +1067,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * An abstract class expression (Restriction) that has component (i.e., 'filler' in OWL-API terms):
+     * An abstract class expression (Restriction) that has component (i.e. 'filler' in OWL-API terms):
      * all Cardinality Restrictions, Existential/Universal Restrictions, Individual/Literal Value Restrictions.
      *
      * @param <O> a value type
@@ -1085,7 +1085,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @param <P> any subtype of {@link OntRealProperty}
      */
     interface NaryRestriction<O extends OntObject, P extends OntRealProperty>
-            extends Restriction<P>, HasProperties<P>, HasValue<O> {
+            extends Restriction, HasProperties<P>, HasValue<O> {
     }
 
     /**
@@ -1094,15 +1094,13 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *
      * @param <P> any subtype of {@link OntRealProperty}
      */
-    interface UnaryRestriction<P extends OntRealProperty> extends Restriction<P> {
+    interface UnaryRestriction<P extends OntRealProperty> extends Restriction, HasProperty<P> {
     }
 
     /**
-     * An abstract class expression that unites all class expressions with the type {@link OWL#Restriction}.
-     *
-     * @param <P> any subtype of {@link OntRealProperty}
+     * A supertype for all class expressions with the type {@link OWL#Restriction}.
      */
-    interface Restriction<P extends OntRealProperty> extends OntClass, HasProperty<P> {
+    interface Restriction extends OntClass {
     }
 
     /**

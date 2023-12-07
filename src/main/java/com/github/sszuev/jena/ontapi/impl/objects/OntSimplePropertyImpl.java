@@ -38,16 +38,12 @@ public class OntSimplePropertyImpl extends OntPropertyImpl implements OntPropert
 
     @Override
     public Stream<OntProperty> superProperties(boolean direct) {
-        return HierarchySupport.treeNodes(this,
-                x -> explicitSuperProperties(x, OntProperty.class),
-                direct);
+        return HierarchySupport.treeNodes(this, x -> explicitSuperProperties(x, OntProperty.class), direct);
     }
 
     @Override
     public Stream<OntProperty> subProperties(boolean direct) {
-        return HierarchySupport.treeNodes(this,
-                x -> explicitSubProperties(x, OntProperty.class),
-                direct);
+        return HierarchySupport.treeNodes(this, x -> explicitSubProperties(x, OntProperty.class), direct);
     }
 
     @Override

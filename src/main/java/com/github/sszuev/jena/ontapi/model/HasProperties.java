@@ -17,7 +17,7 @@ interface HasProperties<P extends OntRealProperty> extends HasRDFNodeList<P>, Ha
 
     /**
      * Gets the first property from {@code owl:onProperties} []-list.
-     * Currently in OWL2, a []-list from n-ary Restrictions may contain one and only one (data) property.
+     * Currently, in OWL2, a []-list from n-ary Restrictions may contain one and only one (data) property.
      *
      * @return {@link P}
      * @see OntDataRange#arity()

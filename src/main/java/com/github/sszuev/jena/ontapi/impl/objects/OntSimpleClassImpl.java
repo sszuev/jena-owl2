@@ -21,7 +21,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * owl:Class Implementation
+ * {@code owl:Class} Implementation.
+ * Instance of this class as a class with unknown nature is only available in a spec with corresponding permissions
+ * ({@link com.github.sszuev.jena.ontapi.OntModelConfig}).
+ * Specialized classes have their own implementations (see {@link OntClassImpl}).
  * <p>
  * Created @ssz on 03.11.2016.
  */
@@ -130,6 +133,14 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
         return this;
     }
 
+    /**
+     * Primary (named) class ({@code <uri> a owl:Class}).
+     * This is also {@link com.github.sszuev.jena.ontapi.model.OntEntity}.
+     * Note:
+     * In jena OWL1, class expressions, such as {@link OntClass.ComplementOf},
+     * can also be named,
+     * but in this case specialized implementation is used (i.e., {@link OntClassImpl.ComplementOfImpl}).
+     */
     public static class NamedImpl extends OntSimpleClassImpl implements OntClass.Named {
 
         public NamedImpl(Node n, EnhGraph eg) {
