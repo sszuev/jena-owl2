@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("WeakerAccess")
 public class OntObjectPersonalityBuilder {
-    private final Map<Class<? extends OntObject>, EnhNodeFactory> factories;
+    private final Map<Class<? extends OntObject>, Function<OntConfig, EnhNodeFactory>> factories;
 
     private final Personality<RDFNode> base;
     private OntPersonality.Punnings punnings;
@@ -38,7 +39,7 @@ public class OntObjectPersonalityBuilder {
         this(new LinkedHashMap<>());
     }
 
-    protected OntObjectPersonalityBuilder(Map<Class<? extends OntObject>, EnhNodeFactory> factories) {
+    protected OntObjectPersonalityBuilder(Map<Class<? extends OntObject>, Function<OntConfig, EnhNodeFactory>> factories) {
         this.factories = Objects.requireNonNull(factories);
         this.base = new Personality<>();
     }
@@ -92,6 +93,7 @@ public class OntObjectPersonalityBuilder {
         if (punnings != null) res.setPunnings(punnings);
         if (builtins != null) res.setBuiltins(builtins);
         if (reserved != null) res.setReserved(reserved);
+        if (config != null) res.setConfig(config);
         return res;
     }
 
@@ -108,10 +110,30 @@ public class OntObjectPersonalityBuilder {
      * with the type {@link OntClass.Named}.
      *
      * @param type    {@code Class}-type of the concrete {@link OntObject}.
-     * @param factory {@link EnhNodeFactory} the factory to produce the instances of the {@code type},
+     * @param factory {@link EnhNodeFactory} the factory to produce the instances of the {@code type}
      * @return this builder
      */
     public OntObjectPersonalityBuilder add(Class<? extends OntObject> type, EnhNodeFactory factory) {
+        return add(type, config -> factory);
+    }
+
+    /**
+     * Associates the specified {@link EnhNodeFactory factory} producer with the specified {@link OntObject object} type.
+     * If the builder previously contained a mapping for the object type,
+     * the old factory is replaced by the specified factory.
+     * <p>
+     * Note: the {@link EnhNodeFactory factory} must not explicitly refer to another factory,
+     * instead it may contain implicit references through
+     * {@link OntEnhGraph#asPersonalityModel(EnhGraph)} method.
+     * For example, if you need a check, that some {@link Node node} is an OWL-Class inside your factory,
+     * you can use {@link OntEnhGraph#canAs(Class, Node, EnhGraph)}
+     * with the type {@link OntClass.Named}.
+     *
+     * @param type    {@code Class}-type of the concrete {@link OntObject}.
+     * @param factory {@code Function}, providing {@link EnhNodeFactory} by the {@link OntConfig}
+     * @return this builder
+     */
+    public OntObjectPersonalityBuilder add(Class<? extends OntObject> type, Function<OntConfig, EnhNodeFactory> factory) {
         factories.put(type, factory);
         return this;
     }
@@ -179,8 +201,12 @@ public class OntObjectPersonalityBuilder {
      * @throws IllegalStateException in case the builder does not contain require components
      */
     public OntPersonality build() throws IllegalStateException {
-        OntPersonalityImpl res = new OntPersonalityImpl(base, config(), punnings(), builtins(), reserved());
-        factories.forEach(res::register);
+        OntConfig config = config();
+        OntPersonality.Punnings punnings = punnings();
+        OntPersonality.Builtins builtins = builtins();
+        OntPersonality.Reserved reserved = reserved();
+        OntPersonalityImpl res = new OntPersonalityImpl(base, config, punnings, builtins, reserved);
+        factories.forEach((type, factory) -> res.register(type, factory.apply(config)));
         return res;
     }
 

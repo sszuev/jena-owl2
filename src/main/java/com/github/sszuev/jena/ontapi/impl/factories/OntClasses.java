@@ -1,11 +1,13 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
@@ -50,23 +52,23 @@ final class OntClasses {
     public static final EnhNodeFinder CLASS_FINDER = new EnhNodeFinder.ByType(OWL.Class);
     public static final EnhNodeFinder RESTRICTION_FINDER = new EnhNodeFinder.ByType(OWL.Restriction);
 
-    public static EnhNodeFactory createClassExpressionFactoryOWL2(Factory.Filter... filters) {
+    public static EnhNodeFactory createClassExpressionFactoryOWL2(OntConfig config, Factory.Filter... filters) {
         return new Factory(
-                /*allowGenericClass*/ false,
-                /*allowGenericRestriction*/ false,
-                /*allowGenericUnaryRestriction*/ false,
-                /*allowNamedClassExpressions*/ false,
+                config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS),
+                config.getBoolean(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS),
+                config.getBoolean(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS),
+                config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ true,
                 Arrays.asList(filters)
         );
     }
 
-    public static EnhNodeFactory createClassExpressionFactoryOWL1(Factory.Filter... filters) {
+    public static EnhNodeFactory createClassExpressionFactoryOWL1(OntConfig config, Factory.Filter... filters) {
         return new Factory(
-                /*allowGenericClass*/ true,
-                /*allowGenericRestriction*/ true,
-                /*allowGenericUnaryRestriction*/ true,
-                /*allowNamedClassExpressions*/ true,
+                config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS),
+                config.getBoolean(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS),
+                config.getBoolean(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS),
+                config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ false,
                 Arrays.asList(filters)
         );
@@ -77,9 +79,9 @@ final class OntClasses {
             Class<? extends OntClassImpl> impl,
             Property predicate,
             Class<? extends RDFNode> view,
-            boolean allowNamedClassExpressions) {
+            OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Class);
-        EnhNodeFilter primary = allowNamedClassExpressions ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter primary = config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
                 .and((n, g) -> {
                     ExtendedIterator<Triple> res = g.asGraph().find(n, predicate.asNode(), Node.ANY);
@@ -102,9 +104,9 @@ final class OntClasses {
             RestrictionType restrictionType,
             ObjectRestrictionType objectType,
             OntClassImpl.CardinalityType cardinalityType,
-            boolean allowNamedClassExpressions) {
+            OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
-        EnhNodeFilter primary = allowNamedClassExpressions ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter primary = config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
                 .and(getCardinalityFilter(cardinalityType, objectType.view()))
                 .and(restrictionType.getFilter());
@@ -116,9 +118,9 @@ final class OntClasses {
             RestrictionType propertyType,
             ObjectRestrictionType objectType,
             Property predicate,
-            boolean allowNamedClassExpressions) {
+            OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
-        EnhNodeFilter primary = allowNamedClassExpressions ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter primary = config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
                 .and(propertyType.getFilter())
                 .and(objectType.getFilter(predicate));

@@ -9,13 +9,13 @@ import org.apache.jena.rdf.model.RDFNode;
 
 /**
  * An abstraction to work with {@link OntPersonality}
- * and an interface-analog of the {@link EnhGraph Jena Enhanced Graph},
+ * and an interface-analogue of the {@link EnhGraph Jena Enhanced Graph},
  * and also a facility to provide implicit links between different
  * {@link EnhNodeFactory} factories within a model.
  * A .orElse(null) is assumed to be {@link OntEnhGraph}.
  * <p>
  * Explicit links between object factories are undesirable, since replacing one of the factories will affect others.
- * But using this interface it is possible to build safe implicit links and
+ * But using this interface, it is possible to build safe implicit links and
  * replacing one factory with a custom implementation will not break the whole model.
  * More about this see in the description for
  * the method {@link OntObjectPersonalityBuilder#add(Class, EnhNodeFactory)}.
@@ -55,6 +55,17 @@ public interface OntEnhGraph {
             return (OntEnhGraph) graph;
         }
         throw new OntJenaException.IllegalArgument("The given OntGraphModel is not a PersonalityModel: " + graph);
+    }
+
+    /**
+     * Extracts {@link OntConfig} from the given enhanced graph.
+     *
+     * @param graph {@link OntModel OWL graph model},
+     *              that is also assumed to be {@link EnhGraph}, not {@code null}
+     * @return {@link OntConfig}
+     */
+    static OntConfig config(EnhGraph graph) {
+        return asPersonalityModel(graph).getOntPersonality().getConfig();
     }
 
     /**

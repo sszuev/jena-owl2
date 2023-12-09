@@ -26,4 +26,44 @@ public enum OntModelConfig {
      * then {@code owl:NamedIndividual} declaration is required for named individuals.
      */
     USE_NAMED_INDIVIDUAL_DECLARATION,
+    /**
+     * If this key is set to {@code true}, class expressions are allowed to be named (can have URI).
+     * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
+     * In OWL2, class expression should be anonymous.
+     */
+    ALLOW_NAMED_CLASS_EXPRESSIONS,
+    /**
+     * If this key is set to {@code true}, there is a special type of class expressions,
+     * which includes any structure declared as {@code owl:Class}
+     * that cannot be classified as a specific type.
+     * Casting such a construction to a particular class type
+     * (e.g. {@code generic.as(OntClass.OneOf.class)}) will result in an exception,
+     * but as a class expression, it can a type of the individual, can be a domain for property, etc.
+     * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
+     * In OWL2, there are no generic class expressions.
+     */
+    ALLOW_GENERIC_CLASS_EXPRESSIONS,
+    /**
+     * If this key is set to {@code true}, there is a special type of restriction class expressions,
+     * which includes any structure
+     * declared as {@code owl:Restriction} and having predicate {@code owl:onProperty}
+     * but cannot be classified as a specific restriction type.
+     * Casting such a construction to a particular class type
+     * (e.g. {@code generic.as(OntClass.DataCardinality.class)}) will lead to an exception,
+     * but as a class expression, it can a type of the individual, can be a domain for property, etc.
+     * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
+     * In OWL2, there are no generic class expressions.
+     */
+    ALLOW_GENERIC_UNION_RESTRICTIONS,
+    /**
+     * If this key is set to {@code true}, there is a special type of restriction class expressions,
+     * which includes any structure declared as {@code owl:Restriction}
+     * but cannot be classified as a specific restriction type (nary or unary restriction).
+     * Casting such a construction to a particular class type
+     * (e.g. {@code generic.as(OntClass.DataCardinality.class)}) will lead to an exception,
+     * but as a class expression, it can a type of the individual, can be a domain for property, etc.
+     * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
+     * In OWL2, there are no generic class expressions.
+     */
+    ALLOW_GENERIC_RESTRICTIONS,
 }

@@ -74,11 +74,19 @@ public class OntPersonalities {
     public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setFalse(OntModelConfig.USE_OWL_V1_VOCABULARY)
-            .setTrue(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION);
+            .setTrue(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
+            .setFalse(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
+            .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
+            .setFalse(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
+            .setFalse(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
-            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION);
+            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
+            .setTrue(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
+            .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
+            .setTrue(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
+            .setTrue(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
