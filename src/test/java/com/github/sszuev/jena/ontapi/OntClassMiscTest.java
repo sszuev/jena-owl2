@@ -123,7 +123,7 @@ public class OntClassMiscTest {
     }
 
     @Test
-    public void testClassExpressionComponents() {
+    public void testClassExpressionCollectionOf() {
         OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass("C1");
         OntClass c2 = m.createOntClass("C2");
@@ -149,7 +149,7 @@ public class OntClassMiscTest {
         Assertions.assertEquals(3, e3.setComponents(Arrays.asList(c1, c2, m.getOWLThing())).getList().members().count());
 
         Set<RDFNode> expected = new HashSet<>(Arrays.asList(i1, i4, c1, c2, m.getOWLThing()));
-        Set<RDFNode> actual = m.ontObjects(OntClass.Combination.class)
+        Set<RDFNode> actual = m.ontObjects(OntClass.CollectionOf.class)
                 .map(x -> x.getList())
                 .map(x -> x.as(RDFList.class))
                 .map(RDFList::asJavaList)

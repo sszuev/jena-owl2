@@ -55,10 +55,10 @@ public class PersonalityTest {
         OntPersonality res = OntObjectPersonalityBuilder.from(from)
                 .add(OntIndividual.Named.class, factory)
                 .build();
-        Assertions.assertEquals(97, res.types().count());
+        Assertions.assertEquals(99, res.types().count());
         List<Class<? extends OntObject>> objects = res.types(OntObject.class).collect(Collectors.toList());
         List<Class<? extends OntEntity>> entities = res.types(OntEntity.class).collect(Collectors.toList());
-        Assertions.assertEquals(87, objects.size());
+        Assertions.assertEquals(89, objects.size());
         Assertions.assertEquals(8, entities.size());
         return res;
     }

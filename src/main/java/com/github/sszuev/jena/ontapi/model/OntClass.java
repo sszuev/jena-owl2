@@ -48,7 +48,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * the subclasses iterator will include {@code D}.
      * The {@code direct} subclasses are those members of the closure of the subClassOf relation,
      * restricted to classes that cannot be reached by a longer route,
-     * i.e., the ones that are <em>directly</em> adjacent to the given root.
+     * i.e. the ones that are <em>directly</em> adjacent to the given root.
      * Thus, the direct subclasses of {@code A} are {@code B} and {@code C} only,
      * and not {@code D} - even in an inferencing graph.
      * Note that this is not the same as the entailments from the raw graph.
@@ -64,8 +64,11 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * since this can be inferred from the closure of the graph.
      *
      * @param direct {@code boolean} - if {@code true} answers the directly adjacent classes in the subclass relation:
-     *               i.e., eliminate any class for which there is a longer route to reach that parent under the subclass relation;
-     *               if {@code false} answers all subclasses found by inferencer, which usually means entire hierarchy down the tree;
+     *               i.e. eliminate any class
+     *                              for which there is a longer route
+     *                              to reach that parent under the subclass relation;
+     *               if {@code false} answers all subclasses found by inferencer,
+     *                              which usually means entire hierarchy down the tree;
      *               this class is not included
      * @return <b>distinct</b> {@code Stream} of sub {@link OntClass class expression}s
      * @see #subClasses()
@@ -106,8 +109,11 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * since this can be inferred from the closure of the graph.
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent classes in the superclass relation,
-     *               i.e., eliminate any class for which there is a longer route to reach that parent under the superclass relation;
-     *               if {@code false} answers all superclasses found by inferencer, which usually means entire hierarchy up the tree;
+     *               i.e. eliminate any class
+     *                              for which there is a longer route
+     *                              to reach that parent under the superclass relation;
+     *               if {@code false} answers all superclasses found by inferencer,
+     *                              which usually means entire hierarchy up the tree;
      *               this class is not included
      * @return <b>distinct</b> {@code Stream} of super {@link OntClass class expression}s
      * @see #superClasses()
@@ -120,7 +126,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * Lists all individuals, directly or indirectly connected to this class.
      * The search pattern is {@code a rdf:type C}, where {@code C} is class expression and {@code a} individual.
      *
-     * @param direct {@code boolean} if true, only direct instances are counted (i.e., not instances of subclasses of this class)
+     * @param direct {@code boolean} if true, only direct instances are counted
+     *                              (i.e. not instances of subclasses of this class)
      * @return a {@code Stream} of {@link OntIndividual}s
      */
     Stream<OntIndividual> individuals(boolean direct);
@@ -137,7 +144,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * For built-in properties the method returns always {@code false}.
      * If there are no domains for the property, then it is considered as global and is attached to root classes.
      * <p>
-     * The behavior of this method must be identical to the behavior of the Jena method
+     * The behaviour of this method must be identical to the behaviour of the Jena method
      * {@link org.apache.jena.ontology.OntClass#hasDeclaredProperty(Property, boolean)}.
      *
      * @param property {@link OntRealProperty}, not {@code null}
@@ -157,7 +164,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * the domain of properties in this class's {@link OntModel} with the class itself.
      * See: <a href="https://jena.apache.org/documentation/notes/rdf-frames.html">Apache Jena: Presenting RDF as frames</a> for more details.
      * <p>
-     * The behavior of this method must be identical to the behavior of the Jena method
+     * The behaviour of this method must be identical to the behaviour of the Jena method
      * {@link org.apache.jena.ontology.OntClass#listDeclaredProperties(boolean)}}.
      *
      * @param direct {@code boolean}: if {@code true} analyses only the directly adjacent domains in the subclass relation,
@@ -174,7 +181,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * <p>
      * {@code owl:Nothing} cannot be root.
      * <p>
-     * The behavior of this method must be identical to the behavior of the Jena method
+     * The behaviour of this method must be identical to the behaviour of the Jena method
      * {@link org.apache.jena.ontology.OntClass#isHierarchyRoot()}.
      *
      * @return {@code true} if this class is the root of the class hierarchy in the model it is attached to
@@ -232,7 +239,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * Creates a {@code HasKey} logical construction as {@link OntList ontology list}
      * and returns the statement {@code C owl:hasKey ( P1 ... Pm R1 ... Rn )}
      * to allow the subsequent addition of annotations.
-     * About RDF Graph annotation specification see, for example,
+     * About RDF Graph annotation specification sees, for example,
      * <a href="https://www.w3.org/TR/owl2-mapping-to-rdf/#Translation_of_Annotations">2.3.1 Axioms that Generate a Main Triple</a>.
      *
      * @param properties Array of {@link OntRealProperty}s without {@code null}s
@@ -310,7 +317,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Lists all direct or indirect subclasses for this class expression, i.e., all subclasses found by inferencer,
+     * Lists all direct or indirect subclasses for this class expression, i.e. all subclasses found by inferencer,
      * which usually means entire hierarchy down the tree; this class is not included.
      * The search pattern is {@code Ci rdfs:subClassOf C}.
      * <p>
@@ -336,7 +343,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Lists all direct and indirect superclasses for this class expression, i.e., all superclasses found by inferencer,
+     * Lists all direct and indirect superclasses for this class expression, i.e. all superclasses found by inferencer,
      * which usually means entire hierarchy up the tree; this class is not included.
      * The search pattern is {@code C rdfs:subClassOf Ci}.
      * <p>
@@ -596,7 +603,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Deletes all {@code HasKey} []-list including its annotations,
-     * i.e., all those statements with the predicate {@link OWL#hasKey owl:hasKey} for which this resource is a subject.
+     * i.e. all those statements with the predicate
+     * {@link OWL#hasKey owl:hasKey} for which this resource is a subject.
      *
      * @return <b>this</b> instance to allow cascading calls
      * @throws OntJenaException if the list is not found
@@ -621,7 +629,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Lists all key properties.
-     * I.e., returns all object- and datatype-properties that belong to
+     * I.e. returns all object- and datatype-properties that belong to
      * the {@code C owl:hasKey ( P1 ... Pm R1 ... Rn )} statements,
      * where {@code C} is this class expression,
      * {@code Pi} is a property expression, and {@code Ri} is a data(-type) property.
@@ -644,42 +652,42 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createObjectSomeValuesFrom(OntObjectProperty, OntClass)
      */
-    interface ObjectSomeValuesFrom extends ComponentRestriction<OntClass, OntObjectProperty>,
+    interface ObjectSomeValuesFrom extends ValueRestriction<OntClass, OntObjectProperty>,
             SetValue<OntClass, ObjectSomeValuesFrom>, SetProperty<OntObjectProperty, ObjectSomeValuesFrom> {
     }
 
     /**
      * @see OntModel#createDataSomeValuesFrom(OntDataProperty, OntDataRange)
      */
-    interface DataSomeValuesFrom extends ComponentRestriction<OntDataRange, OntDataProperty>,
+    interface DataSomeValuesFrom extends ValueRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, DataSomeValuesFrom>, SetProperty<OntDataProperty, DataSomeValuesFrom> {
     }
 
     /**
      * @see OntModel#createObjectAllValuesFrom(OntObjectProperty, OntClass)
      */
-    interface ObjectAllValuesFrom extends ComponentRestriction<OntClass, OntObjectProperty>,
+    interface ObjectAllValuesFrom extends ValueRestriction<OntClass, OntObjectProperty>,
             SetValue<OntClass, ObjectAllValuesFrom>, SetProperty<OntObjectProperty, ObjectAllValuesFrom> {
     }
 
     /**
      * @see OntModel#createDataAllValuesFrom(OntDataProperty, OntDataRange)
      */
-    interface DataAllValuesFrom extends ComponentRestriction<OntDataRange, OntDataProperty>,
+    interface DataAllValuesFrom extends ValueRestriction<OntDataRange, OntDataProperty>,
             SetValue<OntDataRange, DataAllValuesFrom>, SetProperty<OntDataProperty, DataAllValuesFrom> {
     }
 
     /**
      * @see OntModel#createObjectHasValue(OntObjectProperty, OntIndividual)
      */
-    interface ObjectHasValue extends ComponentRestriction<OntIndividual, OntObjectProperty>,
+    interface ObjectHasValue extends ValueRestriction<OntIndividual, OntObjectProperty>,
             SetValue<OntIndividual, ObjectHasValue>, SetProperty<OntObjectProperty, ObjectHasValue> {
     }
 
     /**
      * @see OntModel#createDataHasValue(OntDataProperty, Literal)
      */
-    interface DataHasValue extends ComponentRestriction<Literal, OntDataProperty>,
+    interface DataHasValue extends ValueRestriction<Literal, OntDataProperty>,
             SetValue<Literal, DataHasValue>, SetProperty<OntDataProperty, DataHasValue> {
     }
 
@@ -746,25 +754,25 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * @see OntModel#createObjectUnionOf(Collection)
      */
-    interface UnionOf extends Combination<OntClass>, SetComponents<OntClass, UnionOf> {
+    interface UnionOf extends LogicalExpression, CollectionOf<OntClass>, SetComponents<OntClass, UnionOf> {
     }
 
     /**
      * @see OntModel#createObjectOneOf(Collection)
      */
-    interface OneOf extends Combination<OntIndividual>, SetComponents<OntIndividual, OneOf> {
+    interface OneOf extends LogicalExpression, CollectionOf<OntIndividual>, SetComponents<OntIndividual, OneOf> {
     }
 
     /**
      * @see OntModel#createObjectIntersectionOf(Collection)
      */
-    interface IntersectionOf extends Combination<OntClass>, SetComponents<OntClass, IntersectionOf> {
+    interface IntersectionOf extends LogicalExpression, CollectionOf<OntClass>, SetComponents<OntClass, IntersectionOf> {
     }
 
     /**
      * @see OntModel#createObjectComplementOf(OntClass)
      */
-    interface ComplementOf extends OntClass, HasValue<OntClass>, SetValue<OntClass, ComplementOf> {
+    interface ComplementOf extends LogicalExpression, HasValue<OntClass>, SetValue<OntClass, ComplementOf> {
     }
 
     /**
@@ -975,7 +983,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
         /**
          * Deletes all {@code DisjointUnion} []-lists including their annotations,
-         * i.e., all those statements with the predicate {@link OWL#disjointUnionOf owl:disjointUnionOf}
+         * i.e. all those statements with the predicate {@link OWL#disjointUnionOf owl:disjointUnionOf}
          * for which this resource is a subject.
          *
          * @return <b>this</b> instance to allow cascading calls
@@ -1057,6 +1065,16 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      */
 
     /**
+     * An abstract for *Value*Restrictions (e.g. {@link DataHasValue},  {@link ObjectAllValuesFrom})
+     *
+     * @param <O> a value type
+     * @param <P> any subtype of {@link OntRealProperty}
+     */
+    interface ValueRestriction<O extends RDFNode, P extends OntRealProperty>
+            extends ComponentRestriction<O, P> {
+    }
+
+    /**
      * An abstraction for Cardinality Restrictions.
      *
      * @param <O> a value type
@@ -1109,6 +1127,14 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *
      * @param <O> a component type
      */
-    interface Combination<O extends OntObject> extends OntClass, HasRDFNodeList<O> {
+    interface CollectionOf<O extends OntObject> extends OntClass, HasRDFNodeList<O> {
     }
+
+    /**
+     * Describes Boolean Connectives and Enumeration of Individuals
+     * ({@link ComplementOf}, {@link UnionOf}, {@link IntersectionOf} and {@link OneOf}).
+     */
+    interface LogicalExpression extends OntClass {
+    }
+
 }

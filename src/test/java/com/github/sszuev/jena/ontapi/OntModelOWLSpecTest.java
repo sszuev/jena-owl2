@@ -24,6 +24,7 @@ import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
+import org.apache.jena.enhanced.UnsupportedPolymorphismException;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -71,7 +72,18 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(expected, m.ontObjects(type).count());
     }
 
-    private static void testPizzaCEs(Model m, Property predicate, List<? extends OntClass> ces) {
+    private static void testListObjects(OntModel m, Map<Class<? extends OntObject>, Integer> expected) {
+        expected.keySet().forEach(it -> {
+            try {
+                List<OntObject> found = m.ontObjects(it).collect(Collectors.toList());
+                Assertions.assertEquals(expected.get(it), found.size(), "Wrong objects count for " + it.getSimpleName());
+            } catch (Exception e) {
+                throw new AssertionError("Can't list objects for " + it.getSimpleName(), e);
+            }
+        });
+    }
+
+    private static void testHasPredicate(Model m, Property predicate, List<? extends OntClass> ces) {
         String type = ces.isEmpty() ? null : ((OntClassImpl) ces.get(0)).getActualClass().getSimpleName();
         Assertions.assertEquals(m.listSubjectsWithProperty(predicate).toSet().size(), ces.size(), "Incorrect count of " + type);
     }
@@ -107,16 +119,46 @@ public class OntModelOWLSpecTest {
                 .flatMap(OntObjectProperty::inverseProperties).count());
     }
 
-    @SuppressWarnings("rawtypes")
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
             "OWL1_MEM",
     })
-    public void testPizzaLoadCE(TestSpec spec) {
+    public void testPizzaObjects1a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(
                 RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.inst);
+
+        Map<Class<? extends OntObject>, Integer> expected = new HashMap<>();
+        expected.put(OntClass.ObjectSomeValuesFrom.class, 155);
+        expected.put(OntClass.DataSomeValuesFrom.class, 0);
+        expected.put(OntClass.ObjectAllValuesFrom.class, 26);
+        expected.put(OntClass.DataAllValuesFrom.class, 0);
+        expected.put(OntClass.ObjectHasValue.class, 6);
+        expected.put(OntClass.DataHasValue.class, 0);
+        expected.put(OntClass.ObjectMinCardinality.class, 1);
+        expected.put(OntClass.DataMinCardinality.class, 0);
+        expected.put(OntClass.ObjectMaxCardinality.class, 0);
+        expected.put(OntClass.DataMaxCardinality.class, 0);
+        expected.put(OntClass.ObjectCardinality.class, 0);
+        expected.put(OntClass.DataCardinality.class, 0);
+        expected.put(OntClass.HasSelf.class, 0);
+        expected.put(OntClass.UnionOf.class, 25);
+        expected.put(OntClass.OneOf.class, 1);
+        expected.put(OntClass.IntersectionOf.class, 15);
+        expected.put(OntClass.ComplementOf.class, 3);
+        expected.put(OntClass.NaryDataAllValuesFrom.class, 0);
+        expected.put(OntClass.NaryDataSomeValuesFrom.class, 0);
+        expected.put(OntClass.LogicalExpression.class, 44);
+        expected.put(OntClass.CollectionOf.class, 41);
+        expected.put(OntClass.ValueRestriction.class, 187);
+        expected.put(OntClass.CardinalityRestriction.class, 1);
+        expected.put(OntClass.ComponentRestriction.class, 188);
+        expected.put(OntClass.UnaryRestriction.class, 188);
+        expected.put(OntClass.Restriction.class, 188);
+        expected.put(OntClass.class, 332);
+
+        testListObjects(m, expected);
 
         List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
         int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
@@ -147,14 +189,14 @@ public class OntModelOWLSpecTest {
         List<OntClass.ObjectMinCardinality> objectMinCardinalityCEs = m.ontObjects(OntClass.ObjectMinCardinality.class)
                 .collect(Collectors.toList());
 
-        testPizzaCEs(m, OWL.someValuesFrom, objectSomeValuesFromCEs);
-        testPizzaCEs(m, OWL.allValuesFrom, objectAllValuesFromCEs);
-        testPizzaCEs(m, OWL.hasValue, objectHasValueCEs);
-        testPizzaCEs(m, OWL.unionOf, unionOfCEs);
-        testPizzaCEs(m, OWL.intersectionOf, intersectionOfCEs);
-        testPizzaCEs(m, OWL.complementOf, complementOfCEs);
-        testPizzaCEs(m, OWL.oneOf, oneOfCEs);
-        testPizzaCEs(m, OWL.minCardinality, objectMinCardinalityCEs);
+        testHasPredicate(m, OWL.someValuesFrom, objectSomeValuesFromCEs);
+        testHasPredicate(m, OWL.allValuesFrom, objectAllValuesFromCEs);
+        testHasPredicate(m, OWL.hasValue, objectHasValueCEs);
+        testHasPredicate(m, OWL.unionOf, unionOfCEs);
+        testHasPredicate(m, OWL.intersectionOf, intersectionOfCEs);
+        testHasPredicate(m, OWL.complementOf, complementOfCEs);
+        testHasPredicate(m, OWL.oneOf, oneOfCEs);
+        testHasPredicate(m, OWL.minCardinality, objectMinCardinalityCEs);
     }
 
     @ParameterizedTest
@@ -991,6 +1033,64 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(8, m.statements().count());
         Assertions.assertEquals(1, m.ontObjects(OntDisjoint.Individuals.class).count());
         Assertions.assertEquals(1, m.ontObjects(OntDisjoint.class).count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testHasSelfClassExpression1a(TestSpec spec) {
+        Model g = ModelFactory.createDefaultModel();
+        //_:x rdf:type owl:Restriction.
+        //_:x owl:onProperty P.
+        //_:x owl:hasSelf "true"^^xsd:boolean.
+        Resource r = g.createResource().addProperty(RDF.type, OWL.Restriction)
+                .addProperty(OWL.onProperty, g.createResource("P", OWL.ObjectProperty))
+                .addLiteral(OWL.hasSelf, true);
+
+        OntModel m = OntModelFactory.createModel(g.getGraph(), spec.inst);
+        Stream.of(OntClass.class, OntClass.HasSelf.class).forEach(t -> {
+            List<OntClass> ces = m.ontObjects(t).collect(Collectors.toList());
+            Assertions.assertEquals(1, ces.size());
+            OntClass.HasSelf hasSelf = ces.get(0).as(OntClass.HasSelf.class);
+            Assertions.assertEquals(m.getObjectProperty("P"), hasSelf.getProperty());
+        });
+
+
+        // can create & delete individual
+        OntClass.HasSelf hasSelf = r.inModel(m).as(OntClass.HasSelf.class);
+        OntIndividual i = hasSelf.as(OntClass.HasSelf.class).createIndividual("I");
+        Assertions.assertEquals(hasSelf, i.classes(false).findFirst().orElseThrow());
+        hasSelf.removeIndividual(i);
+        Assertions.assertTrue(i.classes(false).findFirst().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+    })
+    public void testHasSelfClassExpression1b(TestSpec spec) {
+        Model g = ModelFactory.createDefaultModel();
+        //_:x rdf:type owl:Restriction.
+        //_:x owl:onProperty P.
+        //_:x owl:hasSelf "true"^^xsd:boolean.
+        g.createResource().addProperty(RDF.type, OWL.Restriction)
+                .addProperty(OWL.onProperty, g.createResource("P", OWL.ObjectProperty))
+                .addLiteral(OWL.hasSelf, true);
+
+        OntModel m = OntModelFactory.createModel(g.getGraph(), spec.inst);
+        List<OntClass> ces1 = m.ontObjects(OntClass.HasSelf.class).collect(Collectors.toList());
+        Assertions.assertEquals(0, ces1.size());
+        List<OntClass> ces2 = m.ontObjects(OntClass.class).collect(Collectors.toList());
+        Assertions.assertEquals(1, ces2.size());
+        OntClass hasSelf = ces2.get(0);
+        Assertions.assertThrows(UnsupportedPolymorphismException.class, () -> hasSelf.as(OntClass.HasSelf.class));
+
+        OntIndividual i = hasSelf.createIndividual("I");
+        Assertions.assertEquals(hasSelf, i.classes(false).findFirst().orElseThrow());
+        hasSelf.removeIndividual(i);
+        Assertions.assertTrue(i.classes(false).findFirst().isEmpty());
     }
 }
 

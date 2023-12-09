@@ -92,97 +92,113 @@ public final class OWL2ObjectFactories {
             .add(OWL.AnnotationProperty, OntAnnotationProperty.class);
 
     // Class Expressions
-    public static final Function<OntConfig, EnhNodeFactory> UNION_OF_CLASS = config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
-            OntClassImpl.UnionOfImpl.class,
-            OWL.unionOf,
-            RDFList.class,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> INTERSECTION_OF_CLASS = config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
-            OntClassImpl.IntersectionOfImpl.class,
-            OWL.intersectionOf, RDFList.class,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> ONE_OF_CLASS = config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
-            OntClassImpl.OneOfImpl.class,
-            OWL.oneOf,
-            RDFList.class,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> COMPLEMENT_OF_CLASS = config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
-            OntClassImpl.ComplementOfImpl.class,
-            OWL.complementOf,
-            OntClass.class,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> OBJECT_SOME_VALUES_FROM_CLASS = config -> OntClasses.createComponentRestrictionFactory(
-            OntClassImpl.ObjectSomeValuesFromImpl.class,
-            OntClasses.RestrictionType.OBJECT,
-            OntClasses.ObjectRestrictionType.CLASS,
-            OWL.someValuesFrom,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> DATA_SOME_VALUES_FROM_CLASS = config -> OntClasses.createComponentRestrictionFactory(
-            OntClassImpl.DataSomeValuesFromImpl.class,
-            OntClasses.RestrictionType.DATA,
-            OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OWL.someValuesFrom,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> OBJECT_ALL_VALUES_FROM_CLASS = config -> OntClasses.createComponentRestrictionFactory(
-            OntClassImpl.ObjectAllValuesFromImpl.class,
-            OntClasses.RestrictionType.OBJECT,
-            OntClasses.ObjectRestrictionType.CLASS,
-            OWL.allValuesFrom,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> DATA_ALL_VALUES_FROM_CLASS = config -> OntClasses.createComponentRestrictionFactory(
-            OntClassImpl.DataAllValuesFromImpl.class,
-            OntClasses.RestrictionType.DATA,
-            OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OWL.allValuesFrom,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> OBJECT_HAS_VALUE_CLASS = config -> OntClasses.createComponentRestrictionFactory(
-            OntClassImpl.ObjectHasValueImpl.class,
-            OntClasses.RestrictionType.OBJECT,
-            OntClasses.ObjectRestrictionType.INDIVIDUAL,
-            OWL.hasValue,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> DATA_HAS_VALUE_CLASS = config -> OntClasses.createComponentRestrictionFactory(
-            OntClassImpl.DataHasValueImpl.class,
-            OntClasses.RestrictionType.DATA,
-            OntClasses.ObjectRestrictionType.LITERAL,
-            OWL.hasValue,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> DATA_MIN_CARDINALITY_CLASS = config -> OntClasses.createCardinalityRestrictionFactory(
-            OntClassImpl.DataMinCardinalityImpl.class,
-            OntClasses.RestrictionType.DATA,
-            OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OntClassImpl.CardinalityType.MIN,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> OBJECT_MIN_CARDINALITY_CLASS = config -> OntClasses.createCardinalityRestrictionFactory(
-            OntClassImpl.ObjectMinCardinalityImpl.class,
-            OntClasses.RestrictionType.OBJECT,
-            OntClasses.ObjectRestrictionType.CLASS,
-            OntClassImpl.CardinalityType.MIN,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> DATA_MAX_CARDINALITY_CLASS = config -> OntClasses.createCardinalityRestrictionFactory(
-            OntClassImpl.DataMaxCardinalityImpl.class,
-            OntClasses.RestrictionType.DATA,
-            OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OntClassImpl.CardinalityType.MAX,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> OBJECT_MAX_CARDINALITY_CLASS = config -> OntClasses.createCardinalityRestrictionFactory(
-            OntClassImpl.ObjectMaxCardinalityImpl.class,
-            OntClasses.RestrictionType.OBJECT,
-            OntClasses.ObjectRestrictionType.CLASS,
-            OntClassImpl.CardinalityType.MAX,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> DATA_CARDINALITY_CLASS = config -> OntClasses.createCardinalityRestrictionFactory(
-            OntClassImpl.DataCardinalityImpl.class,
-            OntClasses.RestrictionType.DATA,
-            OntClasses.ObjectRestrictionType.DATA_RANGE,
-            OntClassImpl.CardinalityType.EXACTLY,
-            config);
-    public static final Function<OntConfig, EnhNodeFactory> OBJECT_CARDINALITY_CLASS = config -> OntClasses.createCardinalityRestrictionFactory(
-            OntClassImpl.ObjectCardinalityImpl.class,
-            OntClasses.RestrictionType.OBJECT,
-            OntClasses.ObjectRestrictionType.CLASS,
-            OntClassImpl.CardinalityType.EXACTLY,
-            config);
+    public static final Function<OntConfig, EnhNodeFactory> UNION_OF_CLASS =
+            config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
+                    OntClassImpl.UnionOfImpl.class,
+                    OWL.unionOf,
+                    RDFList.class,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> INTERSECTION_OF_CLASS =
+            config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
+                    OntClassImpl.IntersectionOfImpl.class,
+                    OWL.intersectionOf, RDFList.class,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> ONE_OF_CLASS =
+            config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
+                    OntClassImpl.OneOfImpl.class,
+                    OWL.oneOf,
+                    RDFList.class,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> COMPLEMENT_OF_CLASS =
+            config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
+                    OntClassImpl.ComplementOfImpl.class,
+                    OWL.complementOf,
+                    OntClass.class,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> OBJECT_SOME_VALUES_FROM_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.ObjectSomeValuesFromImpl.class,
+                    OntClasses.RestrictionType.OBJECT,
+                    OntClasses.ObjectRestrictionType.CLASS,
+                    OWL.someValuesFrom,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> DATA_SOME_VALUES_FROM_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.DataSomeValuesFromImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OWL.someValuesFrom,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> OBJECT_ALL_VALUES_FROM_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.ObjectAllValuesFromImpl.class,
+                    OntClasses.RestrictionType.OBJECT,
+                    OntClasses.ObjectRestrictionType.CLASS,
+                    OWL.allValuesFrom,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> DATA_ALL_VALUES_FROM_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.DataAllValuesFromImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OWL.allValuesFrom,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> OBJECT_HAS_VALUE_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.ObjectHasValueImpl.class,
+                    OntClasses.RestrictionType.OBJECT,
+                    OntClasses.ObjectRestrictionType.INDIVIDUAL,
+                    OWL.hasValue,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> DATA_HAS_VALUE_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.DataHasValueImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.LITERAL,
+                    OWL.hasValue,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> DATA_MIN_CARDINALITY_CLASS =
+            config -> OntClasses.createCardinalityRestrictionFactory(
+                    OntClassImpl.DataMinCardinalityImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OntClassImpl.CardinalityType.MIN,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> OBJECT_MIN_CARDINALITY_CLASS =
+            config -> OntClasses.createCardinalityRestrictionFactory(
+                    OntClassImpl.ObjectMinCardinalityImpl.class,
+                    OntClasses.RestrictionType.OBJECT,
+                    OntClasses.ObjectRestrictionType.CLASS,
+                    OntClassImpl.CardinalityType.MIN,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> DATA_MAX_CARDINALITY_CLASS =
+            config -> OntClasses.createCardinalityRestrictionFactory(
+                    OntClassImpl.DataMaxCardinalityImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OntClassImpl.CardinalityType.MAX,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> OBJECT_MAX_CARDINALITY_CLASS =
+            config -> OntClasses.createCardinalityRestrictionFactory(
+                    OntClassImpl.ObjectMaxCardinalityImpl.class,
+                    OntClasses.RestrictionType.OBJECT,
+                    OntClasses.ObjectRestrictionType.CLASS,
+                    OntClassImpl.CardinalityType.MAX,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> DATA_CARDINALITY_CLASS =
+            config -> OntClasses.createCardinalityRestrictionFactory(
+                    OntClassImpl.DataCardinalityImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OntClassImpl.CardinalityType.EXACTLY,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> OBJECT_CARDINALITY_CLASS =
+            config -> OntClasses.createCardinalityRestrictionFactory(
+                    OntClassImpl.ObjectCardinalityImpl.class,
+                    OntClasses.RestrictionType.OBJECT,
+                    OntClasses.ObjectRestrictionType.CLASS,
+                    OntClassImpl.CardinalityType.EXACTLY,
+                    config);
     public static final EnhNodeFactory HAS_SELF_CLASS = OntEnhNodeFactories.createCommon(
             new OntClasses.HasSelfMaker(),
             OntClasses.RESTRICTION_FINDER,
@@ -198,49 +214,126 @@ public final class OWL2ObjectFactories {
             OWL.someValuesFrom
     );
     // Boolean Connectives and Enumeration of Individuals (with except of ComplementOf):
-    public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENTS_CLASS = config -> OntClasses.createClassExpressionFactoryOWL2(
-            config,
-            OntClasses.Factory.Filter.COLLECTION_EXPRESSIONS
-    );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_COLLECTION_OF_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.UNION_OF,
+                    OntClasses.Factory.Type.INTERSECTION_OF,
+                    OntClasses.Factory.Type.ONE_OF
+            );
+    // Boolean Connectives and Enumeration of Individuals + ComplementOf):
+    public static final Function<OntConfig, EnhNodeFactory> ANY_LOGICAL_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.UNION_OF,
+                    OntClasses.Factory.Type.INTERSECTION_OF,
+                    OntClasses.Factory.Type.ONE_OF,
+                    OntClasses.Factory.Type.COMPLEMENT_OF
+            );
+    // Value Restrictions:
+    public static final Function<OntConfig, EnhNodeFactory> ANY_VALUE_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_HAS_VALUE
+            );
     // Cardinality Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_CARDINALITY_RESTRICTION_CLASS = config -> OntClasses.createClassExpressionFactoryOWL2(
-            config,
-            OntClasses.Factory.Filter.CARDINALITY_RESTRICTIONS
-    );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_CARDINALITY_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_EXACT_CARDINALITY
+            );
     // Cardinality + Existential/Universal Restrictions + Value Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENT_RESTRICTION_CLASS = config -> OntClasses.createClassExpressionFactoryOWL2(
-            config,
-            OntClasses.Factory.Filter.VALUE_RESTRICTIONS,
-            OntClasses.Factory.Filter.CARDINALITY_RESTRICTIONS
-    );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENT_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_HAS_VALUE
+            );
     // Cardinality + Existential/Universal Restrictions + Local reflexivity (hasSelf) + Value Restrictions
     // (all them have owl:onProperty):
-    public static final Function<OntConfig, EnhNodeFactory> ANY_PROPERTY_RESTRICTION_CLASS = config -> OntClasses.createClassExpressionFactoryOWL2(
-            config,
-            OntClasses.Factory.Filter.VALUE_RESTRICTIONS,
-            OntClasses.Factory.Filter.CARDINALITY_RESTRICTIONS,
-            OntClasses.Factory.Filter.HAS_SELF_RESTRICTION
-    );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_UNARY_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Factory.Type.OBJECT_HAS_SELF,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_HAS_VALUE
+            );
     // Cardinality + Existential/Universal Restrictions + N-ary existential/universal +
     // Local reflexivity (hasSelf) + Value Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_RESTRICTION_CLASS = config -> OntClasses.createClassExpressionFactoryOWL2(
-            config,
-            OntClasses.Factory.Filter.VALUE_RESTRICTIONS,
-            OntClasses.Factory.Filter.CARDINALITY_RESTRICTIONS,
-            OntClasses.Factory.Filter.HAS_SELF_RESTRICTION,
-            OntClasses.Factory.Filter.NARY_RESTRICTIONS
-    );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Factory.Type.OBJECT_HAS_SELF,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_HAS_VALUE,
+                    OntClasses.Factory.Type.DATA_NARY_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_NARY_ALL_VALUES_FROM
+            );
     // All Class Expressions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS = config -> OntClasses.createClassExpressionFactoryOWL2(
-            config,
-            OntClasses.Factory.Filter.CLASS_ENTITY,
-            OntClasses.Factory.Filter.COMPLEMENT_OF_EXPRESSION,
-            OntClasses.Factory.Filter.COLLECTION_EXPRESSIONS,
-            OntClasses.Factory.Filter.VALUE_RESTRICTIONS,
-            OntClasses.Factory.Filter.CARDINALITY_RESTRICTIONS,
-            OntClasses.Factory.Filter.HAS_SELF_RESTRICTION,
-            OntClasses.Factory.Filter.NARY_RESTRICTIONS
-    );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS =
+            config -> OntClasses.createClassExpressionFactoryOWL2(
+                    config,
+                    OntClasses.Factory.Type.NAMED,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Factory.Type.OBJECT_HAS_SELF,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_HAS_VALUE,
+                    OntClasses.Factory.Type.DATA_NARY_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_NARY_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.UNION_OF,
+                    OntClasses.Factory.Type.INTERSECTION_OF,
+                    OntClasses.Factory.Type.ONE_OF,
+                    OntClasses.Factory.Type.COMPLEMENT_OF
+            );
 
     // Data Range Expressions
     public static final EnhNodeFactory ONE_OF_DATARANGE = OntEnhNodeFactories.createCommon(

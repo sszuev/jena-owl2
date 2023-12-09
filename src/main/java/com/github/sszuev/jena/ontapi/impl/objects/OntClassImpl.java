@@ -127,11 +127,11 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         return model.getNodeAs(res.asNode(), type);
     }
 
-    public static <CE extends Combination<?>, R extends OntObject> CE createComponentsCE(OntGraphModelImpl model,
-                                                                                         Class<CE> returnType,
-                                                                                         Class<R> componentType,
-                                                                                         Property predicate,
-                                                                                         Stream<R> components) {
+    public static <CE extends CollectionOf<?>, R extends OntObject> CE createComponentsCE(OntGraphModelImpl model,
+                                                                                          Class<CE> returnType,
+                                                                                          Class<R> componentType,
+                                                                                          Property predicate,
+                                                                                          Stream<R> components) {
         OntJenaException.notNull(components, "Null components stream.");
         RDFList items = model.createList(components
                 .peek(x -> OntJenaException.notNull(x,
@@ -518,7 +518,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    public static class UnionOfImpl extends CombinationImpl<OntClass> implements UnionOf {
+    public static class UnionOfImpl extends CollectionOfImpl<OntClass> implements UnionOf {
         public UnionOfImpl(Node n, EnhGraph m) {
             super(n, m, OWL.unionOf, OntClass.class);
         }
@@ -529,7 +529,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    public static class IntersectionOfImpl extends CombinationImpl<OntClass> implements IntersectionOf {
+    public static class IntersectionOfImpl extends CollectionOfImpl<OntClass> implements IntersectionOf {
         public IntersectionOfImpl(Node n, EnhGraph m) {
             super(n, m, OWL.intersectionOf, OntClass.class);
         }
@@ -540,7 +540,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    public static class OneOfImpl extends CombinationImpl<OntIndividual> implements OneOf {
+    public static class OneOfImpl extends CollectionOfImpl<OntIndividual> implements OneOf {
         public OneOfImpl(Node n, EnhGraph m) {
             super(n, m, OWL.oneOf, OntIndividual.class);
         }
@@ -703,12 +703,12 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
      *
      * @param <O> {@link OntObject}
      */
-    protected static abstract class CombinationImpl<O extends OntObject>
-            extends OntClassImpl implements Combination<O> {
+    protected static abstract class CollectionOfImpl<O extends OntObject>
+            extends OntClassImpl implements CollectionOf<O> {
         protected final Property predicate;
         protected final Class<O> type;
 
-        protected CombinationImpl(Node n, EnhGraph m, Property predicate, Class<O> type) {
+        protected CollectionOfImpl(Node n, EnhGraph m, Property predicate, Class<O> type) {
             super(n, m);
             this.predicate = OntJenaException.notNull(predicate, "Null predicate.");
             this.type = OntJenaException.notNull(type, "Null view.");

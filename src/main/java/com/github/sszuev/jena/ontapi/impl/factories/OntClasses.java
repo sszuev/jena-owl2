@@ -52,25 +52,29 @@ final class OntClasses {
     public static final EnhNodeFinder CLASS_FINDER = new EnhNodeFinder.ByType(OWL.Class);
     public static final EnhNodeFinder RESTRICTION_FINDER = new EnhNodeFinder.ByType(OWL.Restriction);
 
-    public static EnhNodeFactory createClassExpressionFactoryOWL2(OntConfig config, Factory.Filter... filters) {
+    public static EnhNodeFactory createClassExpressionFactoryOWL2(OntConfig config, Factory.Type... filters) {
         return new Factory(
                 config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS),
                 config.getBoolean(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS),
                 config.getBoolean(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS),
                 config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ true,
-                Arrays.asList(filters)
+                /*unsupported types*/ List.of(),
+                /*filter types*/ Arrays.asList(filters)
         );
     }
 
-    public static EnhNodeFactory createClassExpressionFactoryOWL1(OntConfig config, Factory.Filter... filters) {
+    public static EnhNodeFactory createClassExpressionFactoryOWL1(OntConfig config, Factory.Type... filters) {
         return new Factory(
                 config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS),
                 config.getBoolean(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS),
                 config.getBoolean(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS),
                 config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ false,
-                Arrays.asList(filters)
+                /*unsupported types*/ List.of(Factory.Type.OBJECT_HAS_SELF,
+                Factory.Type.DATA_NARY_ALL_VALUES_FROM,
+                Factory.Type.DATA_NARY_SOME_VALUES_FROM),
+                /*filter types*/ Arrays.asList(filters)
         );
     }
 
@@ -286,23 +290,27 @@ final class OntClasses {
         protected final EnhNodeFactory objectPropertyFactory = WrappedFactoryImpl.of(OntObjectProperty.class);
         protected final EnhNodeFactory dataPropertyFactory = WrappedFactoryImpl.of(OntDataProperty.class);
 
-        private final boolean allowGenericClass;
-        private final boolean allowGenericRestriction;
-        private final boolean allowGenericUnaryRestriction;
+        private final boolean withGenericClass;
+        private final boolean withGenericRestriction;
+        private final boolean withGenericUnaryRestriction;
         private final boolean allowNamedClassExpressions;
         private final boolean allowQualifiedCardinalityRestrictions;
 
-        private final Set<Filter> filters;
+        private final Set<Type> filters;
 
         private Factory(boolean allowGenericClass,
                         boolean allowGenericRestriction,
                         boolean allowGenericUnaryRestriction,
                         boolean allowNamedClassExpressions,
                         boolean allowQualifiedCardinalityRestrictions,
-                        List<Filter> filters) {
-            this.allowGenericClass = allowGenericClass;
-            this.allowGenericRestriction = allowGenericRestriction;
-            this.allowGenericUnaryRestriction = allowGenericUnaryRestriction;
+                        List<Type> unsupported,
+                        List<Type> filters) {
+            this.withGenericClass = allowGenericClass &&
+                    Type.DECLARED_CLASSES.stream().filter(t -> !unsupported.contains(t)).allMatch(filters::contains);
+            this.withGenericRestriction = allowGenericRestriction &&
+                    Type.RESTRICTIONS.stream().filter(t -> !unsupported.contains(t)).allMatch(filters::contains);
+            this.withGenericUnaryRestriction = allowGenericUnaryRestriction &&
+                    Type.UNARY_RESTRICTIONS.stream().filter(t -> !unsupported.contains(t)).allMatch(filters::contains);
             this.allowNamedClassExpressions = allowNamedClassExpressions;
             this.allowQualifiedCardinalityRestrictions = allowQualifiedCardinalityRestrictions;
             this.filters = EnumSet.copyOf(filters);
@@ -362,24 +370,25 @@ final class OntClasses {
         @Override
         public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {
             ExtendedIterator<EnhNode> byOWLClass = null;
-            if (filterNonRestrictionExpressions()) {
+            if (filterDeclaredClassExpressions()) {
                 byOWLClass = eg.asGraph().find(ANY, RDF.Nodes.type, CLASS)
                         .mapWith(t -> {
                             Node n = t.getSubject();
-                            if (n.isURI() && !allowNamedClassExpressions && filterNamedClass()) {
+                            if (n.isURI() && !allowNamedClassExpressions && filters.contains(Type.NAMED)) {
                                 return safeWrap(n, eg, NAMED_CLASS_FACTORY);
                             }
                             BiFunction<Node, EnhGraph, EnhNode> res = null;
-                            if ((!n.isURI() || allowNamedClassExpressions) && filterCollectionExpressions()) {
-                                res = forComponentExpressions(n, eg);
+                            if ((!n.isURI() || allowNamedClassExpressions) && filterLogicalExpressions()) {
+                                res = logicalExpressionFactory(n, eg);
                             }
                             if (res != null) {
                                 return res.apply(n, eg);
                             }
-                            if (n.isURI() && filterNamedClass()) {
-                                return safeWrap(n, eg, NAMED_CLASS_FACTORY);
+                            EnhNode named = n.isURI() ? safeWrap(n, eg, NAMED_CLASS_FACTORY) : null;
+                            if (named != null) {
+                                return filters.contains(Type.NAMED) ? named : null;
                             }
-                            if (allowGenericClass && filterAllClasses()) {
+                            if (withGenericClass) {
                                 return GENERIC_CLASS_PRODUCER.apply(n, eg);
                             }
                             return null;
@@ -394,7 +403,7 @@ final class OntClasses {
                             if (n.isURI() && !allowNamedClassExpressions) {
                                 return null;
                             }
-                            BiFunction<Node, EnhGraph, EnhNode> res = forRestrictions(n, eg);
+                            BiFunction<Node, EnhGraph, EnhNode> res = restrictionFactory(n, eg);
                             if (res != null) {
                                 return res.apply(n, eg);
                             }
@@ -443,7 +452,7 @@ final class OntClasses {
             if (n.isLiteral()) {
                 return null;
             }
-            if (n.isURI() && !allowNamedClassExpressions && filterNamedClass()) {
+            if (n.isURI() && !allowNamedClassExpressions && filters.contains(Type.NAMED)) {
                 // fast check for entity-class - the most common case in OWL2
                 return NAMED_CLASS_FACTORY.canWrap(n, eg) ? NAMED_CLASS_PRODUCER : null;
             }
@@ -452,113 +461,53 @@ final class OntClasses {
                 if (n.isURI() && !allowNamedClassExpressions) {
                     return null;
                 }
-                return forRestrictions(n, eg);
+                return restrictionFactory(n, eg);
             }
-            if (filterNonRestrictionExpressions() && g.contains(n, TYPE, CLASS)) {
+            if (filterDeclaredClassExpressions() && g.contains(n, TYPE, CLASS)) {
                 BiFunction<Node, EnhGraph, EnhNode> res = null;
-                if ((!n.isURI() || allowNamedClassExpressions) && filterCollectionExpressions()) {
-                    res = forComponentExpressions(n, eg);
+                if ((!n.isURI() || allowNamedClassExpressions) && filterLogicalExpressions()) {
+                    res = logicalExpressionFactory(n, eg);
                 }
                 if (res != null) {
                     return res;
                 }
-                if (n.isURI() && filterNamedClass()) {
-                    return NAMED_CLASS_FACTORY.canWrap(n, eg) ? NAMED_CLASS_PRODUCER : null;
+                res = n.isURI() && NAMED_CLASS_FACTORY.canWrap(n, eg) ? NAMED_CLASS_PRODUCER : null;
+                if (res != null) {
+                    return filters.contains(Type.NAMED) ? res : null;
                 }
-                if (allowGenericClass && filterAllClasses()) {
+                if (withGenericClass) {
                     // can’t recognize what kind of class this is,
                     // for compatibility reasons (jena OntModel) we return a “generic” factory
                     return GENERIC_CLASS_PRODUCER;
                 }
                 return null;
             }
-            // can be built-in class
-            if (n.isURI() && filterNamedClass()) {
+            // can be built-in class (no rdf declaration)
+            if (n.isURI() && filters.contains(Type.NAMED)) {
                 return NAMED_CLASS_FACTORY.canWrap(n, eg) ? NAMED_CLASS_PRODUCER : null;
             }
             return null;
         }
 
-        private BiFunction<Node, EnhGraph, EnhNode> forRestrictions(Node n, EnhGraph eg) {
-            ExtendedIterator<Node> props = listObjects(n, eg, ON_PROPERTY).mapWith(Triple::getObject);
-            try {
-                boolean onPropertyFound = false;
-                while (props.hasNext()) {
-                    onPropertyFound = true;
-                    Node p = props.next();
-                    if (objectPropertyFactory.canWrap(p, eg)) {
-                        if (filterValueRestrictions()) {
-                            if (isObjectOfType(n, eg, SOME_VALUES_FROM, OntClass.class)) {
-                                return ClassExpressionType.OBJECT_SOME_VALUES_FROM;
-                            }
-                            if (isObjectOfType(n, eg, ALL_VALUES_FROM, OntClass.class)) {
-                                return ClassExpressionType.OBJECT_ALL_VALUES_FROM;
-                            }
-                            if (isObjectOfType(n, eg, HAS_VALUE, OntIndividual.class)) {
-                                return ClassExpressionType.OBJECT_HAS_VALUE;
-                            }
-                        }
-                        if (filterCardinalityRestrictions()) {
-                            if (isObjectCardinality(n, eg, MIN_CARDINALITY, MIN_QUALIFIED_CARDINALITY)) {
-                                return ClassExpressionType.OBJECT_MIN_CARDINALITY;
-                            }
-                            if (isObjectCardinality(n, eg, MAX_CARDINALITY, MAX_QUALIFIED_CARDINALITY)) {
-                                return ClassExpressionType.OBJECT_MAX_CARDINALITY;
-                            }
-                            if (isObjectCardinality(n, eg, CARDINALITY, QUALIFIED_CARDINALITY)) {
-                                return ClassExpressionType.OBJECT_EXACT_CARDINALITY;
-                            }
-                        }
-                        if (filterHasSelfRestriction()
-                                && Iterators.findFirst(listObjects(n, eg, HAS_SELF)
-                                .filterKeep(x -> TRUE.equals(x.getObject()))).isPresent()) {
-                            return ClassExpressionType.OBJECT_HAS_SELF;
-                        }
-                    }
-                    if (dataPropertyFactory.canWrap(p, eg)) {
-                        if (filterValueRestrictions()) {
-                            if (isObjectOfType(n, eg, SOME_VALUES_FROM, OntDataRange.class)) {
-                                return ClassExpressionType.DATA_SOME_VALUES_FROM;
-                            }
-                            if (isObjectOfType(n, eg, ALL_VALUES_FROM, OntDataRange.class)) {
-                                return ClassExpressionType.DATA_ALL_VALUES_FROM;
-                            }
-                            if (Iterators.findFirst(listObjects(n, eg, HAS_VALUE)
-                                    .filterKeep(x -> x.getObject().isLiteral())).isPresent()) {
-                                return ClassExpressionType.DATA_HAS_VALUE;
-                            }
-                        }
-                        if (filterCardinalityRestrictions()) {
-                            if (isDataCardinality(n, eg, MIN_CARDINALITY, MIN_QUALIFIED_CARDINALITY)) {
-                                return ClassExpressionType.DATA_MIN_CARDINALITY;
-                            }
-                            if (isDataCardinality(n, eg, MAX_CARDINALITY, MAX_QUALIFIED_CARDINALITY)) {
-                                return ClassExpressionType.DATA_MAX_CARDINALITY;
-                            }
-                            if (isDataCardinality(n, eg, CARDINALITY, QUALIFIED_CARDINALITY)) {
-                                return ClassExpressionType.DATA_EXACT_CARDINALITY;
-                            }
-                        }
-                    }
+        private BiFunction<Node, EnhGraph, EnhNode> restrictionFactory(Node n, EnhGraph eg) {
+            if (filterUnaryRestrictions()) {
+                BiFunction<Node, EnhGraph, EnhNode> res = unaryRestrictionFactory(n, eg);
+                if (res != null) {
+                    return res;
                 }
-                if (onPropertyFound && allowGenericUnaryRestriction) {
-                    // can’t recognize what kind of unary Restriction this is,
-                    // for compatibility reasons (jena OntModel) we return a “generic” factory
-                    return GENERIC_UNARY_RESTRICTION_PRODUCER;
-                }
-            } finally {
-                props.close();
             }
             if (filterNaryRestrictions() && eg.asGraph().contains(n, ON_PROPERTIES, ANY)) {
                 // very simplified factories for nary-restrictions:
-                if (Iterators.findFirst(listObjects(n, eg, SOME_VALUES_FROM)).isPresent()) {
-                    return ClassExpressionType.DATA_NARY_SOME_VALUES_FROM;
+                if (filters.contains(Type.DATA_NARY_SOME_VALUES_FROM)
+                        && Iterators.findFirst(listObjects(n, eg, SOME_VALUES_FROM)).isPresent()) {
+                    return Type.DATA_NARY_SOME_VALUES_FROM;
                 }
-                if (Iterators.findFirst(listObjects(n, eg, ALL_VALUES_FROM)).isPresent()) {
-                    return ClassExpressionType.DATA_NARY_ALL_VALUES_FROM;
+                if (filters.contains(Type.DATA_NARY_ALL_VALUES_FROM)
+                        && Iterators.findFirst(listObjects(n, eg, ALL_VALUES_FROM)).isPresent()) {
+                    return Type.DATA_NARY_ALL_VALUES_FROM;
                 }
             }
-            if (allowGenericRestriction) {
+            if (withGenericRestriction) {
                 // can’t recognize what kind of Restriction this is,
                 // for compatibility reasons (jena OntModel) we return a “generic” factory
                 return GENERIC_RESTRICTION_PRODUCER;
@@ -566,84 +515,154 @@ final class OntClasses {
             return null;
         }
 
-        private BiFunction<Node, EnhGraph, EnhNode> forComponentExpressions(Node n, EnhGraph eg) {
-            // first check owl:complementOf, since it is more accurately defined
-            if (filterComplementOfExpression() && isObjectOfType(n, eg, COMPLEMENT_OF, OntClass.class)) {
-                return ClassExpressionType.COMPLEMENT_OF;
-            }
-            if (filterCollectionExpressions()) {
-                // simplified checks for []-lists
-                // todo: need more accurate check - also for content,
-                //  to avoid intersections with data ranges
-                if (isList(n, eg, INTERSECTION_OF)) {
-                    return ClassExpressionType.INTERSECTION_OF;
+        private BiFunction<Node, EnhGraph, EnhNode> unaryRestrictionFactory(Node n, EnhGraph eg) {
+            ExtendedIterator<Node> props = listObjects(n, eg, ON_PROPERTY).mapWith(Triple::getObject);
+            try {
+                boolean onPropertyFound = false;
+                while (props.hasNext()) {
+                    onPropertyFound = true;
+                    Node p = props.next();
+                    if (filterObjectUnaryRestrictions() && objectPropertyFactory.canWrap(p, eg)) {
+                        if (filters.contains(Type.OBJECT_SOME_VALUES_FROM)
+                                && isObjectOfType(n, eg, SOME_VALUES_FROM, OntClass.class)) {
+                            return Type.OBJECT_SOME_VALUES_FROM;
+                        }
+                        if (filters.contains(Type.OBJECT_ALL_VALUES_FROM)
+                                && isObjectOfType(n, eg, ALL_VALUES_FROM, OntClass.class)) {
+                            return Type.OBJECT_ALL_VALUES_FROM;
+                        }
+                        if (filters.contains(Type.OBJECT_HAS_VALUE)
+                                && isObjectOfType(n, eg, HAS_VALUE, OntIndividual.class)) {
+                            return Type.OBJECT_HAS_VALUE;
+                        }
+                        if (filters.contains(Type.OBJECT_MIN_CARDINALITY)
+                                && isObjectCardinality(n, eg, MIN_CARDINALITY, MIN_QUALIFIED_CARDINALITY)) {
+                            return Type.OBJECT_MIN_CARDINALITY;
+                        }
+                        if (filters.contains(Type.OBJECT_MAX_CARDINALITY)
+                                && isObjectCardinality(n, eg, MAX_CARDINALITY, MAX_QUALIFIED_CARDINALITY)) {
+                            return Type.OBJECT_MAX_CARDINALITY;
+                        }
+                        if (filters.contains(Type.OBJECT_EXACT_CARDINALITY)
+                                && isObjectCardinality(n, eg, CARDINALITY, QUALIFIED_CARDINALITY)) {
+                            return Type.OBJECT_EXACT_CARDINALITY;
+                        }
+                        if (filters.contains(Type.OBJECT_HAS_SELF)
+                                && Iterators.findFirst(listObjects(n, eg, HAS_SELF)
+                                .filterKeep(x -> TRUE.equals(x.getObject()))).isPresent()) {
+                            return Type.OBJECT_HAS_SELF;
+                        }
+                    }
+                    if (filterDataUnaryRestrictions() && dataPropertyFactory.canWrap(p, eg)) {
+                        if (filters.contains(Type.DATA_SOME_VALUES_FROM)
+                                && isObjectOfType(n, eg, SOME_VALUES_FROM, OntDataRange.class)) {
+                            return Type.DATA_SOME_VALUES_FROM;
+                        }
+                        if (filters.contains(Type.DATA_ALL_VALUES_FROM)
+                                && isObjectOfType(n, eg, ALL_VALUES_FROM, OntDataRange.class)) {
+                            return Type.DATA_ALL_VALUES_FROM;
+                        }
+                        if (filters.contains(Type.DATA_HAS_VALUE)
+                                && Iterators.findFirst(listObjects(n, eg, HAS_VALUE)
+                                .filterKeep(x -> x.getObject().isLiteral())).isPresent()) {
+                            return Type.DATA_HAS_VALUE;
+                        }
+                        if (filters.contains(Type.DATA_MIN_CARDINALITY)
+                                && isDataCardinality(n, eg, MIN_CARDINALITY, MIN_QUALIFIED_CARDINALITY)) {
+                            return Type.DATA_MIN_CARDINALITY;
+                        }
+                        if (filters.contains(Type.DATA_MAX_CARDINALITY)
+                                && isDataCardinality(n, eg, MAX_CARDINALITY, MAX_QUALIFIED_CARDINALITY)) {
+                            return Type.DATA_MAX_CARDINALITY;
+                        }
+                        if (filters.contains(Type.DATA_EXACT_CARDINALITY)
+                                && isDataCardinality(n, eg, CARDINALITY, QUALIFIED_CARDINALITY)) {
+                            return Type.DATA_EXACT_CARDINALITY;
+                        }
+                    }
                 }
-                if (isList(n, eg, UNION_OF)) {
-                    return ClassExpressionType.UNION_OF;
+                if (onPropertyFound && withGenericUnaryRestriction) {
+                    // can’t recognize what kind of unary Restriction this is,
+                    // for compatibility reasons (jena OntModel) we return a “generic” factory
+                    return GENERIC_UNARY_RESTRICTION_PRODUCER;
                 }
-                if (isList(n, eg, ONE_OF)) {
-                    return ClassExpressionType.ONE_OF;
-                }
+            } finally {
+                props.close();
             }
             return null;
         }
 
-        private boolean filterAllClasses() {
-            return filters.size() == Filter.values().length;
+        private BiFunction<Node, EnhGraph, EnhNode> logicalExpressionFactory(Node n, EnhGraph eg) {
+            // first check owl:complementOf, since it is more accurately defined
+            if (filters.contains(Type.COMPLEMENT_OF) && isObjectOfType(n, eg, COMPLEMENT_OF, OntClass.class)) {
+                return Type.COMPLEMENT_OF;
+            }
+            // simplified checks for []-lists
+            // todo: need more accurate check - also for content,
+            //  to avoid intersections with data ranges
+            if (filters.contains(Type.INTERSECTION_OF) && isList(n, eg, INTERSECTION_OF)) {
+                return Type.INTERSECTION_OF;
+            }
+            if (filters.contains(Type.UNION_OF) && isList(n, eg, UNION_OF)) {
+                return Type.UNION_OF;
+            }
+            if (filters.contains(Type.ONE_OF) && isList(n, eg, ONE_OF)) {
+                return Type.ONE_OF;
+            }
+            return null;
         }
 
-        private boolean filterNonRestrictionExpressions() {
-            return filterNamedClass() || filterComponentClassExpressions();
+        private boolean filterDeclaredClassExpressions() {
+            return filters.contains(Type.NAMED) || filterLogicalExpressions();
         }
 
-        private boolean filterComponentClassExpressions() {
-            return filterCollectionExpressions() || filterComplementOfExpression();
+        private boolean filterLogicalExpressions() {
+            return filters.contains(Type.COMPLEMENT_OF) || filterCollectionOfExpressions();
+        }
+
+        private boolean filterCollectionOfExpressions() {
+            return filters.contains(Type.UNION_OF) || filters.contains(Type.INTERSECTION_OF) || filters.contains(Type.ONE_OF);
         }
 
         private boolean filterRestrictions() {
-            return filterValueRestrictions() || filterCardinalityRestrictions() || filterHasSelfRestriction() || filterNaryRestrictions();
+            return filterUnaryRestrictions() || filterNaryRestrictions();
         }
 
-
-        private boolean filterNamedClass() {
-            return filters.contains(Filter.CLASS_ENTITY);
+        private boolean filterUnaryRestrictions() {
+            return filterObjectUnaryRestrictions() || filterDataUnaryRestrictions() || filters.contains(Type.OBJECT_HAS_SELF);
         }
 
-        private boolean filterCollectionExpressions() {
-            return filters.contains(Filter.COLLECTION_EXPRESSIONS);
+        private boolean filterObjectUnaryRestrictions() {
+            return filters.contains(Type.OBJECT_ALL_VALUES_FROM)
+                    || filters.contains(Type.OBJECT_SOME_VALUES_FROM)
+                    || filters.contains(Type.OBJECT_HAS_VALUE)
+                    || filters.contains(Type.OBJECT_MIN_CARDINALITY)
+                    || filters.contains(Type.OBJECT_EXACT_CARDINALITY)
+                    || filters.contains(Type.OBJECT_MAX_CARDINALITY)
+                    || filters.contains(Type.OBJECT_HAS_SELF);
         }
 
-        private boolean filterComplementOfExpression() {
-            return filters.contains(Filter.COMPLEMENT_OF_EXPRESSION);
-        }
-
-        private boolean filterValueRestrictions() {
-            return filters.contains(Filter.VALUE_RESTRICTIONS);
-        }
-
-        private boolean filterCardinalityRestrictions() {
-            return filters.contains(Filter.CARDINALITY_RESTRICTIONS);
-        }
-
-        private boolean filterHasSelfRestriction() {
-            return filters.contains(Filter.HAS_SELF_RESTRICTION);
+        private boolean filterDataUnaryRestrictions() {
+            return filters.contains(Type.DATA_ALL_VALUES_FROM)
+                    || filters.contains(Type.DATA_SOME_VALUES_FROM)
+                    || filters.contains(Type.DATA_HAS_VALUE)
+                    || filters.contains(Type.DATA_MIN_CARDINALITY)
+                    || filters.contains(Type.DATA_EXACT_CARDINALITY)
+                    || filters.contains(Type.DATA_MAX_CARDINALITY);
         }
 
         private boolean filterNaryRestrictions() {
-            return filters.contains(Filter.NARY_RESTRICTIONS);
+            return filters.contains(Type.DATA_NARY_ALL_VALUES_FROM) || filters.contains(Type.DATA_SOME_VALUES_FROM);
         }
 
-        enum Filter {
-            CLASS_ENTITY,
-            COLLECTION_EXPRESSIONS,
-            COMPLEMENT_OF_EXPRESSION,
-            VALUE_RESTRICTIONS,
-            CARDINALITY_RESTRICTIONS,
-            HAS_SELF_RESTRICTION,
-            NARY_RESTRICTIONS,
-        }
+        enum Type implements BiFunction<Node, EnhGraph, EnhNode> {
+            NAMED(OntClass.class) {
+                @Override
+                EnhNodeFactory factory() {
+                    return NAMED_CLASS_FACTORY;
+                }
+            },
 
-        private enum ClassExpressionType implements BiFunction<Node, EnhGraph, EnhNode> {
             OBJECT_SOME_VALUES_FROM(OntClass.ObjectSomeValuesFrom.class),
             OBJECT_ALL_VALUES_FROM(OntClass.ObjectAllValuesFrom.class),
             OBJECT_MIN_CARDINALITY(OntClass.ObjectMinCardinality.class),
@@ -667,9 +686,30 @@ final class OntClasses {
             COMPLEMENT_OF(OntClass.ComplementOf.class),
             ;
 
+            private static final Set<Type> DECLARED_CLASSES = Set.of(
+                    NAMED,
+                    COMPLEMENT_OF, UNION_OF, INTERSECTION_OF, ONE_OF
+            );
+            private static final Set<Type> UNARY_RESTRICTIONS = Set.of(
+                    OBJECT_SOME_VALUES_FROM, OBJECT_ALL_VALUES_FROM, OBJECT_HAS_VALUE,
+                    OBJECT_MIN_CARDINALITY, OBJECT_MAX_CARDINALITY, OBJECT_EXACT_CARDINALITY,
+                    DATA_SOME_VALUES_FROM, DATA_ALL_VALUES_FROM, DATA_HAS_VALUE,
+                    DATA_MIN_CARDINALITY, DATA_MAX_CARDINALITY, DATA_EXACT_CARDINALITY,
+                    OBJECT_HAS_SELF
+            );
+
+            private static final Set<Type> RESTRICTIONS = Set.of(
+                    OBJECT_SOME_VALUES_FROM, OBJECT_ALL_VALUES_FROM, OBJECT_HAS_VALUE,
+                    OBJECT_MIN_CARDINALITY, OBJECT_MAX_CARDINALITY, OBJECT_EXACT_CARDINALITY,
+                    DATA_SOME_VALUES_FROM, DATA_ALL_VALUES_FROM, DATA_HAS_VALUE,
+                    DATA_MIN_CARDINALITY, DATA_MAX_CARDINALITY, DATA_EXACT_CARDINALITY,
+                    OBJECT_HAS_SELF,
+                    DATA_NARY_SOME_VALUES_FROM, DATA_NARY_ALL_VALUES_FROM
+            );
+
             private final Class<? extends OntObject> type;
 
-            ClassExpressionType(Class<? extends OntObject> type) {
+            Type(Class<? extends OntObject> type) {
                 this.type = type;
             }
 
