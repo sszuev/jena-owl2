@@ -1295,37 +1295,37 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public OntGraphModelImpl write(Writer writer) {
-        super.write(writer);
+        getBaseModel().write(writer);
         return this;
     }
 
     @Override
     public OntGraphModelImpl write(Writer writer, String lang) {
-        super.write(writer, lang);
+        getBaseModel().write(writer, lang);
         return this;
     }
 
     @Override
     public OntGraphModelImpl write(Writer writer, String lang, String base) {
-        super.write(writer, lang, base);
+        getBaseModel().write(writer, lang, base);
         return this;
     }
 
     @Override
     public OntGraphModelImpl write(OutputStream out) {
-        super.write(out);
+        getBaseModel().write(out);
         return this;
     }
 
     @Override
     public OntGraphModelImpl write(OutputStream out, String lang) {
-        super.write(out, lang);
+        getBaseModel().write(out, lang);
         return this;
     }
 
     @Override
     public OntGraphModelImpl write(OutputStream out, String lang, String base) {
-        super.write(out, lang, base);
+        getBaseModel().write(out, lang, base);
         return this;
     }
 
@@ -1454,7 +1454,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             return getNodeAsInternal(node, type);
         } catch (OntJenaException e) {
             throw e;
-        } catch (JenaException e) {
+        } catch (Exception e) {
             throw new OntJenaException.Conversion(String.format("Failed to convert node <%s> to <%s>",
                     node, OntEnhNodeFactories.viewAsString(type)), e);
         }

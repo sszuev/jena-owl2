@@ -2,9 +2,23 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntModel;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
 
 class TestModelFactory {
     static final String NS = "http://example.com/test#";
+
+    static OntModel withBuiltIns(OntModel m) {
+        UnionGraph model = (UnionGraph) m.getGraph();
+        Graph rdfs = RDFIOTestUtils.readResourceToModel(
+                ModelFactory.createDefaultModel(), "/builtins-rdfs.rdf", Lang.RDFXML).getGraph();
+        Graph owl = RDFIOTestUtils.readResourceToModel(
+                ModelFactory.createDefaultModel(), "/builtins-owl.rdf", Lang.RDFXML).getGraph();
+        model.addGraph(new UnionGraph(owl).addGraph(rdfs));
+        return m;
+    }
 
     static OntModel createClassesABCD(OntModel m) {
         //    A
@@ -107,6 +121,7 @@ class TestModelFactory {
         D.addSubClass(A);
         return m;
     }
+
     static OntModel createClassesBCA(OntModel m) {
         // B = C
         //  \ |

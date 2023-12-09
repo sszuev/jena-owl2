@@ -64,4 +64,72 @@ public class OntModelClassesTest {
         );
         Assertions.assertEquals(0, m.ontObjects(OntClass.class).count());
     }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+    })
+    public void testListClasses2a(TestSpec spec) {
+        OntModel m = TestModelFactory.withBuiltIns(
+                RDFIOTestUtils.readResourceToModel(
+                        OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-with-import.rdf", Lang.RDFXML
+                ));
+        List<String> expected = List.of("A", "B", "C", "D", "E", "Nothing", "Thing", "X0", "X1", "Y0", "Y1", "Z", "null");
+        List<String> actual = m.ontObjects(OntClass.class)
+                .map(it -> it.isAnon() ? "null" : it.getLocalName())
+                .sorted()
+                .collect(Collectors.toList());
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+    })
+    public void testListClasses2b(TestSpec spec) {
+        OntModel m = TestModelFactory.withBuiltIns(
+                RDFIOTestUtils.readResourceToModel(
+                        OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-with-import.rdf", Lang.RDFXML
+                ));
+        List<String> expected = List.of("A", "B", "C", "D", "E", "Nothing", "Thing", "X0", "X1", "Y0", "Y1", "Z", "null", "null");
+        List<String> actual = m.ontObjects(OntClass.class)
+                .map(it -> it.isAnon() ? "null" : it.getLocalName())
+                .sorted()
+                .collect(Collectors.toList());
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+    })
+    public void testListClasses3a(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-comps.rdf", Lang.RDFXML
+        );
+        List<String> expected = List.of(
+                "eg:Bundle", "eg:Computer", "eg:GameBundle", "eg:GamingComputer", "eg:GraphicsCard", "eg:MotherBoard",
+                "null", "null", "null"
+        );
+        List<String> actual = m.ontObjects(OntClass.class)
+                .map(it -> it.isAnon() ? "null" : m.shortForm(it.getURI()))
+                .sorted()
+                .collect(Collectors.toList());
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM",
+    })
+    public void testListClasses3b(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-comps.rdf", Lang.RDFXML
+        );
+        Assertions.assertTrue(m.ontObjects(OntClass.class).findFirst().isEmpty());
+    }
+
 }
