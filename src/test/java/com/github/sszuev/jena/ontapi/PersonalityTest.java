@@ -167,6 +167,11 @@ public class PersonalityTest {
                 return base.get(type);
             }
 
+            @Override
+            public boolean supports(Class<? extends OntObject> type) {
+                return true;
+            }
+
             private Set<Node> expand(Class<? extends OntObject> type, Resource... additional) {
                 Set<Node> res = new HashSet<>(base.get(type));
                 Arrays.stream(additional).forEach(t -> res.add(t.asNode()));

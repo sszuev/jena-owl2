@@ -40,12 +40,14 @@ abstract class VocabularyImpl<T extends Resource> implements Vocabulary<T> {
     public Set<Node> get(Class<? extends T> key) throws OntJenaException {
         Set<Node> res = map.get(OntJenaException.notNull(key, "Null key"));
         if (res == null) {
-            throw new OntJenaException.Unsupported("Unsupported class-type " + key);
-        }
-        if (res.isEmpty()) {
             return Collections.emptySet();
         }
         return res;
+    }
+
+    @Override
+    public boolean supports(Class<? extends T> type) {
+        return map.containsKey(type);
     }
 
     static class EntitiesImpl extends VocabularyImpl<OntObject> implements OntPersonality.Builtins, OntPersonality.Punnings {

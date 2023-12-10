@@ -25,17 +25,21 @@ import java.util.Set;
  * @param <T> any subtype of {@link Resource}
  * @see OntVocabulary
  */
-@FunctionalInterface
 public interface Vocabulary<T extends Resource> {
 
     /**
      * Returns a {@code Set} of {@link Node Jena Graph Node}s for the given {@code Class}-type.
      *
      * @param type {@link Class}, any subtype of {@link T}
-     * @return Set of {@link Node node}s
-     * @throws OntJenaException in case the mapping is not possible
+     * @return Set of {@link Node node}s (immutable!), can be empty (if no mapping or type is not supported)
      */
     Set<Node> get(Class<? extends T> type) throws OntJenaException;
+
+
+    /**
+     * Answers {@code true} if the given type is supported by the vocabulary.
+     */
+    boolean supports(Class<? extends T> type);
 
     /**
      * A technical interface to describe vocabulary for {@link OntEntity ONT Entity} types.

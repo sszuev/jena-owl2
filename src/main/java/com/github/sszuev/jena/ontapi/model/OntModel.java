@@ -20,6 +20,7 @@ import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -378,28 +379,63 @@ public interface OntModel extends Model,
         return id().orElseGet(() -> createResource(OWL.Ontology).as(OntID.class));
     }
 
+    /**
+     * Creates named class (owl-entity)
+     */
     default OntClass.Named createOntClass(String uri) {
         return createOntEntity(OntClass.Named.class, uri);
     }
 
+    /**
+     * Creates named datatype (owl-entity), only for OWL2
+     */
     default OntDataRange.Named createDatatype(String uri) {
         return createOntEntity(OntDataRange.Named.class, uri);
     }
 
+    /**
+     * Creates named individual (owl-entity), only for OWL2 if {@code owl:NamedIndividual} is enabled.
+     */
     default OntIndividual.Named createIndividual(String uri) {
         return createOntEntity(OntIndividual.Named.class, uri);
     }
 
+    /**
+     * Creates annotation property (owl-entity).
+     */
     default OntAnnotationProperty createAnnotationProperty(String uri) {
         return createOntEntity(OntAnnotationProperty.class, uri);
     }
 
+    /**
+     * Creates datatype property (owl-entity).
+     */
     default OntDataProperty createDataProperty(String uri) {
         return createOntEntity(OntDataProperty.class, uri);
     }
 
+    /**
+     * Creates named object property (owl-entity).
+     */
     default OntObjectProperty.Named createObjectProperty(String uri) {
         return createOntEntity(OntObjectProperty.Named.class, uri);
+    }
+
+    /**
+     * Creates individual (named or anonymous) of the specified type.
+     *
+     * @param uri  String, or {@code null} for anonymous individual
+     * @param type {@link OntClass}
+     * @return {@link OntIndividual}
+     */
+    default OntIndividual createIndividual(String uri, OntClass type) {
+        OntIndividual res;
+        if (uri == null) {
+            res = createResource().addProperty(RDF.type, type).as(OntIndividual.class);
+        } else {
+            res = createIndividual(uri).attachClass(type);
+        }
+        return res;
     }
 
     default OntClass.Named getOntClass(String uri) {
@@ -435,7 +471,7 @@ public interface OntModel extends Model,
     }
 
     default OntIndividual.Named getIndividual(Resource uri) {
-        return getIndividual(uri.getURI());
+        return getIndividual(Objects.requireNonNull(uri.getURI()));
     }
 
     default OntAnnotationProperty getAnnotationProperty(Resource uri) {

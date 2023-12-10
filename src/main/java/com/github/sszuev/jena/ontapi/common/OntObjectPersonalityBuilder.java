@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi.common;
 
-import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntObject;
@@ -70,14 +69,7 @@ public class OntObjectPersonalityBuilder {
     @SuppressWarnings("rawtypes")
     private static <V extends Vocabulary> V hasSpec(V voc, Class... types) {
         Objects.requireNonNull(voc);
-        Set<?> errors = Arrays.stream(types).filter(x -> {
-            try {
-                //noinspection unchecked
-                return voc.get(x) == null;
-            } catch (OntJenaException e) {
-                return true;
-            }
-        }).collect(Collectors.toSet());
+        @SuppressWarnings("unchecked") Set<?> errors = Arrays.stream(types).filter(x -> !voc.supports(x)).collect(Collectors.toSet());
         if (errors.isEmpty()) return voc;
         throw new IllegalArgumentException("The vocabulary " + voc + " has missed required types: " + errors);
     }
