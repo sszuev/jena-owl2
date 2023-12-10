@@ -9,7 +9,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDFS;
@@ -18,9 +17,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Simple direct {@link OntProperty} implementation to use with RDFS Specifications.
+ * Simple direct {@link OntProperty} implementation.
  */
-public class OntSimplePropertyImpl extends OntPropertyImpl implements OntProperty, OntEntity, Property {
+public class OntSimplePropertyImpl extends OntPropertyImpl implements OntProperty, OntEntity {
 
     public OntSimplePropertyImpl(Node n, EnhGraph m) {
         super(n, m);
@@ -57,22 +56,12 @@ public class OntSimplePropertyImpl extends OntPropertyImpl implements OntPropert
     }
 
     @Override
-    public boolean isProperty() {
-        return true;
-    }
-
-    @Override
-    public Property inModel(Model m) {
-        return getModel() == m ? this : m.createProperty(getURI());
-    }
-
-    @Override
-    public int getOrdinal() {
-        return OntStatementImpl.createProperty(node, enhGraph).getOrdinal();
+    public Resource inModel(Model m) {
+        return getModel() == m ? this : m.getRDFNode(asNode()).asResource();
     }
 
     @Override
     public boolean isBuiltIn() {
-        return getModel().isBuiltIn(this);
+        return isURIResource() && getModel().isBuiltIn(this);
     }
 }

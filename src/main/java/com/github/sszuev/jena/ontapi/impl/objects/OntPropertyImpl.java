@@ -65,7 +65,9 @@ public abstract class OntPropertyImpl extends OntObjectImpl implements OntProper
 
     @Override
     public Property asProperty() {
-        if (!isURIResource()) throw new OntJenaException.IllegalState();
+        if (!isURIResource()) {
+            throw new OntJenaException.IllegalState();
+        }
         return as(Property.class);
     }
 

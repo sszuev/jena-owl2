@@ -87,12 +87,7 @@ public final class OWL2ObjectFactories {
             DATATYPE_PROPERTY,
             OBJECT_PROPERTY
     );
-    public static final EnhNodeFactory ANY_PROPERTY = OntEnhNodeFactories.createFrom(
-//            NAMED_OBJECT_PROPERTY,
-            ANNOTATION_PROPERTY,
-            DATATYPE_PROPERTY,
-            OBJECT_PROPERTY
-    );
+    public static final EnhNodeFactory ANY_PROPERTY = new OntProperties.AnyOntPropertyFactory(true);
 
     // Class Expressions
     public static final Function<OntConfig, EnhNodeFactory> UNION_OF_CLASS =

@@ -76,7 +76,7 @@ public class OWL1ObjectFactories {
             NAMED_OBJECT_PROPERTY,
             DATATYPE_PROPERTY
     );
-    public static final EnhNodeFactory ANY_PROPERTY = ANY_NAMED_PROPERTY;
+    public static final EnhNodeFactory ANY_PROPERTY = new OntProperties.AnyOntPropertyFactory(false);
 
     // Class Expressions (Boolean Connectives and Enumeration of Individuals):
     public static final Function<OntConfig, EnhNodeFactory> UNION_OF_CLASS =

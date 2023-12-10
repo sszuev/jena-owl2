@@ -181,8 +181,9 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static Stream<OntProperty> declaredProperties(OntClass clazz, boolean direct) {
         OntModel m = clazz.getModel();
-        Stream<OntProperty> properties = Stream.of(OWL.ObjectProperty, OWL.DatatypeProperty, OWL.AnnotationProperty)
-                .flatMap(type -> m.statements(null, RDF.type, type).map(s -> s.getSubject().getAs(OntProperty.class)));
+        Stream<OntProperty> properties = Stream.of(
+                m.objectProperties(), m.dataProperties(), m.annotationProperties()
+        ).flatMap(it -> it);
         return properties.filter(p -> p != null && testDomain(clazz, p, direct)).distinct();
     }
 

@@ -548,8 +548,22 @@ public interface OntModel extends Model,
 
     /**
      * Lists all OntProperties.
+     * The result includes not only OWL properties
+     * (Named and Inverse ObjectProperties, DatatypeProperties, AnnotationProperties),
+     * but also RDF-properties ({@code <uri> rdf:type rdf:Property}).
+     * <p>
+     * For getting only OWL Properties, use
+     * {@code
+     * Stream.of(m.objectProperties(), m.dataProperties(), m.annotationProperties()).flatMap(it -> it)
+     * }.
+     * If you need all named properties, use {@code this.ontEntities(OntNamedProperty.class)}
+     * <p>
+     * This is analogous of {@link org.apache.jena.ontology.OntModel#listAllOntProperties()}.
+     * Note that this method does not care about punnings: it will return property
+     * even if it has both {@code owl:ObjectProperty} and {@code owl:DatatypeProperty} declarations
+     * and such punning is prohibited in the model settings.
      *
-     * @return {@code Stream} of {@link OntProperty OntProperty}s
+     * @return <b>distinct</b> {@code Stream} of {@link OntProperty OntProperty}s
      */
     default Stream<OntProperty> properties() {
         return ontObjects(OntProperty.class);
