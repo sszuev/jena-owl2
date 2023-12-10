@@ -67,14 +67,12 @@ public class OWL1ObjectFactories {
     );
 
     public static final EnhNodeFactory ANY_NAMED_PROPERTY = OntEnhNodeFactories.createFrom(
-            OntProperties.NAMED_PROPERTY_FINDER,
             NAMED_OBJECT_PROPERTY,
             DATATYPE_PROPERTY,
             ANNOTATION_PROPERTY
     );
     public static final EnhNodeFactory OBJECT_PROPERTY = NAMED_OBJECT_PROPERTY;
     public static final EnhNodeFactory ANY_DATA_OR_OBJECT_PROPERTY = OntEnhNodeFactories.createFrom(
-            OntProperties.NAMED_PROPERTY_FINDER,
             NAMED_OBJECT_PROPERTY,
             DATATYPE_PROPERTY
     );

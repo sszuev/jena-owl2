@@ -547,21 +547,21 @@ public interface OntModel extends Model,
     }
 
     /**
-     * Lists all annotation properties.
-     *
-     * @return {@code Stream} of {@link OntAnnotationProperty Annotation Property}s
-     */
-    default Stream<OntAnnotationProperty> annotationProperties() {
-        return ontEntities(OntAnnotationProperty.class);
-    }
-
-    /**
      * Lists all OntProperties.
      *
      * @return {@code Stream} of {@link OntProperty OntProperty}s
      */
     default Stream<OntProperty> properties() {
         return ontObjects(OntProperty.class);
+    }
+
+    /**
+     * Lists all annotation properties.
+     *
+     * @return {@code Stream} of {@link OntAnnotationProperty Annotation Property}s
+     */
+    default Stream<OntAnnotationProperty> annotationProperties() {
+        return ontEntities(OntAnnotationProperty.class);
     }
 
     /**

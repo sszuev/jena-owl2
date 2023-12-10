@@ -37,13 +37,19 @@ public class OntEnhNodeFactories {
 
     public static EnhNodeFactory createFrom(EnhNodeFinder finder,
                                             Stream<Class<? extends OntObject>> types) {
-        return createMulti(finder, types.map(WrappedFactoryImpl::new));
+        return createMulti(Objects.requireNonNull(finder, "Null finder"), types.map(WrappedFactoryImpl::new));
     }
 
     public static EnhNodeFactory createFrom(EnhNodeFinder finder,
                                             EnhNodeFactory factory,
                                             EnhNodeFactory... factories) {
-        return createMulti(finder,
+        return createMulti(Objects.requireNonNull(finder, "Null finder"),
+                Stream.concat(Stream.of(factory), Arrays.stream(factories)).collect(Collectors.toList()).stream());
+    }
+
+    public static EnhNodeFactory createFrom(EnhNodeFactory factory,
+                                            EnhNodeFactory... factories) {
+        return createMulti(null,
                 Stream.concat(Stream.of(factory), Arrays.stream(factories)).collect(Collectors.toList()).stream());
     }
 
@@ -93,7 +99,7 @@ public class OntEnhNodeFactories {
     }
 
     private static EnhNodeFactory createMulti(EnhNodeFinder finder, Stream<EnhNodeFactory> factories) {
-        return new CompositeEnhNodeFactoryImpl(Objects.requireNonNull(finder, "Null finder"), null,
+        return new CompositeEnhNodeFactoryImpl(finder, null,
                 factories.peek(x -> Objects.requireNonNull(x, "Null component-factory")).toArray(EnhNodeFactory[]::new));
     }
 

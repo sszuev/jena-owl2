@@ -14,7 +14,6 @@ import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntNegativePropertyAssertionImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
-import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -76,20 +75,24 @@ public final class OWL2ObjectFactories {
     );
 
     public static final EnhNodeFactory INVERSE_OBJECT_PROPERTY = new OntProperties.AnonymousObjectPropertyFactory();
+
     public static final EnhNodeFactory ANY_NAMED_PROPERTY = OntEnhNodeFactories.createFrom(
-            OntProperties.NAMED_PROPERTY_FINDER,
-            OntObjectProperty.Named.class,
-            OntDataProperty.class,
-            OntAnnotationProperty.class
+            NAMED_OBJECT_PROPERTY,
+            DATATYPE_PROPERTY,
+            ANNOTATION_PROPERTY
     );
-    public static final EnhNodeFactory OBJECT_PROPERTY = OntProperties.createObjectPropertyExpressionFactory();
-    public static final EnhNodeFactory ANY_DATA_OR_OBJECT_PROPERTY = new OntProperties.PropertiesFactory()
-            .add(OWL.ObjectProperty, OntObjectProperty.class)
-            .add(OWL.DatatypeProperty, OntDataProperty.class);
-    public static final EnhNodeFactory ANY_PROPERTY = new OntProperties.PropertiesFactory()
-            .add(OWL.ObjectProperty, OntObjectProperty.class)
-            .add(OWL.DatatypeProperty, OntDataProperty.class)
-            .add(OWL.AnnotationProperty, OntAnnotationProperty.class);
+    public static final EnhNodeFactory OBJECT_PROPERTY = new OntProperties.ObjectPropertyExpressionFactory();
+
+    public static final EnhNodeFactory ANY_DATA_OR_OBJECT_PROPERTY = OntEnhNodeFactories.createFrom(
+            DATATYPE_PROPERTY,
+            OBJECT_PROPERTY
+    );
+    public static final EnhNodeFactory ANY_PROPERTY = OntEnhNodeFactories.createFrom(
+//            NAMED_OBJECT_PROPERTY,
+            ANNOTATION_PROPERTY,
+            DATATYPE_PROPERTY,
+            OBJECT_PROPERTY
+    );
 
     // Class Expressions
     public static final Function<OntConfig, EnhNodeFactory> UNION_OF_CLASS =
