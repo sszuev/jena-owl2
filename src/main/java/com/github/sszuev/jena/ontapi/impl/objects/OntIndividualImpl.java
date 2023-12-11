@@ -41,7 +41,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         if (node.isAnon()) {
             return new AnonymousImpl(node.asNode(), (EnhGraph) node.getModel());
         }
-        throw new OntJenaException.Conversion(node + " could not be " + Anonymous.class);
+        throw new OntJenaException.Conversion(node + " can't be presented as an anonymous individual");
     }
 
     /**

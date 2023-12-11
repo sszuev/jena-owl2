@@ -24,14 +24,16 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class OntPersonalityImpl extends Personality<RDFNode> implements OntPersonality {
+    private final String name;
     private final OntConfig config;
     private final Punnings punnings;
     private final Builtins builtins;
     private final Reserved reserved;
     private final Map<Class<? extends OntEntity>, Set<Node>> forbidden;
 
-    public OntPersonalityImpl(Personality<RDFNode> other, OntConfig config, Punnings punnings, Builtins builtins, Reserved reserved) {
+    public OntPersonalityImpl(String name, Personality<RDFNode> other, OntConfig config, Punnings punnings, Builtins builtins, Reserved reserved) {
         super(Objects.requireNonNull(other, "Null personalities"));
+        this.name = name;
         this.config = Objects.requireNonNull(config, "Null config");
         this.builtins = Objects.requireNonNull(builtins, "Null builtins vocabulary");
         this.punnings = Objects.requireNonNull(punnings, "Null punnings vocabulary");
@@ -40,7 +42,7 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     }
 
     protected OntPersonalityImpl(OntPersonalityImpl other) {
-        this(other, other.getConfig(), other.getPunnings(), other.getBuiltins(), other.getReserved());
+        this(other.getName(), other, other.getConfig(), other.getPunnings(), other.getBuiltins(), other.getReserved());
     }
 
     private static Map<Class<? extends OntEntity>, Set<Node>> collectForbiddenResources(Reserved reserved, Builtins builtins) {
@@ -57,6 +59,11 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public Builtins getBuiltins() {
         return builtins;
     }
@@ -69,6 +76,11 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     @Override
     public Reserved getReserved() {
         return reserved;
+    }
+
+    @Override
+    public OntConfig getConfig() {
+        return config;
     }
 
     @Override
@@ -108,8 +120,13 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
      */
     @Override
     public EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type) {
-        return (EnhNodeFactory) OntJenaException.notNull(getImplementation(type),
-                "Unsupported object type " + OntEnhNodeFactories.viewAsString(type));
+        EnhNodeFactory res = (EnhNodeFactory) getImplementation(type);
+        if (res != null) {
+            return res;
+        }
+        throw new OntJenaException.Unsupported(
+                "Profile " + name + " does not support language construct " + OntEnhNodeFactories.viewAsString(type)
+        );
     }
 
     @Override
@@ -126,11 +143,6 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     @Override
     public OntPersonalityImpl copy() {
         return new OntPersonalityImpl(this);
-    }
-
-    @Override
-    public OntConfig getConfig() {
-        return config;
     }
 
 }

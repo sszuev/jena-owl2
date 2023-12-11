@@ -262,7 +262,7 @@ public class OntListTest {
         try {
             list.get(1).getMainStatement().annotate(m.getRDFSLabel(), literal_z);
             Assertions.fail("Possible to annotate sub-lists");
-        } catch (OntJenaException.Unsupported j) {
+        } catch (OntJenaException.IllegalCall j) {
             // expected
         }
 

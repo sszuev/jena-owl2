@@ -71,12 +71,12 @@ public class OntJenaException extends JenaException {
      * An exception to indicate that a feature is not supported right now
      * or by design for current conditions.
      */
-    public static class Unsupported extends OntJenaException {
-        public Unsupported() {
+    public static class IllegalCall extends OntJenaException {
+        public IllegalCall() {
             super();
         }
 
-        public Unsupported(String message) {
+        public IllegalCall(String message) {
             super(message);
         }
     }
@@ -98,6 +98,7 @@ public class OntJenaException extends JenaException {
      */
     public static class IllegalArgument extends OntJenaException {
         public IllegalArgument() {
+            super();
         }
 
         public IllegalArgument(String message) {
@@ -115,8 +116,8 @@ public class OntJenaException extends JenaException {
      * which may happen in multithreading or in other uncommon situations.
      */
     public static class IllegalState extends OntJenaException {
-
         public IllegalState() {
+            super();
         }
 
         public IllegalState(String message) {
@@ -126,6 +127,17 @@ public class OntJenaException extends JenaException {
         public IllegalState(String message, Throwable cause) {
             super(message, cause);
         }
-
     }
+
+    /**
+     * Exception that is raised when an ontology operation is attempted that is
+     * not present in the language profile for the current ontology model.
+     */
+    public static class Unsupported extends OntJenaException {
+        public Unsupported(String message) {
+            super(message);
+        }
+    }
+
+
 }

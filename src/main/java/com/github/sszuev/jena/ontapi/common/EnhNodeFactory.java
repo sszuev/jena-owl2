@@ -106,7 +106,7 @@ public interface EnhNodeFactory {
      * @throws OntJenaException in case modification of graph is not allowed for the specified node
      */
     default EnhNode createInGraph(Node node, EnhGraph eg) {
-        throw new OntJenaException.Unsupported("Creation is not allowed: " + node);
+        throw new OntJenaException.IllegalCall("Creation is not allowed: " + node);
     }
 
     /**

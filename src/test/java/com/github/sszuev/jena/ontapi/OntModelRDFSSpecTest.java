@@ -124,5 +124,7 @@ public class OntModelRDFSSpecTest {
         OntModel m = OntModelFactory.createModel(OntSpecification.RDFS_MEM);
         Resource x = m.createResource("x", OWL.DatatypeProperty);
         Assertions.assertThrows(UnsupportedPolymorphismException.class, () -> x.as(OntDataProperty.class));
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createDataHasValue(null, null));
     }
 }

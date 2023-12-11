@@ -116,6 +116,7 @@ public class OntPersonalities {
      * @see <a href='https://www.w3.org/TR/rdf12-schema/'>RDF 1.2 Schema</a>
      */
     private static final OntObjectPersonalityBuilder RDFS_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
+            .setName("RDFS")
             .addPersonality(STANDARD_PERSONALITY)
             .add(OntObject.class, RDFSObjectFactories.ANY_OBJECT)
             .add(OntEntity.class, RDFSObjectFactories.ANY_ENTITY)
@@ -130,6 +131,7 @@ public class OntPersonalities {
      * For OWL1.1 Ontologies, limited functionality.
      */
     private static final OntObjectPersonalityBuilder OWL1_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
+            .setName("OWL1")
             .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OWL1ObjectFactories.ANY_OBJECT)
@@ -193,6 +195,7 @@ public class OntPersonalities {
      * Default personality builder for OWL2. Private access since this constant is mutable.
      */
     private static final OntObjectPersonalityBuilder OWL2_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
+            .setName("OWL2")
             .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OWL2ObjectFactories.ANY_OBJECT)

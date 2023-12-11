@@ -29,6 +29,7 @@ public class OntObjectPersonalityBuilder {
     private final Map<Class<? extends OntObject>, Function<OntConfig, EnhNodeFactory>> factories;
 
     private final Personality<RDFNode> base;
+    private String name;
     private OntPersonality.Punnings punnings;
     private OntPersonality.Builtins builtins;
     private OntPersonality.Reserved reserved;
@@ -82,6 +83,7 @@ public class OntObjectPersonalityBuilder {
     public OntObjectPersonalityBuilder copy() {
         OntObjectPersonalityBuilder res = new OntObjectPersonalityBuilder(new LinkedHashMap<>(this.factories));
         res.addPersonality(base.copy());
+        res.setName(name);
         if (punnings != null) res.setPunnings(punnings);
         if (builtins != null) res.setBuiltins(builtins);
         if (reserved != null) res.setReserved(reserved);
@@ -143,6 +145,17 @@ public class OntObjectPersonalityBuilder {
     }
 
     /**
+     * Sets identifier of language profile ("OWL", "RDF").
+     *
+     * @param profileName String, can be {@code null}
+     * @return this builder
+     */
+    public OntObjectPersonalityBuilder setName(String profileName) {
+        this.name = profileName;
+        return this;
+    }
+
+    /**
      * Sets a new punnings personality vocabulary.
      *
      * @param punnings {@link OntPersonality.Punnings}, not {@code null}
@@ -197,7 +210,7 @@ public class OntObjectPersonalityBuilder {
         OntPersonality.Punnings punnings = punnings();
         OntPersonality.Builtins builtins = builtins();
         OntPersonality.Reserved reserved = reserved();
-        OntPersonalityImpl res = new OntPersonalityImpl(base, config, punnings, builtins, reserved);
+        OntPersonalityImpl res = new OntPersonalityImpl(name, base, config, punnings, builtins, reserved);
         factories.forEach((type, factory) -> res.register(type, factory.apply(config)));
         return res;
     }

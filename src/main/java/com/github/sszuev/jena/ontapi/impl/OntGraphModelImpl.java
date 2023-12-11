@@ -281,8 +281,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public <X extends OntObject> void checkType(Class<X> type) {
         if (!getOntPersonality().supports(type)) {
             throw new OntJenaException.Unsupported(
-                    "The type " + type.getName().replace(type.getPackageName() + ".", "") +
-                            " is not supported by the specification");
+                    "Profile " + getOntPersonality().getName() + " does not support language construct " +
+                            OntEnhNodeFactories.viewAsString(type)
+            );
         }
     }
 
@@ -576,7 +577,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      */
     public <T extends OntObject> T createOntObject(Class<T> type, String uri) {
         if (!getOntPersonality().supports(type)) {
-            throw new OntJenaException.Unsupported("Attempt to create resource <" + uri + ">. " +
+            throw new OntJenaException.IllegalCall("Attempt to create resource <" + uri + ">. " +
                     "The type " + type.getName().replace(type.getPackageName() + ".", "") +
                     " is not supported by the specification");
         }
@@ -1445,7 +1446,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @param type a type denoting the enhanced facet desired
      * @param <N>  a subtype of {@link RDFNode}
      * @return an enhanced node, cannot be {@code null}
-     * @throws OntJenaException unable to construct new RDF view for whatever reasons
+     * @throws OntJenaException unable to construct new RDF view for whatever reason
      * @throws RuntimeException unexpected misconfiguration (wrong inputs, personality mismatch)
      */
     @Override
@@ -1455,8 +1456,10 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         } catch (OntJenaException e) {
             throw e;
         } catch (Exception e) {
-            throw new OntJenaException.Conversion(String.format("Failed to convert node <%s> to <%s>",
-                    node, OntEnhNodeFactories.viewAsString(type)), e);
+            throw new OntJenaException.Conversion(String.format(
+                    "Failed to convert node <%s> to <%s>. Profile <%s>",
+                    node, OntEnhNodeFactories.viewAsString(type), getOntPersonality().getName()
+            ), e);
         }
     }
 

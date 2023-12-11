@@ -447,7 +447,7 @@ public class OntModelOWLSpecTest {
             createSimpleEntityTest(m, "d", OntDataRange.Named.class);
         } else {
             // no such type in OWL1
-            Assertions.assertThrows(OntJenaException.Unsupported.class,
+            Assertions.assertThrows(OntJenaException.IllegalCall.class,
                     () -> createSimpleEntityTest(m, "d", OntDataRange.Named.class));
         }
         if (spec != TestSpec.OWL1_MEM) {
@@ -960,9 +960,7 @@ public class OntModelOWLSpecTest {
         );
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDataUnionOf);
-
         Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDataIntersectionOf);
-
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createDataComplementOf(d1));
 
         Assertions.assertEquals(3, m.ontObjects(OntDataRange.class).count());

@@ -95,6 +95,13 @@ public interface OntPersonality {
     OntPersonality copy();
 
     /**
+     * Returns personality name, language profile.
+     *
+     * @return String
+     */
+    String getName();
+
+    /**
      * Returns the config.
      * Config holds various settings to control model behaviour.
      *

@@ -40,7 +40,7 @@ public interface EnhNodeProducer {
      * @param eg   {@link EnhGraph}
      */
     default void insert(Node node, EnhGraph eg) {
-        throw new OntJenaException.Unsupported();
+        throw new OntJenaException.IllegalCall();
     }
 
     /**
@@ -104,7 +104,7 @@ public interface EnhNodeProducer {
 
         @Override
         public void insert(Node node, EnhGraph eg) {
-            throw new OntJenaException.Unsupported("Creation is not allowed for node " +
+            throw new OntJenaException.IllegalCall("Creation is not allowed for node " +
                     node + " and target " + targetName());
         }
 
