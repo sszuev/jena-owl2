@@ -66,4 +66,11 @@ public enum OntModelConfig {
      * In OWL2, there are no generic class expressions.
      */
     ALLOW_GENERIC_RESTRICTIONS,
+    /**
+     * Used while {@link com.github.sszuev.jena.ontapi.model.OntModel#individuals()}.
+     * If {@code true}, the class type is checked only by declaration
+     * ({@code owl:Class} & {@code owl:Restriction} for OWL profile, {@code rdfs:Class} for RDFS profile).
+     * Otherwise, a full checking is performed.
+     */
+    USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS,
 }

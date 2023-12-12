@@ -98,7 +98,6 @@ public class OntModelIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
             "OWL1_MEM",
-            "RDFS_MEM", // TODO: <-- here the difference with Jena's listIndividuals, see OntGraphModelImpl#listIndividuals
     })
     public void testListIndividuals6a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
@@ -109,6 +108,16 @@ public class OntModelIndividualsTest {
                         "urn:x-hp:eg/budgetGraphics",
                         "urn:x-hp:eg/gamingGraphics"),
                 m.individuals().distinct().map(Resource::getURI).sorted().collect(Collectors.toList()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM",
+    })
+    public void testListIndividuals6c(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
+                "/list-syntax-categories-test-comps.rdf", Lang.RDFXML);
+        Assertions.assertEquals(0, m.individuals().count());
     }
 
     @ParameterizedTest

@@ -1,10 +1,12 @@
 package com.github.sszuev.jena.ontapi.impl;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
+import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
@@ -196,6 +198,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                                                                                                      Set<Node> system,
                                                                                                      ExtendedIterator<Triple> assertions) {
         Set<Triple> seen = new HashSet<>();
+        boolean useSimplifiedClassChecking = model.getOntPersonality()
+                .getConfig().getBoolean(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
+        boolean isRDFS = OntPersonalities.isRDFS(model.getOntPersonality());
         return assertions
                 .mapWith(t -> {
                     // to speed up the process,
@@ -209,9 +214,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                     if (seen.remove(t)) {
                         return null;
                     }
-                    // checking for the primary rule that determines a class assertion.
-                    // use cache - it couldn't hurt, classes are often used
-                    if (model.findNodeAs(t.getObject(), OntClass.class) == null) {
+                    if (!testIsClass(model, t.getObject(), useSimplifiedClassChecking, isRDFS)) {
                         return null;
                     }
                     return model.asStatement(t);
@@ -236,6 +239,22 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                     return true;
                 })
                 .mapWith(s -> s.getSubject(OntIndividual.class));
+    }
+
+    private static <M extends OntModel & OntEnhGraph> boolean testIsClass(
+            M model,
+            Node candidate,
+            boolean simple,
+            boolean isRDFS
+    ) {
+        if (simple) {
+            if (isRDFS) {
+                return model.getGraph().contains(candidate, RDF.type.asNode(), RDFS.Class.asNode());
+            }
+            return model.getGraph().contains(candidate, RDF.type.asNode(), OWL.Class.asNode()) ||
+                    model.getGraph().contains(candidate, RDF.type.asNode(), OWL.Restriction.asNode());
+        }
+        return model.findNodeAs(candidate, OntClass.class) != null;
     }
 
     /**
@@ -460,7 +479,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     /**
      * Retrieves the stream of {@link OntObject Ontology Object}s.
-     * The result object will be cached inside model.
+     * The result object will be cached inside the model.
      *
      * @param type {@link Class} the type of {@link OntObject}, not null
      * @param <O>  subtype of {@link OntObject}

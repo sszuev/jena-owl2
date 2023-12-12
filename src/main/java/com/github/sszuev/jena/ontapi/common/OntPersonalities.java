@@ -90,7 +90,8 @@ public class OntPersonalities {
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
-            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION);
+            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
+            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
 
     /**
      * Standard resources. Private access since this constant is mutable.
@@ -329,6 +330,13 @@ public class OntPersonalities {
      */
     public static OntObjectPersonalityBuilder OWL2_ONT_OBJECT_PERSONALITY() {
         return OWL2_OBJECT_FACTORIES.copy();
+    }
+
+    /**
+     * @return {@code true} if the specified {@link OntPersonality} has name "RDFS".
+     */
+    public static boolean isRDFS(OntPersonality personality) {
+        return "RDFS".equals(personality.getName());
     }
 
     /**

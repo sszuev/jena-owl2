@@ -65,9 +65,6 @@ public class OntSpecification {
 
     /**
      * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
-     * TODO: Jena allows to represent virtually any RDF declaration as any Ontology type
-     *  (e.g. `_x: rdf:type rdf:Property` as `org.apache.jena.ontology.ObjectProperty`);
-     *  It is strange, but we have to offer RDFS_MEM_COMPATIBLE spec ...
      *
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
      */
