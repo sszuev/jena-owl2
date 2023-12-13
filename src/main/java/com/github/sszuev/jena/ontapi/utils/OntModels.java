@@ -115,7 +115,7 @@ public class OntModels {
     /**
      * Synchronizes the import declarations with the graph hierarchy.
      * Underling graph tree may content named graphs which are not included to the {@code owl:imports} declaration.
-     * This method tries to fix such situation by modifying base graph.
+     * This method tries to fix such a situation by modifying base graph.
      *
      * @param m {@link OntModel}, not {@code null}
      * @throws StackOverflowError in case the given model has a recursion in the hierarchy
@@ -135,12 +135,12 @@ public class OntModels {
     /**
      * Recursively lists all models that are associated with the given model in the form of a flat stream.
      * In normal situation, each of the models must have {@code owl:imports} statement in the overlying graph.
-     * In this case the returned stream must correspond the result of the {@link Graphs#baseGraphs(Graph)} method.
+     * In this case the returned stream must correspond the result of the {@link Graphs#dataGraphs(Graph)} method.
      *
      * @param m {@link OntModel}, not {@code null}
      * @return {@code Stream} of models, cannot be empty: must contain at least the input (root) model
      * @throws StackOverflowError in case the given model has a recursion in the hierarchy
-     * @see Graphs#baseGraphs(Graph)
+     * @see Graphs#dataGraphs(Graph)
      * @see OntID#getImportsIRI()
      */
     public static Stream<OntModel> importsClosure(OntModel m) {

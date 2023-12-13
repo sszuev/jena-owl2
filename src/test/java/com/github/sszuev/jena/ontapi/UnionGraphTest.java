@@ -6,8 +6,8 @@ import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.mem.GraphMem;
@@ -98,7 +98,7 @@ public class UnionGraphTest {
         Triple a = Triple.create(NodeFactory.createURI("a"), RDF.Nodes.type, OWL.Class.asNode());
         Triple b = Triple.create(NodeFactory.createURI("b"), RDF.Nodes.type, OWL.Class.asNode());
 
-        Graph base = Factory.createDefaultGraph();
+        Graph base = GraphMemFactory.createDefaultGraph();
         base.getPrefixMapping().setNsPrefixes(OntModelFactory.STANDARD);
         base.add(a);
         Graph unmodified = new UnmodifiableGraph(base);
@@ -138,11 +138,11 @@ public class UnionGraphTest {
 
     @Test
     public void testCloseRecursiveGraph() {
-        UnionGraph a = new UnionGraph(Factory.createGraphMem());
-        UnionGraph b = new UnionGraph(Factory.createGraphMem());
-        UnionGraph c = new UnionGraph(Factory.createGraphMem());
-        UnionGraph d = new UnionGraph(Factory.createGraphMem());
-        UnionGraph e = new UnionGraph(Factory.createGraphMem());
+        UnionGraph a = new UnionGraph(GraphMemFactory.createGraphMem());
+        UnionGraph b = new UnionGraph(GraphMemFactory.createGraphMem());
+        UnionGraph c = new UnionGraph(GraphMemFactory.createGraphMem());
+        UnionGraph d = new UnionGraph(GraphMemFactory.createGraphMem());
+        UnionGraph e = new UnionGraph(GraphMemFactory.createGraphMem());
         assertClosed(a, false);
         assertClosed(b, false);
         assertClosed(c, false);
@@ -164,9 +164,9 @@ public class UnionGraphTest {
 
     @Test
     public void testCloseHierarchyGraph() {
-        UnionGraph a = new UnionGraph(Factory.createGraphMem());
-        UnionGraph b = new UnionGraph(Factory.createGraphMem());
-        UnionGraph c = new UnionGraph(Factory.createGraphMem());
+        UnionGraph a = new UnionGraph(GraphMemFactory.createGraphMem());
+        UnionGraph b = new UnionGraph(GraphMemFactory.createGraphMem());
+        UnionGraph c = new UnionGraph(GraphMemFactory.createGraphMem());
         assertClosed(a, false);
         assertClosed(b, false);
         assertClosed(c, false);
@@ -178,7 +178,7 @@ public class UnionGraphTest {
         assertClosed(c, true);
         assertClosed(a, false);
 
-        UnionGraph d = new UnionGraph(Factory.createGraphMem());
+        UnionGraph d = new UnionGraph(GraphMemFactory.createGraphMem());
         try {
             b.addGraph(d);
             Assertions.fail("Possible to add a sub-graph");
@@ -200,16 +200,16 @@ public class UnionGraphTest {
 
     @Test
     public void testDependsOn() {
-        Graph g1 = Factory.createGraphMem();
-        Graph g2 = Factory.createGraphMem();
+        Graph g1 = GraphMemFactory.createGraphMem();
+        Graph g2 = GraphMemFactory.createGraphMem();
         UnionGraph a = new UnionGraph(g1);
         Assertions.assertTrue(a.dependsOn(a));
         Assertions.assertTrue(a.dependsOn(g1));
         Assertions.assertFalse(g1.dependsOn(a));
-        Assertions.assertFalse(a.dependsOn(Factory.createGraphMem()));
+        Assertions.assertFalse(a.dependsOn(GraphMemFactory.createGraphMem()));
 
         UnionGraph b = new UnionGraph(g1);
-        UnionGraph c = new UnionGraph(Factory.createGraphMem());
+        UnionGraph c = new UnionGraph(GraphMemFactory.createGraphMem());
         a.addGraph(b.addGraph(c));
         Assertions.assertEquals(2, a.listBaseGraphs().toList().size());
         String tree = Graphs.importsTreeAsString(a);

@@ -17,10 +17,13 @@ import org.apache.jena.sparql.graph.GraphWrapper;
 import org.apache.jena.sparql.util.graph.GraphUtils;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,7 +53,7 @@ public class Graphs {
      * that is allowed to be either {@link UnionGraph} or {@link Polyadic} or {@link Dyadic}.
      * If the graph is not of the list above, an empty stream is expected.
      * The base graph is not included in the resulting stream.
-     * In case of {@link Dyadic}, the left graph is considered as base.
+     * In case of {@link Dyadic}, the left graph is considered as a base and the right is a sub-graph.
      *
      * @param graph {@link Graph}
      * @return {@code Stream} of {@link Graph}s
@@ -59,7 +62,7 @@ public class Graphs {
      * @see Polyadic
      * @see Dyadic
      */
-    public static Stream<Graph> subGraphs(Graph graph) {
+    public static Stream<Graph> directSubGraphs(Graph graph) {
         if (graph instanceof UnionGraph) {
             return ((UnionGraph) graph).getUnderlying().graphs();
         }
@@ -73,15 +76,15 @@ public class Graphs {
     }
 
     /**
-     * Extracts the base (primary) primitive graph from a composite or wrapper graph if it is possible
-     * otherwise returns the same graph untouched.
-     * Warning: this is a recursive method.
-     * Note: the {@link org.apache.jena.graph.impl.WrappedGraph} is intentionally not included into the consideration:
+     * Extracts the base (primary) base graph from a composite or wrapper graph if it is possible
+     * otherwise returns the same graph.
+     * If the specified graph is {@link Dyadic}, the left part is considered as base graph.
+     * Note: the {@link org.apache.jena.graph.impl.WrappedGraph} is intentionally not included in the consideration:
      * any sub-instances of that class are considered as indivisible.
      *
      * @param graph {@link Graph}
      * @return {@link Graph}
-     * @see Graphs#subGraphs(Graph)
+     * @see Graphs#directSubGraphs(Graph)
      * @see GraphWrapper
      * @see UnionGraph
      * @see Polyadic
@@ -91,21 +94,34 @@ public class Graphs {
         if (isGraphMem(graph)) {
             return graph;
         }
-        if (graph instanceof GraphWrapper) {
-            return getBase(((GraphWrapper) graph).get());
-        }
-        if (graph instanceof UnionGraph) {
-            return getBase(((UnionGraph) graph).getBaseGraph());
-        }
-        if (graph instanceof Polyadic) {
-            return getBase(((Polyadic) graph).getBaseGraph());
-        }
-        if (graph instanceof Dyadic) {
-            return getBase(((Dyadic) graph).getL());
+        Deque<Graph> candidates = new ArrayDeque<>();
+        candidates.add(graph);
+        Set<Graph> seen = new HashSet<>();
+        while (!candidates.isEmpty()) {
+            Graph g = candidates.removeFirst();
+            if (!seen.add(g)) {
+                continue;
+            }
+            if (g instanceof GraphWrapper) {
+                candidates.add(((GraphWrapper) g).get());
+                continue;
+            }
+            if (g instanceof UnionGraph) {
+                candidates.add(((UnionGraph) g).getBaseGraph());
+                continue;
+            }
+            if (g instanceof Polyadic) {
+                candidates.add(((Polyadic) g).getBaseGraph());
+                continue;
+            }
+            if (g instanceof Dyadic) {
+                candidates.add(((Dyadic) g).getL());
+                continue;
+            }
+            return g;
         }
         return graph;
     }
-
 
     /**
      * Answers {@code true} if the graph specified is {@code GraphMem}.
@@ -121,25 +137,35 @@ public class Graphs {
     /**
      * Lists all indivisible graphs extracted from the composite or wrapper graph
      * including the base as flat stream of non-composite (primitive) graphs.
-     * Note: this method is safe for a common {@link UnionGraph}, that produced by the system,
-     * but for any other composite graph there is a risk of {@code StackOverflowError} method
-     * in case a considered graph has a recursion somewhere in its hierarchy.
      * For a well-formed ontological {@code Graph} the returned stream must
      * correspond the result of the method {@link OntModels#importsClosure(OntModel)}.
      *
      * @param graph {@link Graph}
      * @return {@code Stream} of {@link Graph}s
-     * @throws StackOverflowError in case the given graph is not {@link UnionGraph} from a system
-     *                            and has a recursion in its hierarchy
      * @see UnionGraph#listBaseGraphs()
      * @see OntModels#importsClosure(OntModel)
      */
-    public static Stream<Graph> baseGraphs(Graph graph) {
-        if (graph == null) return Stream.empty();
-        if (graph instanceof UnionGraph) {
-            return Iterators.asStream(((UnionGraph) graph).listBaseGraphs().mapWith(Graphs::getBase));
+    public static Stream<Graph> dataGraphs(Graph graph) {
+        if (graph == null) {
+            return Stream.empty();
         }
-        return Stream.concat(Stream.of(getBase(graph)), subGraphs(graph).flatMap(Graphs::baseGraphs));
+        if (isGraphMem(graph)) {
+            return Stream.of(graph);
+        }
+        Set<Graph> res = new LinkedHashSet<>();
+        Deque<Graph> candidates = new ArrayDeque<>();
+        Set<Graph> seen = new HashSet<>();
+        candidates.add(graph);
+        while (!candidates.isEmpty()) {
+            Graph g = candidates.removeFirst();
+            if (!seen.add(g)) {
+                continue;
+            }
+            Graph bg = getBase(g);
+            res.add(bg);
+            directSubGraphs(g).forEach(candidates::add);
+        }
+        return res.stream();
     }
 
     /**
@@ -178,7 +204,7 @@ public class Graphs {
      * Answers {@code true} iff the given {@code graph} has known size
      * and therefore the operation {@code graph.size()} does not take significant efforts.
      * Composite graphs are considered as sized only if they relay on a single base graph,
-     * since their sizes are not always a sum of parts size.
+     * since their sizes are not always a sum of part size.
      *
      * @param graph {@link Graph} to test
      * @return {@code boolean} if {@code graph} is sized
@@ -189,11 +215,10 @@ public class Graphs {
         if (isGraphMem(graph)) {
             return true;
         }
-        if (graph instanceof UnionGraph) {
-            UnionGraph u = (UnionGraph) graph;
-            return u.getUnderlying().isEmpty() && isSized(getBase(u));
+        if (directSubGraphs(graph).findFirst().isPresent()) {
+            return false;
         }
-        return false;
+        return isGraphMem(getBase(graph));
     }
 
     /**
@@ -207,13 +232,10 @@ public class Graphs {
         if (isGraphMem(graph)) {
             return graph.size();
         }
-        if (graph instanceof UnionGraph && ((UnionGraph) graph).getUnderlying().isEmpty()) {
-            Graph bg = ((UnionGraph) graph).getBaseGraph();
-            if (isGraphMem(bg)) {
-                return bg.size();
-            }
+        if (directSubGraphs(graph).findFirst().isPresent()) {
+            return Iterators.count(graph.find());
         }
-        return Iterators.count(graph.find());
+        return getBase(graph).size();
     }
 
     /**
@@ -228,14 +250,14 @@ public class Graphs {
      * @return {@link UnionGraph}
      * @throws StackOverflowError in case there is a loop in imports (i.e. a recursion in the hierarchy)
      */
-    public static UnionGraph toUnion(Graph graph) {
+    public static UnionGraph makeUnion(Graph graph) {
         if (graph instanceof UnionGraph) {
             return (UnionGraph) graph;
         }
         if (isGraphMem(graph)) {
             return new UnionGraph(graph);
         }
-        return toUnion(getBase(graph), baseGraphs(graph).collect(Collectors.toSet()));
+        return makeUnion(getBase(graph), dataGraphs(graph).collect(Collectors.toSet()));
     }
 
     /**
@@ -246,14 +268,14 @@ public class Graphs {
      * @param repository a {@code Collection} of {@link Graph graph}s to search in for missed dependencies
      * @return {@link UnionGraph}
      */
-    public static UnionGraph toUnion(Graph graph, Collection<Graph> repository) {
+    public static UnionGraph makeUnion(Graph graph, Collection<Graph> repository) {
         Graph base = getBase(graph);
         Set<String> imports = getImports(base);
         UnionGraph res = new UnionGraph(base);
         repository.stream()
                 .filter(x -> !isSameBase(base, x))
                 .filter(g -> imports.contains(getOntologyIRI(g)))
-                .forEach(g -> res.addGraph(toUnion(g, repository)));
+                .forEach(g -> res.addGraph(makeUnion(g, repository)));
         return res;
     }
 
@@ -415,8 +437,8 @@ public class Graphs {
                 return res.append(RECURSIVE_GRAPH_IDENTIFIER).append(": ").append(name);
             }
             res.append(name).append("\n");
-            subGraphs(graph)
-                    .sorted(Comparator.comparingLong(o -> subGraphs(o).count()))
+            directSubGraphs(graph)
+                    .sorted(Comparator.comparingLong(o -> directSubGraphs(o).count()))
                     .forEach(sub -> res.append(indent)
                             .append(makeImportsTree(sub, getName, indent + step, step, seen)));
             return res;

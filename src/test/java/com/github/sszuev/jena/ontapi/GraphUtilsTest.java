@@ -30,7 +30,7 @@ public class GraphUtilsTest {
 
     private static Stream<Graph> flat(Graph graph) {
         if (graph == null) return Stream.empty();
-        return Stream.concat(Stream.of(Graphs.getBase(graph)), Graphs.subGraphs(graph).flatMap(GraphUtilsTest::flat));
+        return Stream.concat(Stream.of(Graphs.getBase(graph)), Graphs.directSubGraphs(graph).flatMap(GraphUtilsTest::flat));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class GraphUtilsTest {
         u.addGraph(new WrappedGraph(UnionGraphTest.createTestMemGraph("x")));
         u.addGraph(new GraphWrapper(UnionGraphTest.createTestMemGraph("y")));
 
-        Set<Graph> actual = Graphs.baseGraphs(u).collect(Collectors.toSet());
+        Set<Graph> actual = Graphs.dataGraphs(u).collect(Collectors.toSet());
         Assertions.assertEquals(7, actual.size());
         Assertions.assertEquals(flat(u).collect(Collectors.toSet()), actual);
     }

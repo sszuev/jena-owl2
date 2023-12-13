@@ -57,6 +57,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.InfModelImpl;
 import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.shared.JenaException;
 import org.apache.jena.shared.PrefixMapping;
@@ -102,24 +103,29 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     private final Set<Class<? extends OntEntity>> supportedEntityTypes;
 
     /**
+     * This {@link OntModel} implementation wraps
+     * only {@link UnionGraph} or {@link InfGraph} which in turn wraps {@link UnionGraph}.
      * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
      * @param config      {@link OntConfig}
      */
     public OntGraphModelImpl(Graph graph, OntPersonality personality, OntConfig config) {
-        super(asUnionGraph(graph), OntPersonality.asJenaPersonality(personality));
+        super(makeGraph(graph), OntPersonality.asJenaPersonality(personality));
         this.config = config;
         this.supportedEntityTypes = OntEntity.TYPES.stream().filter(personality::supports).collect(Collectors.toSet());
     }
 
-    /**
-     * Creates an {@link UnionGraph} instance if it is needed.
-     *
-     * @param graph {@link Graph} to wrap or return as is
-     * @return {@link UnionGraph} (fresh or given)
-     */
-    public static UnionGraph asUnionGraph(Graph graph) {
-        return graph instanceof UnionGraph ? (UnionGraph) graph : new UnionGraph(graph);
+    protected static Graph makeGraph(Graph given) {
+        if (given instanceof InfGraph) {
+            Graph raw = ((InfGraph) given).getRawGraph();
+            if (raw instanceof UnionGraph) {
+                return given;
+            }
+            throw new IllegalArgumentException(
+                    "The specified InfGraph does not wrap UnionGraph, instead it wraps " + raw.getClass().getSimpleName()
+            );
+        }
+        return Graphs.makeUnion(given);
     }
 
     /**
@@ -295,6 +301,46 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntPersonality getOntPersonality() {
         return (OntPersonality) super.getPersonality();
+    }
+
+    /**
+     * Returns {@link UnionGraph}.
+     * This implementation requires that the underlying graph is union-graph or inf-graph.
+     */
+    public UnionGraph getUnionGraph() {
+        Graph graph = super.getGraph();
+        if (graph instanceof InfGraph) {
+            Graph raw = ((InfGraph) graph).getRawGraph();
+            if (raw instanceof UnionGraph) {
+                return ((UnionGraph) raw);
+            }
+            throw new IllegalStateException(
+                    "The encapsulated InfGraph does not wrap UnionGraph, instead it wraps " + raw.getClass().getSimpleName()
+            );
+        }
+        if (graph instanceof UnionGraph) {
+            return ((UnionGraph) graph);
+        }
+        throw new IllegalStateException(
+                "The model wraps " + graph.getClass().getSimpleName() + ", that is illegal"
+        );
+    }
+
+    /**
+     * Returns {@link InfGraph} or {@code null} if no-inf model
+     */
+    public InfGraph getInfGraph() {
+        return graph instanceof InfGraph ? (InfGraph) graph : null;
+    }
+
+    @Override
+    public Graph getBaseGraph() {
+        return getUnionGraph().getBaseGraph();
+    }
+
+    @Override
+    public Model getBaseModel() {
+        return new ModelCom(getBaseGraph());
     }
 
     public <X extends OntObject> void checkType(Class<X> type) {
@@ -1399,43 +1445,6 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return String.format("OntGraphModel{%s}", Graphs.getName(getBaseGraph()));
     }
 
-    public UnionGraph getUnionGraph() {
-        return (UnionGraph) super.getGraph();
-    }
-
-    @Override
-    public Graph getBaseGraph() {
-        return getUnionGraph().getBaseGraph();
-    }
-
-    @Override
-    public Model getBaseModel() {
-        return new ModelCom(getBaseGraph());
-    }
-
-    /**
-     * Answers {@code true} if the given statement belongs to the base graph.
-     *
-     * @param s {@link Statement}, not {@code null}
-     * @return boolean
-     */
-    @Override
-    public boolean isLocal(Statement s) {
-        return isLocal(OntJenaException.notNull(s, "Null statement.").getSubject(), s.getPredicate(), s.getObject());
-    }
-
-    /**
-     * Answers {@code true} if the given SPO belongs to the base graph.
-     *
-     * @param s {@link Resource}, not {@code null}
-     * @param p {@link Property}, not {@code null}
-     * @param o {@link RDFNode}, not {@code null}
-     * @return boolean
-     */
-    public boolean isLocal(Resource s, Property p, RDFNode o) {
-        return getBaseGraph().contains(s.asNode(), p.asNode(), o.asNode());
-    }
-
     /**
      * Returns a {@link RDFNode} for the given type and, if the result is present, caches it node at the model level.
      * The method works silently: normally no exception is expected.
@@ -1496,7 +1505,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @see #getNodeAs(Node, Class)
      */
     @Override
-    public <N extends RDFNode> N fetchNodeAs(Node node, Class<N> type) {
+    public <N extends RDFNode> N safeFindNodeAs(Node node, Class<N> type) {
         Set<Node> nodes = visited.get();
         try {
             if (nodes.add(node)) {

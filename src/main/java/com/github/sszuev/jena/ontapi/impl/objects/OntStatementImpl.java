@@ -232,7 +232,7 @@ public class OntStatementImpl extends StatementImpl implements OntStatement {
 
     @Override
     public boolean isLocal() {
-        return getModel().independent() || getModel().isLocal(this);
+        return getModel().independent() || getModel().getBaseModel().contains(this);
     }
 
     public boolean isAnnotationRootStatement() {

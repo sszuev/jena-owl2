@@ -5,12 +5,15 @@ import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntModel;
+import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.reasoner.InfGraph;
+import org.apache.jena.reasoner.ReasonerFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sys.JenaSystem;
 import org.apache.jena.vocabulary.RDFS;
@@ -116,9 +119,15 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(Graph graph, OntSpecification spec) {
-        if (spec.getReasonerFactory() == null) {
-            return new OntGraphModelImpl(graph, spec.getPersonality(), spec.getConfig());
+        ReasonerFactory reasonerFactory = spec.getReasonerFactory();
+        UnionGraph unionGraph = Graphs.makeUnion(graph);
+        if (reasonerFactory == null) {
+            return new OntGraphModelImpl(unionGraph, spec.getPersonality(), spec.getConfig());
         }
-        throw new UnsupportedOperationException("TODO");
+        if (Graphs.dataGraphs(graph).anyMatch(it -> it instanceof InfGraph)) {
+            throw new IllegalArgumentException("InfGraph detected");
+        }
+        InfGraph infGraph = spec.getReasonerFactory().create(null).bind(unionGraph);
+        return new OntGraphModelImpl(infGraph, spec.getPersonality(), spec.getConfig());
     }
 }

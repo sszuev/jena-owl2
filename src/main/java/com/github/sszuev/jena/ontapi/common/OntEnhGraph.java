@@ -80,7 +80,7 @@ public interface OntEnhGraph {
      * @return {@code true} if the node can be safely cast to the specified type
      */
     static boolean canAs(Class<? extends RDFNode> view, Node node, EnhGraph graph) {
-        return asPersonalityModel(graph).fetchNodeAs(node, view) != null;
+        return asPersonalityModel(graph).safeFindNodeAs(node, view) != null;
     }
 
     /**
@@ -126,6 +126,6 @@ public interface OntEnhGraph {
      * @throws OntJenaException.Recursion if a graph recursion is indicated
      * @see OntEnhGraph#getNodeAs(Node, Class)
      */
-    <N extends RDFNode> N fetchNodeAs(Node node, Class<N> view);
+    <N extends RDFNode> N safeFindNodeAs(Node node, Class<N> view);
 
 }

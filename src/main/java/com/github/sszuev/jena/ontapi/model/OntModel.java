@@ -271,17 +271,6 @@ public interface OntModel extends Model,
     OntStatement asStatement(Triple triple);
 
     /**
-     * Answers iff the statement belongs to the base graph.
-     *
-     * @param statement {@link Statement}
-     * @return true if a statement is local
-     * @see OntStatement#isLocal()
-     * @see OntObject#isLocal()
-     * @see OntModel#localStatements(Resource, Property, RDFNode)
-     */
-    boolean isLocal(Statement statement);
-
-    /**
      * Removes the given {@link OntObject Ontology Object} from the graph-model
      * including its {@link OntObject#content() content} and annotations.
      * This operation does not guarantee the removal of all references to objects:
