@@ -4,6 +4,8 @@ import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import org.apache.jena.reasoner.ReasonerFactory;
+import org.apache.jena.reasoner.rulesys.RDFSRuleReasonerFactory;
+import org.apache.jena.reasoner.transitiveReasoner.TransitiveReasonerFactory;
 
 import java.util.Objects;
 
@@ -14,6 +16,22 @@ import java.util.Objects;
  */
 public class OntSpecification {
 
+    private static final OntPersonality OWL2_STANDARD_PERSONALITY =
+            OntPersonalities.OWL2_ONT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setConfig(OntPersonalities.OWL2_CONFIG)
+                    .build();
+
+    private static final OntPersonality OWL1_STANDARD_PERSONALITY =
+            OntPersonalities.OWL1_ONT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setConfig(OntPersonalities.OWL1_CONFIG)
+                    .build();
+
     /**
      * A specification for Ontology models that are stored in memory
      * and use fast but incomplete builtin OWL inference engine for additional entailments.
@@ -22,7 +40,7 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */
     public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF = new OntSpecification(
-            OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY()
+            OntPersonalities.OWL2_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.OWL_BUILTINS)
                     .setReserved(OntPersonalities.OWL_RESERVED)
                     .setPunnings(OntPersonalities.PunningsMode.STRICT.getVocabulary())
@@ -38,13 +56,25 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL2_MEM = new OntSpecification(
-            OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                    .setReserved(OntPersonalities.OWL_RESERVED)
-                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
-                    .setConfig(OntPersonalities.OWL2_CONFIG)
-                    .build(),
-            null
+            OWL2_STANDARD_PERSONALITY, null
+    );
+
+    /**
+     * A specification for OWL2 models that are stored in memory and use the RDFS inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RDFS_INF
+     */
+    public static final OntSpecification OWL2_MEM_RDFS_INF = new OntSpecification(
+            OWL2_STANDARD_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL2 models that are stored in memory and use the transitive inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_TRANS_INF
+     */
+    public static final OntSpecification OWL2_MEM_TRANS_INF = new OntSpecification(
+            OWL2_STANDARD_PERSONALITY, TransitiveReasonerFactory.theInstance()
     );
 
     /**
@@ -54,13 +84,26 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL1_MEM = new OntSpecification(
-            OntPersonalities.OWL1_ONT_OBJECT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                    .setReserved(OntPersonalities.OWL_RESERVED)
-                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
-                    .setConfig(OntPersonalities.OWL1_CONFIG)
-                    .build(),
-            null
+            OWL1_STANDARD_PERSONALITY, null
+    );
+
+    /**
+     * A specification for OWL1 models that are stored in memory and use the RDFS inferencer for additional entailments.
+     * Supports original Jena interpretation of OWL v1.1 specification.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RDFS_INF
+     */
+    public static final OntSpecification OWL1_MEM_RDFS_INF = new OntSpecification(
+            OWL1_STANDARD_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL1 models that are stored in memory and use the transitive inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_TRANS_INF
+     */
+    public static final OntSpecification OWL1_MEM_TRANS_INF = new OntSpecification(
+            OWL1_STANDARD_PERSONALITY, TransitiveReasonerFactory.theInstance()
     );
 
     /**
@@ -69,7 +112,7 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
      */
     public static final OntSpecification RDFS_MEM = new OntSpecification(
-            OntPersonalities.RDFS_PERSONALITY()
+            OntPersonalities.RDFS_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.RDFS_BUILTINS)
                     .setReserved(OntPersonalities.RDFS_RESERVED)
                     .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
@@ -77,7 +120,6 @@ public class OntSpecification {
                     .build(),
             null
     );
-
 
     private final OntPersonality personality;
     private final ReasonerFactory reasonerFactory;

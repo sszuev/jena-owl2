@@ -17,7 +17,9 @@ public class OntClassHierarchyRootTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testIsHierarchyRoot1(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -28,7 +30,9 @@ public class OntClassHierarchyRootTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testIsHierarchyRoot2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -39,7 +43,9 @@ public class OntClassHierarchyRootTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
     })
     public void testIsHierarchyRoot4(TestSpec spec) {
@@ -85,6 +91,8 @@ public class OntClassHierarchyRootTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testIsHierarchyRoot6(TestSpec spec) {
         // D  THING    G
@@ -185,6 +193,8 @@ public class OntClassHierarchyRootTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testIsHierarchyRoot9(TestSpec spec) {
         //     A

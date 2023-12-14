@@ -23,7 +23,9 @@ public class OntModelHierarchyRootsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListHierarchyRoots1a(TestSpec spec) {
         String doc =
@@ -42,6 +44,8 @@ public class OntModelHierarchyRootsTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListHierarchyRoots1b(TestSpec spec) {
@@ -62,7 +66,9 @@ public class OntModelHierarchyRootsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListHierarchyRoots2a(TestSpec spec) {
         String doc =
@@ -82,6 +88,8 @@ public class OntModelHierarchyRootsTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListHierarchyRoots2b(TestSpec spec) {
@@ -103,7 +111,11 @@ public class OntModelHierarchyRootsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListHierarchyRoots3a(TestSpec spec) {
         String doc =
@@ -150,7 +162,9 @@ public class OntModelHierarchyRootsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListHierarchyRoots4a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -185,4 +199,41 @@ public class OntModelHierarchyRootsTest {
         Assertions.assertEquals(expected, new HashSet<>(actual));
     }
 
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListHierarchyRoots4c(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
+        OntClass c0 = m.createOntClass(":C0");
+        OntClass c1 = m.createOntClass(":C1");
+        OntClass c2 = m.createOntClass(":C2");
+        OntClass c3 = m.createOntClass(":C3");
+        OntClass c4 = m.createOntClass(":C4");
+        OntClass c5 = m.createOntClass(":C5");
+        OntClass c6 = m.createOntClass(":C6");
+        OntClass c7 = m.createOntClass(":C7");
+
+        OntClass c8 = m.createDataSomeValuesFrom(m.createDataProperty(":p1"), m.createDataOneOf(m.createTypedLiteral(42)));
+        OntClass c9 = m.createObjectOneOf(m.createIndividual(null, c0), m.createIndividual(null, c1));
+        OntClass c10 = m.createObjectComplementOf(c6);
+        OntClass c11 = m.getOWLThing();
+        OntClass c12 = m.getOWLNothing();
+
+        c1.addSuperClass(c2);
+        c2.addSuperClass(c3);
+        c3.addSuperClass(c4);
+        c5.addSuperClass(c6);
+        c6.addSuperClass(c12);
+        c8.addSuperClass(c9);
+        c9.addSuperClass(c5);
+        c9.addSuperClass(c7);
+        c10.addSuperClass(c11);
+
+        List<OntClass> actual = m.hierarchyRoots().collect(Collectors.toList());
+        Set<Resource> expected = Set.of(c10, c11);
+        Assertions.assertEquals(2, actual.size());
+        Assertions.assertEquals(expected, new HashSet<>(actual));
+    }
 }

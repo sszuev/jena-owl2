@@ -64,6 +64,7 @@ import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
 import org.apache.jena.vocabulary.RDFS;
+import org.apache.jena.vocabulary.ReasonerVocabulary;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -105,6 +106,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     /**
      * This {@link OntModel} implementation wraps
      * only {@link UnionGraph} or {@link InfGraph} which in turn wraps {@link UnionGraph}.
+     *
      * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
      * @param config      {@link OntConfig}
@@ -342,6 +344,17 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public Model getBaseModel() {
         return new ModelCom(getBaseGraph());
     }
+
+    private Model getReasonerCapabilities() {
+        Reasoner reasoner = getReasoner();
+        return reasoner != null ? reasoner.getReasonerCapabilities() : null;
+    }
+
+    public Reasoner getReasoner() {
+        InfGraph g = getInfGraph();
+        return g != null ? g.getReasoner() : null;
+    }
+
 
     public <X extends OntObject> void checkType(Class<X> type) {
         if (!getOntPersonality().supports(type)) {
@@ -614,6 +627,19 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return listIndividuals(this,
                 getOntPersonality().forbidden(OntClass.Named.class),
                 getGraph().find(Node.ANY, RDF.Nodes.type, Node.ANY));
+    }
+
+    @Override
+    public Stream<OntClass> hierarchyRoots() {
+        if (getOntPersonality().getConfig().getBoolean(OntModelConfig.SUPPORTS_OWL_THING)) {
+            Model capabilities = getReasonerCapabilities();
+            if (capabilities != null && capabilities.contains(null, ReasonerVocabulary.supportsP, ReasonerVocabulary.directSubClassOf)) {
+                return statements(null, ReasonerVocabulary.directSubClassOf, OWL.Thing).map(it -> it.getSubject().as(OntClass.class));
+            }
+        }
+        return ontObjects(OntClass.class)
+                .filter(c -> !c.isURIResource() || !c.asNamed().isBuiltIn())
+                .filter(OntClass::isHierarchyRoot);
     }
 
     @Override

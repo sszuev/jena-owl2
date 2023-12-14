@@ -17,7 +17,7 @@ public class TestOntPersonalities {
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
      * @see OntPersonalities.PunningsMode#LAX
      */
-    public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY()
+    public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
             .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
@@ -34,7 +34,7 @@ public class TestOntPersonalities {
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
      * @see OntPersonalities.PunningsMode#MEDIUM
      */
-    public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY()
+    public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
             .setPunnings(OntPersonalities.PunningsMode.MEDIUM.getVocabulary())
@@ -57,7 +57,7 @@ public class TestOntPersonalities {
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
      * @see OntPersonalities.PunningsMode#STRICT
      */
-    public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OntPersonalities.OWL2_ONT_OBJECT_PERSONALITY()
+    public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
             .setPunnings(OntPersonalities.PunningsMode.STRICT.getVocabulary())

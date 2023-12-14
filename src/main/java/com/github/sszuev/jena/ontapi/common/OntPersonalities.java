@@ -78,7 +78,8 @@ public class OntPersonalities {
             .setFalse(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setFalse(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
-            .setFalse(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
+            .setFalse(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS)
+            .setTrue(OntModelConfig.SUPPORTS_OWL_THING);
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
@@ -86,12 +87,14 @@ public class OntPersonalities {
             .setTrue(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setTrue(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
-            .setTrue(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
+            .setTrue(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS)
+            .setTrue(OntModelConfig.SUPPORTS_OWL_THING);
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
             .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
-            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
+            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
+            .setFalse(OntModelConfig.SUPPORTS_OWL_THING);
 
     /**
      * Standard resources. Private access since this constant is mutable.
@@ -314,21 +317,21 @@ public class OntPersonalities {
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for RDFS Ontologies.
      */
-    public static OntObjectPersonalityBuilder RDFS_PERSONALITY() {
+    public static OntObjectPersonalityBuilder RDFS_ONT_PERSONALITY() {
         return RDFS_OBJECT_FACTORIES.copy();
     }
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL1 Ontologies.
      */
-    public static OntObjectPersonalityBuilder OWL1_ONT_OBJECT_PERSONALITY() {
+    public static OntObjectPersonalityBuilder OWL1_ONT_PERSONALITY() {
         return OWL1_OBJECT_FACTORIES.copy();
     }
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL2 Ontologies.
      */
-    public static OntObjectPersonalityBuilder OWL2_ONT_OBJECT_PERSONALITY() {
+    public static OntObjectPersonalityBuilder OWL2_ONT_PERSONALITY() {
         return OWL2_OBJECT_FACTORIES.copy();
     }
 

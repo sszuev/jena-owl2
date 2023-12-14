@@ -22,6 +22,10 @@ public enum OntModelConfig {
      */
     USE_OWL_V1_VOCABULARY,
     /**
+     * Regulates {@code owl:Thing} in ontology.
+     */
+    SUPPORTS_OWL_THING,
+    /**
      * If this key is set to {@code true},
      * then {@code owl:NamedIndividual} declaration is required for named individuals.
      */
