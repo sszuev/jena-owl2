@@ -9,6 +9,7 @@ import com.github.sszuev.jena.ontapi.model.OntFacetRestriction;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
+import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
@@ -91,7 +92,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
 
     @Override
     public Optional<OntStatement> findRootStatement() {
-        OntConfig config = OntObjectImpl.config(getModel());
+        OntConfig config = OntModels.config(getModel());
         Resource type = config != null && config.getBoolean(OntModelConfig.USE_OWL_V1_VOCABULARY) ? OWL.DataRange : RDFS.Datatype;
         return getRequiredRootStatement(this, type);
     }

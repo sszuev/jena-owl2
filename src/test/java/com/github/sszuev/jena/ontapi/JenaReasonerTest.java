@@ -1,9 +1,11 @@
 package com.github.sszuev.jena.ontapi;
 
+import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import org.apache.jena.rdf.model.InfModel;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
@@ -26,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The simplest reasoner test.
+ * The acceptance reasoner tests.
  * Modified copy-paste from jena-core-tests (org.apache.jena.reasoner.test.ManualExample)
  * <p>
  * Created @ssz on 26.04.2017.
@@ -53,7 +55,10 @@ public class JenaReasonerTest {
                 .addProperty(ReasonerVocabulary.PROPsetRDFSLevel, "simple");
         Reasoner reasoner = RDFSRuleReasonerFactory.theInstance().create(config);
 
-        InfModel inf = example.getInferenceModel(reasoner);
+        InfModel inf = OntModelFactory.createModel(
+                example.getBaseGraph(),
+                OntPersonalities.OWL2_ONT_PERSONALITY().build(), reasoner
+        ).asInferenceModel();
 
         Resource a = inf.getResource(NS + "a");
         Statement s = a.getProperty(q);
@@ -75,10 +80,12 @@ public class JenaReasonerTest {
         validationTest("/dttest3.nt", true);
     }
 
-
     private void validationTest(String resource, boolean result) {
-        OntModel data = OntModelFactory.createModel(RDFIOTestUtils.loadResourceAsModel(resource, Lang.NTRIPLES).getGraph());
-        InfModel inf = data.getInferenceModel(ReasonerRegistry.getRDFSReasoner());
+        OntModel data = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel(resource, Lang.NTRIPLES).getGraph(),
+                OntPersonalities.OWL2_ONT_PERSONALITY().build(), ReasonerRegistry.getRDFSReasoner()
+        );
+        InfModel inf = data.asInferenceModel();
         ValidityReport validity = inf.validate();
         List<ValidityReport.Report> reports = new ArrayList<>();
         if (!validity.isValid()) {
@@ -97,7 +104,7 @@ public class JenaReasonerTest {
     public void testDerivation() {
         // Test data
         String egNS = "urn:x-hp:eg/";
-        OntModel rawData = OntModelFactory.createModel();
+        Model rawData = OntModelFactory.createDefaultModel();
         Property p = rawData.createProperty(egNS, "p");
         Resource A = rawData.createResource(egNS + "A");
         Resource B = rawData.createResource(egNS + "B");
@@ -111,7 +118,10 @@ public class JenaReasonerTest {
         String rules = "[rule1: (?a eg:p ?b) (?b eg:p ?c) -> (?a eg:p ?c)]";
         Reasoner reasoner = new GenericRuleReasoner(Rule.parseRules(rules));
         reasoner.setDerivationLogging(true);
-        InfModel inf = rawData.getInferenceModel(reasoner);
+        InfModel inf = OntModelFactory.createModel(
+                rawData.getGraph(),
+                OntPersonalities.OWL2_ONT_PERSONALITY().build(), reasoner
+        ).asInferenceModel();
 
         List<Statement> statements = inf.listStatements(A, p, D).toList();
         Assertions.assertEquals(1, statements.size());
@@ -136,7 +146,7 @@ public class JenaReasonerTest {
     public void testGenericRules() {
         // Test data
         String egNS = "urn:x-hp:eg/";
-        OntModel rawData = OntModelFactory.createModel();
+        Model rawData = OntModelFactory.createDefaultModel();
         Property first = rawData.createProperty(egNS, "concatFirst");
         Property second = rawData.createProperty(egNS, "concatSecond");
         Property p = rawData.createProperty(egNS, "p");
@@ -155,7 +165,10 @@ public class JenaReasonerTest {
         // Rule example for
         String rules = "[r1: (?c eg:concatFirst ?p), (?c eg:concatSecond ?q) -> [r1b: (?x ?c ?y) <- (?x ?p ?z) (?z ?q ?y)]]";
         Reasoner reasoner = new GenericRuleReasoner(Rule.parseRules(rules));
-        InfModel inf = rawData.getInferenceModel(reasoner);
+        InfModel inf = OntModelFactory.createModel(
+                rawData.getGraph(),
+                OntPersonalities.OWL2_ONT_PERSONALITY().build(), reasoner
+        ).asInferenceModel();
         Assertions.assertTrue(inf.contains(A, p, B));
         Assertions.assertTrue(inf.contains(A, r, C));
 

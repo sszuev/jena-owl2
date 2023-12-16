@@ -119,7 +119,7 @@ public class OntPersonalities {
      *
      * @see <a href='https://www.w3.org/TR/rdf12-schema/'>RDF 1.2 Schema</a>
      */
-    private static final OntObjectPersonalityBuilder RDFS_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
+    private static final OntObjectPersonalityBuilder RDFS_OBJECT_FACTORIES = templatePersonalityBuilder()
             .setName("RDFS")
             .addPersonality(STANDARD_PERSONALITY)
             .add(OntObject.class, RDFSObjectFactories.ANY_OBJECT)
@@ -134,7 +134,7 @@ public class OntPersonalities {
     /**
      * For OWL1.1 Ontologies, limited functionality.
      */
-    private static final OntObjectPersonalityBuilder OWL1_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
+    private static final OntObjectPersonalityBuilder OWL1_OBJECT_FACTORIES = templatePersonalityBuilder()
             .setName("OWL1")
             .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
@@ -198,7 +198,7 @@ public class OntPersonalities {
     /**
      * Default personality builder for OWL2. Private access since this constant is mutable.
      */
-    private static final OntObjectPersonalityBuilder OWL2_OBJECT_FACTORIES = new OntObjectPersonalityBuilder()
+    private static final OntObjectPersonalityBuilder OWL2_OBJECT_FACTORIES = templatePersonalityBuilder()
             .setName("OWL2")
             .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
@@ -318,21 +318,44 @@ public class OntPersonalities {
      * Mutable {@link OntObjectPersonalityBuilder} for RDFS Ontologies.
      */
     public static OntObjectPersonalityBuilder RDFS_ONT_PERSONALITY() {
-        return RDFS_OBJECT_FACTORIES.copy();
+        return RDFS_OBJECT_FACTORIES.copy()
+                .setBuiltins(OntPersonalities.RDFS_BUILTINS)
+                .setReserved(OntPersonalities.RDFS_RESERVED)
+                .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                .setConfig(OntPersonalities.RDFS_CONFIG);
     }
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL1 Ontologies.
      */
     public static OntObjectPersonalityBuilder OWL1_ONT_PERSONALITY() {
-        return OWL1_OBJECT_FACTORIES.copy();
+        return OWL1_OBJECT_FACTORIES.copy()
+                .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                .setReserved(OntPersonalities.OWL_RESERVED)
+                .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                .setConfig(OntPersonalities.OWL1_CONFIG);
     }
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL2 Ontologies.
      */
     public static OntObjectPersonalityBuilder OWL2_ONT_PERSONALITY() {
-        return OWL2_OBJECT_FACTORIES.copy();
+        return OWL2_OBJECT_FACTORIES
+                .copy()
+                .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                .setReserved(OntPersonalities.OWL_RESERVED)
+                .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                .setConfig(OntPersonalities.OWL2_CONFIG);
+    }
+
+    private static OntObjectPersonalityBuilder templatePersonalityBuilder() {
+        return new OntObjectPersonalityBuilder() {
+
+            @Override
+            public OntPersonality build() throws IllegalStateException {
+                throw new IllegalStateException("Should not be call");
+            }
+        };
     }
 
     /**

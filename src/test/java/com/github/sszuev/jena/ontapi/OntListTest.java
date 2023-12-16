@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -321,7 +320,10 @@ public class OntListTest {
 
     @Test
     public void testTypedList() {
-        OntGraphModelImpl m = new OntGraphModelImpl(GraphMemFactory.createGraphMem(), OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF.getPersonality(), OntConfig.DEFAULT);
+        OntGraphModelImpl m = new OntGraphModelImpl(
+                GraphMemFactory.createGraphMem(),
+                OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF.getPersonality()
+        );
         m.setNsPrefixes(OntModelFactory.STANDARD);
         Resource a = m.createResource("A");
         Resource b = m.createResource("B");

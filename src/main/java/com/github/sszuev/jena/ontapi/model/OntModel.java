@@ -16,7 +16,6 @@ import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Collection;
@@ -25,9 +24,11 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * An enhanced view of a {@link Model Jena Model} about which is known to contain <b>OWL</b> ontology data.
+ * An enhanced view of a {@link Model Jena Model} about which is known
+ * to contain <b>OWL</b> or <b>RDFS</b> ontology data.
  * The view supports OWL2 DL specification,
- * and is an analogue of {@link org.apache.jena.ontology.OntModel Apache Jena OntModel}, which only covers the OWL1 syntax.
+ * and is an analogue of {@link org.apache.jena.ontology.OntModel Apache Jena OntModel},
+ * which only covers the OWL1 syntax.
  * <p>
  * In addition to the standard {@link Resource Jena Resource}s and {@link Statement Jena Statement}s
  * this model provides access to different ontological components in the form of {@link OntObject Object}s
@@ -44,6 +45,10 @@ import java.util.stream.Stream;
  * <p>
  * Impl note: this model does not support {@link org.apache.jena.ontology.Profile Jena Profile}s mechanism,
  * and model configuration is delegated directly to the extended {@link OntPersonality Personality}.
+ * <p>
+ * The interface does not extend {@link InfModel},
+ * but the inference model can be accessed via {@link OntModel#asInferenceModel()}.
+ * If implementation does not provide inference support, the method will throw an exception.
  * <p>
  * Created by @ssz on 11.11.2016.
  *
@@ -74,7 +79,7 @@ public interface OntModel extends Model,
      * Since OWL2 graph can only contain single {@code @uri rdf:type owl:Ontology} triple inside itself,
      * in case there are more than one such {@code Resource}s with the type {@link OWL#Ontology owl:Ontology},
      * the method chooses the most bulky one
-     * (i.e., those that contains the largest number of associated statements)
+     * (i.e. those that contains the largest number of associated statements)
      * and all the other triples leave intact.
      * No changes in the {@code Graph} is made.
      * The method works only with the {@link #getBaseGraph() base graph}.
@@ -334,17 +339,14 @@ public interface OntModel extends Model,
     Model getBaseModel();
 
     /**
-     * Creates an inference model shadow using this model as data.
-     * Note(1): there is the {@link org.apache.jena.enhanced.BuiltinPersonalities#model Jena Builtin Personality}
-     * within the returned model.
-     * Note(2): any changes in the returned {@link InfModel Inference Model} do not affect on this model.
+     * Answers with a view of this model that supports inference.
      *
-     * @param reasoner {@link Reasoner}, not {@code null}
-     * @return {@link InfModel}
-     * @throws org.apache.jena.reasoner.ReasonerException if the data is ill-formed according to the
-     *                                                    constraints imposed by this reasoner.
+     * @return {@link InfModel}, not {@code null}
+     * @throws UnsupportedOperationException if implementation does not support inference
      */
-    InfModel getInferenceModel(Reasoner reasoner);
+    default InfModel asInferenceModel() {
+        throw new UnsupportedOperationException("This instance is not InfModel");
+    }
 
     /*
      * ===================================
@@ -356,7 +358,7 @@ public interface OntModel extends Model,
      * Gets the Ontology ID object.
      * <p>
      * Since OWL2 graph can only contain the one {@code @uri rdf:type owl:Ontology} triple inside,
-     * this method creates such statement if it absent;
+     * this method creates such a statement if it absent;
      * in case there are more than one {@code Resource} with the type equaled to {@link OWL#Ontology owl:Ontology},
      * it chooses the most bulky one (i.e. those that contains the largest number of associated statements)
      * and all the others leave intact.

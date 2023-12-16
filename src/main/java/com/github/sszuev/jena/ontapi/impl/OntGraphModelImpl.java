@@ -3,7 +3,6 @@ package com.github.sszuev.jena.ontapi.impl;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.UnionGraph;
-import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
@@ -43,6 +42,7 @@ import org.apache.jena.datatypes.TypeMapper;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.PersonalityConfigException;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
@@ -55,10 +55,12 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.rdf.model.impl.InfModelImpl;
+import org.apache.jena.rdf.model.impl.IteratorFactory;
 import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.reasoner.Derivation;
 import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.shared.JenaException;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
@@ -93,14 +95,14 @@ import java.util.stream.Stream;
  * @see UnionGraph
  */
 @SuppressWarnings({"WeakerAccess", "SameParameterValue", "unused"})
-public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph {
+public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph, InfModel {
 
     // the model's types mapper
     protected final Map<String, RDFDatatype> dtTypes = new HashMap<>();
     // to control RDF recursion while casting a node to an RDF view, see #fetchNodeAs(Node, Class)
     private final ThreadLocal<Set<Node>> visited = ThreadLocal.withInitial(HashSet::new);
-
-    private final OntConfig config;
+    // Cached deductions model
+    private Model deductionsModel = null;
     private final Set<Class<? extends OntEntity>> supportedEntityTypes;
 
     /**
@@ -109,11 +111,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      *
      * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
-     * @param config      {@link OntConfig}
      */
-    public OntGraphModelImpl(Graph graph, OntPersonality personality, OntConfig config) {
+    public OntGraphModelImpl(Graph graph, OntPersonality personality) {
         super(makeGraph(graph), OntPersonality.asJenaPersonality(personality));
-        this.config = config;
         this.supportedEntityTypes = OntEntity.TYPES.stream().filter(personality::supports).collect(Collectors.toSet());
     }
 
@@ -328,13 +328,6 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         );
     }
 
-    /**
-     * Returns {@link InfGraph} or {@code null} if no-inf model
-     */
-    public InfGraph getInfGraph() {
-        return graph instanceof InfGraph ? (InfGraph) graph : null;
-    }
-
     @Override
     public Graph getBaseGraph() {
         return getUnionGraph().getBaseGraph();
@@ -344,17 +337,6 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public Model getBaseModel() {
         return new ModelCom(getBaseGraph());
     }
-
-    private Model getReasonerCapabilities() {
-        Reasoner reasoner = getReasoner();
-        return reasoner != null ? reasoner.getReasonerCapabilities() : null;
-    }
-
-    public Reasoner getReasoner() {
-        InfGraph g = getInfGraph();
-        return g != null ? g.getReasoner() : null;
-    }
-
 
     public <X extends OntObject> void checkType(Class<X> type) {
         if (!getOntPersonality().supports(type)) {
@@ -478,7 +460,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return <b>non-distinct</b> {@code ExtendedIterator} of {@link OntGraphModelImpl}s
      */
     public final ExtendedIterator<OntGraphModelImpl> listImportModels(OntPersonality personality) {
-        return listImportGraphs().mapWith(u -> new OntGraphModelImpl(u, personality, config));
+        return listImportGraphs().mapWith(u -> new OntGraphModelImpl(u, personality));
     }
 
     /**
@@ -505,7 +487,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         if (independent()) {
             return this;
         }
-        return new OntGraphModelImpl(getBaseGraph(), getOntPersonality(), config);
+        OntPersonality personality = getOntPersonality();
+        return new OntGraphModelImpl(getBaseGraph(), personality);
     }
 
     /**
@@ -516,11 +499,6 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public boolean independent() {
         return getUnionGraph().getUnderlying().isEmpty();
-    }
-
-    @Override
-    public InfModel getInferenceModel(Reasoner reasoner) {
-        return new InfModelImpl(OntJenaException.notNull(reasoner, "Null reasoner.").bind(getGraph()));
     }
 
     /**
@@ -654,7 +632,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         } catch (OntJenaException.Creation e) {
             // illegal punning ?
             throw new OntJenaException.Creation(String.format("Unable to create entity [%s: <%s>].",
-                    type.getName().replace(type.getPackageName() + ".", ""), iri), e);
+                    OntEnhNodeFactories.viewAsString(type), iri), e);
         }
     }
 
@@ -665,14 +643,17 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @param uri  String, URI (IRI), can be {@code null} for anonymous resource
      * @param <T>  class-type of {@link OntObject}
      * @return {@link OntObject}, new instance
+     * @throws OntJenaException.Unsupported profile mismatch
      */
     public <T extends OntObject> T createOntObject(Class<T> type, String uri) {
-        if (!getOntPersonality().supports(type)) {
-            throw new OntJenaException.IllegalCall("Attempt to create resource <" + uri + ">. " +
-                    "The type " + type.getName().replace(type.getPackageName() + ".", "") +
-                    " is not supported by the specification");
+        OntPersonality personality = getOntPersonality();
+        if (!personality.supports(type)) {
+            throw new OntJenaException.Unsupported(
+                    "Attempt to create resource <" + uri + ">. Profile " + personality.getName() +
+                            " does not support language construct " + OntEnhNodeFactories.viewAsString(type)
+            );
         }
-        return getOntPersonality().getObjectFactory(type).createInGraph(Graphs.createNode(uri), this).as(type);
+        return personality.getObjectFactory(type).createInGraph(Graphs.createNode(uri), this).as(type);
     }
 
     @Override
@@ -1466,9 +1447,177 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return findNodeAs(OWL.bottomDataProperty.asNode(), OntDataProperty.class);
     }
 
+    /**
+     * Returns the {@link Reasoner} which is being used to answer queries to this graph
+     * or {@code null} if reasoner is not supported by the model.
+     */
     @Override
-    public String toString() {
-        return String.format("OntGraphModel{%s}", Graphs.getName(getBaseGraph()));
+    public Reasoner getReasoner() {
+        InfGraph g = getInfGraph();
+        return g != null ? g.getReasoner() : null;
+    }
+
+    /**
+     * Switches on/off derivation logging.
+     * If this option is enabled, then each time a derivation is made, that fact is recorded,
+     * and the resulting record can be accessed through a later call to getDerivation.
+     * This can take up a lot of space!
+     */
+    @Override
+    public void setDerivationLogging(boolean logOn) {
+        InfGraph graph = getInfGraph();
+        if (graph != null) {
+            graph.setDerivationLogging(logOn);
+        }
+    }
+
+    /**
+     * Returns the derivation of the given statement (which should be the result of some previous list operation).
+     * Not all reasoners support derivations.
+     *
+     * @param statement {@link Statement} to get derivation information
+     * @return an iterator over {@code Derivation} records or {@code null} if there is no derivation information
+     * available for this triple
+     * @see Derivation
+     */
+    @Override
+    public Iterator<Derivation> getDerivation(Statement statement) {
+        return (getGraph() instanceof InfGraph) ? ((InfGraph) getGraph()).getDerivation(statement.asTriple()) : null;
+    }
+
+    /**
+     * Returns {@link InfGraph} or {@code null} if no-inf model
+     */
+    public InfGraph getInfGraph() {
+        return graph instanceof InfGraph ? (InfGraph) graph : null;
+    }
+
+    /**
+     * Causes the inference model to reconsult the underlying data to take into account changes.
+     * Normally, changes are made through the InfModel's, add and remove calls are will be handled appropriately.
+     * However, in some cases, changes are made "behind the InfModel's back and
+     * this forces a full reconsult of the changed data.
+     */
+    @Override
+    public void rebind() {
+        InfGraph graph = getInfGraph();
+        if (graph != null) {
+            graph.rebind();
+        }
+    }
+
+    /**
+     * Performs any initial processing and caching.
+     * This call is optional.
+     * Most engines either have negligible set-up work or will perform an implicit "prepare" if necessary.
+     * The call is provided for those occasions where substantial preparation work is possible
+     * (e.g. running a forward chaining rule system)
+     * and where an application might wish greater control over when
+     * this preparation is done rather than just leaving to be done at first query time.
+     */
+    @Override
+    public void prepare() {
+        InfGraph graph = getInfGraph();
+        if (graph != null) {
+            graph.prepare();
+        }
+    }
+
+    /**
+     * Resets any internal caches.
+     * Some systems, such as the tabled backchainer, retain information after each query.
+     * A reset will wipe this information preventing unbounded memory use at the expense of more expensive future queries.
+     * A reset does not cause the raw data to be reconsulted and so is less expensive than a rebind.
+     */
+    @Override
+    public void reset() {
+        InfGraph graph = getInfGraph();
+        if (graph != null) {
+            graph.reset();
+        }
+    }
+
+    /**
+     * Tests the consistency of the underlying data.
+     * This normally tests the validity of the bound instance data against the bound schema data.
+     *
+     * @return a {@link ValidityReport} structure
+     */
+    @Override
+    public ValidityReport validate() {
+        InfGraph graph = getInfGraph();
+        return graph != null ? graph.validate() : null;
+    }
+
+    /**
+     * Finds all the statements matching a pattern.
+     * Returns an iterator over all the statements in a model that match a pattern.
+     * <p>
+     * The SPO terms may refer to resources which are temporarily defined in the "posit" model.
+     * This allows one, for example, to query what resources are of type CE where CE is a
+     * class expression rather than a named class - put CE in the posit arg.</p>
+     *
+     * @param subject   The subject sought
+     * @param predicate The predicate sought
+     * @param object    The value sought
+     * @param posit     Model containing additional assertions to be considered when matching statements
+     * @return an iterator over the subjects
+     */
+    @Override
+    public StmtIterator listStatements(Resource subject, Property predicate, RDFNode object, Model posit) {
+        InfGraph graph = getInfGraph();
+        if (graph != null) {
+            Graph gp = posit == null ? GraphMemFactory.createGraphMem() : posit.getGraph();
+            Iterator<Triple> iter = graph.find(asNode(subject), asNode(predicate), asNode(object), gp);
+            return IteratorFactory.asStmtIterator(iter, this);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public InfModel asInferenceModel() {
+        return this;
+    }
+
+    /**
+     * Returns a derivations model.
+     * The rule reasoners typically create a graph containing those triples added to the base graph due to rule firings.
+     * In some applications, it can be useful to be able to access those deductions directly,
+     * without seeing the raw data which triggered them.
+     * In particular, this allows the forward rules to be used as if they were rewrite transformation rules.
+     *
+     * @return The derivation model, if one is defined, or else {@code null}
+     */
+    @Override
+    public Model getDeductionsModel() {
+        if (deductionsModel == null) {
+            InfGraph infGraph = getInfGraph();
+            if (infGraph != null) {
+                Graph deductionsGraph = infGraph.getDeductionsGraph();
+                if (deductionsGraph != null) {
+                    deductionsModel = new ModelCom(deductionsGraph);
+                }
+            }
+        } else {
+            // ensure that the cached model sees the updated changes from the underlying reasoner graph
+            Objects.requireNonNull(getInfGraph()).prepare();
+        }
+        return deductionsModel;
+    }
+
+    /**
+     * Returns the raw RDF model being processed
+     * (i.e. the argument to the {@link Reasoner#bind(Graph)} call that created this {@link InfModel}).
+     */
+    @Override
+    public Model getRawModel() {
+        return getBaseModel();
+    }
+
+    private Model getReasonerCapabilities() {
+        Reasoner reasoner = getReasoner();
+        return reasoner != null ? reasoner.getReasonerCapabilities() : null;
     }
 
     /**
@@ -1563,6 +1712,11 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     protected <N extends RDFNode> N getNodeAsInternal(Node node, Class<N> type) {
         return super.getNodeAs(Objects.requireNonNull(node, "Null node"),
                 Objects.requireNonNull(type, "Null class view."));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("OntGraphModel{%s}", Graphs.getName(getBaseGraph()));
     }
 
 }

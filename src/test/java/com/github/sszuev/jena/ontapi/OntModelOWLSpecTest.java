@@ -447,7 +447,7 @@ public class OntModelOWLSpecTest {
             createSimpleEntityTest(m, "d", OntDataRange.Named.class);
         } else {
             // no such type in OWL1
-            Assertions.assertThrows(OntJenaException.IllegalCall.class,
+            Assertions.assertThrows(OntJenaException.Unsupported.class,
                     () -> createSimpleEntityTest(m, "d", OntDataRange.Named.class));
         }
         if (spec != TestSpec.OWL1_MEM) {

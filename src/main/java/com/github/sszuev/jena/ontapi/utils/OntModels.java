@@ -2,6 +2,8 @@ package com.github.sszuev.jena.ontapi.utils;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.UnionGraph;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
+import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntListImpl;
@@ -393,5 +395,15 @@ public class OntModels {
                 .filter(subj::canAs).map(subj::as)
                 .map(OntObject::getMainStatement).filter(res::equals)
                 .findFirst().orElse(res);
+    }
+
+    /**
+     * Gets model's config.
+     *
+     * @param m {@link OntModel}
+     * @return {@link OntConfig} or {@code null} if model is not {@link OntEnhGraph}
+     */
+    public static OntConfig config(OntModel m) {
+        return (m instanceof OntEnhGraph) ? ((OntEnhGraph) m).getOntPersonality().getConfig() : null;
     }
 }

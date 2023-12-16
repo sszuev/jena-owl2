@@ -22,6 +22,7 @@ import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.datatypes.RDFDatatype;
@@ -299,7 +300,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
         OntModel m = clazz.getModel();
-        OntConfig config = OntObjectImpl.config(m);
+        OntConfig config = OntModels.config(m);
         if (config != null && config.getBoolean(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)) {
             // TODO: optimize
             return clazz.getModel().individuals().filter(i -> i.hasOntClass(clazz, direct));

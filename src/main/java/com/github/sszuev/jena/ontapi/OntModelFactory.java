@@ -13,11 +13,14 @@ import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.reasoner.InfGraph;
+import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ReasonerFactory;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sys.JenaSystem;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.XSD;
+
+import java.util.Objects;
 
 /**
  * A factory to produce {@link OntModel OWL2 model}s, {@link Model Common model}s and {@link Graph graph}s.
@@ -120,14 +123,27 @@ public class OntModelFactory {
      */
     public static OntModel createModel(Graph graph, OntSpecification spec) {
         ReasonerFactory reasonerFactory = spec.getReasonerFactory();
-        UnionGraph unionGraph = Graphs.makeUnion(graph);
         if (reasonerFactory == null) {
-            return new OntGraphModelImpl(unionGraph, spec.getPersonality(), spec.getConfig());
+            return new OntGraphModelImpl(Graphs.makeUnion(graph), spec.getPersonality());
         }
-        if (Graphs.dataGraphs(graph).anyMatch(it -> it instanceof InfGraph)) {
+        return createModel(graph, spec.getPersonality(), reasonerFactory.create(null));
+    }
+
+    /**
+     * Creates an {@link OntModel Ontology Model} which is {@link org.apache.jena.rdf.model.InfModel Inference Model}.
+     *
+     * @param data        {@link Graph} to wrap (base graph)
+     * @param personality {@link OntPersonality}
+     * @param reasoner    {@link Reasoner}
+     * @return {@link OntModel}
+     * @see OntModel#asInferenceModel()
+     */
+    public static OntModel createModel(Graph data, OntPersonality personality, Reasoner reasoner) {
+        UnionGraph unionGraph = Graphs.makeUnion(Objects.requireNonNull(data));
+        if (Graphs.dataGraphs(data).anyMatch(it -> it instanceof InfGraph)) {
             throw new IllegalArgumentException("InfGraph detected");
         }
-        InfGraph infGraph = spec.getReasonerFactory().create(null).bind(unionGraph);
-        return new OntGraphModelImpl(infGraph, spec.getPersonality(), spec.getConfig());
+        InfGraph infGraph = reasoner.bind(unionGraph);
+        return new OntGraphModelImpl(infGraph, personality);
     }
 }

@@ -2,9 +2,9 @@ package com.github.sszuev.jena.ontapi.impl;
 
 import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
-import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
+import com.github.sszuev.jena.ontapi.utils.OntModels;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.ArrayDeque;
@@ -43,7 +43,7 @@ public final class HierarchySupport {
             X object,
             Function<X, Stream<X>> listChildren,
             boolean direct) {
-        OntConfig config = OntObjectImpl.config(object.getModel());
+        OntConfig config = OntModels.config(object.getModel());
         boolean useBuiltinReasoner = config != null && config.getBoolean(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT);
         if (direct) {
             return directNodesAsStream(object, useBuiltinReasoner, listChildren);
