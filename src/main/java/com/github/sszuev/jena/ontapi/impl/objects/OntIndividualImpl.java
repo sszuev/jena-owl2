@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -13,6 +14,7 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
@@ -59,10 +61,19 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
     @SuppressWarnings("unchecked")
     @Override
     public boolean hasOntClass(OntClass clazz, boolean direct) {
-        return HierarchySupport.contains(this,
+        if (direct) {
+            Property reasonerProperty = reasonerProperty(getModel(), RDF.type);
+            if (reasonerProperty != null) {
+                return getModel().contains(this, reasonerProperty, clazz);
+            }
+        }
+        return HierarchySupport.contains(
+                this,
                 (OntObject) clazz,
                 it -> (Stream<OntObject>) ((Stream<?>) explicit(it)),
-                direct);
+                direct,
+                configValue(getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+        );
     }
 
     /**
@@ -76,9 +87,17 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
 
     @SuppressWarnings("unchecked")
     static Stream<OntClass> classes(OntObject individual, boolean direct) {
+        if (direct) {
+            Property reasonerProperty = reasonerProperty(individual.getModel(), RDF.type);
+            if (reasonerProperty != null) {
+                return individual.objects(reasonerProperty, OntClass.class);
+            }
+        }
         Stream<?> res = HierarchySupport.treeNodes(individual,
                 it -> (Stream<OntObject>) ((Stream<?>) explicit(it)),
-                direct);
+                direct,
+                configValue(individual.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+        );
         return (Stream<OntClass>) res;
     }
 

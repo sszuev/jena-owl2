@@ -1,19 +1,24 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
+import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
+import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -21,6 +26,8 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.ResourceImpl;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.shared.JenaException;
 import org.apache.jena.shared.PropertyNotFoundException;
 import org.apache.jena.util.iterator.ExtendedIterator;
@@ -162,6 +169,25 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      */
     public static OntObject wrapAsOntObject(Node node, EnhGraph model) {
         return new OntObjectImpl(node, model);
+    }
+
+    static boolean configValue(OntModel m, OntModelConfig setting) {
+        OntConfig config = OntModels.config(m);
+        return config != null && config.getBoolean(setting);
+    }
+
+    static Property reasonerProperty(OntModel m, Property predicate) {
+        if (m instanceof InfModel) {
+            Reasoner reasoner = ((InfModel) m).getReasoner();
+            if (reasoner == null) {
+                return null;
+            }
+            Property candidate = m.getProperty(ReasonerRegistry.makeDirect(predicate.asNode()).getURI());
+            if (reasoner.supportsProperty(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     protected int getCharacteristics() {

@@ -131,7 +131,7 @@ public class OntJenaException extends JenaException {
 
     /**
      * Exception that is raised when an ontology operation is attempted that is
-     * not present in the language profile for the current ontology model.
+     * not present in the configuration (e.g. language profile) for the current ontology model.
      */
     public static class Unsupported extends OntJenaException {
         public Unsupported(String message) {

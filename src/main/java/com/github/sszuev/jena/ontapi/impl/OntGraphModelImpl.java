@@ -1577,7 +1577,11 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public InfModel asInferenceModel() {
-        return this;
+        if (getInfGraph() != null) {
+            return this;
+        } else {
+            throw new OntJenaException.Unsupported("No reasoner attached. Inference is not supported");
+        }
     }
 
     /**

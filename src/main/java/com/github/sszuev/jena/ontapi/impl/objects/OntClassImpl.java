@@ -2,7 +2,6 @@ package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelConfig;
-import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
@@ -22,7 +21,6 @@ import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
-import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.datatypes.RDFDatatype;
@@ -159,7 +157,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
         Resource res = model.createResource(OntJenaException.notNull(uri, "Null uri"), source);
-        if (model.getOntPersonality().getConfig().getBoolean(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION.name())) {
+        if (configValue(model, OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)) {
             res.addProperty(RDF.type, OWL.NamedIndividual);
         }
         return res.as(OntIndividual.Named.class);
@@ -299,9 +297,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
-        OntModel m = clazz.getModel();
-        OntConfig config = OntModels.config(m);
-        if (config != null && config.getBoolean(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)) {
+        if (configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)) {
             // TODO: optimize
             return clazz.getModel().individuals().filter(i -> i.hasOntClass(clazz, direct));
         }
@@ -309,19 +305,41 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> subClasses(OntClass clazz, boolean direct) {
-        return HierarchySupport.treeNodes(clazz, OntClassImpl::explicitSubClasses, direct);
+        if (direct) {
+            Property reasonerProperty = reasonerProperty(clazz.getModel(), RDFS.subClassOf);
+            if (reasonerProperty != null) {
+                return explicitSubClasses(reasonerProperty, clazz);
+            }
+        }
+        return HierarchySupport.treeNodes(
+                clazz,
+                it -> explicitSubClasses(RDFS.subClassOf, it),
+                direct,
+                configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+        );
     }
 
     static Stream<OntClass> superClasses(OntClass clazz, boolean direct) {
-        return HierarchySupport.treeNodes(clazz, OntClassImpl::explicitSuperClasses, direct);
+        if (direct) {
+            Property reasonerProperty = reasonerProperty(clazz.getModel(), RDFS.subClassOf);
+            if (reasonerProperty != null) {
+                return explicitSuperClasses(reasonerProperty, clazz);
+            }
+        }
+        return HierarchySupport.treeNodes(
+                clazz,
+                it -> explicitSuperClasses(RDFS.subClassOf, it),
+                direct,
+                configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+        );
     }
 
-    static Stream<OntClass> explicitSubClasses(OntClass clazz) {
-        return subjects(RDFS.subClassOf, clazz, OntClass.class);
+    static Stream<OntClass> explicitSuperClasses(Property predicate, OntClass clazz) {
+        return clazz.objects(predicate, OntClass.class);
     }
 
-    static Stream<OntClass> explicitSuperClasses(OntClass clazz) {
-        return clazz.objects(RDFS.subClassOf, OntClass.class);
+    static Stream<OntClass> explicitSubClasses(Property predicate, OntClass clazz) {
+        return subjects(predicate, clazz, OntClass.class);
     }
 
     @Override

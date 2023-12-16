@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
-import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
@@ -37,12 +36,12 @@ public class OntSimplePropertyImpl extends OntPropertyImpl implements OntPropert
 
     @Override
     public Stream<OntProperty> superProperties(boolean direct) {
-        return HierarchySupport.treeNodes(this, x -> explicitSuperProperties(x, OntProperty.class), direct);
+        return superProperties(this, OntProperty.class, direct);
     }
 
     @Override
     public Stream<OntProperty> subProperties(boolean direct) {
-        return HierarchySupport.treeNodes(this, x -> explicitSubProperties(x, OntProperty.class), direct);
+        return subProperties(this, OntProperty.class, direct);
     }
 
     @Override

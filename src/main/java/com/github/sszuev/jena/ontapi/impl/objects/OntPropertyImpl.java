@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
@@ -44,23 +45,41 @@ public abstract class OntPropertyImpl extends OntObjectImpl implements OntProper
     }
 
     static <X extends OntProperty> Stream<X> subProperties(X property, Class<X> type, boolean direct) {
-        return HierarchySupport.treeNodes(property,
-                x -> explicitSubProperties(x, type),
-                direct);
+        if (direct) {
+            Property reasonerProperty = reasonerProperty(property.getModel(), RDFS.subPropertyOf);
+            if (reasonerProperty != null) {
+                return explicitSubProperties(property, reasonerProperty, type);
+            }
+        }
+        return HierarchySupport.treeNodes(
+                property,
+                it -> explicitSubProperties(it, RDFS.subPropertyOf, type),
+                direct,
+                configValue(property.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+        );
     }
 
     static <X extends OntProperty> Stream<X> superProperties(X property, Class<X> type, boolean direct) {
-        return HierarchySupport.treeNodes(property,
-                x -> explicitSuperProperties(x, type),
-                direct);
+        if (direct) {
+            Property reasonerProperty = reasonerProperty(property.getModel(), RDFS.subPropertyOf);
+            if (reasonerProperty != null) {
+                return explicitSuperProperties(property, reasonerProperty, type);
+            }
+        }
+        return HierarchySupport.treeNodes(
+                property,
+                it -> explicitSuperProperties(it, RDFS.subPropertyOf, type),
+                direct,
+                configValue(property.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+        );
     }
 
-    static <X extends OntProperty> Stream<X> explicitSubProperties(X property, Class<X> type) {
-        return subjects(RDFS.subPropertyOf, property, type);
+    static <X extends OntProperty> Stream<X> explicitSubProperties(X property, Property predicate, Class<X> type) {
+        return subjects(predicate, property, type);
     }
 
-    static <X extends OntProperty> Stream<X> explicitSuperProperties(X property, Class<X> type) {
-        return property.objects(RDFS.subPropertyOf, type);
+    static <X extends OntProperty> Stream<X> explicitSuperProperties(X property, Property predicate, Class<X> type) {
+        return property.objects(predicate, type);
     }
 
     @Override

@@ -338,21 +338,22 @@ public interface OntModel extends Model,
      */
     Model getBaseModel();
 
+    /*
+     * ================
+     * Default methods:
+     * ================
+     */
+
     /**
-     * Answers with a view of this model that supports inference.
+     * Returns a view of this model that supports inference, if possible.
      *
      * @return {@link InfModel}, not {@code null}
-     * @throws UnsupportedOperationException if implementation does not support inference
+     * @throws OntJenaException.Unsupported if implementation does not support inference,
+     *                                      or there is no reasoner attached to the model
      */
     default InfModel asInferenceModel() {
-        throw new UnsupportedOperationException("This instance is not InfModel");
+        throw new OntJenaException.Unsupported("Inference is not supported");
     }
-
-    /*
-     * ===================================
-     * Default methods for simplification:
-     * ===================================
-     */
 
     /**
      * Gets the Ontology ID object.

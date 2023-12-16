@@ -1,10 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl;
 
-import com.github.sszuev.jena.ontapi.OntModelConfig;
-import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.OntModels;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.ArrayDeque;
@@ -30,28 +27,36 @@ public final class HierarchySupport {
             X root,
             X test,
             Function<X, Stream<X>> listChildren,
-            boolean direct) {
+            boolean direct,
+            boolean useBuiltinHierarchySupport) {
         // TODO: optimize
-        return treeNodes(root, listChildren, direct).anyMatch(test::equals);
+        return treeNodes(root, listChildren, direct, useBuiltinHierarchySupport).anyMatch(test::equals);
     }
 
     /**
-     * Lists tree nodes for the given root using {@code listChildren} function, which provides adjacent nodes.
-     * see {@code org.apache.jena.ontology.impl.OntResourceImpl#listDirectPropertyValues(Property, String, Class, Property, boolean, boolean)}
+     * Lists tree nodes for the given root using {@code listChildren} function, which provides child nodes.
+     * This is an analogy of
+     * {@code org.apache.jena.ontology.impl.OntResourceImpl#listDirectPropertyValues(Property, String, Class, Property, boolean, boolean)}
+     *
+     * @param root                       the root of tree
+     * @param listChildren               a {@link Function} that provides {@code Stream} of child nodes for the given parent node
+     * @param direct                     if {@code true}, only return the direct (adjacent) values
+     * @param useBuiltinHierarchySupport if {@code true} collect a nodes' tree by traversing the graph,
+     *                                   this parameter is used when there is no reasoner attached to the graph
+     * @return a {@link Stream} of tree nodes
      */
     public static <X extends OntObject> Stream<X> treeNodes(
-            X object,
+            X root,
             Function<X, Stream<X>> listChildren,
-            boolean direct) {
-        OntConfig config = OntModels.config(object.getModel());
-        boolean useBuiltinReasoner = config != null && config.getBoolean(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT);
+            boolean direct,
+            boolean useBuiltinHierarchySupport) {
         if (direct) {
-            return directNodesAsStream(object, useBuiltinReasoner, listChildren);
+            return directNodesAsStream(root, useBuiltinHierarchySupport, listChildren);
         }
-        if (useBuiltinReasoner) {
-            return allTreeNodes(object, listChildren);
+        if (useBuiltinHierarchySupport) {
+            return allTreeNodes(root, listChildren);
         }
-        return listChildren.apply(object).filter(x -> !object.equals(x));
+        return listChildren.apply(root).filter(x -> !root.equals(x));
     }
 
     /**
