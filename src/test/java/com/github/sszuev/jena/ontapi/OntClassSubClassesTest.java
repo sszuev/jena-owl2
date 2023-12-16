@@ -33,7 +33,11 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testSubClassNE(TestSpec spec) {
@@ -46,7 +50,11 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListSubClasses1a(TestSpec spec) {
@@ -90,6 +98,10 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListSubClasses3a(TestSpec spec) {
         //      A
@@ -261,6 +273,8 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListSubClasses4b(TestSpec spec) {
         //      A
@@ -337,10 +351,14 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
-    public void testListSubClasses5a(TestSpec spec) {
+    public void testListSubClasses5b(TestSpec spec) {
         //     A
         //     |
         // D = B = C
@@ -379,7 +397,9 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
     })
     public void testListSubClasses6a(TestSpec spec) {
@@ -443,6 +463,8 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListSubClasses7b(TestSpec spec) {
         //    A
@@ -474,9 +496,44 @@ public class OntClassSubClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListSubClasses7c(TestSpec spec) {
+        //    A
+        //  / .
+        // B  .
+        // |  .
+        // C  .
+        //  \ .
+        //    A
+
+        OntModel m = createClassesABCA(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> directC = subClasses(m, "C", true);
+
+        Set<String> indirectA = subClasses(m, "A", false);
+        Set<String> indirectB = subClasses(m, "B", false);
+        Set<String> indirectC = subClasses(m, "C", false);
+
+        Assertions.assertEquals(Set.of("B", "C"), directA);
+        Assertions.assertEquals(Set.of("A", "C"), directB);
+        Assertions.assertEquals(Set.of("A", "B"), directC);
+
+        Assertions.assertEquals(Set.of("B", "C"), indirectA);
+        Assertions.assertEquals(Set.of("A", "C"), indirectB);
+        Assertions.assertEquals(Set.of("A", "B"), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
     })
     public void testListSubClasses8a(TestSpec spec) {
@@ -501,7 +558,34 @@ public class OntClassSubClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListSubClasses8b(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        A.addSubClass(B);
+        B.addSubClass(A);
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
+
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
+
+        Assertions.assertEquals(Set.of("B"), directA);
+        Assertions.assertEquals(Set.of("A"), directB);
+
+        Assertions.assertEquals(Set.of("B"), indirectA);
+        Assertions.assertEquals(Set.of("A"), indirectB);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListSubClasses9a(TestSpec spec) {
         //  A   B
@@ -593,6 +677,52 @@ public class OntClassSubClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListSubClasses9c(TestSpec spec) {
+        //  A   B
+        //  .\ /.
+        //  . C .
+        //  . | .
+        //  . D .
+        //  ./  .
+        //  A   .   E
+        //   \  .  |
+        //    \ . /
+        //      B
+        OntModel m = TestModelFactory.createClassesABCDAEB(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
+
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
+
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> indirectC = subClasses(m, "C", false);
+
+        Set<String> directD = subClasses(m, "D", true);
+        Set<String> indirectD = subClasses(m, "D", false);
+
+        Set<String> directE = subClasses(m, "E", true);
+        Set<String> indirectE = subClasses(m, "E", false);
+
+        Assertions.assertEquals(Set.of("B", "C", "D"), directA);
+        Assertions.assertEquals(Set.of("A", "C", "D"), directB);
+        Assertions.assertEquals(Set.of("A", "B", "D"), directC);
+        Assertions.assertEquals(Set.of("A", "B", "C"), directD);
+        Assertions.assertEquals(Set.of("A", "B", "C", "D"), directE);
+
+        Assertions.assertEquals(Set.of("B", "C", "D"), indirectA);
+        Assertions.assertEquals(Set.of("A", "C", "D"), indirectB);
+        Assertions.assertEquals(Set.of("A", "B", "D"), indirectC);
+        Assertions.assertEquals(Set.of("A", "B", "C"), indirectD);
+        Assertions.assertEquals(Set.of("A", "B", "C", "D"), indirectE);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_MEM",
             "OWL1_MEM",
             "RDFS_MEM",
@@ -648,6 +778,8 @@ public class OntClassSubClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListSubClasses10b(TestSpec spec) {
         //      A       B
@@ -699,9 +831,64 @@ public class OntClassSubClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListSubClasses10c(TestSpec spec) {
+        //      A       B
+        //    /   \   / |
+        //  /       C   |
+        // |      / .   |
+        // |    D   .   |
+        // |  / |   .   |
+        // E    |   .   |
+        //   \  |   .   |
+        //     F ...... F
+        //       \  .
+        //        \ .
+        //          C
+        OntModel m = createClassesABCDEFBCF(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
+
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
+
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> indirectC = subClasses(m, "C", false);
+
+        Set<String> directD = subClasses(m, "D", true);
+        Set<String> indirectD = subClasses(m, "D", false);
+
+        Set<String> directE = subClasses(m, "E", true);
+        Set<String> indirectE = subClasses(m, "E", false);
+
+        Set<String> directF = subClasses(m, "F", true);
+        Set<String> indirectF = subClasses(m, "F", false);
+
+        Assertions.assertEquals(Set.of("C", "D", "E", "F"), directA, "wrong direct nodes for A");
+        Assertions.assertEquals(Set.of("C", "D", "E", "F"), directB, "wrong direct nodes for B");
+        Assertions.assertEquals(Set.of("D", "E", "F"), directC, "wrong direct nodes for C");
+        Assertions.assertEquals(Set.of("C", "E", "F"), directD, "wrong direct nodes for D");
+        Assertions.assertEquals(Set.of("C", "D", "F"), directE, "wrong direct nodes for E");
+        Assertions.assertEquals(Set.of("C", "D", "E"), directF, "wrong direct nodes for F");
+
+        Assertions.assertEquals(Set.of("C", "D", "E", "F"), indirectA, "wrong indirect nodes for A");
+        Assertions.assertEquals(Set.of("C", "D", "E", "F"), indirectB, "wrong indirect nodes for B");
+        Assertions.assertEquals(Set.of("D", "E", "F"), indirectC, "wrong indirect nodes for C");
+        Assertions.assertEquals(Set.of("C", "E", "F"), indirectD, "wrong indirect nodes for D");
+        Assertions.assertEquals(Set.of("C", "D", "F"), indirectE, "wrong indirect nodes for E");
+        Assertions.assertEquals(Set.of("C", "D", "E"), indirectF, "wrong indirect nodes for F");
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
     })
     public void testListSubClasses11a(TestSpec spec) {
@@ -722,6 +909,35 @@ public class OntClassSubClassesTest {
         Assertions.assertEquals(Set.of("B", "C"), directA, "wrong direct nodes for A");
         Assertions.assertEquals(Set.of(), directB, "wrong direct nodes for B");
         Assertions.assertEquals(Set.of(), directC, "wrong direct nodes for C");
+
+        Assertions.assertEquals(Set.of("B", "C"), indirectA, "wrong indirect nodes for A");
+        Assertions.assertEquals(Set.of("C"), indirectB, "wrong indirect nodes for B");
+        Assertions.assertEquals(Set.of("B"), indirectC, "wrong indirect nodes for C");
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListSubClasses11b(TestSpec spec) {
+        //    A
+        //  /  \
+        // B  = C
+        OntModel m = createClassesABC(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = subClasses(m, "A", true);
+        Set<String> indirectA = subClasses(m, "A", false);
+
+        Set<String> directB = subClasses(m, "B", true);
+        Set<String> indirectB = subClasses(m, "B", false);
+
+        Set<String> directC = subClasses(m, "C", true);
+        Set<String> indirectC = subClasses(m, "C", false);
+
+        Assertions.assertEquals(Set.of("B", "C"), directA, "wrong direct nodes for A");
+        Assertions.assertEquals(Set.of("C"), directB, "wrong direct nodes for B");
+        Assertions.assertEquals(Set.of("B"), directC, "wrong direct nodes for C");
 
         Assertions.assertEquals(Set.of("B", "C"), indirectA, "wrong indirect nodes for A");
         Assertions.assertEquals(Set.of("C"), indirectB, "wrong indirect nodes for B");

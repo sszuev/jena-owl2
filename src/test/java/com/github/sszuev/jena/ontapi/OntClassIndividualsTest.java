@@ -31,7 +31,11 @@ public class OntClassIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testRemoveIndividual(TestSpec spec) {
@@ -51,6 +55,86 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
+    })
+    public void testListInstances1(TestSpec spec) {
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
+        OntClass a = m.getResource(NS + "A").as(OntClass.class);
+        OntClass b = m.getResource(NS + "B").as(OntClass.class);
+        OntClass c = m.getResource(NS + "C").as(OntClass.class);
+        OntClass d = m.getResource(NS + "D").as(OntClass.class);
+        OntClass e = m.getResource(NS + "E").as(OntClass.class);
+
+        OntIndividual ia = a.createIndividual(NS + "iA");
+        OntIndividual ib = b.createIndividual(NS + "iB");
+        OntIndividual ic = c.createIndividual(NS + "iC");
+        OntIndividual id = d.createIndividual(NS + "iD");
+        OntIndividual ie = e.createIndividual(NS + "iE");
+
+        Set<Resource> directA = a.individuals(true).collect(Collectors.toSet());
+        Set<Resource> indirectA = a.individuals(false).collect(Collectors.toSet());
+        Set<Resource> directB = b.individuals(true).collect(Collectors.toSet());
+        Set<Resource> indirectB = b.individuals(false).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of(ia, ib, ic, id, ie), indirectA);
+        Assertions.assertEquals(Set.of(ib, id, ie), indirectB);
+
+        Assertions.assertEquals(Set.of(ia), directA);
+        Assertions.assertEquals(Set.of(ib), directB);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM",
+    })
+    public void testListInstances2(TestSpec spec) {
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
+        OntClass a = m.getResource(NS + "A").as(OntClass.class);
+        OntClass b = m.getResource(NS + "B").as(OntClass.class);
+        OntClass c = m.getResource(NS + "C").as(OntClass.class);
+        OntClass d = m.getResource(NS + "D").as(OntClass.class);
+        OntClass e = m.getResource(NS + "E").as(OntClass.class);
+
+        OntIndividual ia = a.createIndividual(NS + "iA");
+        OntIndividual ib = b.createIndividual(NS + "iB");
+        OntIndividual ic = c.createIndividual(NS + "iC");
+        OntIndividual id = d.createIndividual(NS + "iD");
+        OntIndividual ie = e.createIndividual(NS + "iE");
+
+        Set<Resource> directA = a.individuals(true).collect(Collectors.toSet());
+        Set<Resource> indirectA = a.individuals(false).collect(Collectors.toSet());
+        Set<Resource> directB = b.individuals(true).collect(Collectors.toSet());
+        Set<Resource> indirectB = b.individuals(false).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of(ia), indirectA);
+        Assertions.assertEquals(Set.of(ib), indirectB);
+
+        Assertions.assertEquals(Set.of(ia), directA);
+        Assertions.assertEquals(Set.of(ib), directB);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListInstances3a(TestSpec spec) {
         //     A
@@ -128,7 +212,9 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListInstances3b(TestSpec spec) {
@@ -159,6 +245,8 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListIndividuals4a(TestSpec spec) {
         // B = C
@@ -191,7 +279,9 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListIndividuals4b(TestSpec spec) {
@@ -225,6 +315,8 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListIndividuals5a(TestSpec spec) {
         //     D
@@ -265,7 +357,9 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListIndividuals5b(TestSpec spec) {
@@ -307,6 +401,8 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListIndividuals6a(TestSpec spec) {
         //      A
@@ -363,7 +459,9 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListIndividuals6b(TestSpec spec) {
@@ -481,6 +579,8 @@ public class OntClassIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListIndividuals7b(TestSpec spec) {
         //  A   B
@@ -534,5 +634,64 @@ public class OntClassIndividualsTest {
         Assertions.assertEquals(Set.of("iA", "iB", "iDBA", "iCE"), indirectC);
         Assertions.assertEquals(Set.of("iA", "iB", "iDBA", "iCE"), indirectD);
         Assertions.assertEquals(Set.of("iA", "iB", "iDBA", "iCE"), indirectE);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListIndividuals7c(TestSpec spec) {
+        //  A   B
+        //  .\ /.
+        //  . C .
+        //  . | .
+        //  . D .
+        //  ./  .
+        //  A   .   E
+        //   \  .  |
+        //    \ . /
+        //      B
+
+        OntModel m = createClassesABCDAEB(OntModelFactory.createModel(spec.inst));
+        OntClass A = m.getResource(NS + "A").as(OntClass.class);
+        OntClass B = m.getResource(NS + "B").as(OntClass.class);
+        OntClass C = m.getResource(NS + "C").as(OntClass.class);
+        m.getResource(NS + "D").as(OntClass.class);
+        OntClass E = m.getResource(NS + "E").as(OntClass.class);
+
+        A.createIndividual(NS + "iA");
+        B.createIndividual(NS + "iB");
+        OntIndividual CE = C.createIndividual(NS + "iCE");
+        CE.attachClass(E);
+        OntIndividual DBA = B.createIndividual(NS + "iDBA");
+        DBA.attachClass(B);
+        DBA.attachClass(A);
+
+        Set<String> directA = individuals(m, "A", true);
+        Set<String> indirectA = individuals(m, "A", false);
+
+        Set<String> directB = individuals(m, "B", true);
+        Set<String> indirectB = individuals(m, "B", false);
+
+        Set<String> directC = individuals(m, "C", true);
+        Set<String> indirectC = individuals(m, "C", false);
+
+        Set<String> directD = individuals(m, "D", true);
+        Set<String> indirectD = individuals(m, "D", false);
+
+        Set<String> directE = individuals(m, "E", true);
+        Set<String> indirectE = individuals(m, "E", false);
+
+        Assertions.assertEquals(Set.of("iA", "iDBA"), directA);
+        Assertions.assertEquals(Set.of("iB", "iDBA"), directB);
+        Assertions.assertEquals(Set.of("iCE"), directC);
+        Assertions.assertEquals(Set.of(), directD);
+        Assertions.assertEquals(Set.of(), directE);
+        Assertions.assertEquals(Set.of("iA", "iDBA"), indirectA);
+        Assertions.assertEquals(Set.of("iB", "iDBA"), indirectB);
+        Assertions.assertEquals(Set.of("iCE"), indirectC);
+        Assertions.assertEquals(Set.of(), indirectD);
+        Assertions.assertEquals(Set.of("iCE"), indirectE);
     }
 }

@@ -48,7 +48,7 @@ public abstract class OntPropertyImpl extends OntObjectImpl implements OntProper
         if (direct) {
             Property reasonerProperty = reasonerProperty(property.getModel(), RDFS.subPropertyOf);
             if (reasonerProperty != null) {
-                return explicitSubProperties(property, reasonerProperty, type);
+                return explicitSubProperties(property, reasonerProperty, type).filter(x -> !property.equals(x));
             }
         }
         return HierarchySupport.treeNodes(
@@ -63,7 +63,7 @@ public abstract class OntPropertyImpl extends OntObjectImpl implements OntProper
         if (direct) {
             Property reasonerProperty = reasonerProperty(property.getModel(), RDFS.subPropertyOf);
             if (reasonerProperty != null) {
-                return explicitSuperProperties(property, reasonerProperty, type);
+                return explicitSuperProperties(property, reasonerProperty, type).filter(x -> !property.equals(x));
             }
         }
         return HierarchySupport.treeNodes(

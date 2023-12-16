@@ -308,7 +308,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         if (direct) {
             Property reasonerProperty = reasonerProperty(clazz.getModel(), RDFS.subClassOf);
             if (reasonerProperty != null) {
-                return explicitSubClasses(reasonerProperty, clazz);
+                return explicitSubClasses(reasonerProperty, clazz).filter(x -> !clazz.equals(x));
             }
         }
         return HierarchySupport.treeNodes(
@@ -323,7 +323,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         if (direct) {
             Property reasonerProperty = reasonerProperty(clazz.getModel(), RDFS.subClassOf);
             if (reasonerProperty != null) {
-                return explicitSuperClasses(reasonerProperty, clazz);
+                return explicitSuperClasses(reasonerProperty, clazz).filter(x -> !clazz.equals(x));
             }
         }
         return HierarchySupport.treeNodes(
