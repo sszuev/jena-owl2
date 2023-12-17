@@ -76,7 +76,7 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
     }
 
     @Override
-    public boolean hasDeclaredProperty(OntRealProperty property, boolean direct) {
+    public boolean hasDeclaredProperty(OntProperty property, boolean direct) {
         return OntClassImpl.testDomain(this, property, direct);
     }
 

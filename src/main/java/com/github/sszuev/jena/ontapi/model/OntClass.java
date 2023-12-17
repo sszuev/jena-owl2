@@ -147,13 +147,13 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * The behaviour of this method must be identical to the behaviour of the Jena method
      * {@link org.apache.jena.ontology.OntClass#hasDeclaredProperty(Property, boolean)}.
      *
-     * @param property {@link OntRealProperty}, not {@code null}
+     * @param property {@link OntProperty}, not {@code null}
      * @param direct   {@code boolean}: if {@code true} analyses only the directly adjacent domains in the subclass relation,
      *                 otherwise takes into account the class hierarchy
      * @return {@code boolean}, {@code true} if the property is associated with this class by its domain, otherwise {@code false}
      * @see org.apache.jena.ontology.OntClass#hasDeclaredProperty(Property, boolean)
      */
-    boolean hasDeclaredProperty(OntRealProperty property, boolean direct);
+    boolean hasDeclaredProperty(OntProperty property, boolean direct);
 
     /**
      * Returns a {@code Stream} over the {@link OntProperty properties} associated with a frame-like view of this class.

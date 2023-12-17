@@ -393,6 +393,16 @@ public interface OntModel extends Model,
     }
 
     /**
+     * Creates named {@code rdf:Property}.
+     *
+     * @param uri {@code <uri> a rdf:Property}
+     * @return {@link OntProperty}
+     */
+    default OntProperty createRDFProperty(String uri) {
+        return createResource(Objects.requireNonNull(uri)).addProperty(RDF.type, RDF.Property).as(OntProperty.class);
+    }
+
+    /**
      * Creates annotation property (owl-entity).
      */
     default OntAnnotationProperty createAnnotationProperty(String uri) {

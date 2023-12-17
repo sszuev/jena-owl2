@@ -414,7 +414,14 @@ public interface OntVocabulary {
 
             private Impl(Set<Property> properties,
                          Set<Resource> resources) {
-                this(null, null, null, null, null, null, properties, resources);
+                this(null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        properties,
+                        resources);
             }
 
             protected Impl(Set<Property> annotationProperties,
@@ -425,27 +432,46 @@ public interface OntVocabulary {
                            Set<Resource> swrlBuiltins,
                            Set<Property> allProperties,
                            Set<Resource> allResources) {
-                this(new HashMap<>() {
-                    {
-                        put(OWL.AnnotationProperty, annotationProperties);
-                        put(OWL.DatatypeProperty, dataProperties);
-                        put(OWL.ObjectProperty, objectProperties);
-                        put(OWL.Class, classes);
-                        put(RDFS.Datatype, datatypes);
-                        put(SWRL.Builtin, swrlBuiltins);
-                        put(RDF.Property, allProperties);
-                        put(RDFS.Resource, allResources);
-                    }
+                this.map = collectBuiltIns(
+                        annotationProperties,
+                        dataProperties,
+                        objectProperties,
+                        classes,
+                        datatypes,
+                        swrlBuiltins,
+                        allProperties,
+                        allResources);
+            }
 
-                    private void put(Resource k, Set<? extends Resource> v) {
-                        if (v == null) return;
-                        put(k.getURI(), v);
-                    }
-                });
+            private static Map<String, Set<? extends Resource>> collectBuiltIns(Set<Property> annotationProperties,
+                                                                                Set<Property> dataProperties,
+                                                                                Set<Property> objectProperties,
+                                                                                Set<Resource> classes,
+                                                                                Set<Resource> datatypes,
+                                                                                Set<Resource> swrlBuiltins,
+                                                                                Set<Property> allProperties,
+                                                                                Set<Resource> allResources) {
+                return Stream.of(
+                        pair(OWL.AnnotationProperty, annotationProperties),
+                        pair(OWL.DatatypeProperty, dataProperties),
+                        pair(OWL.ObjectProperty, objectProperties),
+                        pair(OWL.Class, classes),
+                        pair(RDFS.Datatype, datatypes),
+                        pair(SWRL.Builtin, swrlBuiltins),
+                        pair(RDF.Property, allProperties),
+                        pair(RDFS.Resource, allResources)
+                ).filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(
+                        it -> it.getKey().getURI(),
+                        it -> Set.copyOf(it.getValue()))
+                );
+            }
+
+            private static Map.Entry<Resource, Set<? extends Resource>> pair(Resource key, Set<? extends Resource> value) {
+                return value == null ? null : Map.entry(key, value);
             }
 
             protected Impl(Map<String, Set<? extends Resource>> map) {
-                this.map = Objects.requireNonNull(map);
+                this.map = Map.copyOf(Objects.requireNonNull(map));
             }
 
             @Override

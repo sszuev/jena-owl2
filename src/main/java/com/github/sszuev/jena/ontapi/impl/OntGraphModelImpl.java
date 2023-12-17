@@ -195,7 +195,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * Filters {@code OntIndividual}s from the specified {@code ExtendedIterator}.
      *
      * @param model      {@link M}, not {@code null}
-     * @param system     a {@code Set} of {@link Node}s,
+     * @param system     a {@code Set} of forbidden URIs,
      *                   that cannot be treated as {@link OntClass Ontology Class}es, not {@code null}
      * @param assertions {@link ExtendedIterator} of {@link Triple}s
      *                   with the {@link RDF#type rdf:type} as predicate, not {@code null}
@@ -203,7 +203,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return {@link ExtendedIterator} of {@link OntIndividual}s that are attached to the {@code model}
      */
     public static <M extends OntModel & OntEnhGraph> ExtendedIterator<OntIndividual> listIndividuals(M model,
-                                                                                                     Set<Node> system,
+                                                                                                     Set<String> system,
                                                                                                      ExtendedIterator<Triple> assertions) {
         Set<Triple> seen = new HashSet<>();
         boolean useSimplifiedClassChecking = model.getOntPersonality()
@@ -214,7 +214,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                     // to speed up the process,
                     // the investigation (that includes TTO, PS, HP, GALEN, FAMILY and PIZZA ontologies),
                     // shows that the profit exists, and it is significant sometimes:
-                    if (system.contains(t.getObject())) {
+                    if (t.getObject().isURI() && system.contains(t.getObject().getURI())) {
                         return null;
                     }
 

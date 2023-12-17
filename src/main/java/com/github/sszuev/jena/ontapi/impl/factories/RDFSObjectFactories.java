@@ -92,7 +92,7 @@ public final class RDFSObjectFactories {
     }
 
     private static boolean isAnyClass(Node n, EnhGraph eg) {
-        if (OntEnhGraph.asPersonalityModel(eg).getOntPersonality().getBuiltins().getClasses().contains(n)) {
+        if (OntEnhGraph.asPersonalityModel(eg).getOntPersonality().getBuiltins().getNamedClasses().contains(n)) {
             return true;
         }
         Graph g = eg.asGraph();
@@ -103,7 +103,7 @@ public final class RDFSObjectFactories {
     }
 
     private static boolean isAnyProperty(Node n, EnhGraph eg) {
-        if (OntEnhGraph.asPersonalityModel(eg).getOntPersonality().getBuiltins().getProperties().contains(n)) {
+        if (OntEnhGraph.asPersonalityModel(eg).getOntPersonality().getBuiltins().getOntProperties().contains(n)) {
             return true;
         }
         return eg.asGraph().contains(n, RDF.type.asNode(), RDF.Property.asNode());

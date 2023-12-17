@@ -1,9 +1,16 @@
 package com.github.sszuev.jena.ontapi.common;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
+import com.github.sszuev.jena.ontapi.model.OntClass;
+import com.github.sszuev.jena.ontapi.model.OntDataProperty;
+import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
+import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
+import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
@@ -14,11 +21,9 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -134,10 +139,10 @@ public interface OntPersonality {
      * Gets system resources for the specified type.
      * An entity of the given {@code type} cannot be created with any of the URIs, which this method returns.
      *
-     * @param type {@link OntEntity}
-     * @return Set of {@code Node}s
+     * @param type {@link OntObject}
+     * @return Set of URIs
      */
-    Set<Node> forbidden(Class<? extends OntEntity> type);
+    Set<String> forbidden(Class<? extends OntObject> type);
 
     /**
      * Lists all object-types encapsulated by this config, that extend the specified object-type.
@@ -153,34 +158,6 @@ public interface OntPersonality {
                 .filter(c -> c == type || Arrays.stream(c.getInterfaces())
                         .anyMatch(type::isAssignableFrom))
                 .map(x -> (Class<? extends T>) x);
-    }
-
-    /**
-     * A vocabulary of built-in {@link OntEntity OWL Entities}.
-     * A {@link OntModel model}, that holds this configuration,
-     * can contain entities without explicit declarations, if their IRIs are determined by this vocabulary.
-     * <p>
-     * For example, the OWL standard vocabulary determines
-     * {@link OWL#Thing owl:Thing} as built-in OWL class.
-     * To describe this case the expression {@code voc.get(OntClass.class)},
-     * where {@code voc} is an instance of this class,
-     * should return a {@code Set} containing {@code owl:Thing} in the form of {@link Node}.
-     * <p>
-     * Each node obtained from this class must be IRI (i.e. {@code node.isURI() = true}).
-     *
-     * @see OntEntity#types()
-     */
-    interface Builtins extends Vocabulary.Entities {
-        /**
-         * Returns a {@code Set} of all OWL builtin properties
-         * (annotation, datatype and object named property expressions)
-         *
-         * @return Set of IRI-{@link Node node}s
-         */
-        default Set<Node> getProperties() {
-            return Stream.of(getObjectProperties(), getAnnotationProperties(), getDatatypeProperties())
-                    .flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
-        }
     }
 
     /**
@@ -202,7 +179,7 @@ public interface OntPersonality {
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>Punnings</a>
      * @see OntEntity#types()
      */
-    interface Punnings extends Vocabulary.Entities {
+    interface Punnings extends Builtins {
     }
 
     /**
@@ -258,4 +235,67 @@ public interface OntPersonality {
         }
     }
 
+    /**
+     * A vocabulary of built-in {@link OntEntity ONT Entities}.
+     * A {@link OntModel model}, that holds this configuration,
+     * can contain entities without explicit declarations, if their IRIs are determined by this vocabulary.
+     * <p>
+     * For example, the OWL standard vocabulary determines
+     * {@link OWL#Thing owl:Thing} as a built-in OWL class.
+     * To describe this case the expression {@code voc.get(OntClass.class)},
+     * where {@code voc} is an instance of this class,
+     * should return a {@code Set} containing {@code owl:Thing} in the form of {@link Node}.
+     * <p>
+     * Each node obtained from this class must be IRI (i.e. {@code node.isURI() = true}).
+     *
+     * @see OntEntity#types()
+     */
+    interface Builtins extends Vocabulary<OntObject> {
+
+        default Set<Class<? extends OntObject>> supportedTypes() {
+            return Set.of(
+                    OntClass.Named.class,
+                    OntDataRange.Named.class,
+                    OntObjectProperty.Named.class,
+                    OntDataProperty.class,
+                    OntAnnotationProperty.class,
+                    OntProperty.class,
+                    OntEntity.class
+            );
+        }
+
+        default Set<Node> getNamedClasses() {
+            return get(OntClass.Named.class);
+        }
+
+        default Set<Node> getDatatypes() {
+            return get(OntDataRange.Named.class);
+        }
+
+        default Set<Node> getObjectProperties() {
+            return get(OntObjectProperty.Named.class);
+        }
+
+        default Set<Node> getDatatypeProperties() {
+            return get(OntDataProperty.class);
+        }
+
+        default Set<Node> getAnnotationProperties() {
+            return get(OntAnnotationProperty.class);
+        }
+
+        default Set<Node> getNamedIndividuals() {
+            return get(OntIndividual.Named.class);
+        }
+
+        /**
+         * Returns a {@code Set} of all OWL builtin properties
+         * (annotation, datatype and object named property expressions)
+         *
+         * @return Set of IRI-{@link Node node}s
+         */
+        default Set<Node> getOntProperties() {
+            return get(OntProperty.class);
+        }
+    }
 }

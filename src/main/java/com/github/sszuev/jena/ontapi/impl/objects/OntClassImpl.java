@@ -4,13 +4,13 @@ import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
+import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntDisjoint;
-import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntList;
 import com.github.sszuev.jena.ontapi.model.OntModel;
@@ -180,14 +180,15 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static Stream<OntProperty> declaredProperties(OntClass clazz, boolean direct) {
         OntModel m = clazz.getModel();
-        Stream<OntProperty> properties = Stream.of(
-                m.objectProperties(), m.dataProperties(), m.annotationProperties()
-        ).flatMap(it -> it);
+        Stream<OntProperty> properties = OntPersonalities.isRDFS(OntEnhGraph.asPersonalityModel(m).getOntPersonality())
+                ? m.ontObjects(OntProperty.class)
+                : Stream.of(m.objectProperties(), m.dataProperties(), m.annotationProperties()).flatMap(it -> it);
         return properties.filter(p -> p != null && testDomain(clazz, p, direct)).distinct();
     }
 
     public static boolean testDomain(OntClass clazz, OntProperty property, boolean direct) {
-        if (property.isURIResource() && property.as(OntEntity.class).isBuiltIn()) {
+        if (property.isURIResource() && OntEnhGraph.asPersonalityModel(clazz.getModel()).getOntPersonality()
+                .getBuiltins().getOntProperties().contains(property.asNode())) {
             return false;
         }
         AtomicBoolean isGlobal = new AtomicBoolean(true);
@@ -402,7 +403,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     @Override
-    public boolean hasDeclaredProperty(OntRealProperty property, boolean direct) {
+    public boolean hasDeclaredProperty(OntProperty property, boolean direct) {
         return testDomain(this, property, direct);
     }
 

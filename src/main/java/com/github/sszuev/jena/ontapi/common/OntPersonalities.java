@@ -52,6 +52,7 @@ import org.apache.jena.vocabulary.RDFS;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -382,7 +383,17 @@ public class OntPersonalities {
         res.put(OntClass.Named.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinClasses()));
         res.put(OntSWRL.Builtin.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinSWRLs()));
         res.put(OntIndividual.Named.class, Collections.emptySet());
-        return new VocabularyImpl.EntitiesImpl(res);
+        Set<Property> ontProperties = new HashSet<>();
+        ontProperties.addAll(voc.getBuiltinAnnotationProperties());
+        ontProperties.addAll(voc.getBuiltinDatatypeProperties());
+        ontProperties.addAll(voc.getBuiltinObjectProperties());
+        Set<Resource> ontEntities = new HashSet<>();
+        ontEntities.addAll(ontProperties);
+        ontEntities.addAll(voc.getBuiltinClasses());
+        ontEntities.addAll(voc.getBuiltinDatatypes());
+        res.put(OntProperty.class, ModelUtils.asUnmodifiableNodeSet(ontProperties));
+        res.put(OntEntity.class, ModelUtils.asUnmodifiableNodeSet(ontEntities));
+        return new VocabularyImpl.BuiltinsImpl(res);
     }
 
     /**
@@ -423,7 +434,7 @@ public class OntPersonalities {
         }
         OntEntity.TYPES.forEach(t -> res.computeIfAbsent(t, k -> Collections.emptySet()));
         //return type -> fromMap(res, type);
-        return new VocabularyImpl.EntitiesImpl(res);
+        return new VocabularyImpl.BuiltinsImpl(res);
     }
 
     @SafeVarargs

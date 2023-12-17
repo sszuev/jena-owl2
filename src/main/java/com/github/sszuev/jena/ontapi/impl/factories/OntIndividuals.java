@@ -55,7 +55,7 @@ final class OntIndividuals {
 
         // all known predicates whose subject definitely cannot be an individual
         Set<Node> forbiddenSubjects = reserved.get(FORBIDDEN_SUBJECTS, () -> {
-            Set<Node> bSet = builtins.getProperties();
+            Set<Node> bSet = builtins.getOntProperties();
             return reserved.getProperties().stream()
                     .filter(n -> !bSet.contains(n))
                     .filter(n -> !FOR_SUBJECT.contains(n))
@@ -73,7 +73,7 @@ final class OntIndividuals {
         }
         // all known predicates whose object definitely cannot be an individual
         Set<Node> forbiddenObjects = reserved.get(FORBIDDEN_OBJECTS, () -> {
-            Set<Node> bSet = builtins.getProperties();
+            Set<Node> bSet = builtins.getOntProperties();
             return reserved.getProperties().stream()
                     .filter(n -> !bSet.contains(n))
                     .filter(n -> !FOR_OBJECT.contains(n))

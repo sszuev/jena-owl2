@@ -6,6 +6,7 @@ import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import org.apache.jena.rdf.model.Resource;
@@ -88,7 +89,7 @@ public class OntClassDeclaredPropertiesTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_MEM_RDFS_INF",
-            //"RDFS_MEM", // TODO: see comment for OntSpecification.RDFS_MEM
+            "RDFS_MEM",
     })
     public void testListDeclaredProperties2(TestSpec spec) {
         //    D
@@ -242,12 +243,8 @@ public class OntClassDeclaredPropertiesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
-            // TODO: Jena allows creation an abstract com.github.sszuev.jena.ontapi.model.OntProperty
-            //  (which is just `rdf:Property`), ONT-API can't since it contradicts OWL2 specification;
-            //  Need to add RDFS_MEM_COMPATIBLE spec which will pretend to be OWL2, see OntSpecification.RDFS_MEM
-            // "RDFS_MEM",
     })
-    public void testListDeclaredProperties5(TestSpec spec) {
+    public void testListDeclaredProperties5a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass A = m.createOntClass(NS + "A");
         OntClass C = m.createOntClass(NS + "C");
@@ -260,6 +257,29 @@ public class OntClassDeclaredPropertiesTest {
         p.addDomain(A);
         q.addDomain(A);
         s.addDomain(C);
+
+        Assertions.assertEquals(Set.of(p, q, s), C.declaredProperties().collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(p, q, s), C.declaredProperties(false).collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(s), C.declaredProperties(true).collect(Collectors.toSet()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM",
+    })
+    public void testListDeclaredProperties5b(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass C = m.createOntClass(NS + "C");
+        C.addSuperClass(A);
+
+        OntProperty p = m.createRDFProperty(NS + "p");
+        OntProperty q = m.createRDFProperty(NS + "q");
+        OntProperty s = m.createRDFProperty(NS + "s");
+
+        p.addDomainStatement(A);
+        q.addDomainStatement(A);
+        s.addDomainStatement(C);
 
         Assertions.assertEquals(Set.of(p, q, s), C.declaredProperties().collect(Collectors.toSet()));
         Assertions.assertEquals(Set.of(p, q, s), C.declaredProperties(false).collect(Collectors.toSet()));
@@ -425,9 +445,8 @@ public class OntClassDeclaredPropertiesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
-            //"RDFS_MEM", // TODO: see comment for OntSpecification.RDFS_MEM
     })
-    public void testHasDeclaredProperties3(TestSpec spec) {
+    public void testHasDeclaredProperties3a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
                 OntModelFactory.createModel(spec.inst),
                 "/frame-view-test-ldp.rdf",
@@ -437,6 +456,33 @@ public class OntClassDeclaredPropertiesTest {
 
         OntObjectProperty pA = m.getObjectProperty(NS + "pA");
         OntObjectProperty pB = m.getObjectProperty(NS + "pB");
+
+        Assertions.assertTrue(A.hasDeclaredProperty(pA, false));
+        Assertions.assertFalse(A.hasDeclaredProperty(pB, false));
+
+        Assertions.assertTrue(A.hasDeclaredProperty(pA, true));
+        Assertions.assertFalse(A.hasDeclaredProperty(pB, true));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM",
+    })
+    public void testHasDeclaredProperties3b(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst),
+                "/frame-view-test-ldp.rdf",
+                Lang.RDFXML
+        );
+        m.write(System.out, "ttl");
+        OntClass A = m.getOntClass(NS + "A");
+
+        // In Jena OWL (org.apache.jena.ontology.OntModel) no need to add explicit rdf:Property declarations,
+        // since Jena OWL for RDFS spec allow casting everything to everything.
+        // Our OWL model (com.github.sszuev.jena.ontapi.OntModel) follows more strict rules,
+        // so it is needed to add corresponding declarations to object properties to be able to get them as OntProperty
+        OntProperty pA = m.createResource(NS + "pA", RDF.Property).as(OntProperty.class);
+        OntProperty pB = m.createResource(NS + "pB", RDF.Property).as(OntProperty.class);
 
         Assertions.assertTrue(A.hasDeclaredProperty(pA, false));
         Assertions.assertFalse(A.hasDeclaredProperty(pB, false));

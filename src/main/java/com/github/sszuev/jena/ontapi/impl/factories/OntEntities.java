@@ -7,7 +7,6 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
-import com.github.sszuev.jena.ontapi.common.Vocabulary;
 import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDataPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
@@ -46,37 +45,37 @@ import java.util.function.Function;
  * @see OntEntity
  */
 enum OntEntities {
-    CLASS(OWL.Class, OntClass.Named.class, OntSimpleClassImpl.NamedImpl.class, Vocabulary.Entities::getClasses) {
+    CLASS(OWL.Class, OntClass.Named.class, OntSimpleClassImpl.NamedImpl.class, OntPersonality.Builtins::getNamedClasses) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
             return new OntSimpleClassImpl.NamedImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    DATATYPE(RDFS.Datatype, OntDataRange.Named.class, OntNamedDataRangeImpl.class, Vocabulary.Entities::getDatatypes) {
+    DATATYPE(RDFS.Datatype, OntDataRange.Named.class, OntNamedDataRangeImpl.class, OntPersonality.Builtins::getDatatypes) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
             return new OntNamedDataRangeImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    ANNOTATION_PROPERTY(OWL.AnnotationProperty, OntAnnotationProperty.class, OntAnnotationPropertyImpl.class, Vocabulary.Entities::getAnnotationProperties) {
+    ANNOTATION_PROPERTY(OWL.AnnotationProperty, OntAnnotationProperty.class, OntAnnotationPropertyImpl.class, OntPersonality.Builtins::getAnnotationProperties) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
             return new OntAnnotationPropertyImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    DATA_PROPERTY(OWL.DatatypeProperty, OntDataProperty.class, OntDataPropertyImpl.class, Vocabulary.Entities::getDatatypeProperties) {
+    DATA_PROPERTY(OWL.DatatypeProperty, OntDataProperty.class, OntDataPropertyImpl.class, OntPersonality.Builtins::getDatatypeProperties) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
             return new OntDataPropertyImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    OBJECT_PROPERTY(OWL.ObjectProperty, OntObjectProperty.Named.class, OntObjectPropertyImpl.NamedPropertyImpl.class, Vocabulary.Entities::getObjectProperties) {
+    OBJECT_PROPERTY(OWL.ObjectProperty, OntObjectProperty.Named.class, OntObjectPropertyImpl.NamedPropertyImpl.class, OntPersonality.Builtins::getObjectProperties) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
             return new OntObjectPropertyImpl.NamedPropertyImpl(OntObjectImpl.checkNamed(node), graph);
         }
     },
-    INDIVIDUAL(OWL.NamedIndividual, OntIndividual.Named.class, OntIndividualImpl.NamedImpl.class, Vocabulary.Entities::getIndividuals) {
+    INDIVIDUAL(OWL.NamedIndividual, OntIndividual.Named.class, OntIndividualImpl.NamedImpl.class, OntPersonality.Builtins::getNamedIndividuals) {
         @Override
         EnhNode newInstance(Node node, EnhGraph graph) {
             return new OntIndividualImpl.NamedImpl(OntObjectImpl.checkNamed(node), graph);
@@ -125,7 +124,7 @@ enum OntEntities {
     final Class<? extends OntObjectImpl> impl;
     final Class<? extends OntEntity> classType;
     final Resource resourceType;
-    final Function<Vocabulary.Entities, Set<Node>> extractNodeSet;
+    final Function<OntPersonality.Builtins, Set<Node>> extractNodeSet;
 
     /**
      * Creates an entity enum.
@@ -138,7 +137,7 @@ enum OntEntities {
     OntEntities(Resource resourceType,
                 Class<? extends OntEntity> classType,
                 Class<? extends OntObjectImpl> impl,
-                Function<Vocabulary.Entities, Set<Node>> extractNodeSet) {
+                Function<OntPersonality.Builtins, Set<Node>> extractNodeSet) {
         this.classType = classType;
         this.resourceType = resourceType;
         this.impl = impl;
