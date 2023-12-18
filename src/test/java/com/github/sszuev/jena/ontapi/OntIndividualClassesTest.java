@@ -26,7 +26,11 @@ public class OntIndividualClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testGetOntClass0(TestSpec spec) {
@@ -46,7 +50,11 @@ public class OntIndividualClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListOntClasses1a(TestSpec spec) {
@@ -68,7 +76,11 @@ public class OntIndividualClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListOntClasses2(TestSpec spec) {
@@ -86,6 +98,8 @@ public class OntIndividualClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListOntClasses3a(TestSpec spec) {
         //      A   G
@@ -146,7 +160,9 @@ public class OntIndividualClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListOntClasses3b(TestSpec spec) {
@@ -206,6 +222,8 @@ public class OntIndividualClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListOntClasses4a(TestSpec spec) {
         //      A   G
@@ -246,7 +264,9 @@ public class OntIndividualClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListOntClasses4b(TestSpec spec) {
@@ -288,6 +308,8 @@ public class OntIndividualClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void textListOntClasses5a(TestSpec spec) {
         //  A   B
@@ -359,6 +381,42 @@ public class OntIndividualClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void textListOntClasses5d(TestSpec spec) {
+        //  A   B
+        //  .\ /.
+        //  . C .
+        //  . | .
+        //  . D .
+        //  ./  .
+        //  A   .
+        //   \  .  E
+        //    \ . /
+        //      B
+        OntModel m = createClassesABCDAEB(OntModelFactory.createModel(spec.inst));
+
+        OntClass A = m.getOntClass(NS + "A");
+        OntClass B = m.getOntClass(NS + "B");
+        OntClass D = m.getOntClass(NS + "D");
+
+        OntIndividual iAD = A.createIndividual("iAD").attachClass(D);
+        OntIndividual iDB = D.createIndividual().attachClass(B);
+
+        Set<String> directDB = iDB.classes(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectDB = iDB.classes(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directAD = iAD.classes(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectAD = iAD.classes(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(Set.of("B", "D"), directDB);
+        Assertions.assertEquals(Set.of("B", "D"), indirectDB);
+        Assertions.assertEquals(Set.of("A", "D"), directAD);
+        Assertions.assertEquals(Set.of("A", "D"), indirectAD);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_MEM",
             "OWL1_MEM",
     })
@@ -394,6 +452,8 @@ public class OntIndividualClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListOntClasses6b(TestSpec spec) {
         //         I_AE
@@ -422,5 +482,39 @@ public class OntIndividualClassesTest {
         Assertions.assertEquals(hashSetOf(null, "A", "B", "D"), indirectDB);
         Assertions.assertEquals(hashSetOf(null, "A", "B", "D"), directAD);
         Assertions.assertEquals(hashSetOf(null, "A", "B", "D"), indirectAD);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListOntClasses6d(TestSpec spec) {
+        //         I_AE
+        //         |  .
+        //        D   .
+        //       /    .
+        // C_C  A     .
+        //  \  / \    .
+        //   B    \   .
+        //     \  /   .
+        //       I_A_E
+        OntModel m = createClassesiAEDcCABiAE(OntModelFactory.createModel(spec.inst));
+        OntClass A = m.getResource(NS + "A").as(OntClass.class);
+        OntClass B = m.getResource(NS + "B").as(OntClass.class);
+        OntClass D = m.getResource(NS + "D").as(OntClass.class);
+
+        OntIndividual iAD = A.createIndividual("iA").attachClass(D);
+        OntIndividual iDB = D.createIndividual().attachClass(B);
+
+        Set<String> directDB = iDB.classes(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectDB = iDB.classes(false).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> directAD = iAD.classes(true).map(Resource::getLocalName).collect(Collectors.toSet());
+        Set<String> indirectAD = iAD.classes(false).map(Resource::getLocalName).collect(Collectors.toSet());
+
+        Assertions.assertEquals(hashSetOf("B", "D"), directDB);
+        Assertions.assertEquals(hashSetOf("B", "D"), indirectDB);
+        Assertions.assertEquals(hashSetOf("A", "D"), directAD);
+        Assertions.assertEquals(hashSetOf("A", "D"), indirectAD);
     }
 }

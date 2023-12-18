@@ -34,8 +34,10 @@ public class OntSpecification {
 
     /**
      * A specification for Ontology models that are stored in memory
-     * and use fast but incomplete builtin OWL inference engine for additional entailments.
-     * It supports {@code rdfs:subClassOf} & {@code rdfs:subPropertyOf} hierarchy.
+     * and use fast but incomplete builtin OWL inference engine for additional entailments
+     * that handles hierarchy.
+     * It supports {@code rdfs:subClassOf}, {@code rdfs:subPropertyOf} and class-individuals hierarchy,
+     * otherwise it behaves like a regular {@link #OWL2_MEM},
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */

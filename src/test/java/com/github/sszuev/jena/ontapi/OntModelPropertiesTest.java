@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +35,10 @@ public class OntModelPropertiesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListAllOntProperties1a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -50,10 +55,15 @@ public class OntModelPropertiesTest {
         m.createResource(NS + "rp2", RDF.Property);
         m.createResource(NS + "rest", RDF.rest);
 
-        List<String> expected = Stream.of("ap", "dp", "op", "rp1", "rp2").sorted().collect(Collectors.toList());
+        List<String> expected = new ArrayList<>(Arrays.asList("ap", "dp", "op", "rp1", "rp2"));
+        if (spec.inst.getPersonality().getName().startsWith("OWL2")) {
+            // support inverseOf property
+            expected.add("null");
+        }
+        expected.sort(String::compareTo);
 
         List<String> actual = m.properties()
-                .map(Resource::getLocalName)
+                .map(it -> it.isAnon() ? "null" : it.getLocalName())
                 .sorted()
                 .collect(Collectors.toList());
         Assertions.assertEquals(expected, actual);
@@ -61,10 +71,10 @@ public class OntModelPropertiesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
-            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
-            "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
-    public void testListAllOntProperties1d(TestSpec spec) {
+    public void testListAllOntProperties1b(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         // named object property
         Resource op = m.createResource(NS + "op", OWL.ObjectProperty);
@@ -79,7 +89,15 @@ public class OntModelPropertiesTest {
         m.createResource(NS + "rp2", RDF.Property);
         m.createResource(NS + "rest", RDF.rest);
 
-        List<String> expected = Stream.of("ap", "dp", "op", "rp1", "rp2", "null").sorted().collect(Collectors.toList());
+        List<String> expected = new ArrayList<>(Arrays.asList(
+                "ap", "comment", "domain", "dp", "first", "isDefinedBy", "label", "object", "rp1", "op",
+                "predicate", "range", "rp2", "rest", "seeAlso", "subClassOf", "subPropertyOf", "subject", "type"
+        ));
+        if (spec.inst.getPersonality().getName().startsWith("OWL2")) {
+            // support inverseOf property
+            expected.add("null");
+        }
+        expected.sort(String::compareTo);
 
         List<String> actual = m.properties()
                 .map(it -> it.isAnon() ? "null" : it.getLocalName())
@@ -120,7 +138,9 @@ public class OntModelPropertiesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListAllOntProperties2a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -131,9 +151,25 @@ public class OntModelPropertiesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
+    })
+    public void testListAllOntProperties2b(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test.rdf", Lang.RDFXML
+        );
+        Assertions.assertEquals(19, m.properties().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListAllOntProperties3a(TestSpec spec) {
         OntModel m = TestModelFactory.withBuiltIns(

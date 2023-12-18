@@ -30,7 +30,11 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testSuperClassNE(TestSpec spec) {
@@ -126,7 +130,9 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
     })
     public void testListSuperClasses3a(TestSpec spec) {
@@ -155,7 +161,38 @@ public class OntClassSuperClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListSuperClasses3c(TestSpec spec) {
+        // B = C
+        //  \ |
+        //    A
+
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> directC = superClasses(m, "C", true);
+
+        Set<String> indirectA = superClasses(m, "A");
+        Set<String> indirectB = superClasses(m, "B", false);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        Assertions.assertEquals(Set.of("B", "C"), directA);
+        Assertions.assertEquals(Set.of("C"), directB);
+        Assertions.assertEquals(Set.of("B"), directC);
+
+        Assertions.assertEquals(Set.of("B", "C"), indirectA);
+        Assertions.assertEquals(Set.of("C"), indirectB);
+        Assertions.assertEquals(Set.of("B"), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListSuperClasses5a(TestSpec spec) {
         //     A
@@ -232,7 +269,11 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListSuperClasses6a(TestSpec spec) {
@@ -269,7 +310,11 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
     public void testListSuperClasses7a(TestSpec spec) {
@@ -334,6 +379,10 @@ public class OntClassSuperClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListSuperClasses8b(TestSpec spec) {
         //    D

@@ -171,6 +171,7 @@ public interface OntModel extends Model,
 
     /**
      * Lists all ont-objects of the specified type.
+     * Note: this method may return non-distinct results, it is implementation dependent.
      *
      * @param type {@link Class} the concrete type of {@link OntObject}, not {@code null}
      * @param <O>  any ont-object subtype
@@ -183,8 +184,7 @@ public interface OntModel extends Model,
      * Lists all entities declared in the model.
      * Built-ins are not included.
      * The retrieved entities can belong to the underlying graphs also.
-     * Note: this method returns non-distinct stream,
-     * while the expression {@code ontObjects(OntEntity.class)} is supposed to be distinct stream.
+     * Note: this method returns non-distinct stream.
      * The duplicate elements (by {@code equals} and {@code hasCode}, not by real class-type)
      * means that there is so-called punning.
      *

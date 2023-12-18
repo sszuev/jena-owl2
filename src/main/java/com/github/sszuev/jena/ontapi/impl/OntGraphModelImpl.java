@@ -517,6 +517,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     /**
      * Retrieves the stream of {@link OntObject Ontology Object}s.
      * The result object will be cached inside the model.
+     * Note: this method may return non-distinct results,
+     * this is determined by the reasoner and nature of the underlying graph;
+     * for non-inference the standard memory graph implementation the result Stream is distinct.
      *
      * @param type {@link Class} the type of {@link OntObject}, not null
      * @param <O>  subtype of {@link OntObject}

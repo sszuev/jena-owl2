@@ -474,7 +474,6 @@ public class OntClassDeclaredPropertiesTest {
                 "/frame-view-test-ldp.rdf",
                 Lang.RDFXML
         );
-        m.write(System.out, "ttl");
         OntClass A = m.getOntClass(NS + "A");
 
         // In Jena OWL (org.apache.jena.ontology.OntModel) no need to add explicit rdf:Property declarations,

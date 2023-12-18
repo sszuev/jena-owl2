@@ -5,13 +5,15 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.riot.Lang;
 
 class TestModelFactory {
     static final String NS = "http://example.com/test#";
 
     static OntModel withBuiltIns(OntModel m) {
-        UnionGraph model = (UnionGraph) m.getGraph();
+        Graph g = m.getGraph();
+        UnionGraph model = g instanceof InfGraph ? (UnionGraph) ((InfGraph) g).getRawGraph() : (UnionGraph) m.getGraph();
         Graph rdfs = RDFIOTestUtils.readResourceToModel(
                 ModelFactory.createDefaultModel(), "/builtins-rdfs.rdf", Lang.RDFXML).getGraph();
         Graph owl = RDFIOTestUtils.readResourceToModel(
