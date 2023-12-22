@@ -6,7 +6,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
-import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
+import com.github.sszuev.jena.ontapi.common.WrappedEnhNodeFactory;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
@@ -57,12 +57,12 @@ final class OntDataRanges {
         private static final Node ANY = Node.ANY;
         private static final Node DATATYPE = RDFS.Datatype.asNode();
 
-        private final EnhNodeFactory named = WrappedFactoryImpl.of(OntDataRange.Named.class);
-        private final EnhNodeFactory oneOf = WrappedFactoryImpl.of(OntDataRange.OneOf.class);
-        private final EnhNodeFactory complementOf = WrappedFactoryImpl.of(OntDataRange.ComplementOf.class);
-        private final EnhNodeFactory unionOf = WrappedFactoryImpl.of(OntDataRange.UnionOf.class);
-        private final EnhNodeFactory intersectionOf = WrappedFactoryImpl.of(OntDataRange.IntersectionOf.class);
-        private final EnhNodeFactory restriction = WrappedFactoryImpl.of(OntDataRange.Restriction.class);
+        private final EnhNodeFactory named = WrappedEnhNodeFactory.of(OntDataRange.Named.class);
+        private final EnhNodeFactory oneOf = WrappedEnhNodeFactory.of(OntDataRange.OneOf.class);
+        private final EnhNodeFactory complementOf = WrappedEnhNodeFactory.of(OntDataRange.ComplementOf.class);
+        private final EnhNodeFactory unionOf = WrappedEnhNodeFactory.of(OntDataRange.UnionOf.class);
+        private final EnhNodeFactory intersectionOf = WrappedEnhNodeFactory.of(OntDataRange.IntersectionOf.class);
+        private final EnhNodeFactory restriction = WrappedEnhNodeFactory.of(OntDataRange.Restriction.class);
         private final List<EnhNodeFactory> anonymous = Stream.of(complementOf
                 , restriction
                 , oneOf

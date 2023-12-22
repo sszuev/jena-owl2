@@ -363,7 +363,7 @@ public class OntPersonalities {
      * @return {@code true} if the specified {@link OntPersonality} has name "RDFS".
      */
     public static boolean isRDFS(OntPersonality personality) {
-        return "RDFS".equals(personality.getName());
+        return personality.getName() != null && personality.getName().startsWith("RDFS");
     }
 
     /**

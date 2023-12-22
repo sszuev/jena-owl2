@@ -9,7 +9,7 @@ import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 
-public class TestOntPersonalities {
+class TestOntPersonalities {
     /**
      * OWL2 Personality, that has default settings and does not care about the owl-entities "punnings"
      * (no restriction on the type declarations).
@@ -18,6 +18,7 @@ public class TestOntPersonalities {
      * @see OntPersonalities.PunningsMode#LAX
      */
     public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
+            .setName("TEST-OWL2_PERSONALITY_LAX_PUNNS")
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
             .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
@@ -35,6 +36,7 @@ public class TestOntPersonalities {
      * @see OntPersonalities.PunningsMode#MEDIUM
      */
     public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
+            .setName("TEST-OWL2_PERSONALITY_MEDIUM_PUNNS")
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
             .setPunnings(OntPersonalities.PunningsMode.MEDIUM.getVocabulary())
@@ -58,6 +60,7 @@ public class TestOntPersonalities {
      * @see OntPersonalities.PunningsMode#STRICT
      */
     public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
+            .setName("TEST-OWL2_PERSONALITY_STRICT_PUNNS")
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
             .setPunnings(OntPersonalities.PunningsMode.STRICT.getVocabulary())

@@ -5,7 +5,7 @@ import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
-import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
+import com.github.sszuev.jena.ontapi.common.WrappedEnhNodeFactory;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntSimplePropertyImpl;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
@@ -27,8 +27,8 @@ final class OntProperties {
     public static final EnhNodeFilter NEGATIVE_PROPERTY_ASSERTION_FILTER = EnhNodeFilter.ANON
             .and(new EnhNodeFilter.HasPredicate(OWL.sourceIndividual))
             .and(new EnhNodeFilter.HasPredicate(OWL.assertionProperty));
-    private static final EnhNodeFactory NAMED_OBJECT_PROPERTY_FACTORY_REFERENCE = WrappedFactoryImpl.of(OntObjectProperty.Named.class);
-    private static final EnhNodeFactory ANONYMOUS_OBJECT_PROPERTY_FACTORY_REFERENCE = WrappedFactoryImpl.of(OntObjectProperty.Inverse.class);
+    private static final EnhNodeFactory NAMED_OBJECT_PROPERTY_FACTORY_REFERENCE = WrappedEnhNodeFactory.of(OntObjectProperty.Named.class);
+    private static final EnhNodeFactory ANONYMOUS_OBJECT_PROPERTY_FACTORY_REFERENCE = WrappedEnhNodeFactory.of(OntObjectProperty.Inverse.class);
 
     public static class ObjectPropertyExpressionFactory extends BaseEnhNodeFactoryImpl {
         @Override

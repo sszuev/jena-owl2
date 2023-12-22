@@ -21,15 +21,15 @@ import java.util.Objects;
  * @see OntEnhNodeFactories
  */
 @SuppressWarnings("WeakerAccess")
-public class WrappedFactoryImpl extends BaseEnhNodeFactoryImpl {
+public class WrappedEnhNodeFactory extends BaseEnhNodeFactoryImpl {
     private final Class<? extends RDFNode> type;
 
-    public WrappedFactoryImpl(Class<? extends RDFNode> type) {
+    public WrappedEnhNodeFactory(Class<? extends RDFNode> type) {
         this.type = Objects.requireNonNull(type);
     }
 
-    public static WrappedFactoryImpl of(Class<? extends RDFNode> type) {
-        return new WrappedFactoryImpl(type);
+    public static WrappedEnhNodeFactory of(Class<? extends RDFNode> type) {
+        return new WrappedEnhNodeFactory(type);
     }
 
     /**
@@ -45,11 +45,7 @@ public class WrappedFactoryImpl extends BaseEnhNodeFactoryImpl {
     }
 
     protected EnhNodeFactory getFactory(EnhGraph g) throws OntJenaException {
-        EnhNodeFactory res = OntEnhGraph.asPersonalityModel(g).getOntPersonality().getObjectFactory(type);
-        if (res == null) {
-            throw new OntJenaException.IllegalState("Unable to find factory for " + OntEnhNodeFactories.viewAsString(type));
-        }
-        return res;
+        return OntEnhGraph.asPersonalityModel(g).getOntPersonality().getObjectFactory(type);
     }
 
     @Override

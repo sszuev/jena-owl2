@@ -38,6 +38,13 @@ public class OntJenaException extends JenaException {
     }
 
     /**
+     * Stub for TO-DO.
+     */
+    public static <X> X TODO(String message) {
+        throw new RuntimeException(message);
+    }
+
+    /**
      * Exception that is thrown when an ontology resource is converted to another facet,
      * using {@link org.apache.jena.rdf.model.RDFNode#as as()},
      * and the requested conversion is not possible.

@@ -47,18 +47,19 @@ import java.util.stream.Collectors;
  * Created by @ssz on 27.03.2018.
  */
 @SuppressWarnings("WeakerAccess")
-public class PersonalityTest {
+public class OntPersonalityTest {
 
-    public static OntPersonality buildCustomPersonality() {
+    private static OntPersonality buildCustomPersonality() {
         OntPersonality from = TestOntPersonalities.OWL2_PERSONALITY_LAX_PUNNS;
         EnhNodeFactory factory = createNamedIndividualFactory();
         OntPersonality res = OntObjectPersonalityBuilder.from(from)
                 .add(OntIndividual.Named.class, factory)
+                .remove(OntDataRange.OneOf.class)
                 .build();
-        Assertions.assertEquals(99, res.types().count());
+        Assertions.assertEquals(98, res.types().count());
         List<Class<? extends OntObject>> objects = res.types(OntObject.class).collect(Collectors.toList());
         List<Class<? extends OntEntity>> entities = res.types(OntEntity.class).collect(Collectors.toList());
-        Assertions.assertEquals(89, objects.size());
+        Assertions.assertEquals(88, objects.size());
         Assertions.assertEquals(8, entities.size());
         return res;
     }
@@ -214,7 +215,6 @@ public class PersonalityTest {
             // expected
         }
 
-
         Assertions.assertEquals(0, m2.datatypes().count());
         Assertions.assertEquals(1, m2.classes().count());
         Assertions.assertEquals(1, m2.ontObjects(OntDisjoint.Individuals.class).count());
@@ -260,7 +260,6 @@ public class PersonalityTest {
             // expected
         }
 
-
         Assertions.assertEquals(0, m2.objectProperties().count());
         Assertions.assertEquals(0, m2.dataProperties().count());
         Assertions.assertEquals(0, m2.annotationProperties().count());
@@ -293,18 +292,19 @@ public class PersonalityTest {
         m.createResource(ns + "individual3", c2);
         m.createResource(ns + "individual4", c1);
 
-
         Assertions.assertEquals(2, m.namedIndividuals().count());
         Assertions.assertEquals(5, m.ontObjects(OntIndividual.class).count());
         Assertions.assertEquals(5, m.individuals().count());
 
-        // CUSTOM PERSONALITY (owl:NamedIndividual is required)
+        // custom (owl:NamedIndividual is required)
         OntModel m2 = OntModelFactory.createModel(m.getGraph(), personality);
         Assertions.assertEquals(2, m2.namedIndividuals().count());
         Assertions.assertEquals(3, m2.ontObjects(OntIndividual.class).count());
         Resource individual5 = m.createResource(ns + "inid5", c2);
         Assertions.assertEquals(3, m2.ontObjects(OntIndividual.class).count());
         Assertions.assertEquals(3, m2.individuals().count());
+        // no OneOf DR
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m2.createDataOneOf(m.createTypedLiteral(42)));
 
         OntDisjoint.Individuals disjoint2 = m2.createDifferentIndividuals(m2.ontObjects(OntIndividual.class)
                 .collect(Collectors.toList()));
@@ -312,8 +312,10 @@ public class PersonalityTest {
 
         Assertions.assertEquals(3, disjoint2.members().count());
 
-        // BACK TO STANDARD PERSONALITY
-        OntModel m3 = OntModelFactory.createModel(m2.getGraph(), TestOntPersonalities.OWL2_PERSONALITY_MEDIUM_PUNNS);
+        // back to standard personality
+        OntModel m3 = OntModelFactory.createModel(m2.getGraph(),
+                TestOntPersonalities.OWL2_PERSONALITY_MEDIUM_PUNNS
+        );
         Assertions.assertEquals(2, m3.namedIndividuals().count());
         Assertions.assertEquals(6, m3.ontObjects(OntIndividual.class).count());
         OntDisjoint.Individuals disjoint3 = m3.ontObjects(OntDisjoint.Individuals.class).findFirst()

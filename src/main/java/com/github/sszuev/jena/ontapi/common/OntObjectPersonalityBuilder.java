@@ -4,6 +4,7 @@ import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.enhanced.Implementation;
 import org.apache.jena.enhanced.Personality;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Property;
@@ -11,7 +12,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -26,23 +27,14 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("WeakerAccess")
 public class OntObjectPersonalityBuilder {
-    private final Map<Class<? extends OntObject>, Function<OntConfig, EnhNodeFactory>> factories;
+    private final Map<Class<? extends OntObject>, Function<OntConfig, EnhNodeFactory>> extFactories = new HashMap<>();
+    private final Map<Class<? extends RDFNode>, Implementation> stdFactories = new HashMap<>();
 
-    private final Personality<RDFNode> base;
     private String name;
     private OntPersonality.Punnings punnings;
     private OntPersonality.Builtins builtins;
     private OntPersonality.Reserved reserved;
     private OntConfig config;
-
-    public OntObjectPersonalityBuilder() {
-        this(new LinkedHashMap<>());
-    }
-
-    protected OntObjectPersonalityBuilder(Map<Class<? extends OntObject>, Function<OntConfig, EnhNodeFactory>> factories) {
-        this.factories = Objects.requireNonNull(factories);
-        this.base = new Personality<>();
-    }
 
     /**
      * Makes a full copy of the given {@link OntPersonality}
@@ -81,8 +73,9 @@ public class OntObjectPersonalityBuilder {
      * @return {@link OntObjectPersonalityBuilder}, a copy
      */
     public OntObjectPersonalityBuilder copy() {
-        OntObjectPersonalityBuilder res = new OntObjectPersonalityBuilder(new LinkedHashMap<>(this.factories));
-        res.addPersonality(base.copy());
+        OntObjectPersonalityBuilder res = new OntObjectPersonalityBuilder();
+        res.stdFactories.putAll(this.stdFactories);
+        res.extFactories.putAll(this.extFactories);
         res.setName(name);
         if (punnings != null) res.setPunnings(punnings);
         if (builtins != null) res.setBuiltins(builtins);
@@ -128,7 +121,19 @@ public class OntObjectPersonalityBuilder {
      * @return this builder
      */
     public OntObjectPersonalityBuilder add(Class<? extends OntObject> type, Function<OntConfig, EnhNodeFactory> factory) {
-        factories.put(type, factory);
+        extFactories.put(type, factory);
+        return this;
+    }
+
+    /**
+     * Removes object factory.
+     *
+     * @param type {@code Class}-type of {@link OntObject}
+     * @return this builder
+     */
+    public OntObjectPersonalityBuilder remove(Class<? extends OntObject> type) {
+        extFactories.remove(type);
+        stdFactories.remove(type);
         return this;
     }
 
@@ -140,7 +145,7 @@ public class OntObjectPersonalityBuilder {
      * @see Personality#add(Personality)
      */
     public OntObjectPersonalityBuilder addPersonality(Personality<RDFNode> from) {
-        this.base.add(Objects.requireNonNull(from));
+        stdFactories.putAll(new JenaPersonalityAccessor(from).getMap());
         return this;
     }
 
@@ -210,8 +215,9 @@ public class OntObjectPersonalityBuilder {
         OntPersonality.Punnings punnings = punnings();
         OntPersonality.Builtins builtins = builtins();
         OntPersonality.Reserved reserved = reserved();
-        OntPersonalityImpl res = new OntPersonalityImpl(name, base, config, punnings, builtins, reserved);
-        factories.forEach((type, factory) -> res.register(type, factory.apply(config)));
+        OntPersonalityImpl res = new OntPersonalityImpl(name, config, punnings, builtins, reserved);
+        stdFactories.forEach(res::add);
+        extFactories.forEach((type, factory) -> res.register(type, factory.apply(config)));
         return res;
     }
 
@@ -233,6 +239,18 @@ public class OntObjectPersonalityBuilder {
 
     private OntConfig config() {
         return Objects.requireNonNull(config, "No config is set");
+    }
+
+    private static class JenaPersonalityAccessor extends Personality<RDFNode> {
+
+        public JenaPersonalityAccessor(Personality<RDFNode> other) {
+            super(other);
+        }
+
+        @Override
+        protected Map<Class<? extends RDFNode>, Implementation> getMap() {
+            return super.getMap();
+        }
     }
 
 }

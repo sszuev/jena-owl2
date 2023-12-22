@@ -6,8 +6,12 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +29,11 @@ public class OntModelIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListIndividuals1(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
@@ -38,7 +46,11 @@ public class OntModelIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListIndividuals2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -52,7 +64,11 @@ public class OntModelIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListIndividuals3(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -66,7 +82,11 @@ public class OntModelIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListIndividuals4(TestSpec spec) {
         // For inference model
@@ -80,7 +100,11 @@ public class OntModelIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListIndividuals5(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -97,7 +121,11 @@ public class OntModelIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testListIndividuals6a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
@@ -124,6 +152,36 @@ public class OntModelIndividualsTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListIndividuals7(TestSpec spec) {
+        Model schema = ModelFactory.createDefaultModel();
+        Model data = ModelFactory.createDefaultModel();
+        Resource c = schema.createResource("http://example.com/foo#AClass");
+        Resource i = data.createResource("http://example.com/foo#anInd");
+        schema.add(c, org.apache.jena.vocabulary.RDF.type, org.apache.jena.vocabulary.OWL.Class);
+        data.add(i, org.apache.jena.vocabulary.RDF.type, c);
+
+        OntModel composite = OntModelFactory.createModel(schema.getGraph(), spec.inst);
+        Graph g = composite.getGraph();
+        UnionGraph ug = (UnionGraph) (g instanceof UnionGraph ? g : ((InfGraph) g).getRawGraph());
+        ug.addGraph(data.getGraph());
+
+        Assertions.assertEquals(
+                List.of("http://example.com/foo#anInd"),
+                composite.individuals().map(Resource::getURI).collect(Collectors.toList())
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testListIndividuals8(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -133,9 +191,9 @@ public class OntModelIndividualsTest {
         OntClass.Named c3 = m.createOntClass(NS + "C3");
 
         OntIndividual i1 = c0.createIndividual(NS + "I1");
-        OntIndividual i2 = m.createIndividual(NS + "I2");
-        OntIndividual i3 = m.createIndividual(NS + "I3");
-        OntIndividual i4 = m.createIndividual(NS + "I4");
+        OntIndividual i2 = m.createResource(NS + "I2", OWL.NamedIndividual).as(OntIndividual.class);
+        OntIndividual i3 = m.createResource(NS + "I3", OWL.NamedIndividual).as(OntIndividual.class);
+        OntIndividual i4 = m.createResource(NS + "I4", OWL.NamedIndividual).as(OntIndividual.class);
         OntIndividual i6 = c3.createIndividual();
         OntIndividual i5 = c1.createIndividual(NS + "I5");
 

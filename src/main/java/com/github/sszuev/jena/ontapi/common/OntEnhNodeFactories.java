@@ -37,7 +37,7 @@ public class OntEnhNodeFactories {
 
     public static EnhNodeFactory createFrom(EnhNodeFinder finder,
                                             Stream<Class<? extends OntObject>> types) {
-        return createMulti(Objects.requireNonNull(finder, "Null finder"), types.map(WrappedFactoryImpl::new));
+        return createMulti(Objects.requireNonNull(finder, "Null finder"), types.map(WrappedEnhNodeFactory::new));
     }
 
     public static EnhNodeFactory createFrom(EnhNodeFinder finder,

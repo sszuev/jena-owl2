@@ -45,7 +45,7 @@ public interface EnhNodeFactory {
         if (f instanceof Implementation) {
             return (Implementation) f;
         }
-        throw new OntJenaException.IllegalArgument("The given EnhNodeFactory is not an instance of Jena Implementation.");
+        return OntJenaException.TODO("The given EnhNodeFactory is not an instance of Jena Implementation.");
     }
 
     /**

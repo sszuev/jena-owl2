@@ -605,22 +605,35 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return {@link ExtendedIterator} of {@link OntIndividual}s
      */
     public ExtendedIterator<OntIndividual> listIndividuals() {
+        OntPersonality personality = getOntPersonality();
+        boolean isRDFS = OntPersonalities.isRDFS(personality);
+        if (!isRDFS && personality.getConfig().getBoolean(OntModelConfig.SUPPORTS_OWL_THING)) {
+            Model capabilities = getReasonerCapabilities();
+            if (capabilities != null &&
+                    capabilities.contains(null, ReasonerVocabulary.supportsP, ReasonerVocabulary.individualAsThingP)) {
+                return listStatements(null, RDF.type, OWL.Thing).mapWith(it -> it.getSubject().as(OntIndividual.class));
+            }
+        }
         return listIndividuals(this,
-                getOntPersonality().forbidden(OntClass.Named.class),
+                personality.forbidden(OntClass.Named.class),
                 getGraph().find(Node.ANY, RDF.Nodes.type, Node.ANY));
     }
 
     @Override
     public Stream<OntClass> hierarchyRoots() {
+        return Iterators.asStream(listHierarchyRoots(), Graphs.getSpliteratorCharacteristics(getGraph()));
+    }
+
+    public ExtendedIterator<OntClass> listHierarchyRoots() {
         if (getOntPersonality().getConfig().getBoolean(OntModelConfig.SUPPORTS_OWL_THING)) {
             Model capabilities = getReasonerCapabilities();
             if (capabilities != null && capabilities.contains(null, ReasonerVocabulary.supportsP, ReasonerVocabulary.directSubClassOf)) {
-                return statements(null, ReasonerVocabulary.directSubClassOf, OWL.Thing).map(it -> it.getSubject().as(OntClass.class));
+                return listStatements(null, ReasonerVocabulary.directSubClassOf, OWL.Thing).mapWith(it -> it.getSubject().as(OntClass.class));
             }
         }
-        return ontObjects(OntClass.class)
-                .filter(c -> !c.isURIResource() || !c.asNamed().isBuiltIn())
-                .filter(OntClass::isHierarchyRoot);
+        return listOntObjects(OntClass.class)
+                .filterKeep(c -> !c.isURIResource() || !c.asNamed().isBuiltIn())
+                .filterKeep(OntClass::isHierarchyRoot);
     }
 
     @Override

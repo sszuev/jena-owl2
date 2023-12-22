@@ -80,7 +80,7 @@ public interface OntPersonality {
      * returning {@code null} if there isn't one available.
      *
      * @param type a class-type of {@link OntObject}
-     * @return {@link EnhNodeFactory} a factory to create an instance of the given type
+     * @return {@link EnhNodeFactory} a factory to create an instance of the given type, not {@code null}
      */
     EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type);
 

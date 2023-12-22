@@ -31,22 +31,16 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     private final Map<Class<? extends OntObject>, Set<String>> forbidden;
 
     public OntPersonalityImpl(String name,
-                              Personality<RDFNode> other,
                               OntConfig config,
                               Punnings punnings,
                               Builtins builtins,
                               Reserved reserved) {
-        super(Objects.requireNonNull(other, "Null personalities"));
         this.name = name;
         this.config = Objects.requireNonNull(config, "Null config");
         this.builtins = Objects.requireNonNull(builtins, "Null builtins vocabulary");
         this.punnings = Objects.requireNonNull(punnings, "Null punnings vocabulary");
         this.reserved = Objects.requireNonNull(reserved, "Null reserved vocabulary");
         this.forbidden = collectForbiddenResources(reserved, builtins);
-    }
-
-    protected OntPersonalityImpl(OntPersonalityImpl other) {
-        this(other.getName(), other, other.getConfig(), other.getPunnings(), other.getBuiltins(), other.getReserved());
     }
 
     private static Map<Class<? extends OntObject>, Set<String>> collectForbiddenResources(Reserved reserved, Builtins builtins) {
@@ -100,7 +94,11 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
      * @param factory Factory to crete object
      */
     public void register(Class<? extends OntObject> type, EnhNodeFactory factory) {
-        super.add(Objects.requireNonNull(type, "Null type."), EnhNodeFactory.asJenaImplementation(factory));
+        register(type, EnhNodeFactory.asJenaImplementation(factory));
+    }
+
+    public void register(Class<? extends RDFNode> type, Implementation factory) {
+        super.add(Objects.requireNonNull(type, "Null type."), factory);
     }
 
     /**
@@ -125,13 +123,16 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
      */
     @Override
     public EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type) {
-        EnhNodeFactory res = (EnhNodeFactory) getImplementation(type);
-        if (res != null) {
-            return res;
+        Implementation implementation = getImplementation(type);
+        if (implementation == null) {
+            throw new OntJenaException.Unsupported(
+                    "Profile " + name + " does not support language construct " + OntEnhNodeFactories.viewAsString(type)
+            );
         }
-        throw new OntJenaException.Unsupported(
-                "Profile " + name + " does not support language construct " + OntEnhNodeFactories.viewAsString(type)
-        );
+        if (implementation instanceof EnhNodeFactory) {
+            return (EnhNodeFactory) implementation;
+        }
+        return OntJenaException.TODO("Not implemented yet");
     }
 
     @Override
@@ -147,7 +148,9 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
 
     @Override
     public OntPersonalityImpl copy() {
-        return new OntPersonalityImpl(this);
+        OntPersonalityImpl res = new OntPersonalityImpl(getName(), getConfig(), getPunnings(), getBuiltins(), getReserved());
+        res.add(this);
+        return res;
     }
 
 }

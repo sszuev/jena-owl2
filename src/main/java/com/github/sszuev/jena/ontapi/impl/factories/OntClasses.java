@@ -10,7 +10,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
-import com.github.sszuev.jena.ontapi.common.WrappedFactoryImpl;
+import com.github.sszuev.jena.ontapi.common.WrappedEnhNodeFactory;
 import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleClassImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -188,7 +188,7 @@ final class OntClasses {
 
         RestrictionType(Class<? extends OntProperty> type) {
             this.type = type;
-            this.propertyFactory = WrappedFactoryImpl.of(type);
+            this.propertyFactory = WrappedEnhNodeFactory.of(type);
         }
 
         @Override
@@ -287,8 +287,8 @@ final class OntClasses {
                 (n, g) -> new OntClassImpl.OnPropertyRestrictionImpl<>(n, g, OntRealProperty.class);
         private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_RESTRICTION_PRODUCER = OntClassImpl.RestrictionImpl::new;
 
-        protected final EnhNodeFactory objectPropertyFactory = WrappedFactoryImpl.of(OntObjectProperty.class);
-        protected final EnhNodeFactory dataPropertyFactory = WrappedFactoryImpl.of(OntDataProperty.class);
+        protected final EnhNodeFactory objectPropertyFactory = WrappedEnhNodeFactory.of(OntObjectProperty.class);
+        protected final EnhNodeFactory dataPropertyFactory = WrappedEnhNodeFactory.of(OntDataProperty.class);
 
         private final boolean withGenericClass;
         private final boolean withGenericRestriction;
@@ -714,7 +714,7 @@ final class OntClasses {
             }
 
             EnhNodeFactory factory() {
-                return WrappedFactoryImpl.of(type);
+                return WrappedEnhNodeFactory.of(type);
             }
 
             @Override
