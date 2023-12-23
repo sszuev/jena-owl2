@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.vocabulary.OWL;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -62,6 +63,26 @@ public class OntModelHierarchyRootsTest {
         Assertions.assertEquals(List.of(), m.hierarchyRoots().collect(Collectors.toList()));
     }
 
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testListHierarchyRoots1c(TestSpec spec) {
+        String doc =
+                "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>. "
+                        + "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>. "
+                        + "@prefix xsd: <http://www.w3.org/2001/XMLSchema#>. "
+                        + "@prefix owl: <http://www.w3.org/2002/07/owl#>. "
+                        + "@prefix : <" + NS + ">. "
+                        + ":A a owl:Class. ";
+
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        m.read(new StringReader(doc), NS, "N3");
+        // in RDFS vocabulary, there is no owl:Class, so `owl:Class rdf:type rdfs:Class` is a declaration of a valid OntClass
+        Assertions.assertEquals(List.of(OWL.Class), m.hierarchyRoots().collect(Collectors.toList()));
+    }
+
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
@@ -109,6 +130,27 @@ public class OntModelHierarchyRootsTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testListHierarchyRoots2c(TestSpec spec) {
+        String doc =
+                "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>. "
+                        + "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>. "
+                        + "@prefix xsd: <http://www.w3.org/2001/XMLSchema#>. "
+                        + "@prefix owl: <http://www.w3.org/2002/07/owl#>. "
+                        + "@prefix : <" + NS + ">. "
+                        + ":A a owl:Class. "
+                        + ":B a owl:Class ; rdfs:subClassOf :A . ";
+
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        m.read(new StringReader(doc), NS, "N3");
+        Resource A = m.getResource(NS + "A");
+        // in RDFS vocabulary, there is no owl:Class, so `owl:Class rdf:type rdfs:Class` is a declaration of a valid OntClass
+        Assertions.assertEquals(Set.of(A, OWL.Class), m.hierarchyRoots().collect(Collectors.toSet()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
             "OWL2_MEM_RDFS_INF",
@@ -136,6 +178,7 @@ public class OntModelHierarchyRootsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListHierarchyRoots3b(TestSpec spec) {
         String doc =

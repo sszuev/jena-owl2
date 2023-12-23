@@ -190,6 +190,36 @@ public class OntClassSuperClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testListSuperClasses3d(TestSpec spec) {
+        // B = C
+        //  \ |
+        //    A
+
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> directC = superClasses(m, "C", true);
+
+        Set<String> indirectA = superClasses(m, "A");
+        Set<String> indirectB = superClasses(m, "B", false);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        String RT = spec == TestSpec.RDFS_MEM_RDFS_INF ? "Resource" : "Thing";
+
+        Assertions.assertEquals(Set.of("B", "C"), directA);
+        Assertions.assertEquals(Set.of(RT), directB);
+        Assertions.assertEquals(Set.of(RT), directC);
+
+        Assertions.assertEquals(Set.of("B", "C", RT), indirectA);
+        Assertions.assertEquals(Set.of("C", RT), indirectB);
+        Assertions.assertEquals(Set.of("B", RT), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
@@ -426,5 +456,53 @@ public class OntClassSuperClassesTest {
         Assertions.assertEquals(Set.of(), indirectD);
         Assertions.assertEquals(Set.of("D", "F"), indirectE);
         Assertions.assertEquals(Set.of("D"), indirectF);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testListSuperClasses8g(TestSpec spec) {
+        //    D
+        //  /  \
+        // B    F
+        // |    |
+        // C    E
+        //  \  /
+        //    A
+
+        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
+
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B", false);
+
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
+
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E", false);
+
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
+
+        Assertions.assertEquals(Set.of("C", "E"), directA);
+        Assertions.assertEquals(Set.of("D"), directB);
+        Assertions.assertEquals(Set.of("B"), directC);
+        Assertions.assertEquals(Set.of("Resource"), directD);
+        Assertions.assertEquals(Set.of("F"), directE);
+        Assertions.assertEquals(Set.of("D"), directF);
+
+        Assertions.assertEquals(Set.of("B", "C", "D", "E", "F", "Resource"), indirectA);
+        Assertions.assertEquals(Set.of("D", "Resource"), indirectB);
+        Assertions.assertEquals(Set.of("B", "D", "Resource"), indirectC);
+        Assertions.assertEquals(Set.of("Resource"), indirectD);
+        Assertions.assertEquals(Set.of("D", "F", "Resource"), indirectE);
+        Assertions.assertEquals(Set.of("D", "Resource"), indirectF);
     }
 }

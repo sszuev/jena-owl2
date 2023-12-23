@@ -632,8 +632,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                 return listStatements(null, ReasonerVocabulary.directSubClassOf, OWL.Thing).mapWith(it -> it.getSubject().as(OntClass.class));
             }
         }
+        Set<Node> reserved = getOntPersonality().getReserved().getAllResources();
         return listOntObjects(OntClass.class)
-                .filterKeep(c -> !c.isURIResource() || !c.asNamed().isBuiltIn())
+                .filterDrop(c -> reserved.contains(c.asNode()))
                 .filterKeep(OntClass::isHierarchyRoot);
     }
 

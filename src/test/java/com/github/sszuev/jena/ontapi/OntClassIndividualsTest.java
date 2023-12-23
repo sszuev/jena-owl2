@@ -57,8 +57,9 @@ public class OntClassIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
-    public void testListInstances1(TestSpec spec) {
+    public void testListIndividuals1(TestSpec spec) {
         //      A
         //     / \
         //    B   C
@@ -98,7 +99,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
-    public void testListInstances2(TestSpec spec) {
+    public void testListIndividuals2(TestSpec spec) {
         //      A
         //     / \
         //    B   C
@@ -135,8 +136,9 @@ public class OntClassIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
-    public void testListInstances3a(TestSpec spec) {
+    public void testListIndividuals3a(TestSpec spec) {
         //     A
         //   /  / \
         //  /  B   C
@@ -217,7 +219,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
-    public void testListInstances3b(TestSpec spec) {
+    public void testListIndividuals3b(TestSpec spec) {
         //     A
         //   /  / \
         //  /  B   C
@@ -247,6 +249,7 @@ public class OntClassIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListIndividuals4a(TestSpec spec) {
         // B = C
@@ -317,6 +320,7 @@ public class OntClassIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListIndividuals5a(TestSpec spec) {
         //     D
@@ -403,6 +407,7 @@ public class OntClassIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListIndividuals6a(TestSpec spec) {
         //      A
@@ -581,6 +586,7 @@ public class OntClassIndividualsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListIndividuals7b(TestSpec spec) {
         //  A   B

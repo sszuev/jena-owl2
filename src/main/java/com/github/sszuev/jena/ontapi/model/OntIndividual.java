@@ -97,7 +97,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
      * @return {@link Optional} wrapping {@code OntClass}
      */
     default Optional<OntClass> ontClass() {
-        try (Stream<OntClass> classes = classes(false)) {
+        try (Stream<OntClass> classes = objects(RDF.type, OntClass.class)) {
             return classes.findFirst();
         }
     }

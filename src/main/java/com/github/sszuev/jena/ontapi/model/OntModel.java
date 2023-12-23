@@ -539,6 +539,7 @@ public interface OntModel extends Model,
     /**
      * Answers a {@code Stream} over the classes in this ontology model
      * that represent the uppermost nodes of the class hierarchy.
+     * Built-ins are not included.
      *
      * @return a {@code Stream} of the root {@link OntClass classes} in the local class hierarchy
      */

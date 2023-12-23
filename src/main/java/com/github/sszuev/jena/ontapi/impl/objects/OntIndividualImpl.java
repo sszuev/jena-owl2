@@ -22,6 +22,7 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,10 +68,11 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
                 return getModel().contains(this, reasonerProperty, clazz);
             }
         }
+        AtomicBoolean isIndividual = new AtomicBoolean(true);
         return HierarchySupport.contains(
                 this,
                 (OntObject) clazz,
-                it -> (Stream<OntObject>) ((Stream<?>) explicit(it)),
+                it -> (Stream<OntObject>) ((Stream<?>) listClassesFor(it, isIndividual)),
                 direct,
                 configValue(getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
@@ -93,16 +95,18 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
                 return individual.objects(reasonerProperty, OntClass.class);
             }
         }
+        AtomicBoolean isIndividual = new AtomicBoolean(true);
         Stream<?> res = HierarchySupport.treeNodes(individual,
-                it -> (Stream<OntObject>) ((Stream<?>) explicit(it)),
+                it -> (Stream<OntObject>) ((Stream<?>) listClassesFor(it, isIndividual)),
                 direct,
                 configValue(individual.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
         return (Stream<OntClass>) res;
     }
 
-    static Stream<OntClass> explicit(OntObject resource) {
-        if (resource.canAs(OntIndividual.class)) {
+    static Stream<OntClass> listClassesFor(OntObject resource, AtomicBoolean isFirstLevel) {
+        if (isFirstLevel.get()) {
+            isFirstLevel.set(false);
             return resource.objects(RDF.type, OntClass.class);
         }
         return resource.objects(RDFS.subClassOf, OntClass.class);

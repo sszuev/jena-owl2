@@ -163,6 +163,28 @@ public class OntModelPropertiesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testListAllOntProperties2c(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test.rdf", Lang.RDFXML
+        );
+        Assertions.assertEquals(15, m.properties().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM",
+    })
+    public void testListAllOntProperties2d(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test.rdf", Lang.RDFXML
+        );
+        Assertions.assertEquals(1, m.properties().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
             "OWL2_MEM_RDFS_INF",
