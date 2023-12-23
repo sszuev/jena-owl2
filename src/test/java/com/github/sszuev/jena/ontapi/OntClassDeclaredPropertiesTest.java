@@ -90,6 +90,7 @@ public class OntClassDeclaredPropertiesTest {
             "OWL1_MEM_TRANS_INF",
             "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListDeclaredProperties2(TestSpec spec) {
         //    D
@@ -243,6 +244,7 @@ public class OntClassDeclaredPropertiesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+
     })
     public void testListDeclaredProperties5a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -266,6 +268,7 @@ public class OntClassDeclaredPropertiesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListDeclaredProperties5b(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -467,6 +470,7 @@ public class OntClassDeclaredPropertiesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testHasDeclaredProperties3b(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(

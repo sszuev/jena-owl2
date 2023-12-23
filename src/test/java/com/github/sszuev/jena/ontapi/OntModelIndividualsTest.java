@@ -233,7 +233,7 @@ public class OntModelIndividualsTest {
 
         List<OntIndividual> individuals = m.individuals().collect(Collectors.toList());
 
-        int expectedNumOfIndividuals = 2;
+        int expectedNumOfIndividuals = spec == TestSpec.RDFS_MEM_RDFS_INF ? 4 : 2;
         Assertions.assertEquals(expectedNumOfIndividuals, individuals.size());
     }
 }

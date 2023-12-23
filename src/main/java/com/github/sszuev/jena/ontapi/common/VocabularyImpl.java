@@ -99,11 +99,16 @@ abstract class VocabularyImpl<T extends Resource> implements Vocabulary<T> {
 
     static class ReservedIml extends VocabularyImpl<Resource> implements OntPersonality.Reserved {
         private final Map<String, Set<Node>> nodes = new HashMap<>();
-        private Set<Node> resources;
-        private Set<Node> properties;
+        private final Set<Node> resources;
+        private final Set<Node> properties;
+        private final Set<Node> allResources;
 
         ReservedIml(Map<Class<? extends Resource>, Set<Node>> map) {
             super(map);
+            this.properties = get(Property.class);
+            this.resources = get(Resource.class);
+            this.allResources = Stream.of(properties, resources)
+                    .flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
         }
 
         @Override
@@ -113,12 +118,17 @@ abstract class VocabularyImpl<T extends Resource> implements Vocabulary<T> {
 
         @Override
         public Set<Node> getResources() {
-            return resources == null ? resources = get(Resource.class) : resources;
+            return resources;
         }
 
         @Override
         public Set<Node> getProperties() {
-            return properties == null ? properties = get(Property.class) : properties;
+            return properties;
+        }
+
+        @Override
+        public Set<Node> getAllResources() {
+            return allResources;
         }
     }
 }

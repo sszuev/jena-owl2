@@ -412,7 +412,7 @@ public class OntPersonalities {
         Map<Class<? extends Resource>, Set<Node>> res = new HashMap<>();
         res.put(Resource.class, ModelUtils.asUnmodifiableNodeSet(voc.getSystemResources()));
         res.put(Property.class, ModelUtils.asUnmodifiableNodeSet(voc.getSystemProperties()));
-        return new VocabularyImpl.ReservedIml(res);
+        return new VocabularyImpl.ReservedIml(Map.copyOf(res));
     }
 
     /**
@@ -438,7 +438,7 @@ public class OntPersonalities {
         }
         OntEntity.TYPES.forEach(t -> res.computeIfAbsent(t, k -> Collections.emptySet()));
         //return type -> fromMap(res, type);
-        return new VocabularyImpl.BuiltinsImpl(res);
+        return new VocabularyImpl.BuiltinsImpl(Map.copyOf(res));
     }
 
     @SafeVarargs

@@ -32,6 +32,14 @@ public class OntSpecification {
                     .setConfig(OntPersonalities.OWL1_CONFIG)
                     .build();
 
+    private static final OntPersonality RDFS_PERSONALITY =
+            OntPersonalities.RDFS_ONT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.RDFS_BUILTINS)
+                    .setReserved(OntPersonalities.RDFS_RESERVED)
+                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setConfig(OntPersonalities.RDFS_CONFIG)
+                    .build();
+
     /**
      * A specification for Ontology models that are stored in memory
      * and use fast but incomplete builtin OWL inference engine for additional entailments
@@ -109,18 +117,22 @@ public class OntSpecification {
     );
 
     /**
+     * A specification for RDFS ontology models that are stored in memory
+     * and use the RDFS inferencer for additional entailments
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM_RDFS_INF
+     */
+    public static final OntSpecification RDFS_MEM_RDFS_INF = new OntSpecification(
+            RDFS_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+    );
+
+    /**
      * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
      *
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
      */
     public static final OntSpecification RDFS_MEM = new OntSpecification(
-            OntPersonalities.RDFS_ONT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.RDFS_BUILTINS)
-                    .setReserved(OntPersonalities.RDFS_RESERVED)
-                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
-                    .setConfig(OntPersonalities.RDFS_CONFIG)
-                    .build(),
-            null
+            RDFS_PERSONALITY, null
     );
 
     private final OntPersonality personality;

@@ -187,8 +187,10 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static boolean testDomain(OntClass clazz, OntProperty property, boolean direct) {
-        if (property.isURIResource() && OntEnhGraph.asPersonalityModel(clazz.getModel()).getOntPersonality()
-                .getBuiltins().getOntProperties().contains(property.asNode())) {
+        if (property.isURIResource()
+                && OntEnhGraph.asPersonalityModel(clazz.getModel()).getOntPersonality()
+                .getReserved().getProperties().contains(property.asNode())
+        ) {
             return false;
         }
         AtomicBoolean isGlobal = new AtomicBoolean(true);

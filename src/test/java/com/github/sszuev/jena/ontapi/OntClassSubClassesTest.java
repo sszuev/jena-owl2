@@ -40,10 +40,20 @@ public class OntClassSubClassesTest {
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
     })
-    public void testSubClassNE(TestSpec spec) {
+    public void testSubClass0a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass a = m.createOntClass(NS + "A");
         Assertions.assertTrue(a.subClass().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testSubClass0b(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntClass a = m.createOntClass(NS + "A");
+        Assertions.assertEquals(a, a.subClass().orElseThrow());
     }
 
     @ParameterizedTest
@@ -56,6 +66,7 @@ public class OntClassSubClassesTest {
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses1a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -102,6 +113,7 @@ public class OntClassSubClassesTest {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses3a(TestSpec spec) {
         //      A
@@ -275,6 +287,7 @@ public class OntClassSubClassesTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses4b(TestSpec spec) {
         //      A
@@ -401,6 +414,7 @@ public class OntClassSubClassesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses6a(TestSpec spec) {
         // B = C
@@ -465,6 +479,7 @@ public class OntClassSubClassesTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses7b(TestSpec spec) {
         //    A
@@ -535,6 +550,7 @@ public class OntClassSubClassesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses8a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -586,6 +602,7 @@ public class OntClassSubClassesTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses9a(TestSpec spec) {
         //  A   B
@@ -780,6 +797,7 @@ public class OntClassSubClassesTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses10b(TestSpec spec) {
         //      A       B
@@ -890,6 +908,7 @@ public class OntClassSubClassesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
     })
     public void testListSubClasses11a(TestSpec spec) {
         //    A

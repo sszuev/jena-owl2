@@ -6,7 +6,6 @@ import org.apache.jena.enhanced.Implementation;
 import org.apache.jena.enhanced.Personality;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
 
     private static Map<Class<? extends OntObject>, Set<String>> collectForbiddenResources(Reserved reserved, Builtins builtins) {
         Map<Class<? extends OntObject>, Set<String>> forbidden = new HashMap<>();
-        Set<Node> reservedResources = reserved.get(Resource.class);
+        Set<Node> reservedResources = reserved.getAllResources();
         builtins.supportedTypes().forEach(type -> {
             Set<Node> allowedResources = builtins.get(type);
             Set<String> forbiddenResources = reservedResources.stream()

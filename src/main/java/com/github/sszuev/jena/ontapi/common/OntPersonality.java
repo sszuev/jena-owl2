@@ -21,9 +21,11 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -214,6 +216,8 @@ public interface OntPersonality {
          * @param loader {@code Supplier} to construct a Set of {@link Node}s for a given {@code key}
          * @return Set of IRI-{@link Node node}s
          */
+        @Deprecated
+        // must not be modifiable
         Set<Node> get(String key, Supplier<Set<Node>> loader);
 
         /**
@@ -233,6 +237,14 @@ public interface OntPersonality {
         default Set<Node> getProperties() {
             return get(Property.class);
         }
+
+        /**
+         * Resources + Properties
+         */
+        default Set<Node> getAllResources() {
+            return Stream.of(getResources(), getProperties()).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
+        }
+
     }
 
     /**

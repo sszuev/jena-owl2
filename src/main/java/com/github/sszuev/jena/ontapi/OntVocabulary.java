@@ -295,7 +295,16 @@ public interface OntVocabulary {
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
             protected RDFSImpl() {
-                super(ANNOTATION_PROPERTIES, null, null, Set.of(RDFS.Resource), null, null, PROPERTIES, RESOURCES);
+                super(
+                        /* annotation properties */ ANNOTATION_PROPERTIES,
+                        /* datatype properties */ null,
+                        /* object properties */ null,
+                        /* named classes */ null,
+                        /* datatypes */ null,
+                        /* swrl */ null,
+                        /* system properties */ PROPERTIES,
+                        /* system resources */ RESOURCES
+                );
             }
         }
 
@@ -334,8 +343,7 @@ public interface OntVocabulary {
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
             protected OWLImpl() {
-                super(ANNOTATION_PROPERTIES, DATA_PROPERTIES, OBJECT_PROPERTIES,
-                        CLASSES, DATATYPES, null, PROPERTIES, RESOURCES);
+                super(ANNOTATION_PROPERTIES, DATA_PROPERTIES, OBJECT_PROPERTIES, CLASSES, DATATYPES, null, PROPERTIES, RESOURCES);
             }
 
             private static Set<RDFDatatype> initBuiltInRDFDatatypes(TypeMapper types) {
@@ -354,7 +362,16 @@ public interface OntVocabulary {
             public static final Set<Property> ALL_PROPERTIES = getConstants(Property.class, DC.class);
 
             protected DCImpl() {
-                super(ALL_PROPERTIES, null, null, null, null, null, ALL_PROPERTIES, null);
+                super(
+                        /* annotation properties */ ALL_PROPERTIES,
+                        /* datatype properties */ null,
+                        /* object properties */ null,
+                        /* named classes */ null,
+                        /* datatypes */ null,
+                        /* swrl */ null,
+                        /* system properties */ ALL_PROPERTIES,
+                        /* system resources */ null
+                );
             }
         }
 
@@ -385,7 +402,16 @@ public interface OntVocabulary {
 
 
             protected SKOSImpl() {
-                super(ANNOTATION_PROPERTIES, null, OBJECT_PROPERTIES, CLASSES, null, null, PROPERTIES, RESOURCES);
+                super(
+                        /* annotation properties */ ANNOTATION_PROPERTIES,
+                        /* datatype properties */ null,
+                        /* object properties */ OBJECT_PROPERTIES,
+                        /* named classes */ CLASSES,
+                        /* datatypes */ null,
+                        /* swrl */ null,
+                        /* system properties */ PROPERTIES,
+                        /* system resources */ RESOURCES
+                );
             }
         }
 
@@ -402,7 +428,16 @@ public interface OntVocabulary {
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
             protected SWRLImpl() {
-                super(null, null, null, null, null, BUILTINS, PROPERTIES, RESOURCES);
+                super(
+                        /* annotation properties */ null,
+                        /* datatype properties */ null,
+                        /* object properties */ null,
+                        /* named classes */ null,
+                        /* datatypes */ null,
+                        /* swrl */ BUILTINS,
+                        /* system properties */ PROPERTIES,
+                        /* system resources */ RESOURCES
+                );
             }
         }
 
@@ -414,14 +449,16 @@ public interface OntVocabulary {
 
             private Impl(Set<Property> properties,
                          Set<Resource> resources) {
-                this(null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        properties,
-                        resources);
+                this(
+                        /* annotation properties */ null,
+                        /* datatype properties */ null,
+                        /* object properties */ null,
+                        /* named classes */ null,
+                        /* datatypes */ null,
+                        /* swrl */ null,
+                        /* system properties */ properties,
+                        /* system resources */ resources
+                );
             }
 
             protected Impl(Set<Property> annotationProperties,
