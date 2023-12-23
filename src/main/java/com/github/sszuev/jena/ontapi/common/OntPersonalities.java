@@ -79,8 +79,7 @@ public class OntPersonalities {
             .setFalse(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setFalse(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
-            .setFalse(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS)
-            .setTrue(OntModelConfig.SUPPORTS_OWL_THING);
+            .setFalse(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
@@ -88,14 +87,12 @@ public class OntPersonalities {
             .setTrue(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setTrue(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
-            .setTrue(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS)
-            .setTrue(OntModelConfig.SUPPORTS_OWL_THING);
+            .setTrue(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
             .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
-            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setFalse(OntModelConfig.SUPPORTS_OWL_THING);
+            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
 
     /**
      * Standard resources. Private access since this constant is mutable.
@@ -360,10 +357,17 @@ public class OntPersonalities {
     }
 
     /**
-     * @return {@code true} if the specified {@link OntPersonality} has name "RDFS".
+     * @return {@code true} if the specified {@link OntPersonality} has name "RDFS"
      */
     public static boolean isRDFS(OntPersonality personality) {
         return personality.getName() != null && personality.getName().startsWith("RDFS");
+    }
+
+    /**
+     * @return {@code true} if the specified {@link OntPersonality} supports {@code owl:Thing}
+     */
+    public static boolean supportsOWLThing(OntPersonality personality) {
+        return personality.getBuiltins().getNamedClasses().contains(OWL.Thing.asNode());
     }
 
     /**

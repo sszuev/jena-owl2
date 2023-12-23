@@ -607,7 +607,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public ExtendedIterator<OntIndividual> listIndividuals() {
         OntPersonality personality = getOntPersonality();
         boolean isRDFS = OntPersonalities.isRDFS(personality);
-        if (!isRDFS && personality.getConfig().getBoolean(OntModelConfig.SUPPORTS_OWL_THING)) {
+        boolean withOWLThing = OntPersonalities.supportsOWLThing(personality);
+        if (!isRDFS && withOWLThing) {
             Model capabilities = getReasonerCapabilities();
             if (capabilities != null &&
                     capabilities.contains(null, ReasonerVocabulary.supportsP, ReasonerVocabulary.individualAsThingP)) {
@@ -625,7 +626,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     }
 
     public ExtendedIterator<OntClass> listHierarchyRoots() {
-        if (getOntPersonality().getConfig().getBoolean(OntModelConfig.SUPPORTS_OWL_THING)) {
+        if (OntPersonalities.supportsOWLThing(getOntPersonality())) {
             Model capabilities = getReasonerCapabilities();
             if (capabilities != null && capabilities.contains(null, ReasonerVocabulary.supportsP, ReasonerVocabulary.directSubClassOf)) {
                 return listStatements(null, ReasonerVocabulary.directSubClassOf, OWL.Thing).mapWith(it -> it.getSubject().as(OntClass.class));
