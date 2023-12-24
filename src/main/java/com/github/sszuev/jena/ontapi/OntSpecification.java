@@ -117,8 +117,17 @@ public class OntSpecification {
     );
 
     /**
+     * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
+     */
+    public static final OntSpecification RDFS_MEM = new OntSpecification(
+            RDFS_PERSONALITY, null
+    );
+
+    /**
      * A specification for RDFS ontology models that are stored in memory
-     * and use the RDFS inferencer for additional entailments
+     * and use the RDFS inferencer for additional entailments/
      *
      * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM_RDFS_INF
      */
@@ -127,13 +136,15 @@ public class OntSpecification {
     );
 
     /**
-     * A specification for RDFS models that are stored in memory and do no additional entailment reasoning.
+     * A specification for RDFS ontology models that are stored in memory
+     * and use the transitive reasoner for entailments.
      *
-     * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM
+     * @see org.apache.jena.ontology.OntModelSpec#RDFS_MEM_TRANS_INF
      */
-    public static final OntSpecification RDFS_MEM = new OntSpecification(
-            RDFS_PERSONALITY, null
+    public static final OntSpecification RDFS_MEM_TRANS_INF = new OntSpecification(
+            RDFS_PERSONALITY, TransitiveReasonerFactory.theInstance()
     );
+
 
     private final OntPersonality personality;
     private final ReasonerFactory reasonerFactory;

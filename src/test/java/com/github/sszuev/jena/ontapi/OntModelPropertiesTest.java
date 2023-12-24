@@ -175,6 +175,7 @@ public class OntModelPropertiesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListAllOntProperties2d(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -199,6 +200,54 @@ public class OntModelPropertiesTest {
                         OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-with-import.rdf", Lang.RDFXML
                 ));
         Assertions.assertEquals(44, m.properties().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testListOntProperties4b(TestSpec spec) {
+        testListOntProperties4(spec, 15, 15);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL1_MEM",
+            "OWL2_MEM_TRANS_INF",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListOntProperties4c(TestSpec spec) {
+        testListOntProperties4(spec, 5, 5);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
+    })
+    public void testListOntProperties4d(TestSpec spec) {
+        testListOntProperties4(spec, 19, 19);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
+    })
+    public void testListOntProperties4e(TestSpec spec) {
+        testListOntProperties4(spec, 1, 1);
+    }
+
+    private void testListOntProperties4(TestSpec spec, int expected1, int expected2) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-with-import.rdf", Lang.RDFXML
+        );
+        int actual1 = (int) m.properties().count();
+        int actual2 = (int) m.properties().distinct().count();
+        Assertions.assertEquals(expected1, actual1);
+        Assertions.assertEquals(expected2, actual2);
     }
 
 }

@@ -37,6 +37,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testRemoveIndividual(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst)
@@ -98,6 +99,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals2(TestSpec spec) {
         //      A
@@ -218,6 +220,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals3b(TestSpec spec) {
         //     A
@@ -286,6 +289,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals4b(TestSpec spec) {
         // B = C
@@ -365,6 +369,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals5b(TestSpec spec) {
         //     D
@@ -468,6 +473,7 @@ public class OntClassIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals6b(TestSpec spec) {
         //      A
@@ -646,6 +652,7 @@ public class OntClassIndividualsTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals7c(TestSpec spec) {
         //  A   B

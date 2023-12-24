@@ -39,8 +39,9 @@ public class OntClassSubClassesTest {
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
-    public void testSubClass0a(TestSpec spec) {
+    public void testGetSubClass1a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass a = m.createOntClass(NS + "A");
         Assertions.assertTrue(a.subClass().isEmpty());
@@ -50,7 +51,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "RDFS_MEM_RDFS_INF",
     })
-    public void testSubClass0b(TestSpec spec) {
+    public void testGetSubClass1b(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass a = m.createOntClass(NS + "A");
         Assertions.assertEquals(a, a.subClass().orElseThrow());
@@ -67,6 +68,7 @@ public class OntClassSubClassesTest {
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
             "RDFS_MEM_RDFS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSubClasses1a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -513,6 +515,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSubClasses7c(TestSpec spec) {
         //    A
@@ -576,6 +579,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSubClasses8b(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -696,6 +700,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSubClasses9c(TestSpec spec) {
         //  A   B
@@ -851,6 +856,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSubClasses10c(TestSpec spec) {
         //      A       B
@@ -938,6 +944,7 @@ public class OntClassSubClassesTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSubClasses11b(TestSpec spec) {
         //    A

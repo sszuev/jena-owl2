@@ -54,6 +54,7 @@ public class OntClassHierarchyRootTest {
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
             "RDFS_MEM_RDFS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testIsHierarchyRoot4(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -136,6 +137,7 @@ public class OntClassHierarchyRootTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testIsHierarchyRoot7(TestSpec spec) {
         // D        G
@@ -209,6 +211,7 @@ public class OntClassHierarchyRootTest {
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM_RDFS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testIsHierarchyRoot9(TestSpec spec) {
         //     A

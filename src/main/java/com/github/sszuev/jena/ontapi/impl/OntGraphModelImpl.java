@@ -349,22 +349,26 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public OntID getID() {
+        checkType(OntID.class);
         return getNodeAs(Graphs.ontologyNode(getBaseGraph())
                 .orElseGet(() -> createResource(OWL.Ontology).asNode()), OntID.class);
     }
 
     @Override
     public Optional<OntID> id() {
+        checkType(OntID.class);
         return Graphs.ontologyNode(getBaseGraph()).map(x -> getNodeAs(x, OntID.class));
     }
 
     @Override
     public OntID setID(String uri) {
+        checkType(OntID.class);
         return getNodeAs(createOntologyID(getBaseModel(), uri).asNode(), OntID.class);
     }
 
     @Override
     public OntGraphModelImpl addImport(OntModel m) {
+        checkType(OntID.class);
         if (Objects.requireNonNull(m, "Null model specified.").getID().isAnon()) {
             throw new OntJenaException.IllegalArgument("Anonymous sub models are not allowed.");
         }

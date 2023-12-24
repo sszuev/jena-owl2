@@ -36,6 +36,7 @@ public class OntClassSuperClassesTest {
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testSuperClassNE(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -163,6 +164,7 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSuperClasses3c(TestSpec spec) {
         // B = C
@@ -305,6 +307,7 @@ public class OntClassSuperClassesTest {
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSuperClasses6a(TestSpec spec) {
         //     D
@@ -346,6 +349,7 @@ public class OntClassSuperClassesTest {
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSuperClasses7a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -413,6 +417,7 @@ public class OntClassSuperClassesTest {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListSuperClasses8b(TestSpec spec) {
         //    D

@@ -12,6 +12,7 @@ package com.github.sszuev.jena.ontapi;
         "OWL1_MEM_TRANS_INF",
         "RDFS_MEM",
         "RDFS_MEM_RDFS_INF",
+        "RDFS_MEM_TRANS_INF",
 })
 */
 @SuppressWarnings("unused")
@@ -25,6 +26,7 @@ public enum TestSpec {
     OWL1_MEM_TRANS_INF(OntSpecification.OWL1_MEM_TRANS_INF),
     RDFS_MEM(OntSpecification.RDFS_MEM),
     RDFS_MEM_RDFS_INF(OntSpecification.RDFS_MEM_RDFS_INF),
+    RDFS_MEM_TRANS_INF(OntSpecification.RDFS_MEM_TRANS_INF),
     ;
     public final OntSpecification inst;
 

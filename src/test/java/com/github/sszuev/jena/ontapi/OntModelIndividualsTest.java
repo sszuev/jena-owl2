@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,8 +51,8 @@ public class OntModelIndividualsTest {
             "OWL2_MEM_RDFS_INF",
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
-            "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListIndividuals2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -69,6 +71,8 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals3(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -87,6 +91,8 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals4(TestSpec spec) {
         // For inference model
@@ -141,11 +147,43 @@ public class OntModelIndividualsTest {
     @ParameterizedTest
     @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListIndividuals6c(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
                 "/list-syntax-categories-test-comps.rdf", Lang.RDFXML);
         Assertions.assertEquals(0, m.individuals().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM_RDFS_INF",
+    })
+    public void testListIndividuals6d(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
+                "/list-syntax-categories-test-comps.rdf", Lang.RDFXML);
+        Assertions.assertEquals(
+                Arrays.asList(
+                        null, null, null,
+                        "urn:x-hp:eg/Bundle",
+                        "urn:x-hp:eg/Computer",
+                        "urn:x-hp:eg/DTPGraphics",
+                        "urn:x-hp:eg/GameBundle",
+                        "urn:x-hp:eg/GamingComputer",
+                        "urn:x-hp:eg/GraphicsCard",
+                        "urn:x-hp:eg/MotherBoard",
+                        "urn:x-hp:eg/budgetGraphics",
+                        "urn:x-hp:eg/gamingGraphics",
+                        "urn:x-hp:eg/hasBundle",
+                        "urn:x-hp:eg/hasComponent",
+                        "urn:x-hp:eg/hasGraphics",
+                        "urn:x-hp:eg/hasMotherBoard"
+                ),
+                m.individuals()
+                        .map(Resource::getURI)
+                        .sorted(Comparator.nullsFirst(Comparator.naturalOrder()))
+                        .collect(Collectors.toList())
+        );
     }
 
     @ParameterizedTest
