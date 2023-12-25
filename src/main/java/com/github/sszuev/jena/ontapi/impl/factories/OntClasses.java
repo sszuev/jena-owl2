@@ -240,8 +240,8 @@ final class OntClasses {
         }
 
         @Override
-        public void insert(Node node, EnhGraph eg) {
-            super.insert(node, eg);
+        public void doInsert(Node node, EnhGraph eg) {
+            super.doInsert(node, eg);
             eg.asGraph().add(Triple.create(node, OWL.hasSelf.asNode(), ModelUtils.TRUE.asNode()));
         }
     }
@@ -280,7 +280,7 @@ final class OntClasses {
         private static final Node TRUE = NodeFactory.createLiteralByValue(Boolean.TRUE, XSDDatatype.XSDboolean);
         private static final String NON_NEGATIVE_INTEGER_URI = XSD.nonNegativeInteger.getURI();
 
-        private static final EnhNodeFactory NAMED_CLASS_FACTORY = OntEntities.CLASS.createFactory();
+        private static final EnhNodeFactory NAMED_CLASS_FACTORY = OntEntities.createNamedClassFactory();
         private static final BiFunction<Node, EnhGraph, EnhNode> NAMED_CLASS_PRODUCER = OntSimpleClassImpl.NamedImpl::new;
         private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_CLASS_PRODUCER = OntSimpleClassImpl::new;
         private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_UNARY_RESTRICTION_PRODUCER =

@@ -51,15 +51,15 @@ public final class OWL2ObjectFactories {
             OntAnnotations::testAnnotation
     );
 
-    public static final EnhNodeFactory NAMED_CLASS = OntEntities.CLASS.createFactory();
-    public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.DATATYPE.createFactory();
-    public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.ANNOTATION_PROPERTY.createFactory();
-    public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.DATA_PROPERTY.createFactory();
-    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.OBJECT_PROPERTY.createFactory();
-    public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEntities.INDIVIDUAL.createFactory();
+    public static final EnhNodeFactory NAMED_CLASS = OntEntities.createNamedClassFactory();
+    public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createNamedDataRangeFactory();
+    public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
+    public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
+    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createObjectPropertyFactory();
+    public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEntities.createNamedIndividualFactory();
 
     public static final EnhNodeFactory ANY_ENTITY = OntEnhNodeFactories.createFrom(
-            OntEnhNodeFactories.createFinder(e -> e.resourceType.asNode(), OntEntities.values()),
+            EnhNodeFinder.ANY_TYPED,
             NAMED_CLASS, NAMED_DATARANGE, NAMED_INDIVIDUAL, ANNOTATION_PROPERTY, DATATYPE_PROPERTY, NAMED_OBJECT_PROPERTY
     );
 

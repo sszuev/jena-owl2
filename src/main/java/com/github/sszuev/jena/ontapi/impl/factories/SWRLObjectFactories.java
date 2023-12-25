@@ -72,7 +72,7 @@ public final class SWRLObjectFactories {
             OntSWRL.IArg.class
     );
     public static final EnhNodeFactory ANY_ATOM_SWRL = OntEnhNodeFactories.createFrom(
-            EnhNodeFinder.TYPED,
+            EnhNodeFinder.ANY_TYPED,
             OntSWRL.Atom.WithBuiltin.class,
             OntSWRL.Atom.WithClass.class,
             OntSWRL.Atom.WithDataRange.class,
@@ -82,19 +82,19 @@ public final class SWRLObjectFactories {
             OntSWRL.Atom.WithSameIndividuals.class
     );
     public static final EnhNodeFactory ANY_BINARY_ATOM_SWRL = OntEnhNodeFactories.createFrom(
-            EnhNodeFinder.TYPED,
+            EnhNodeFinder.ANY_TYPED,
             OntSWRL.Atom.WithDataProperty.class,
             OntSWRL.Atom.WithObjectProperty.class,
             OntSWRL.Atom.WithDifferentIndividuals.class,
             OntSWRL.Atom.WithSameIndividuals.class
     );
     public static final EnhNodeFactory ANY_UNARY_ATOM_SWRL = OntEnhNodeFactories.createFrom(
-            EnhNodeFinder.TYPED,
+            EnhNodeFinder.ANY_TYPED,
             OntSWRL.Atom.WithClass.class,
             OntSWRL.Atom.WithDataRange.class
     );
     public static final EnhNodeFactory ANY_OBJECT_SWRL = OntEnhNodeFactories.createFrom(
-            EnhNodeFinder.TYPED,
+            EnhNodeFinder.ANY_TYPED,
             OntSWRL.Atom.WithBuiltin.class,
             OntSWRL.Atom.WithClass.class,
             OntSWRL.Atom.WithDataRange.class,

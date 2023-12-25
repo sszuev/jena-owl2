@@ -12,6 +12,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,16 +23,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A {@link Vocabulary} abstraction and a holder for some particular vocabulary {@link OntPersonality}'s implementations.
+ * A {@link ResourceVocabulary} abstraction and a holder for some particular vocabulary {@link OntPersonality}'s implementations.
  * Each of the impl has a simple in-memory cache to speed-up,
  * since it is important to have quick access to desired types.
  * <p>
  * Created by @ssz on 18.01.2019.
  */
-abstract class VocabularyImpl<T extends Resource> implements Vocabulary<T> {
+abstract class ResourceVocabularyImpl<T extends Resource> implements ResourceVocabulary<T> {
     private final Map<Class<? extends T>, Set<Node>> map;
 
-    VocabularyImpl(Map<Class<? extends T>, Set<Node>> map) {
+    ResourceVocabularyImpl(Map<Class<? extends T>, Set<Node>> map) {
         this.map = Objects.requireNonNull(map);
     }
 
@@ -45,59 +46,75 @@ abstract class VocabularyImpl<T extends Resource> implements Vocabulary<T> {
         return map.containsKey(type);
     }
 
-    static class BuiltinsImpl extends VocabularyImpl<OntObject> implements OntPersonality.Builtins, OntPersonality.Punnings {
-        private Set<Node> classes;
-        private Set<Node> datatypes;
-        private Set<Node> objectProperties;
-        private Set<Node> datatypeProperties;
-        private Set<Node> annotationProperties;
-        private Set<Node> ontProperties;
-        private Set<Node> individuals;
-
+    static class BuiltinsImpl extends EntitiesImpl implements OntPersonality.Builtins {
         BuiltinsImpl(Map<Class<? extends OntObject>, Set<Node>> map) {
             super(map);
         }
+    }
 
-        @Override
+    static class PunningsImpl extends EntitiesImpl implements OntPersonality.Punnings {
+        PunningsImpl(Map<Class<? extends OntObject>, Set<Node>> map) {
+            super(map);
+        }
+    }
+
+    static abstract class EntitiesImpl extends ResourceVocabularyImpl<OntObject> {
+        final Set<Node> classes;
+        final Set<Node> datatypes;
+        final Set<Node> objectProperties;
+        final Set<Node> datatypeProperties;
+        final Set<Node> annotationProperties;
+        final Set<Node> ontProperties;
+        final Set<Node> individuals;
+
+        EntitiesImpl(Map<Class<? extends OntObject>, Set<Node>> map) {
+            super(map);
+            this.classes = get(OntClass.Named.class);
+            this.datatypes = get(OntDataRange.Named.class);
+            this.individuals = get(OntIndividual.Named.class);
+            this.objectProperties = get(OntObjectProperty.Named.class);
+            this.datatypeProperties = get(OntDataProperty.class);
+            this.annotationProperties = get(OntAnnotationProperty.class);
+            this.ontProperties = collect(OntObjectProperty.Named.class, OntDataProperty.class, OntAnnotationProperty.class);
+        }
+
         public Set<Node> getNamedClasses() {
-            return classes == null ? classes = get(OntClass.Named.class) : classes;
+            return classes;
         }
 
-        @Override
         public Set<Node> getDatatypes() {
-            return datatypes == null ? datatypes = get(OntDataRange.Named.class) : datatypes;
+            return datatypes;
         }
 
-        @Override
         public Set<Node> getObjectProperties() {
-            return objectProperties == null ? objectProperties = get(OntObjectProperty.Named.class) : objectProperties;
+            return objectProperties;
         }
 
-        @Override
         public Set<Node> getDatatypeProperties() {
-            return datatypeProperties == null ? datatypeProperties = get(OntDataProperty.class) : datatypeProperties;
+            return datatypeProperties;
         }
 
-        @Override
         public Set<Node> getAnnotationProperties() {
-            return annotationProperties == null ? annotationProperties = get(OntAnnotationProperty.class) : annotationProperties;
+            return annotationProperties;
         }
 
-        @Override
         public Set<Node> getNamedIndividuals() {
-            return individuals == null ? individuals = get(OntIndividual.Named.class) : individuals;
+            return individuals;
         }
 
-        @Override
         public Set<Node> getOntProperties() {
-            if (ontProperties != null) return ontProperties;
-            return ontProperties = Stream.of(getObjectProperties(), getAnnotationProperties(), getDatatypeProperties())
+            return ontProperties;
+        }
+
+        @SafeVarargs
+        private Set<Node> collect(Class<? extends OntObject>... types) {
+            return Arrays.stream(types).map(this::get)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toUnmodifiableSet());
         }
     }
 
-    static class ReservedIml extends VocabularyImpl<Resource> implements OntPersonality.Reserved {
+    static class ReservedIml extends ResourceVocabularyImpl<Resource> implements OntPersonality.Reserved {
         private final Map<String, Set<Node>> nodes = new HashMap<>();
         private final Set<Node> resources;
         private final Set<Node> properties;

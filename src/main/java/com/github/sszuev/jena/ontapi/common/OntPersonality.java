@@ -170,7 +170,7 @@ public interface OntPersonality {
      * cannot contain entities which have intersection in {@link RDF#type rdf:type}
      * that are determined by this vocabulary.
      * <p>
-     * For example, for the {@link OntPersonalities.PunningsMode#MEDIUM} and for the {@link OntPersonalities.PunningsMode#STRICT}
+     * For example, for the {@link OntPersonalities.PunningsMode#DL_WEAK} and for the {@link OntPersonalities.PunningsMode#DL2}
      * configurations, the expression {@code voc.get(OntClass.class)}, where {@code voc} is an instance of this class,
      * should return a {@code Set}
      * containing {@link org.apache.jena.vocabulary.RDFS#Datatype rdfs:Datatype} in the form of {@link Node},
@@ -181,7 +181,30 @@ public interface OntPersonality {
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>Punnings</a>
      * @see OntEntity#types()
      */
-    interface Punnings extends Builtins {
+    interface Punnings extends ResourceVocabulary<OntObject> {
+        default Set<Node> getNamedClasses() {
+            return get(OntClass.Named.class);
+        }
+
+        default Set<Node> getDatatypes() {
+            return get(OntDataRange.Named.class);
+        }
+
+        default Set<Node> getObjectProperties() {
+            return get(OntObjectProperty.Named.class);
+        }
+
+        default Set<Node> getDatatypeProperties() {
+            return get(OntDataProperty.class);
+        }
+
+        default Set<Node> getAnnotationProperties() {
+            return get(OntAnnotationProperty.class);
+        }
+
+        default Set<Node> getNamedIndividuals() {
+            return get(OntIndividual.Named.class);
+        }
     }
 
     /**
@@ -197,7 +220,7 @@ public interface OntPersonality {
      * <p>
      * Each node obtained from this class must be IRI (i.e. {@code node.isURI() = true}).
      */
-    interface Reserved extends Vocabulary<Resource> {
+    interface Reserved extends ResourceVocabulary<Resource> {
 
         /**
          * Gets a {@code Set} of reserved nodes by a {@code String} key, using a {@code loader} to calculate the result
@@ -262,7 +285,7 @@ public interface OntPersonality {
      *
      * @see OntEntity#types()
      */
-    interface Builtins extends Vocabulary<OntObject> {
+    interface Builtins extends ResourceVocabulary<OntObject> {
 
         default Set<Class<? extends OntObject>> supportedTypes() {
             return Set.of(

@@ -58,22 +58,22 @@ public class CommonEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
     public EnhNode createInGraph(Node node, EnhGraph eg) {
         if (!canCreateInGraph(node, eg))
             throw new OntJenaException.Creation(String.format("Can't modify graph for %s (%s)", node, maker.targetName()));
-        maker.insert(node, eg);
+        maker.doInsert(node, eg);
         return createInstance(node, eg);
     }
 
     @Override
     public boolean canCreateInGraph(Node node, EnhGraph eg) {
-        return maker.getTester().test(node, eg);
+        return maker.canInsert(node, eg);
     }
 
     @Override
     public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {
-        return finder.restrict(filter).iterator(eg).mapWith(n -> maker.instance(n, eg));
+        return finder.restrict(filter).iterator(eg).mapWith(n -> maker.newInstance(n, eg));
     }
 
     @Override
     public EnhNode createInstance(Node node, EnhGraph eg) {
-        return maker.instance(node, eg);
+        return maker.newInstance(node, eg);
     }
 }

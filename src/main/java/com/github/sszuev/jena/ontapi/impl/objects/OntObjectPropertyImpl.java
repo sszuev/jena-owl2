@@ -116,10 +116,10 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
         return changeRDFType(OWL.IrreflexiveProperty, irreflexive);
     }
 
-    public static class NamedPropertyImpl extends OntObjectPropertyImpl implements Named {
+    public static class NamedImpl extends OntObjectPropertyImpl implements Named {
 
-        public NamedPropertyImpl(Node n, EnhGraph g) {
-            super(n, g);
+        public NamedImpl(Node n, EnhGraph g) {
+            super(checkNamed(n), g);
         }
 
         @Override
@@ -136,7 +136,7 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
                         nodes + " owl:inverseOf " + this + "]");
             }
             Node n = nodes.isEmpty() ?
-                    m.createResource().addProperty(OWL.inverseOf, NamedPropertyImpl.this).asNode() :
+                    m.createResource().addProperty(OWL.inverseOf, NamedImpl.this).asNode() :
                     nodes.get(0);
             return m.getNodeAs(n, Inverse.class);
         }

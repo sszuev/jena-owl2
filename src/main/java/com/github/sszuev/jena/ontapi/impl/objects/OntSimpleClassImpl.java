@@ -144,7 +144,7 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
     public static class NamedImpl extends OntSimpleClassImpl implements OntClass.Named {
 
         public NamedImpl(Node n, EnhGraph eg) {
-            super(n, eg);
+            super(checkNamed(n), eg);
         }
 
         @Override

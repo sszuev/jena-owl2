@@ -15,13 +15,13 @@ class TestOntPersonalities {
      * (no restriction on the type declarations).
      *
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see OntPersonalities.PunningsMode#LAX
+     * @see OntPersonalities.PunningsMode#FULL
      */
     public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_LAX_PUNNS")
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
-            .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+            .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
             .setConfig(OntConfig.DEFAULT)
             .build();
     /**
@@ -33,13 +33,13 @@ class TestOntPersonalities {
      * </ul>
      *
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see OntPersonalities.PunningsMode#MEDIUM
+     * @see OntPersonalities.PunningsMode#DL_WEAK
      */
     public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_MEDIUM_PUNNS")
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
-            .setPunnings(OntPersonalities.PunningsMode.MEDIUM.getVocabulary())
+            .setPunnings(OntPersonalities.OWL_DL_WEAK_PUNNINGS)
             .setConfig(OntConfig.DEFAULT)
             .build();
     /**
@@ -57,13 +57,13 @@ class TestOntPersonalities {
      * that a name can only be used for one kind of property."
      *
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see OntPersonalities.PunningsMode#STRICT
+     * @see OntPersonalities.PunningsMode#DL2
      */
     public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_STRICT_PUNNS")
             .setBuiltins(OntPersonalities.OWL_BUILTINS)
             .setReserved(OntPersonalities.OWL_RESERVED)
-            .setPunnings(OntPersonalities.PunningsMode.STRICT.getVocabulary())
+            .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
             .setConfig(OntConfig.DEFAULT)
             .build();
 }

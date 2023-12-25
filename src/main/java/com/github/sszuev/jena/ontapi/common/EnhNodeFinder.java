@@ -4,14 +4,19 @@ import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
+import org.apache.jena.util.iterator.WrappedIterator;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -27,7 +32,7 @@ public interface EnhNodeFinder {
     EnhNodeFinder ANY_BLANK_SUBJECT = eg -> Iterators.distinct(eg.asGraph().find().mapWith(Triple::getSubject).filterKeep(Node::isBlank));
     EnhNodeFinder ANY_SUBJECT_AND_OBJECT = eg -> Graphs.listSubjectsAndObjects(eg.asGraph());
     EnhNodeFinder ANYTHING = eg -> Graphs.listAllNodes(eg.asGraph());
-    EnhNodeFinder TYPED = new ByPredicate(RDF.type);
+    EnhNodeFinder ANY_TYPED = new ByPredicate(RDF.type);
 
     /**
      * Returns an iterator over the nodes in the given model, which satisfy some criterion,
@@ -59,12 +64,37 @@ public interface EnhNodeFinder {
         protected final Node type;
 
         public ByType(Resource type) {
-            this.type = Objects.requireNonNull(type, "Null type.").asNode();
+            this(Objects.requireNonNull(type, "Null type.").asNode());
+        }
+
+        public ByType(Node type) {
+            this.type = Objects.requireNonNull(type, "Null type.");
         }
 
         @Override
         public ExtendedIterator<Node> iterator(EnhGraph eg) {
             return eg.asGraph().find(Node.ANY, RDF.Nodes.type, type).mapWith(Triple::getSubject);
+        }
+    }
+
+    class ByTypes implements EnhNodeFinder {
+        protected final List<Node> types;
+
+        public ByTypes(Collection<Resource> types) {
+            if (types.isEmpty()) {
+                throw new IllegalStateException();
+            }
+            this.types = types.stream().map(FrontsNode::asNode).distinct().collect(Collectors.toUnmodifiableList());
+        }
+
+        @Override
+        public ExtendedIterator<Node> iterator(EnhGraph eg) {
+            if (types.size() == 1) {
+                return eg.asGraph().find(Node.ANY, RDF.Nodes.type, types.get(0)).mapWith(Triple::getSubject);
+            }
+
+            return Iterators.flatMap(WrappedIterator.create(types.iterator()),
+                    type -> eg.asGraph().find(Node.ANY, RDF.Nodes.type, type)).mapWith(Triple::getSubject);
         }
     }
 

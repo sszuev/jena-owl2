@@ -2,14 +2,14 @@ package com.github.sszuev.jena.ontapi.common;
 
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -158,28 +158,29 @@ public interface EnhNodeFilter {
         }
     }
 
-    class OneOf implements EnhNodeFilter {
-        protected final Set<Node> nodes;
+    class HasOneOfType implements EnhNodeFilter {
+        protected final List<Node> types;
 
-        public OneOf(Collection<? extends RDFNode> types) {
-            this.nodes = Objects.requireNonNull(types).stream().map(RDFNode::asNode)
-                    .collect(Collectors.toUnmodifiableSet());
+        public HasOneOfType(Collection<Resource> types) {
+            if (types.isEmpty()) {
+                throw new IllegalStateException();
+            }
+            this.types = types.stream().map(FrontsNode::asNode).distinct().collect(Collectors.toUnmodifiableList());
         }
 
         @Override
-        public boolean test(Node n, EnhGraph g) {
-            return nodes.contains(n);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (nodes.isEmpty() && FALSE == o) return true;
-            return super.equals(o);
+        public boolean test(Node node, EnhGraph eg) {
+            for (Node type : types) {
+                if (eg.asGraph().contains(node, RDF.Nodes.type, type)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
         public String toString() {
-            return "OneOf::" + nodes.stream().map(Node::getLocalName).collect(Collectors.toList());
+            return "HasType::" + types;
         }
     }
 }

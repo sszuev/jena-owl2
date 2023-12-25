@@ -65,9 +65,9 @@ public class OntPersonalityTest {
     }
 
     private static EnhNodeFactory createNamedIndividualFactory() {
-        EnhNodeProducer maker = new EnhNodeProducer.Default(IndividualImpl.class, null) {
+        EnhNodeProducer maker = new EnhNodeProducer.Default(IndividualImpl.class) {
             @Override
-            public EnhNode instance(Node node, EnhGraph eg) {
+            public EnhNode newInstance(Node node, EnhGraph eg) {
                 return new IndividualImpl(node, eg);
             }
         };

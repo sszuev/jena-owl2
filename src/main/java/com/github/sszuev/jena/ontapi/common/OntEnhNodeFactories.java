@@ -9,7 +9,6 @@ import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
@@ -57,7 +56,7 @@ public class OntEnhNodeFactories {
                                               EnhNodeFinder finder,
                                               EnhNodeFilter filter,
                                               EnhNodeFilter... additional) {
-        return createCommon(new EnhNodeProducer.Default(impl, null), finder, filter, additional);
+        return createCommon(new EnhNodeProducer.Default(impl), finder, filter, additional);
     }
 
     public static EnhNodeFactory createCommon(Class<? extends EnhNode> impl,
@@ -114,7 +113,7 @@ public class OntEnhNodeFactories {
      * @param type {@code Class}-type, not {@code null}
      * @return String
      */
-    public static String viewAsString(Class<? extends RDFNode> type) {
+    public static String viewAsString(Class<?> type) {
         return type.getName().replace(OntObject.class.getPackage().getName() + ".", "");
     }
 }

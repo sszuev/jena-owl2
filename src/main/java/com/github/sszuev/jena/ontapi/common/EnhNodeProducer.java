@@ -31,7 +31,7 @@ public interface EnhNodeProducer {
      * @param eg   {@link EnhGraph}
      * @return {@link EnhNode}
      */
-    EnhNode instance(Node node, EnhGraph eg);
+    EnhNode newInstance(Node node, EnhGraph eg);
 
     /**
      * Changes the {@link EnhGraph} according to the encapsulated rules.
@@ -39,17 +39,15 @@ public interface EnhNodeProducer {
      * @param node {@link Node}
      * @param eg   {@link EnhGraph}
      */
-    default void insert(Node node, EnhGraph eg) {
+    default void doInsert(Node node, EnhGraph eg) {
         throw new OntJenaException.IllegalCall();
     }
 
     /**
-     * Returns a {@link EnhNodeFilter}, that is used as tester to decide does this maker support graph modification or not.
-     *
-     * @return {@link EnhNodeFilter}
+     * Answers {@code true} if the given {@code node} can be created in graph
      */
-    default EnhNodeFilter getTester() {
-        return EnhNodeFilter.FALSE;
+    default boolean canInsert(Node node, EnhGraph eg) {
+        return false;
     }
 
     /**
@@ -60,24 +58,30 @@ public interface EnhNodeProducer {
     default EnhNodeProducer restrict(EnhNodeFilter filter) {
         OntJenaException.notNull(filter, "Null restriction filter.");
         return new EnhNodeProducer() {
+
             @Override
-            public void insert(Node node, EnhGraph eg) {
-                EnhNodeProducer.this.insert(node, eg);
+            public void doInsert(Node node, EnhGraph eg) {
+                EnhNodeProducer.this.doInsert(node, eg);
             }
 
             @Override
-            public EnhNodeFilter getTester() {
-                return EnhNodeProducer.this.getTester().and(filter);
+            public boolean canInsert(Node node, EnhGraph eg) {
+                return EnhNodeProducer.this.canInsert(node, eg) && filter.test(node, eg);
             }
 
             @Override
-            public EnhNode instance(Node node, EnhGraph eg) {
-                return EnhNodeProducer.this.instance(node, eg);
+            public EnhNode newInstance(Node node, EnhGraph eg) {
+                return EnhNodeProducer.this.newInstance(node, eg);
             }
 
             @Override
             public String targetName() {
                 return EnhNodeProducer.this.targetName();
+            }
+
+            @Override
+            public String toString() {
+                return "Producer[" + targetName() + "]Restriction[" + filter + "]";
             }
         };
     }
@@ -88,8 +92,8 @@ public interface EnhNodeProducer {
      * Creation in graph is disabled for this maker
      */
     class Default implements EnhNodeProducer {
-        private final Class<? extends EnhNode> impl;
         private final BiFunction<Node, EnhGraph, EnhNode> producer;
+        private final String targetName;
 
         /**
          * Class must be public and have a public constructor with parameters {@link Node} and {@link EnhGraph}.
@@ -98,35 +102,45 @@ public interface EnhNodeProducer {
          * @param producer factory to create new instance, if {@code null} reflection is used
          */
         public Default(Class<? extends EnhNode> impl, BiFunction<Node, EnhGraph, EnhNode> producer) {
-            this.impl = OntJenaException.notNull(impl, "Null implementation class.");
-            this.producer = producer;
+            this.targetName = OntJenaException.notNull(impl, "Null implementation class.").getName()
+                    .replace(impl.getPackageName() + ".", "");
+            this.producer = OntJenaException.notNull(producer);
+        }
+
+        public Default(Class<? extends EnhNode> impl) {
+            this.targetName = OntJenaException.notNull(impl, "Null implementation class.")
+                    .getName().replace(impl.getPackageName() + ".", "");
+            this.producer = (node, graph) -> newInstance(node, graph, impl, targetName);
         }
 
         @Override
-        public void insert(Node node, EnhGraph eg) {
+        public void doInsert(Node node, EnhGraph eg) {
             throw new OntJenaException.IllegalCall("Creation is not allowed for node " +
                     node + " and target " + targetName());
         }
 
         @Override
-        public EnhNode instance(Node node, EnhGraph eg) {
-            return producer != null ? producer.apply(node, eg) : createUsingReflection(node, eg);
+        public EnhNode newInstance(Node node, EnhGraph eg) {
+            return producer.apply(node, eg);
         }
 
-        private EnhNode createUsingReflection(Node node, EnhGraph eg) {
+        private static EnhNode newInstance(Node node,
+                                           EnhGraph eg,
+                                           Class<? extends EnhNode> impl,
+                                           String targetName) {
             try {
                 return impl.getDeclaredConstructor(Node.class, EnhGraph.class).newInstance(node, eg);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-                throw new OntJenaException("Can't create instance of " + targetName(), e);
+                throw new OntJenaException("Can't create instance of " + targetName, e);
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof JenaException) throw (JenaException) e.getCause();
-                throw new OntJenaException("Can't init " + targetName(), e);
+                throw new OntJenaException("Can't init " + targetName, e);
             }
         }
 
         @Override
         public String targetName() {
-            return impl.getName().replace(impl.getPackageName() + ".", "");
+            return targetName;
         }
     }
 
@@ -136,10 +150,6 @@ public interface EnhNodeProducer {
     class WithType extends Default {
         protected final Node type;
 
-        public WithType(Class<? extends OntObjectImpl> impl, Resource type) {
-            this(impl, type, null);
-        }
-
         public WithType(Class<? extends OntObjectImpl> impl,
                         Resource type,
                         BiFunction<Node, EnhGraph, EnhNode> producer) {
@@ -147,14 +157,19 @@ public interface EnhNodeProducer {
             this.type = OntJenaException.notNull(type, "Null type.").asNode();
         }
 
+        public WithType(Class<? extends OntObjectImpl> impl, Resource type) {
+            super(impl);
+            this.type = OntJenaException.notNull(type, "Null type.").asNode();
+        }
+
         @Override
-        public void insert(Node node, EnhGraph eg) {
+        public void doInsert(Node node, EnhGraph eg) {
             eg.asGraph().add(Triple.create(node, RDF.type.asNode(), type));
         }
 
         @Override
-        public EnhNodeFilter getTester() {
-            return EnhNodeFilter.TRUE;
+        public boolean canInsert(Node node, EnhGraph eg) {
+            return true;
         }
     }
 }

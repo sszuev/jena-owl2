@@ -20,7 +20,7 @@ public class OntSpecification {
             OntPersonalities.OWL2_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.OWL_BUILTINS)
                     .setReserved(OntPersonalities.OWL_RESERVED)
-                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
                     .setConfig(OntPersonalities.OWL2_CONFIG)
                     .build();
 
@@ -28,7 +28,7 @@ public class OntSpecification {
             OntPersonalities.OWL1_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.OWL_BUILTINS)
                     .setReserved(OntPersonalities.OWL_RESERVED)
-                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
                     .setConfig(OntPersonalities.OWL1_CONFIG)
                     .build();
 
@@ -36,7 +36,7 @@ public class OntSpecification {
             OntPersonalities.RDFS_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.RDFS_BUILTINS)
                     .setReserved(OntPersonalities.RDFS_RESERVED)
-                    .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                    .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
                     .setConfig(OntPersonalities.RDFS_CONFIG)
                     .build();
 
@@ -53,7 +53,7 @@ public class OntSpecification {
             OntPersonalities.OWL2_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.OWL_BUILTINS)
                     .setReserved(OntPersonalities.OWL_RESERVED)
-                    .setPunnings(OntPersonalities.PunningsMode.STRICT.getVocabulary())
+                    .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
                     .setConfig(OntPersonalities.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
                     .build(),
             null

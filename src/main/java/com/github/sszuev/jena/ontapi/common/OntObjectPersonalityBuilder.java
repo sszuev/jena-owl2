@@ -60,7 +60,7 @@ public class OntObjectPersonalityBuilder {
     }
 
     @SuppressWarnings("rawtypes")
-    private static <V extends Vocabulary> V hasSpec(V voc, Class... types) {
+    private static <V extends ResourceVocabulary> V hasSpec(V voc, Class... types) {
         Objects.requireNonNull(voc);
         @SuppressWarnings("unchecked") Set<?> errors = Arrays.stream(types).filter(x -> !voc.supports(x)).collect(Collectors.toSet());
         if (errors.isEmpty()) return voc;

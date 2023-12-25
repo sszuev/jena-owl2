@@ -38,10 +38,10 @@ public class OWL1ObjectFactories {
             new EnhNodeFilter.HasType(OWL.Ontology)
     );
 
-    public static final EnhNodeFactory NAMED_CLASS = OntEntities.CLASS.createFactory();
-    public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.ANNOTATION_PROPERTY.createFactory();
-    public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.DATA_PROPERTY.createFactory();
-    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.OBJECT_PROPERTY.createFactory();
+    public static final EnhNodeFactory NAMED_CLASS = OntEntities.createNamedClassFactory();
+    public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
+    public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
+    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createObjectPropertyFactory();
     public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEnhNodeFactories.createCommon(
             OntIndividualImpl.NamedImpl.class,
             OntIndividualImpl.NamedImpl::new,
@@ -56,7 +56,7 @@ public class OWL1ObjectFactories {
     );
 
     public static final EnhNodeFactory ANY_ENTITY = OntEnhNodeFactories.createFrom(
-            OntEnhNodeFactories.createFinder(e -> e.resourceType.asNode(), OntEntities.values()),
+            EnhNodeFinder.ANY_TYPED,
             NAMED_CLASS, NAMED_INDIVIDUAL, ANNOTATION_PROPERTY, DATATYPE_PROPERTY, NAMED_OBJECT_PROPERTY
     );
 

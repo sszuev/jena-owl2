@@ -27,7 +27,6 @@ import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.Personality;
-import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Alt;
 import org.apache.jena.rdf.model.Bag;
@@ -49,14 +48,12 @@ import org.apache.jena.rdf.model.impl.ResourceImpl;
 import org.apache.jena.rdf.model.impl.SeqImpl;
 import org.apache.jena.vocabulary.RDFS;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Settings and personalities that are used for constructing {@link OntModel}.
@@ -71,6 +68,11 @@ public class OntPersonalities {
     public static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
     public static final OntPersonality.Builtins OWL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
     public static final OntPersonality.Reserved OWL_RESERVED = createReservedVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
+    public static final OntPersonality.Punnings OWL_DL1_PUNNINGS = createPunningsVocabulary(PunningsMode.DL1);
+    public static final OntPersonality.Punnings OWL_DL2_PUNNINGS = createPunningsVocabulary(PunningsMode.DL2);
+    public static final OntPersonality.Punnings OWL_DL_WEAK_PUNNINGS = createPunningsVocabulary(PunningsMode.DL_WEAK);
+    public static final OntPersonality.Punnings OWL_FULL_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
+    public static final OntPersonality.Punnings RDFS_FULL_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
 
     public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -319,7 +321,7 @@ public class OntPersonalities {
         return RDFS_OBJECT_FACTORIES.copy()
                 .setBuiltins(OntPersonalities.RDFS_BUILTINS)
                 .setReserved(OntPersonalities.RDFS_RESERVED)
-                .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                .setPunnings(OntPersonalities.RDFS_FULL_PUNNINGS)
                 .setConfig(OntPersonalities.RDFS_CONFIG);
     }
 
@@ -330,7 +332,7 @@ public class OntPersonalities {
         return OWL1_OBJECT_FACTORIES.copy()
                 .setBuiltins(OntPersonalities.OWL_BUILTINS)
                 .setReserved(OntPersonalities.OWL_RESERVED)
-                .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
                 .setConfig(OntPersonalities.OWL1_CONFIG);
     }
 
@@ -342,7 +344,7 @@ public class OntPersonalities {
                 .copy()
                 .setBuiltins(OntPersonalities.OWL_BUILTINS)
                 .setReserved(OntPersonalities.OWL_RESERVED)
-                .setPunnings(OntPersonalities.PunningsMode.LAX.getVocabulary())
+                .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
                 .setConfig(OntPersonalities.OWL2_CONFIG);
     }
 
@@ -397,7 +399,7 @@ public class OntPersonalities {
         ontEntities.addAll(voc.getBuiltinDatatypes());
         res.put(OntProperty.class, ModelUtils.asUnmodifiableNodeSet(ontProperties));
         res.put(OntEntity.class, ModelUtils.asUnmodifiableNodeSet(ontEntities));
-        return new VocabularyImpl.BuiltinsImpl(res);
+        return new ResourceVocabularyImpl.BuiltinsImpl(res);
     }
 
     /**
@@ -412,7 +414,7 @@ public class OntPersonalities {
         Map<Class<? extends Resource>, Set<Node>> res = new HashMap<>();
         res.put(Resource.class, ModelUtils.asUnmodifiableNodeSet(voc.getSystemResources()));
         res.put(Property.class, ModelUtils.asUnmodifiableNodeSet(voc.getSystemProperties()));
-        return new VocabularyImpl.ReservedIml(Map.copyOf(res));
+        return new ResourceVocabularyImpl.ReservedIml(Map.copyOf(res));
     }
 
     /**
@@ -422,28 +424,7 @@ public class OntPersonalities {
      * @return {@link OntPersonality.Punnings}
      */
     private static OntPersonality.Punnings createPunningsVocabulary(PunningsMode mode) {
-        Map<Class<? extends OntObject>, Set<Node>> res = new HashMap<>();
-        if (!PunningsMode.LAX.equals(mode)) {
-            toMap(res, OntClass.Named.class, RDFS.Datatype);
-            toMap(res, OntDataRange.Named.class, OWL.Class);
-        }
-        if (PunningsMode.STRICT.equals(mode)) {
-            toMap(res, OntAnnotationProperty.class, OWL.ObjectProperty, OWL.DatatypeProperty);
-            toMap(res, OntDataProperty.class, OWL.ObjectProperty, OWL.AnnotationProperty);
-            toMap(res, OntObjectProperty.Named.class, OWL.DatatypeProperty, OWL.AnnotationProperty);
-        }
-        if (PunningsMode.MEDIUM.equals(mode)) {
-            toMap(res, OntDataProperty.class, OWL.ObjectProperty);
-            toMap(res, OntObjectProperty.Named.class, OWL.DatatypeProperty);
-        }
-        OntEntity.TYPES.forEach(t -> res.computeIfAbsent(t, k -> Collections.emptySet()));
-        //return type -> fromMap(res, type);
-        return new VocabularyImpl.BuiltinsImpl(Map.copyOf(res));
-    }
-
-    @SafeVarargs
-    private static <K, V extends RDFNode> void toMap(Map<K, Set<Node>> map, K key, V... values) {
-        map.put(key, Arrays.stream(values).map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet()));
+        return new ResourceVocabularyImpl.PunningsImpl(PunningsMode.toMap(mode));
     }
 
     /**
@@ -453,6 +434,12 @@ public class OntPersonalities {
      */
     public enum PunningsMode {
         /**
+         * For OWL1 DL.
+         * OWL1 DL required a strict separation between the names of, e.g., classes and individuals.
+         */
+        DL1,
+        /**
+         * For OWL2 DL.
          * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
          * <ul>
          * <li>Named owl:Class &lt;-&gt; Named rdfs:Datatype</li>
@@ -465,7 +452,7 @@ public class OntPersonalities {
          * it requires that a name cannot be used for both a class and a datatype and
          * that a name can only be used for one kind of property."
          */
-        STRICT,
+        DL2,
         /**
          * Forbidden intersections of rdf-declarations:
          * <ul>
@@ -473,17 +460,73 @@ public class OntPersonalities {
          * <li>ObjectProperty &lt;-&gt; DataProperty</li>
          * </ul>
          */
-        MEDIUM,
+        DL_WEAK,
         /**
          * Allow any entity type intersections.
          */
-        LAX,
+        FULL,
         ;
 
-        private OntPersonality.Punnings punnings;
-
-        public OntPersonality.Punnings getVocabulary() {
-            return punnings == null ? punnings = createPunningsVocabulary(this) : punnings;
+        static Map<Class<? extends OntObject>, Set<Node>> toMap(PunningsMode mode) {
+            if (PunningsMode.DL1 == mode) {
+                return Map.of(
+                        OntAnnotationProperty.class, Set.of(
+                                OWL.ObjectProperty.asNode(), OWL.DatatypeProperty.asNode(),
+                                OWL.Class.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
+                        ),
+                        OntObjectProperty.Named.class, Set.of(
+                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
+                                OWL.Class.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
+                        ),
+                        OntDataProperty.class, Set.of(
+                                OWL.AnnotationProperty.asNode(), OWL.ObjectProperty.asNode(),
+                                OWL.Class.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
+                        ),
+                        OntDataRange.Named.class, Set.of(
+                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
+                                OWL.ObjectProperty.asNode(), OWL.Class.asNode(), OWL.NamedIndividual.asNode()
+                        ),
+                        OntClass.Named.class, Set.of(
+                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
+                                OWL.ObjectProperty.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
+                        ),
+                        OntIndividual.Named.class, Set.of(
+                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
+                                OWL.ObjectProperty.asNode(), OWL.Class.asNode(), RDFS.Datatype.asNode()
+                        )
+                );
+            }
+            if (PunningsMode.DL2 == mode) {
+                return Map.of(
+                        OntAnnotationProperty.class, Set.of(OWL.ObjectProperty.asNode(), OWL.DatatypeProperty.asNode()),
+                        OntObjectProperty.Named.class, Set.of(OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode()),
+                        OntDataProperty.class, Set.of(OWL.AnnotationProperty.asNode(), OWL.ObjectProperty.asNode()),
+                        OntDataRange.Named.class, Set.of(OWL.Class.asNode()),
+                        OntClass.Named.class, Set.of(RDFS.Datatype.asNode()),
+                        OntIndividual.Named.class, Set.of()
+                );
+            }
+            if (PunningsMode.DL_WEAK == mode) {
+                return Map.of(
+                        OntAnnotationProperty.class, Set.of(),
+                        OntObjectProperty.Named.class, Set.of(OWL.DatatypeProperty.asNode()),
+                        OntDataProperty.class, Set.of(OWL.ObjectProperty.asNode()),
+                        OntDataRange.Named.class, Set.of(OWL.Class.asNode()),
+                        OntClass.Named.class, Set.of(RDFS.Datatype.asNode()),
+                        OntIndividual.Named.class, Set.of()
+                );
+            }
+            if (PunningsMode.FULL == mode) {
+                return Map.of(
+                        OntAnnotationProperty.class, Set.of(),
+                        OntObjectProperty.Named.class, Set.of(),
+                        OntDataProperty.class, Set.of(),
+                        OntDataRange.Named.class, Set.of(),
+                        OntClass.Named.class, Set.of(),
+                        OntIndividual.Named.class, Set.of()
+                );
+            }
+            throw new IllegalStateException();
         }
     }
 
