@@ -25,7 +25,7 @@ public enum OntModelConfig {
      * If this key is set to {@code true},
      * then {@code owl:NamedIndividual} declaration is required for named individuals.
      */
-    USE_NAMED_INDIVIDUAL_DECLARATION,
+    USE_OWL2_NAMED_INDIVIDUAL_DECLARATION,
     /**
      * If this key is set to {@code true}, class expressions are allowed to be named (can have URI).
      * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.

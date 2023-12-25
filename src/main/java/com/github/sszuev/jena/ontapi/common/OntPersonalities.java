@@ -46,7 +46,6 @@ import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.rdf.model.impl.ReifiedStatementImpl;
 import org.apache.jena.rdf.model.impl.ResourceImpl;
 import org.apache.jena.rdf.model.impl.SeqImpl;
-import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,7 +76,7 @@ public class OntPersonalities {
     public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setFalse(OntModelConfig.USE_OWL_V1_VOCABULARY)
-            .setTrue(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
+            .setTrue(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
             .setFalse(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setFalse(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
@@ -85,7 +84,7 @@ public class OntPersonalities {
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
-            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
+            .setFalse(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
             .setTrue(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setTrue(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
@@ -93,7 +92,7 @@ public class OntPersonalities {
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
-            .setFalse(OntModelConfig.USE_NAMED_INDIVIDUAL_DECLARATION)
+            .setFalse(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
             .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
 
     /**
@@ -425,109 +424,6 @@ public class OntPersonalities {
      */
     private static OntPersonality.Punnings createPunningsVocabulary(PunningsMode mode) {
         return new ResourceVocabularyImpl.PunningsImpl(PunningsMode.toMap(mode));
-    }
-
-    /**
-     * A standard personality mode to manage punnings.
-     *
-     * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     */
-    public enum PunningsMode {
-        /**
-         * For OWL1 DL.
-         * OWL1 DL required a strict separation between the names of, e.g., classes and individuals.
-         */
-        DL1,
-        /**
-         * For OWL2 DL.
-         * Personality with four kinds of restriction on a {@code rdf:type} intersection (i.e. "illegal punnings"):
-         * <ul>
-         * <li>Named owl:Class &lt;-&gt; Named rdfs:Datatype</li>
-         * <li>Named owl:ObjectProperty &lt;-&gt; owl:DatatypeProperty</li>
-         * <li>Named owl:ObjectProperty &lt;-&gt; owl:AnnotationProperty</li>
-         * <li>owl:AnnotationProperty &lt;-&gt; owl:DatatypeProperty</li>
-         * </ul>
-         * each of the pairs above can't exist in the form of OWL-Entity in the same model at the same time.
-         * From specification: "OWL 2 DL imposes certain restrictions:
-         * it requires that a name cannot be used for both a class and a datatype and
-         * that a name can only be used for one kind of property."
-         */
-        DL2,
-        /**
-         * Forbidden intersections of rdf-declarations:
-         * <ul>
-         * <li>Class &lt;-&gt; Datatype</li>
-         * <li>ObjectProperty &lt;-&gt; DataProperty</li>
-         * </ul>
-         */
-        DL_WEAK,
-        /**
-         * Allow any entity type intersections.
-         */
-        FULL,
-        ;
-
-        static Map<Class<? extends OntObject>, Set<Node>> toMap(PunningsMode mode) {
-            if (PunningsMode.DL1 == mode) {
-                return Map.of(
-                        OntAnnotationProperty.class, Set.of(
-                                OWL.ObjectProperty.asNode(), OWL.DatatypeProperty.asNode(),
-                                OWL.Class.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
-                        ),
-                        OntObjectProperty.Named.class, Set.of(
-                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
-                                OWL.Class.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
-                        ),
-                        OntDataProperty.class, Set.of(
-                                OWL.AnnotationProperty.asNode(), OWL.ObjectProperty.asNode(),
-                                OWL.Class.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
-                        ),
-                        OntDataRange.Named.class, Set.of(
-                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
-                                OWL.ObjectProperty.asNode(), OWL.Class.asNode(), OWL.NamedIndividual.asNode()
-                        ),
-                        OntClass.Named.class, Set.of(
-                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
-                                OWL.ObjectProperty.asNode(), RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode()
-                        ),
-                        OntIndividual.Named.class, Set.of(
-                                OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode(),
-                                OWL.ObjectProperty.asNode(), OWL.Class.asNode(), RDFS.Datatype.asNode()
-                        )
-                );
-            }
-            if (PunningsMode.DL2 == mode) {
-                return Map.of(
-                        OntAnnotationProperty.class, Set.of(OWL.ObjectProperty.asNode(), OWL.DatatypeProperty.asNode()),
-                        OntObjectProperty.Named.class, Set.of(OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode()),
-                        OntDataProperty.class, Set.of(OWL.AnnotationProperty.asNode(), OWL.ObjectProperty.asNode()),
-                        OntDataRange.Named.class, Set.of(OWL.Class.asNode()),
-                        OntClass.Named.class, Set.of(RDFS.Datatype.asNode()),
-                        OntIndividual.Named.class, Set.of()
-                );
-            }
-            if (PunningsMode.DL_WEAK == mode) {
-                return Map.of(
-                        OntAnnotationProperty.class, Set.of(),
-                        OntObjectProperty.Named.class, Set.of(OWL.DatatypeProperty.asNode()),
-                        OntDataProperty.class, Set.of(OWL.ObjectProperty.asNode()),
-                        OntDataRange.Named.class, Set.of(OWL.Class.asNode()),
-                        OntClass.Named.class, Set.of(RDFS.Datatype.asNode()),
-                        OntIndividual.Named.class, Set.of()
-                );
-            }
-            if (PunningsMode.FULL == mode) {
-                return Map.of(
-                        OntAnnotationProperty.class, Set.of(),
-                        OntObjectProperty.Named.class, Set.of(),
-                        OntDataProperty.class, Set.of(),
-                        OntDataRange.Named.class, Set.of(),
-                        OntClass.Named.class, Set.of(),
-                        OntIndividual.Named.class, Set.of()
-                );
-            }
-            throw new IllegalStateException();
-        }
     }
 
 }

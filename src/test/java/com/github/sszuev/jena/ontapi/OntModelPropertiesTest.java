@@ -5,6 +5,8 @@ import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
 import org.junit.jupiter.api.Assertions;
@@ -250,4 +252,66 @@ public class OntModelPropertiesTest {
         Assertions.assertEquals(expected2, actual2);
     }
 
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
+    })
+    public void testListOntProperties5a(TestSpec spec) {
+        testListOntProperties5(spec, 13, 7, 2, 1);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testListOntProperties5b(TestSpec spec) {
+        testListOntProperties5(spec, 11, 5, 2, 1);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
+    })
+    public void testListOntProperties5c(TestSpec spec) {
+        testListOntProperties5(spec, 3, 0, 0, 0);
+    }
+
+
+    private void testListOntProperties5(TestSpec spec,
+                                        long expectedOntProperties,
+                                        long expectedObjectProperties,
+                                        long expectedDataProperties,
+                                        long expectedAnnotationProperties) {
+        Model g = ModelFactory.createDefaultModel();
+        g.createResource(NS + "op1", OWL.ObjectProperty);
+        g.createResource(NS + "op1", OWL.SymmetricProperty);
+        g.createResource(NS + "op2", OWL.SymmetricProperty);
+        g.createResource(NS + "op3", OWL.InverseFunctionalProperty);
+        g.createResource(NS + "op4", OWL.ReflexiveProperty);
+        g.createResource(NS + "op5", OWL.IrreflexiveProperty);
+        g.createResource(NS + "op6", OWL.SymmetricProperty);
+        g.createResource(NS + "op6", OWL.TransitiveProperty);
+        g.createResource(NS + "op7", OWL.TransitiveProperty);
+        g.createResource(NS + "dp1", OWL.DatatypeProperty);
+        g.createResource(NS + "dp2", OWL.DatatypeProperty);
+        g.createResource(NS + "xp1", OWL.FunctionalProperty);
+        g.createResource(NS + "ap1", OWL.AnnotationProperty);
+        g.createResource(NS + "ap1", RDF.Property);
+        g.createResource(NS + "rp1", RDF.Property);
+        g.createResource(NS + "rp2", RDF.Property);
+
+        OntModel m = OntModelFactory.createModel(g.getGraph(), spec.inst);
+        long actualObjectProperties = m.objectProperties().count();
+        long actualDataProperties = m.dataProperties().count();
+        long actualAnnotationProperties = m.annotationProperties().count();
+        long actualOntProperties = m.properties().count();
+        Assertions.assertEquals(expectedObjectProperties, actualObjectProperties);
+        Assertions.assertEquals(expectedDataProperties, actualDataProperties);
+        Assertions.assertEquals(expectedAnnotationProperties, actualAnnotationProperties);
+        Assertions.assertEquals(expectedOntProperties, actualOntProperties);
+    }
 }

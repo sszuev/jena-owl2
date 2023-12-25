@@ -9,6 +9,7 @@ import com.github.sszuev.jena.ontapi.common.OntObjectPersonalityBuilder;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
+import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -35,9 +36,6 @@ import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -155,28 +153,32 @@ public class OntPersonalityTest {
         Assertions.assertEquals(1, m1.datatypes().count());
 
         OntPersonality.Punnings punnings = new OntPersonality.Punnings() {
-            final OntPersonality.Punnings base = TestOntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS.getPunnings();
-
             @Override
             public Set<Node> get(Class<? extends OntObject> type) throws OntJenaException {
                 if (OntIndividual.Named.class.equals(type)) {
-                    return expand(type, OWL.Class, RDFS.Datatype);
+                    return Set.of(OWL.Class.asNode(), RDFS.Datatype.asNode());
                 }
-                if (OntClass.Named.class.equals(type) || OntDataRange.Named.class.equals(type)) {
-                    return expand(type, OWL.NamedIndividual);
+                if (OntClass.Named.class.equals(type)) {
+                    return Set.of(RDFS.Datatype.asNode(), OWL.NamedIndividual.asNode());
                 }
-                return base.get(type);
+                if (OntDataRange.Named.class.equals(type)) {
+                    return Set.of(OWL.Class.asNode(), OWL.NamedIndividual.asNode());
+                }
+                if (OntObjectProperty.Named.class.equals(type)) {
+                    return Set.of(OWL.AnnotationProperty.asNode(), OWL.DatatypeProperty.asNode());
+                }
+                if (OntDataProperty.class.equals(type)) {
+                    return Set.of(OWL.AnnotationProperty.asNode(), OWL.ObjectProperty.asNode());
+                }
+                if (OntAnnotationProperty.class.equals(type)) {
+                    return Set.of(OWL.ObjectProperty.asNode(), OWL.DatatypeProperty.asNode());
+                }
+                throw new AssertionError();
             }
 
             @Override
             public boolean supports(Class<? extends OntObject> type) {
                 return true;
-            }
-
-            private Set<Node> expand(Class<? extends OntObject> type, Resource... additional) {
-                Set<Node> res = new HashSet<>(base.get(type));
-                Arrays.stream(additional).forEach(t -> res.add(t.asNode()));
-                return Collections.unmodifiableSet(res);
             }
         };
         OntPersonality p2 = OntObjectPersonalityBuilder.from(TestOntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS).setPunnings(punnings).build();

@@ -170,7 +170,7 @@ public interface OntPersonality {
      * cannot contain entities which have intersection in {@link RDF#type rdf:type}
      * that are determined by this vocabulary.
      * <p>
-     * For example, for the {@link OntPersonalities.PunningsMode#DL_WEAK} and for the {@link OntPersonalities.PunningsMode#DL2}
+     * For example, for the {@link PunningsMode#DL_WEAK} and for the {@link PunningsMode#DL2}
      * configurations, the expression {@code voc.get(OntClass.class)}, where {@code voc} is an instance of this class,
      * should return a {@code Set}
      * containing {@link org.apache.jena.vocabulary.RDFS#Datatype rdfs:Datatype} in the form of {@link Node},

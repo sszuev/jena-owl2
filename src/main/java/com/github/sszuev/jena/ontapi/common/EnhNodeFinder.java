@@ -92,9 +92,8 @@ public interface EnhNodeFinder {
             if (types.size() == 1) {
                 return eg.asGraph().find(Node.ANY, RDF.Nodes.type, types.get(0)).mapWith(Triple::getSubject);
             }
-
-            return Iterators.flatMap(WrappedIterator.create(types.iterator()),
-                    type -> eg.asGraph().find(Node.ANY, RDF.Nodes.type, type)).mapWith(Triple::getSubject);
+            return Iterators.distinct(Iterators.flatMap(WrappedIterator.create(types.iterator()),
+                    type -> eg.asGraph().find(Node.ANY, RDF.Nodes.type, type)).mapWith(Triple::getSubject));
         }
     }
 

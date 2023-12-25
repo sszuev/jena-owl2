@@ -17,8 +17,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * To test properties:
- * {@link OntNamedProperty}, {@link OntProperty} ({@link OntObjectProperty}, {@link OntObjectProperty.Named}, {@link OntDataProperty}, {@link OntRealProperty}, {@link OntAnnotationProperty}).
+ * Properties' generic test:
+ * {@link OntNamedProperty},
+ * {@link OntProperty},
+ * {@link OntObjectProperty},
+ * {@link OntObjectProperty.Named},
+ * {@link OntDataProperty},
+ * {@link OntRealProperty},
+ * {@link OntAnnotationProperty}.
  * <p>
  * Created by @ssz on 08.05.2019.
  */
@@ -236,4 +242,5 @@ public class OntPropertyTest {
         Assertions.assertEquals(5, p3.referringRestrictions().count());
         Assertions.assertEquals(4, p4.referringRestrictions().count());
     }
+
 }

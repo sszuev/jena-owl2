@@ -41,7 +41,7 @@ public class OWL1ObjectFactories {
     public static final EnhNodeFactory NAMED_CLASS = OntEntities.createNamedClassFactory();
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
-    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createObjectPropertyFactory();
+    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createOWL1ObjectPropertyFactory();
     public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEnhNodeFactories.createCommon(
             OntIndividualImpl.NamedImpl.class,
             OntIndividualImpl.NamedImpl::new,

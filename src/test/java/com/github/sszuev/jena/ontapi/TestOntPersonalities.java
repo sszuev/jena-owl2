@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
+import com.github.sszuev.jena.ontapi.common.PunningsMode;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -15,7 +16,7 @@ class TestOntPersonalities {
      * (no restriction on the type declarations).
      *
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see OntPersonalities.PunningsMode#FULL
+     * @see PunningsMode#FULL
      */
     public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_LAX_PUNNS")
@@ -33,7 +34,7 @@ class TestOntPersonalities {
      * </ul>
      *
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see OntPersonalities.PunningsMode#DL_WEAK
+     * @see PunningsMode#DL_WEAK
      */
     public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_MEDIUM_PUNNS")
@@ -57,7 +58,7 @@ class TestOntPersonalities {
      * that a name can only be used for one kind of property."
      *
      * @see <a href='https://www.w3.org/TR/owl2-new-features/#F12:_Punning'>2.4.1 F12: Punning</a>
-     * @see OntPersonalities.PunningsMode#DL2
+     * @see PunningsMode#DL2
      */
     public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_STRICT_PUNNS")

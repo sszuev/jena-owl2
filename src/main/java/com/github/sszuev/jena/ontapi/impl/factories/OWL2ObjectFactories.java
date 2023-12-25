@@ -55,7 +55,7 @@ public final class OWL2ObjectFactories {
     public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createNamedDataRangeFactory();
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
-    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createObjectPropertyFactory();
+    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createOWL2ObjectPropertyFactory();
     public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEntities.createNamedIndividualFactory();
 
     public static final EnhNodeFactory ANY_ENTITY = OntEnhNodeFactories.createFrom(

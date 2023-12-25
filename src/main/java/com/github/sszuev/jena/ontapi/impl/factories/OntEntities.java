@@ -49,14 +49,34 @@ import java.util.stream.Stream;
  */
 final class OntEntities {
 
-    public static EnhNodeFactory createObjectPropertyFactory() {
+    public static EnhNodeFactory createOWL2ObjectPropertyFactory() {
         return createOntEntityFactory(
                 OntObjectProperty.Named.class,
                 OntObjectPropertyImpl.NamedImpl.class,
                 OntObjectPropertyImpl.NamedImpl::new,
                 OntPersonality.Builtins::getObjectProperties,
                 OntPersonality.Punnings::getObjectProperties,
-                OWL.ObjectProperty
+                OWL.ObjectProperty,
+                OWL.InverseFunctionalProperty,
+                OWL.ReflexiveProperty,
+                OWL.IrreflexiveProperty,
+                OWL.SymmetricProperty,
+                OWL.AsymmetricProperty,
+                OWL.TransitiveProperty
+        );
+    }
+
+    public static EnhNodeFactory createOWL1ObjectPropertyFactory() {
+        return createOntEntityFactory(
+                OntObjectProperty.Named.class,
+                OntObjectPropertyImpl.NamedImpl.class,
+                OntObjectPropertyImpl.NamedImpl::new,
+                OntPersonality.Builtins::getObjectProperties,
+                OntPersonality.Punnings::getObjectProperties,
+                OWL.ObjectProperty,
+                OWL.InverseFunctionalProperty,
+                OWL.SymmetricProperty,
+                OWL.TransitiveProperty
         );
     }
 

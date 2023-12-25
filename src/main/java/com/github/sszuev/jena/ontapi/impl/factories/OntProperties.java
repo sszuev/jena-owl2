@@ -21,6 +21,8 @@ import org.apache.jena.util.iterator.WrappedIterator;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 final class OntProperties {
     public static final EnhNodeFinder NEGATIVE_PROPERTY_ASSERTION_FINDER = new EnhNodeFinder.ByType(OWL.NegativePropertyAssertion);
@@ -98,28 +100,52 @@ final class OntProperties {
      */
     public static class AnyOntPropertyFactory extends BaseEnhNodeFactoryImpl {
 
-        private static final List<Node> PROPERTY_TYPES = List.of(
-                RDF.Property.asNode(),
+        private static final List<Node> OWL2_OBJECT_PROPERTY_TYPES = List.of(
                 OWL.ObjectProperty.asNode(),
-                OWL.DatatypeProperty.asNode(),
-                OWL.AnnotationProperty.asNode()
+                OWL.InverseFunctionalProperty.asNode(),
+                OWL.ReflexiveProperty.asNode(),
+                OWL.IrreflexiveProperty.asNode(),
+                OWL.SymmetricProperty.asNode(),
+                OWL.AsymmetricProperty.asNode(),
+                OWL.TransitiveProperty.asNode()
         );
 
-        private final boolean withInverseObjectProperty;
+        private static final List<Node> OWL1_OBJECT_PROPERTY_TYPES = List.of(
+                OWL.ObjectProperty.asNode(),
+                OWL.InverseFunctionalProperty.asNode(),
+                OWL.SymmetricProperty.asNode(),
+                OWL.TransitiveProperty.asNode()
+        );
 
-        public AnyOntPropertyFactory(boolean withInverseObjectProperty) {
-            this.withInverseObjectProperty = withInverseObjectProperty;
+        private static final List<Node> OWL2_PROPERTY_TYPES = Stream.concat(Stream.of(
+                RDF.Property.asNode(),
+                OWL.DatatypeProperty.asNode(),
+                OWL.AnnotationProperty.asNode(),
+                OWL.FunctionalProperty.asNode()
+        ), OWL2_OBJECT_PROPERTY_TYPES.stream()).collect(Collectors.toUnmodifiableList());
+
+        private static final List<Node> OWL1_PROPERTY_TYPES = Stream.concat(Stream.of(
+                RDF.Property.asNode(),
+                OWL.DatatypeProperty.asNode(),
+                OWL.AnnotationProperty.asNode(),
+                OWL.FunctionalProperty.asNode()
+        ), OWL1_OBJECT_PROPERTY_TYPES.stream()).collect(Collectors.toUnmodifiableList());
+
+        private final boolean forOWL2;
+
+        public AnyOntPropertyFactory(boolean forOWL2) {
+            this.forOWL2 = forOWL2;
         }
 
         @Override
         public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {
             ExtendedIterator<Node> named = Iterators.distinct(
                     Iterators.flatMap(
-                            WrappedIterator.create(PROPERTY_TYPES.iterator()),
+                            WrappedIterator.create((forOWL2 ? OWL2_PROPERTY_TYPES : OWL1_PROPERTY_TYPES).iterator()),
                             type -> eg.asGraph().find(Node.ANY, RDF.type.asNode(), type)
                     ).mapWith(Triple::getSubject).filterKeep(Node::isURI)
             );
-            if (!withInverseObjectProperty) {
+            if (!forOWL2) {
                 return named.mapWith(it -> createInstance(it, eg));
             }
             ExtendedIterator<Node> anonymous = Iterators.distinct(
@@ -144,13 +170,13 @@ final class OntProperties {
         @Override
         public boolean canWrap(Node node, EnhGraph eg) {
             if (node.isURI()) {
-                for (Node type : PROPERTY_TYPES) {
+                for (Node type : (forOWL2 ? OWL2_PROPERTY_TYPES : OWL1_PROPERTY_TYPES)) {
                     if (eg.asGraph().contains(node, RDF.type.asNode(), type)) {
                         return true;
                     }
                 }
             }
-            if (withInverseObjectProperty && node.isBlank()) {
+            if (forOWL2 && node.isBlank()) {
                 // "_:x owl:inverseOf PN":
                 return isInverseObjectProperty(node, eg);
             }
@@ -166,7 +192,15 @@ final class OntProperties {
         }
 
         private boolean isNamedObjectProperty(Node node, EnhGraph eg) {
-            return node.isURI() && eg.asGraph().contains(node, RDF.type.asNode(), OWL.ObjectProperty.asNode());
+            if (!node.isURI()) {
+                return false;
+            }
+            for (Node type : (forOWL2 ? OWL2_PROPERTY_TYPES : OWL1_PROPERTY_TYPES)) {
+                if (eg.asGraph().contains(node, RDF.type.asNode(), type)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
