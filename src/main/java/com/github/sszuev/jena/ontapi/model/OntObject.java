@@ -27,7 +27,7 @@ public interface OntObject extends OntResource {
      *
      * @return Class, the actual type of this object
      */
-    Class<? extends OntObject> getActualClass();
+    Class<? extends OntObject> objectType();
 
     /**
      * Returns the main {@link OntStatement}

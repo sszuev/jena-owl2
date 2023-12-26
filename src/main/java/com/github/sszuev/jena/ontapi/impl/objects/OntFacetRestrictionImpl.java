@@ -49,12 +49,12 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
 
     @Override
     public Optional<OntStatement> findRootStatement() {
-        return Optional.of(getModel().createStatement(this, predicate(getActualClass()), getValue()));//.asRootStatement();
+        return Optional.of(getModel().createStatement(this, predicate(objectType()), getValue()));//.asRootStatement();
     }
 
     @Override
     public Literal getValue() {
-        return getRequiredObject(predicate(getActualClass()), Literal.class);
+        return getRequiredObject(predicate(objectType()), Literal.class);
     }
 
     public static class LengthImpl extends OntFacetRestrictionImpl implements Length {
@@ -63,7 +63,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<Length> getActualClass() {
+        public Class<Length> objectType() {
             return Length.class;
         }
     }
@@ -74,7 +74,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<MinLength> getActualClass() {
+        public Class<MinLength> objectType() {
             return MinLength.class;
         }
     }
@@ -85,7 +85,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<MaxLength> getActualClass() {
+        public Class<MaxLength> objectType() {
             return MaxLength.class;
         }
     }
@@ -96,7 +96,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<MinInclusive> getActualClass() {
+        public Class<MinInclusive> objectType() {
             return MinInclusive.class;
         }
     }
@@ -107,7 +107,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<MaxInclusive> getActualClass() {
+        public Class<MaxInclusive> objectType() {
             return MaxInclusive.class;
         }
     }
@@ -118,7 +118,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<MinExclusive> getActualClass() {
+        public Class<MinExclusive> objectType() {
             return MinExclusive.class;
         }
     }
@@ -129,7 +129,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<MaxExclusive> getActualClass() {
+        public Class<MaxExclusive> objectType() {
             return MaxExclusive.class;
         }
     }
@@ -140,7 +140,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<Pattern> getActualClass() {
+        public Class<Pattern> objectType() {
             return Pattern.class;
         }
     }
@@ -151,7 +151,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<TotalDigits> getActualClass() {
+        public Class<TotalDigits> objectType() {
             return TotalDigits.class;
         }
     }
@@ -162,7 +162,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<FractionDigits> getActualClass() {
+        public Class<FractionDigits> objectType() {
             return FractionDigits.class;
         }
     }
@@ -173,7 +173,7 @@ public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements O
         }
 
         @Override
-        public Class<LangRange> getActualClass() {
+        public Class<LangRange> objectType() {
             return LangRange.class;
         }
     }

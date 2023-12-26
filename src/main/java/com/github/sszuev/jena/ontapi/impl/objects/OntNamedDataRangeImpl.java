@@ -24,7 +24,7 @@ public class OntNamedDataRangeImpl extends OntObjectImpl implements OntDataRange
     }
 
     @Override
-    public Class<Named> getActualClass() {
+    public Class<Named> objectType() {
         return Named.class;
     }
 

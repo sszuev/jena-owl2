@@ -348,7 +348,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     @Override
-    public abstract Class<? extends OntClass> getActualClass();
+    public abstract Class<? extends OntClass> objectType();
 
     @Override
     public OntIndividual.Anonymous createIndividual() {
@@ -473,7 +473,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<ObjectSomeValuesFrom> getActualClass() {
+        public Class<ObjectSomeValuesFrom> objectType() {
             return ObjectSomeValuesFrom.class;
         }
     }
@@ -485,7 +485,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<DataSomeValuesFrom> getActualClass() {
+        public Class<DataSomeValuesFrom> objectType() {
             return DataSomeValuesFrom.class;
         }
     }
@@ -497,7 +497,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<ObjectAllValuesFrom> getActualClass() {
+        public Class<ObjectAllValuesFrom> objectType() {
             return ObjectAllValuesFrom.class;
         }
     }
@@ -509,7 +509,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<DataAllValuesFrom> getActualClass() {
+        public Class<DataAllValuesFrom> objectType() {
             return DataAllValuesFrom.class;
         }
     }
@@ -521,7 +521,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<ObjectHasValue> getActualClass() {
+        public Class<ObjectHasValue> objectType() {
             return ObjectHasValue.class;
         }
     }
@@ -533,7 +533,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<DataHasValue> getActualClass() {
+        public Class<DataHasValue> objectType() {
             return DataHasValue.class;
         }
     }
@@ -544,7 +544,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<UnionOf> getActualClass() {
+        public Class<UnionOf> objectType() {
             return UnionOf.class;
         }
     }
@@ -555,7 +555,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<IntersectionOf> getActualClass() {
+        public Class<IntersectionOf> objectType() {
             return IntersectionOf.class;
         }
     }
@@ -566,7 +566,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<OneOf> getActualClass() {
+        public Class<OneOf> objectType() {
             return OneOf.class;
         }
     }
@@ -578,7 +578,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<DataMinCardinality> getActualClass() {
+        public Class<DataMinCardinality> objectType() {
             return DataMinCardinality.class;
         }
     }
@@ -590,7 +590,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<ObjectMinCardinality> getActualClass() {
+        public Class<ObjectMinCardinality> objectType() {
             return ObjectMinCardinality.class;
         }
     }
@@ -602,7 +602,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<DataMaxCardinality> getActualClass() {
+        public Class<DataMaxCardinality> objectType() {
             return DataMaxCardinality.class;
         }
     }
@@ -614,7 +614,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<ObjectMaxCardinality> getActualClass() {
+        public Class<ObjectMaxCardinality> objectType() {
             return ObjectMaxCardinality.class;
         }
     }
@@ -626,7 +626,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<DataCardinality> getActualClass() {
+        public Class<DataCardinality> objectType() {
             return DataCardinality.class;
         }
     }
@@ -638,7 +638,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<ObjectCardinality> getActualClass() {
+        public Class<ObjectCardinality> objectType() {
             return ObjectCardinality.class;
         }
     }
@@ -654,7 +654,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<HasSelf> getActualClass() {
+        public Class<HasSelf> objectType() {
             return HasSelf.class;
         }
     }
@@ -670,7 +670,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<ComplementOf> getActualClass() {
+        public Class<ComplementOf> objectType() {
             return ComplementOf.class;
         }
 
@@ -700,7 +700,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<? extends OntClass> getActualClass() {
+        public Class<? extends OntClass> objectType() {
             return NaryDataAllValuesFrom.class;
         }
     }
@@ -713,7 +713,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<? extends OntClass> getActualClass() {
+        public Class<? extends OntClass> objectType() {
             return NaryDataSomeValuesFrom.class;
         }
     }
@@ -760,7 +760,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<? extends OntClass> getActualClass() {
+        public Class<? extends OntClass> objectType() {
             return OntClass.Restriction.class;
         }
     }
@@ -787,7 +787,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<? extends OntClass> getActualClass() {
+        public Class<? extends OntClass> objectType() {
             return OntClass.UnaryRestriction.class;
         }
 
@@ -1010,7 +1010,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Class<? extends OntClass> getActualClass() {
+        public Class<? extends OntClass> objectType() {
             return NaryRestriction.class;
         }
 

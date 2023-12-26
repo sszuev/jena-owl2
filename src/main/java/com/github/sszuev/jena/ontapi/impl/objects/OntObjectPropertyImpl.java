@@ -147,7 +147,7 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
         }
 
         @Override
-        public Class<Named> getActualClass() {
+        public Class<Named> objectType() {
             return Named.class;
         }
 
@@ -179,7 +179,7 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Inverse.class;
         }
 

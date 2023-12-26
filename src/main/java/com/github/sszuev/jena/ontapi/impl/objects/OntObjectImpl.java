@@ -183,7 +183,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
             return false;
         }
         OntPersonality personality = OntEnhGraph.asPersonalityModel(object.getModel()).getOntPersonality();
-        return personality.getBuiltins().get(object.getActualClass()).contains(object.asNode())
+        return personality.getBuiltins().get(object.objectType()).contains(object.asNode())
                 || personality.getReserved().getAllResources().contains(object.asNode());
     }
 
@@ -676,13 +676,13 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      * @return Class, the actual type of this object
      */
     @Override
-    public Class<? extends OntObject> getActualClass() {
+    public Class<? extends OntObject> objectType() {
         return findActualClass(this);
     }
 
     @Override
     public String toString() {
-        Class<? extends RDFNode> view = getActualClass();
+        Class<? extends RDFNode> view = objectType();
         return view == null ? super.toString() : String.format("[%s]%s", OntEnhNodeFactories.viewAsString(view), asNode());
     }
 

@@ -26,7 +26,7 @@ public class OntSimplePropertyImpl extends OntPropertyImpl implements OntPropert
     }
 
     @Override
-    public Class<? extends OntObject> getActualClass() {
+    public Class<? extends OntObject> objectType() {
         return OntProperty.class;
     }
 

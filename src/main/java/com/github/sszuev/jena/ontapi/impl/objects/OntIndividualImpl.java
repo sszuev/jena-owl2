@@ -170,7 +170,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Named.class;
         }
 
@@ -218,7 +218,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Anonymous.class;
         }
 

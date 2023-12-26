@@ -28,7 +28,7 @@ public class OntAnnotationPropertyImpl extends OntPropertyImpl implements OntAnn
     }
 
     @Override
-    public Class<OntAnnotationProperty> getActualClass() {
+    public Class<OntAnnotationProperty> objectType() {
         return OntAnnotationProperty.class;
     }
 

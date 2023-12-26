@@ -84,7 +84,7 @@ public class OntModelOWLSpecTest {
     }
 
     private static void testHasPredicate(Model m, Property predicate, List<? extends OntClass> ces) {
-        String type = ces.isEmpty() ? null : ((OntClassImpl) ces.get(0)).getActualClass().getSimpleName();
+        String type = ces.isEmpty() ? null : ((OntClassImpl) ces.get(0)).objectType().getSimpleName();
         Assertions.assertEquals(m.listSubjectsWithProperty(predicate).toSet().size(), ces.size(), "Incorrect count of " + type);
     }
 

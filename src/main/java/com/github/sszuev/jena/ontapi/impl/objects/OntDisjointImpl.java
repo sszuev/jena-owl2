@@ -124,7 +124,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Classes.class;
         }
 
@@ -196,7 +196,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Individuals.class;
         }
 
@@ -234,7 +234,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return ObjectProperties.class;
         }
 
@@ -250,7 +250,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return DataProperties.class;
         }
 

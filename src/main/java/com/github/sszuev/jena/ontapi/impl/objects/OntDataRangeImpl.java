@@ -110,7 +110,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return ComplementOf.class;
         }
 
@@ -128,7 +128,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return OneOf.class;
         }
     }
@@ -139,7 +139,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
         }
 
         @Override
-        public Class<Restriction> getActualClass() {
+        public Class<Restriction> objectType() {
             return Restriction.class;
         }
 
@@ -177,7 +177,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return UnionOf.class;
         }
     }
@@ -189,7 +189,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return IntersectionOf.class;
         }
     }

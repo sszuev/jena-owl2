@@ -27,7 +27,7 @@ public class OntDataPropertyImpl extends OntPropertyImpl implements OntDataPrope
     }
 
     @Override
-    public Class<OntDataProperty> getActualClass() {
+    public Class<OntDataProperty> objectType() {
         return OntDataProperty.class;
     }
 

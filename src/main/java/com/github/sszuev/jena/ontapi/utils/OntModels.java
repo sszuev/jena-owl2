@@ -58,7 +58,7 @@ public class OntModels {
     public static <O extends OntObject> Class<O> getOntType(O object) {
         Class<O> res;
         if (object instanceof OntObjectImpl) {
-            res = (Class<O>) ((OntObjectImpl) object).getActualClass();
+            res = (Class<O>) object.objectType();
         } else {
             res = (Class<O>) OntObjectImpl.findActualClass(object);
         }

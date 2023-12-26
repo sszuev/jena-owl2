@@ -160,7 +160,7 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
     }
 
     @Override
-    public Class<? extends OntObject> getActualClass() {
+    public Class<? extends OntObject> objectType() {
         return OntAnnotation.class;
     }
 

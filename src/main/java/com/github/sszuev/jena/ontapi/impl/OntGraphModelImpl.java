@@ -514,7 +514,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      */
     public <E extends OntObjectImpl & OntEntity> boolean isBuiltIn(E e) {
         return getOntPersonality().getBuiltins()
-                .get(e.getActualClass())
+                .get(e.objectType())
                 .contains(e.asNode());
     }
 

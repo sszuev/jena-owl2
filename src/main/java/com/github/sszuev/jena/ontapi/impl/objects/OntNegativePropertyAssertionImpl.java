@@ -100,7 +100,7 @@ public abstract class OntNegativePropertyAssertionImpl<P extends OntRealProperty
         }
 
         @Override
-        public Class<WithObjectProperty> getActualClass() {
+        public Class<WithObjectProperty> objectType() {
             return WithObjectProperty.class;
         }
 
@@ -128,7 +128,7 @@ public abstract class OntNegativePropertyAssertionImpl<P extends OntRealProperty
         }
 
         @Override
-        public Class<WithDataProperty> getActualClass() {
+        public Class<WithDataProperty> objectType() {
             return WithDataProperty.class;
         }
 

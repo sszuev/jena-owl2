@@ -46,7 +46,7 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
     }
 
     @Override
-    public Class<? extends OntClass> getActualClass() {
+    public Class<? extends OntClass> objectType() {
         return OntClass.class;
     }
 
@@ -153,7 +153,7 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
         }
 
         @Override
-        public Class<Named> getActualClass() {
+        public Class<Named> objectType() {
             return Named.class;
         }
     }

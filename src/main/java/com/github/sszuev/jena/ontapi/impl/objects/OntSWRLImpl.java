@@ -152,7 +152,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Builtin.class;
         }
     }
@@ -163,7 +163,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Variable.class;
         }
     }
@@ -174,7 +174,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return DArg.class;
         }
 
@@ -201,7 +201,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return IArg.class;
         }
     }
@@ -252,7 +252,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return WithBuiltin.class;
         }
     }
@@ -296,7 +296,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return WithClass.class;
         }
     }
@@ -312,7 +312,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return WithDataRange.class;
         }
     }
@@ -379,7 +379,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return WithDataProperty.class;
         }
     }
@@ -395,7 +395,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return WithObjectProperty.class;
         }
     }
@@ -428,7 +428,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return WithDifferentIndividuals.class;
         }
     }
@@ -444,7 +444,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return WithSameIndividuals.class;
         }
     }
@@ -482,7 +482,7 @@ public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {
         }
 
         @Override
-        public Class<? extends OntObject> getActualClass() {
+        public Class<? extends OntObject> objectType() {
             return Imp.class;
         }
     }
