@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi.common;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntModel;
+import com.github.sszuev.jena.ontapi.model.OntObject;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.RDFNode;
@@ -128,4 +129,15 @@ public interface OntEnhGraph {
      */
     <N extends RDFNode> N safeFindNodeAs(Node node, Class<N> view);
 
+    /**
+     * @throws OntJenaException.Unsupported if the {@code type} is not supported by the configuration
+     */
+    default <X extends OntObject> void checkType(Class<X> type) {
+        if (!getOntPersonality().supports(type)) {
+            throw new OntJenaException.Unsupported(
+                    "Profile " + getOntPersonality().getName() + " does not support language construct " +
+                            OntEnhNodeFactories.viewAsString(type)
+            );
+        }
+    }
 }

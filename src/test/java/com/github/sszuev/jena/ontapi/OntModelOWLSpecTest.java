@@ -123,7 +123,9 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testPizzaObjects1a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(
@@ -203,7 +205,10 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
     })
     public void testPizzaLoadProperties(TestSpec spec) {
         simplePropertiesValidation(OntModelFactory.createModel(
@@ -214,7 +219,10 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
     })
     public void testFamilyLoadProperties(TestSpec spec) {
         simplePropertiesValidation(OntModelFactory.createModel(
@@ -225,7 +233,10 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
     })
     public void testPizzaLoadIndividuals(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(
@@ -251,6 +262,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testKoalaCommon(TestSpec spec) throws IOException {
         // koala has 4 cardinality restrictions with wrong 'xsd:int' instead of 'xsd:nonNegativeInteger'
@@ -333,6 +345,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testKoalaProperties(TestSpec spec) throws IOException {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -341,12 +354,12 @@ public class OntModelOWLSpecTest {
         }
         simplePropertiesValidation(m);
         OntObjectProperty p1 = m.objectProperties().findFirst().orElseThrow(AssertionError::new);
-        Assertions.assertFalse(p1.findInverseProperty().isPresent());
+        Assertions.assertFalse(p1.inverseProperty().isPresent());
         OntObjectProperty p2 = m.createResource().addProperty(OWL.inverseOf, p1).as(OntObjectProperty.class);
-        Assertions.assertTrue(p2.findInverseProperty().isPresent());
+        Assertions.assertTrue(p2.inverseProperty().isPresent());
         Assertions.assertEquals(1, p2.inverseProperties().count());
         Assertions.assertEquals(p1.asProperty(), p2.asProperty());
-        Assertions.assertEquals(p1, p2.findInverseProperty().orElseThrow(AssertionError::new));
+        Assertions.assertEquals(p1, p2.inverseProperty().orElseThrow(AssertionError::new));
         Assertions.assertEquals(1, m.ontObjects(OntObjectProperty.Inverse.class).count());
     }
 
@@ -354,7 +367,12 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
     })
     public void testCreateImports(TestSpec spec) {
         String baseURI = "http://test.com/graph/5";
@@ -385,6 +403,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testAssemblySimplestOntology(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -427,7 +446,6 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(2, bob.positiveAssertions().count());
         Assertions.assertEquals(3, bob.negativeAssertions().count());
 
-
         Assertions.assertEquals(42, m.statements().count());
     }
 
@@ -435,7 +453,11 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
     })
     public void testCreateSimpleEntities(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -443,14 +465,14 @@ public class OntModelOWLSpecTest {
         createSimpleEntityTest(m, "o-p", OntObjectProperty.Named.class);
         createSimpleEntityTest(m, "d-p", OntDataProperty.class);
         createSimpleEntityTest(m, "c", OntClass.Named.class);
-        if (spec != TestSpec.OWL1_MEM) {
+        if (!spec.isOWL1()) {
             createSimpleEntityTest(m, "d", OntDataRange.Named.class);
         } else {
             // no such type in OWL1
             Assertions.assertThrows(OntJenaException.Unsupported.class,
                     () -> createSimpleEntityTest(m, "d", OntDataRange.Named.class));
         }
-        if (spec != TestSpec.OWL1_MEM) {
+        if (!spec.isOWL1()) {
             createSimpleEntityTest(m, "I", OntIndividual.Named.class);
         } else {
             // can't create naked individual in OWL1 (there is no default class-type)
@@ -469,6 +491,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testCreateAnnotatedEntities(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -570,6 +593,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testRemoveObjects(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -596,10 +620,10 @@ public class OntModelOWLSpecTest {
 
     @ParameterizedTest
     @EnumSource(names = {
-            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
-            "OWL2_MEM",
-            "OWL1_MEM",
-    })
+            "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
+            "RDFS_MEM_TRANS_INF",
+    }, mode = EnumSource.Mode.EXCLUDE)
     public void testModelPrefixes(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         m.setID("http://x");
@@ -626,6 +650,7 @@ public class OntModelOWLSpecTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
             "OWL1_MEM",
+            "OWL1_LITE_MEM",
     })
     public void testAdvancedModelImports(TestSpec spec) {
         OntModel av1 = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD)
@@ -691,7 +716,10 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
+            "OWL1_LITE_MEM",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testCycleModelImports(TestSpec spec) {
         OntModel a = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -748,10 +776,10 @@ public class OntModelOWLSpecTest {
 
     @ParameterizedTest
     @EnumSource(names = {
-            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
-            "OWL2_MEM",
-            "OWL1_MEM",
-    })
+            "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
+            "RDFS_MEM_TRANS_INF",
+    }, mode = EnumSource.Mode.EXCLUDE)
     public void testOntPropertyOrdinal(TestSpec spec) {
         Graph g = RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph();
         OntModel m = OntModelFactory.createModel(g, spec.inst);
@@ -766,11 +794,19 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
-    public void testFamilyListObjects(TestSpec spec) {
+    public void testFamilyListObjectsOWL2(TestSpec spec) {
+        String ns = "http://www.co-ode.org/roberts/family-tree.owl#";
         OntModel m = OntModelFactory.createModel(
                 RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
                 spec.inst);
+
+        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().collect(Collectors.toList());
+        Assertions.assertEquals(1, equivalentToWife.size());
+        Assertions.assertEquals(OntClass.IntersectionOf.class, equivalentToWife.get(0).objectType());
+
+        assertOntObjectsCount(m, OntObject.class, 1684);
         assertOntObjectsCount(m, OntEntity.class, 656);
         assertOntObjectsCount(m, OntNamedProperty.class, 90);
 
@@ -783,8 +819,16 @@ public class OntModelOWLSpecTest {
 
         assertOntObjectsCount(m, OntObjectProperty.class, 80);
         assertOntObjectsCount(m, OntRealProperty.class, 89);
+        assertOntObjectsCount(m, OntProperty.class, 90);
 
         assertOntObjectsCount(m, OntDataRange.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Named.class, 0);
+        assertOntObjectsCount(m, OntDataRange.OneOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Restriction.class, 0);
+        assertOntObjectsCount(m, OntDataRange.UnionOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.ComplementOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.IntersectionOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Combination.class, 0);
 
         assertOntObjectsCount(m, OntDisjoint.class, 1);
         assertOntObjectsCount(m, OntDisjoint.Classes.class, 0);
@@ -793,12 +837,159 @@ public class OntModelOWLSpecTest {
         assertOntObjectsCount(m, OntDisjoint.ObjectProperties.class, 0);
         assertOntObjectsCount(m, OntDisjoint.Properties.class, 0);
 
-        // todo: handle all other types
+        assertOntObjectsCount(m, OntClass.class, 289);
+        assertOntObjectsCount(m, OntClass.Named.class, 58);
+        assertOntObjectsCount(m, OntClass.CollectionOf.class, 113);
+        assertOntObjectsCount(m, OntClass.LogicalExpression.class, 114);
+        assertOntObjectsCount(m, OntClass.ValueRestriction.class, 117);
+        assertOntObjectsCount(m, OntClass.UnaryRestriction.class, 117);
+        assertOntObjectsCount(m, OntClass.Restriction.class, 117);
+        assertOntObjectsCount(m, OntClass.NaryRestriction.class, 0);
+        assertOntObjectsCount(m, OntClass.ComponentRestriction.class, 117);
+        assertOntObjectsCount(m, OntClass.CardinalityRestriction.class, 0);
+        assertOntObjectsCount(m, OntClass.CollectionOf.class, 113);
+        assertOntObjectsCount(m, OntClass.IntersectionOf.class, 109);
+        assertOntObjectsCount(m, OntClass.UnionOf.class, 4);
+        assertOntObjectsCount(m, OntClass.OneOf.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectHasValue.class, 6);
+        assertOntObjectsCount(m, OntClass.ObjectSomeValuesFrom.class, 111);
+        assertOntObjectsCount(m, OntClass.ObjectAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.DataCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataHasValue.class, 0);
+        assertOntObjectsCount(m, OntClass.DataSomeValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.DataAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.HasSelf.class, 0);
+        assertOntObjectsCount(m, OntClass.NaryDataAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.NaryDataSomeValuesFrom.class, 0);
     }
 
-    @Test
-    public void testRemoveStatement() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
+    })
+    public void testFamilyListObjectsOWL1(TestSpec spec) {
+        String ns = "http://www.co-ode.org/roberts/family-tree.owl#";
+        OntModel m = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
+                spec.inst);
+
+        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().collect(Collectors.toList());
+        Assertions.assertEquals(1, equivalentToWife.size());
+        Assertions.assertEquals(OntClass.IntersectionOf.class, equivalentToWife.get(0).objectType());
+
+        assertOntObjectsCount(m, OntObject.class, 1684);
+        assertOntObjectsCount(m, OntEntity.class, 151);
+        assertOntObjectsCount(m, OntNamedProperty.class, 90);
+        assertOntObjectsCount(m, OntClass.Named.class, 58);
+        assertOntObjectsCount(m, OntDataRange.Named.class, 0);
+        assertOntObjectsCount(m, OntIndividual.Named.class, 3);
+        assertOntObjectsCount(m, OntObjectProperty.Named.class, 80);
+        assertOntObjectsCount(m, OntAnnotationProperty.class, 1);
+        assertOntObjectsCount(m, OntDataProperty.class, 9);
+
+        assertOntObjectsCount(m, OntObjectProperty.class, 80);
+        assertOntObjectsCount(m, OntRealProperty.class, 89);
+        assertOntObjectsCount(m, OntProperty.class, 90);
+
+        assertOntObjectsCount(m, OntDataRange.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Named.class, 0);
+        assertOntObjectsCount(m, OntDataRange.OneOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Restriction.class, 0);
+        assertOntObjectsCount(m, OntDataRange.UnionOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.ComplementOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.IntersectionOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Combination.class, 0);
+
+        assertOntObjectsCount(m, OntDisjoint.class, 1);
+        assertOntObjectsCount(m, OntDisjoint.Classes.class, 0);
+        assertOntObjectsCount(m, OntDisjoint.Individuals.class, 1);
+        assertOntObjectsCount(m, OntDisjoint.DataProperties.class, 0);
+        assertOntObjectsCount(m, OntDisjoint.ObjectProperties.class, 0);
+        assertOntObjectsCount(m, OntDisjoint.Properties.class, 0);
+
+        assertOntObjectsCount(m, OntClass.class, 289);
+        assertOntObjectsCount(m, OntClass.Named.class, 58);
+        assertOntObjectsCount(m, OntClass.CollectionOf.class, 113);
+        assertOntObjectsCount(m, OntClass.LogicalExpression.class, 114);
+        assertOntObjectsCount(m, OntClass.ValueRestriction.class, 111);
+        assertOntObjectsCount(m, OntClass.UnaryRestriction.class, 117);
+        assertOntObjectsCount(m, OntClass.Restriction.class, 117);
+        assertOntObjectsCount(m, OntClass.NaryRestriction.class, 0);
+        // TODO
+        /*assertOntObjectsCount(m, OntClass.ComponentRestriction.class, 117);
+        assertOntObjectsCount(m, OntClass.CardinalityRestriction.class, 0);
+        assertOntObjectsCount(m, OntClass.CollectionOf.class, 113);
+        assertOntObjectsCount(m, OntClass.IntersectionOf.class, 109);
+        assertOntObjectsCount(m, OntClass.UnionOf.class, 4);
+        assertOntObjectsCount(m, OntClass.OneOf.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectHasValue.class, 6);
+        assertOntObjectsCount(m, OntClass.ObjectSomeValuesFrom.class, 111);
+        assertOntObjectsCount(m, OntClass.ObjectAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.DataCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataHasValue.class, 0);
+        assertOntObjectsCount(m, OntClass.DataSomeValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.DataAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.HasSelf.class, 0);
+        assertOntObjectsCount(m, OntClass.NaryDataAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.NaryDataSomeValuesFrom.class, 0);*/
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_LITE_MEM",
+    })
+    public void testFamilyListObjectsOWL1Lite(TestSpec spec) {
+        String ns = "http://www.co-ode.org/roberts/family-tree.owl#";
+        OntModel m = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
+                spec.inst);
+
+        Assertions.assertTrue(m.getOntClass(ns + "Wife").equivalentClasses().findFirst().isEmpty());
+
+        // TODO
+//        assertOntObjectsCount(m, OntEntity.class, 656);
+//        assertOntObjectsCount(m, OntNamedProperty.class, 90);
+//
+//        assertOntObjectsCount(m, OntClass.Named.class, 58);
+//        assertOntObjectsCount(m, OntDataRange.Named.class, 0);
+//        assertOntObjectsCount(m, OntIndividual.Named.class, 508);
+//        assertOntObjectsCount(m, OntObjectProperty.Named.class, 80);
+//        assertOntObjectsCount(m, OntAnnotationProperty.class, 1);
+//        assertOntObjectsCount(m, OntDataProperty.class, 9);
+//
+//        assertOntObjectsCount(m, OntObjectProperty.class, 80);
+//        assertOntObjectsCount(m, OntRealProperty.class, 89);
+//
+//        assertOntObjectsCount(m, OntDataRange.class, 0);
+//
+//        assertOntObjectsCount(m, OntDisjoint.class, 1);
+//        assertOntObjectsCount(m, OntDisjoint.Classes.class, 0);
+//        assertOntObjectsCount(m, OntDisjoint.Individuals.class, 1);
+//        assertOntObjectsCount(m, OntDisjoint.DataProperties.class, 0);
+//        assertOntObjectsCount(m, OntDisjoint.ObjectProperties.class, 0);
+//        assertOntObjectsCount(m, OntDisjoint.Properties.class, 0);
+
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
+    })
+    public void testRemoveStatement(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass.Named c = m.createOntClass("c");
         OntDataProperty d = m.createDataProperty("d");
         OntStatement s = d.addDomainStatement(c);
@@ -818,6 +1009,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testDisjointComponents(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -862,6 +1054,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testCreateDifferentExpressions(TestSpec spec) {
         String uri = "http://test.com/graph/3";
@@ -933,6 +1126,7 @@ public class OntModelOWLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testOneOfDataRangeForOWL1(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -973,6 +1167,8 @@ public class OntModelOWLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL1_MEM",
+            "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
     })
     public void testDisjointIndividualsForOWL1(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -1001,6 +1197,8 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
+            "OWL2_MEM_RDFS_INF",
+            "OWL2_MEM_TRANS_INF",
     })
     public void testHasSelfClassExpression1a(TestSpec spec) {
         Model g = ModelFactory.createDefaultModel();
@@ -1031,6 +1229,8 @@ public class OntModelOWLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
     })
     public void testHasSelfClassExpression1b(TestSpec spec) {
         Model g = ModelFactory.createDefaultModel();

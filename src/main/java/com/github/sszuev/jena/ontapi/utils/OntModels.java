@@ -30,6 +30,7 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.Objects;
@@ -108,7 +109,7 @@ public class OntModels {
                     m.imports()
                             .filter(i -> uri.equals(i.getID().getImportsIRI()))
                             .findFirst()
-                            .ifPresent(i -> ((UnionGraph) m.getGraph()).removeParent(i.getGraph()));
+                            .ifPresent(i -> ((UnionGraph) m.getGraph()).removeGraph(i.getGraph()));
                 })
                 .filter(m -> m.imports().map(OntModel::getID).map(OntID::getImportsIRI).noneMatch(uri::equals))
                 .forEach(m -> m.addImport(ont));
@@ -159,8 +160,9 @@ public class OntModels {
     @SuppressWarnings("unchecked")
     public static ExtendedIterator<OntModel> listImports(OntModel model) {
         if (model instanceof OntGraphModelImpl) {
+            Reasoner reasoner = ((OntGraphModelImpl) model).getReasoner();
             OntGraphModelImpl m = (OntGraphModelImpl) model;
-            ExtendedIterator<?> res = m.listImportModels(m.getOntPersonality());
+            ExtendedIterator<?> res = m.listImportModels(m.getOntPersonality(), reasoner);
             return (ExtendedIterator<OntModel>) res;
         }
         return Iterators.create(model.imports().iterator());

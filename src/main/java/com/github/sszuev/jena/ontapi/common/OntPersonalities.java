@@ -131,70 +131,6 @@ public class OntPersonalities {
             .add(OntClass.Named.class, RDFSObjectFactories.NAMED_CLASS);
 
     /**
-     * For OWL1.1 Ontologies, limited functionality.
-     */
-    private static final OntObjectPersonalityBuilder OWL1_OBJECT_FACTORIES = templatePersonalityBuilder()
-            .setName("OWL1")
-            .addPersonality(STANDARD_PERSONALITY)
-            // the base ontology object:
-            .add(OntObject.class, OWL1ObjectFactories.ANY_OBJECT)
-
-            // ont-id:
-            .add(OntID.class, OWL1ObjectFactories.ID)
-
-            // entities:
-            .add(OntClass.Named.class, OWL1ObjectFactories.NAMED_CLASS)
-            .add(OntIndividual.Named.class, OWL1ObjectFactories.NAMED_INDIVIDUAL)
-            .add(OntObjectProperty.Named.class, OWL1ObjectFactories.NAMED_OBJECT_PROPERTY)
-            .add(OntDataProperty.class, OWL1ObjectFactories.DATATYPE_PROPERTY)
-            .add(OntAnnotationProperty.class, OWL1ObjectFactories.ANNOTATION_PROPERTY)
-            .add(OntEntity.class, OWL1ObjectFactories.ANY_ENTITY)
-
-            // individuals:
-            .add(OntIndividual.Anonymous.class, OWL1ObjectFactories.ANONYMOUS_INDIVIDUAL)
-            .add(OntIndividual.class, OWL1ObjectFactories.ANY_INDIVIDUAL)
-
-            // properties:
-            .add(OntObjectProperty.class, OWL1ObjectFactories.OBJECT_PROPERTY)
-            .add(OntRealProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
-            .add(OntNamedProperty.class, OWL1ObjectFactories.ANY_NAMED_PROPERTY)
-            .add(OntProperty.class, OWL1ObjectFactories.ANY_PROPERTY)
-
-            // class expressions:
-            .add(OntClass.ObjectSomeValuesFrom.class, OWL1ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
-            .add(OntClass.DataSomeValuesFrom.class, OWL1ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
-            .add(OntClass.ObjectAllValuesFrom.class, OWL1ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
-            .add(OntClass.DataAllValuesFrom.class, OWL1ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
-            .add(OntClass.ObjectHasValue.class, OWL1ObjectFactories.OBJECT_HAS_VALUE_CLASS)
-            .add(OntClass.DataHasValue.class, OWL1ObjectFactories.DATA_HAS_VALUE_CLASS)
-            .add(OntClass.ObjectMinCardinality.class, OWL1ObjectFactories.OBJECT_MIN_CARDINALITY_CLASS)
-            .add(OntClass.DataMinCardinality.class, OWL1ObjectFactories.DATA_MIN_CARDINALITY_CLASS)
-            .add(OntClass.ObjectMaxCardinality.class, OWL1ObjectFactories.OBJECT_MAX_CARDINALITY_CLASS)
-            .add(OntClass.DataMaxCardinality.class, OWL1ObjectFactories.DATA_MAX_CARDINALITY_CLASS)
-            .add(OntClass.ObjectCardinality.class, OWL1ObjectFactories.OBJECT_CARDINALITY_CLASS)
-            .add(OntClass.DataCardinality.class, OWL1ObjectFactories.DATA_CARDINALITY_CLASS)
-            .add(OntClass.UnionOf.class, OWL1ObjectFactories.UNION_OF_CLASS)
-            .add(OntClass.OneOf.class, OWL1ObjectFactories.ONE_OF_CLASS)
-            .add(OntClass.IntersectionOf.class, OWL1ObjectFactories.INTERSECTION_OF_CLASS)
-            .add(OntClass.ComplementOf.class, OWL1ObjectFactories.COMPLEMENT_OF_CLASS)
-            .add(OntClass.LogicalExpression.class, OWL1ObjectFactories.ANY_LOGICAL_CLASS)
-            .add(OntClass.CollectionOf.class, OWL1ObjectFactories.ANY_COLLECTION_OF_CLASS)
-            .add(OntClass.ValueRestriction.class, OWL1ObjectFactories.ANY_VALUE_RESTRICTION_CLASS)
-            .add(OntClass.CardinalityRestriction.class, OWL1ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
-            .add(OntClass.ComponentRestriction.class, OWL1ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
-            .add(OntClass.UnaryRestriction.class, OWL1ObjectFactories.ANY_UNARY_RESTRICTION_CLASS)
-            .add(OntClass.Restriction.class, OWL1ObjectFactories.ANY_RESTRICTION_CLASS)
-            .add(OntClass.class, OWL1ObjectFactories.ANY_CLASS)
-
-            // data ranges:
-            .add(OntDataRange.OneOf.class, OWL1ObjectFactories.ONE_OF_DATARANGE)
-            .add(OntDataRange.Combination.class, OWL1ObjectFactories.ANY_COMPONENTS_DATARANGE)
-            .add(OntDataRange.class, OWL1ObjectFactories.ANY_DATARANGE)
-
-            .add(OntDisjoint.Individuals.class, OWL1ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
-            .add(OntDisjoint.class, OWL1ObjectFactories.ANY_DISJOINT);
-
-    /**
      * Default personality builder for OWL2. Private access since this constant is mutable.
      */
     private static final OntObjectPersonalityBuilder OWL2_OBJECT_FACTORIES = templatePersonalityBuilder()
@@ -314,6 +250,123 @@ public class OntPersonalities {
             .add(OntSWRL.class, SWRLObjectFactories.ANY_OBJECT_SWRL);
 
     /**
+     * For OWL1.1 Ontologies, limited functionality.
+     */
+    private static final OntObjectPersonalityBuilder OWL1_OBJECT_FACTORIES = templatePersonalityBuilder()
+            .setName("OWL1")
+            .addPersonality(STANDARD_PERSONALITY)
+            // the base ontology object:
+            .add(OntObject.class, OWL1ObjectFactories.ANY_OBJECT)
+
+            // ont-id:
+            .add(OntID.class, OWL1ObjectFactories.ID)
+
+            // entities:
+            .add(OntClass.Named.class, OWL1ObjectFactories.NAMED_CLASS)
+            .add(OntIndividual.Named.class, OWL1ObjectFactories.NAMED_INDIVIDUAL)
+            .add(OntObjectProperty.Named.class, OWL1ObjectFactories.NAMED_OBJECT_PROPERTY)
+            .add(OntDataProperty.class, OWL1ObjectFactories.DATATYPE_PROPERTY)
+            .add(OntAnnotationProperty.class, OWL1ObjectFactories.ANNOTATION_PROPERTY)
+            .add(OntEntity.class, OWL1ObjectFactories.ANY_ENTITY)
+
+            // individuals:
+            .add(OntIndividual.Anonymous.class, OWL1ObjectFactories.ANONYMOUS_INDIVIDUAL)
+            .add(OntIndividual.class, OWL1ObjectFactories.ANY_INDIVIDUAL)
+
+            // properties:
+            .add(OntObjectProperty.class, OWL1ObjectFactories.OBJECT_PROPERTY)
+            .add(OntRealProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntNamedProperty.class, OWL1ObjectFactories.ANY_NAMED_PROPERTY)
+            .add(OntProperty.class, OWL1ObjectFactories.ANY_PROPERTY)
+
+            // class expressions:
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL1ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL1ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectAllValuesFrom.class, OWL1ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.DataAllValuesFrom.class, OWL1ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectHasValue.class, OWL1ObjectFactories.OBJECT_HAS_VALUE_CLASS)
+            .add(OntClass.DataHasValue.class, OWL1ObjectFactories.DATA_HAS_VALUE_CLASS)
+            .add(OntClass.ObjectMinCardinality.class, OWL1ObjectFactories.OBJECT_MIN_CARDINALITY_CLASS)
+            .add(OntClass.DataMinCardinality.class, OWL1ObjectFactories.DATA_MIN_CARDINALITY_CLASS)
+            .add(OntClass.ObjectMaxCardinality.class, OWL1ObjectFactories.OBJECT_MAX_CARDINALITY_CLASS)
+            .add(OntClass.DataMaxCardinality.class, OWL1ObjectFactories.DATA_MAX_CARDINALITY_CLASS)
+            .add(OntClass.ObjectCardinality.class, OWL1ObjectFactories.OBJECT_CARDINALITY_CLASS)
+            .add(OntClass.DataCardinality.class, OWL1ObjectFactories.DATA_CARDINALITY_CLASS)
+            .add(OntClass.UnionOf.class, OWL1ObjectFactories.UNION_OF_CLASS)
+            .add(OntClass.OneOf.class, OWL1ObjectFactories.ONE_OF_CLASS)
+            .add(OntClass.IntersectionOf.class, OWL1ObjectFactories.INTERSECTION_OF_CLASS)
+            .add(OntClass.ComplementOf.class, OWL1ObjectFactories.COMPLEMENT_OF_CLASS)
+            .add(OntClass.LogicalExpression.class, OWL1ObjectFactories.ANY_LOGICAL_CLASS)
+            .add(OntClass.CollectionOf.class, OWL1ObjectFactories.ANY_COLLECTION_OF_CLASS)
+            .add(OntClass.ValueRestriction.class, OWL1ObjectFactories.ANY_VALUE_RESTRICTION_CLASS_FULL)
+            .add(OntClass.CardinalityRestriction.class, OWL1ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
+            .add(OntClass.ComponentRestriction.class, OWL1ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
+            .add(OntClass.UnaryRestriction.class, OWL1ObjectFactories.ANY_UNARY_RESTRICTION_CLASS)
+            .add(OntClass.Restriction.class, OWL1ObjectFactories.ANY_RESTRICTION_CLASS_FULL)
+            .add(OntClass.class, OWL1ObjectFactories.ANY_CLASS_FULL)
+
+            // data ranges:
+            .add(OntDataRange.OneOf.class, OWL1ObjectFactories.ONE_OF_DATARANGE)
+            .add(OntDataRange.Combination.class, OWL1ObjectFactories.ANY_COMPONENTS_DATARANGE)
+            .add(OntDataRange.class, OWL1ObjectFactories.ANY_DATARANGE)
+
+            .add(OntDisjoint.Individuals.class, OWL1ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
+            .add(OntDisjoint.class, OWL1ObjectFactories.ANY_DISJOINT);
+
+    /**
+     * For OWL1.1 Lite Ontologies, limited functionality.
+     *
+     * @see <a href="https://www.w3.org/TR/2004/REC-owl-features-20040210/#s3>Language Description of OWL Lite</a>
+     */
+    private static final OntObjectPersonalityBuilder OWL1_LITE_OBJECT_FACTORIES = templatePersonalityBuilder()
+            .setName("OWL1_LITE")
+            .addPersonality(STANDARD_PERSONALITY)
+            // the base ontology object:
+            .add(OntObject.class, OWL1ObjectFactories.ANY_OBJECT)
+
+            // ont-id:
+            .add(OntID.class, OWL1ObjectFactories.ID)
+
+            // entities:
+            .add(OntClass.Named.class, OWL1ObjectFactories.NAMED_CLASS)
+            .add(OntIndividual.Named.class, OWL1ObjectFactories.NAMED_INDIVIDUAL)
+            .add(OntObjectProperty.Named.class, OWL1ObjectFactories.NAMED_OBJECT_PROPERTY)
+            .add(OntDataProperty.class, OWL1ObjectFactories.DATATYPE_PROPERTY)
+            .add(OntAnnotationProperty.class, OWL1ObjectFactories.ANNOTATION_PROPERTY)
+            .add(OntEntity.class, OWL1ObjectFactories.ANY_ENTITY)
+
+            // individuals:
+            .add(OntIndividual.Anonymous.class, OWL1ObjectFactories.ANONYMOUS_INDIVIDUAL)
+            .add(OntIndividual.class, OWL1ObjectFactories.ANY_INDIVIDUAL)
+
+            // properties:
+            .add(OntObjectProperty.class, OWL1ObjectFactories.OBJECT_PROPERTY)
+            .add(OntRealProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntNamedProperty.class, OWL1ObjectFactories.ANY_NAMED_PROPERTY)
+            .add(OntProperty.class, OWL1ObjectFactories.ANY_PROPERTY)
+
+            // class expressions:
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL1ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL1ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectAllValuesFrom.class, OWL1ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.DataAllValuesFrom.class, OWL1ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectMinCardinality.class, OWL1ObjectFactories.OBJECT_MIN_CARDINALITY_CLASS)
+            .add(OntClass.DataMinCardinality.class, OWL1ObjectFactories.DATA_MIN_CARDINALITY_CLASS)
+            .add(OntClass.ObjectMaxCardinality.class, OWL1ObjectFactories.OBJECT_MAX_CARDINALITY_CLASS)
+            .add(OntClass.DataMaxCardinality.class, OWL1ObjectFactories.DATA_MAX_CARDINALITY_CLASS)
+            .add(OntClass.ObjectCardinality.class, OWL1ObjectFactories.OBJECT_CARDINALITY_CLASS)
+            .add(OntClass.DataCardinality.class, OWL1ObjectFactories.DATA_CARDINALITY_CLASS)
+            .add(OntClass.ValueRestriction.class, OWL1ObjectFactories.ANY_VALUE_RESTRICTION_CLASS_LITE)
+            .add(OntClass.CardinalityRestriction.class, OWL1ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
+            .add(OntClass.ComponentRestriction.class, OWL1ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
+            .add(OntClass.UnaryRestriction.class, OWL1ObjectFactories.ANY_UNARY_RESTRICTION_CLASS)
+            .add(OntClass.Restriction.class, OWL1ObjectFactories.ANY_RESTRICTION_CLASS_LITE)
+            .add(OntClass.class, OWL1ObjectFactories.ANY_CLASS_LITE)
+
+            .add(OntDisjoint.Individuals.class, OWL1ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
+            .add(OntDisjoint.class, OWL1ObjectFactories.ANY_DISJOINT);
+
+    /**
      * Mutable {@link OntObjectPersonalityBuilder} for RDFS Ontologies.
      */
     public static OntObjectPersonalityBuilder RDFS_ONT_PERSONALITY() {
@@ -322,6 +375,18 @@ public class OntPersonalities {
                 .setReserved(OntPersonalities.RDFS_RESERVED)
                 .setPunnings(OntPersonalities.RDFS_FULL_PUNNINGS)
                 .setConfig(OntPersonalities.RDFS_CONFIG);
+    }
+
+    /**
+     * Mutable {@link OntObjectPersonalityBuilder} for OWL2 Ontologies.
+     */
+    public static OntObjectPersonalityBuilder OWL2_ONT_PERSONALITY() {
+        return OWL2_OBJECT_FACTORIES
+                .copy()
+                .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                .setReserved(OntPersonalities.OWL_RESERVED)
+                .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+                .setConfig(OntPersonalities.OWL2_CONFIG);
     }
 
     /**
@@ -336,15 +401,14 @@ public class OntPersonalities {
     }
 
     /**
-     * Mutable {@link OntObjectPersonalityBuilder} for OWL2 Ontologies.
+     * Mutable {@link OntObjectPersonalityBuilder} for OWL1 LITE Ontologies.
      */
-    public static OntObjectPersonalityBuilder OWL2_ONT_PERSONALITY() {
-        return OWL2_OBJECT_FACTORIES
-                .copy()
+    public static OntObjectPersonalityBuilder OWL1_LITE_ONT_PERSONALITY() {
+        return OWL1_LITE_OBJECT_FACTORIES.copy()
                 .setBuiltins(OntPersonalities.OWL_BUILTINS)
                 .setReserved(OntPersonalities.OWL_RESERVED)
-                .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
-                .setConfig(OntPersonalities.OWL2_CONFIG);
+                .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
+                .setConfig(OntPersonalities.OWL1_CONFIG);
     }
 
     private static OntObjectPersonalityBuilder templatePersonalityBuilder() {

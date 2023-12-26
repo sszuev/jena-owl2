@@ -619,7 +619,7 @@ public interface OntObjectProperty extends OntRealProperty, AsNamed<OntObjectPro
      * @see #inverseProperties()
      * @see Inverse#getDirect()
      */
-    default Optional<OntObjectProperty> findInverseProperty() {
+    default Optional<OntObjectProperty> inverseProperty() {
         try (Stream<OntObjectProperty> res = inverseProperties()) {
             return res.findFirst();
         }

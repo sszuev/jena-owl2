@@ -29,10 +29,10 @@ import java.util.stream.Stream;
  * It consists of two parts: a {@link #base base graph} and an {@link SubGraphs sub-graphs} collection.
  * Unlike {@link org.apache.jena.graph.compose.MultiUnion MultiUnion} this implementation explicitly requires primary (base) graph.
  * Underlying sub-graphs are only used for searching; modify operations are performed only on the base graph.
- * This graph allows to build graph hierarchy which can be used to link different models.
+ * This graph allows building graph hierarchy which can be used to link different models.
  * Also, it allows recursion, that is, it can contain itself somewhere in the hierarchy.
  * The {@link PrefixMapping} of this graph is taken from the base graph,
- * and, therefore, any changes in it reflects both the base and this graph.
+ * and, therefore, any changes in it reflect both the base and this graph.
  * <p>
  * Created @ssz on 28.10.2016.
  */
@@ -46,7 +46,7 @@ public class UnionGraph extends CompositionBase {
     /**
      * A set of parents, used to control {@link #bases}.
      * Items of this {@code Set} are removed automatically by GC
-     * if there are no more strong references (a graph/model is removed, i.e. there is no its usage anymore).
+     * if there are no more strong references (a graph/model is removed, i.e. there is no usage any more).
      */
     protected Set<UnionGraph> parents = Collections.newSetFromMap(new WeakHashMap<>());
     /**
@@ -188,7 +188,7 @@ public class UnionGraph extends CompositionBase {
      * @param graph {@link Graph}, not {@code null}
      * @return this instance
      */
-    public UnionGraph removeParent(Graph graph) {
+    public UnionGraph removeGraph(Graph graph) {
         checkOpen();
         getUnderlying().remove(graph);
         removeUnion(graph);

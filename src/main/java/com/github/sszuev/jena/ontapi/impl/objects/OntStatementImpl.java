@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotation;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
@@ -275,6 +276,7 @@ public class OntStatementImpl extends StatementImpl implements OntStatement {
             model.add(res);
             return res;
         }
+        OntEnhGraph.asPersonalityModel(property.getModel()).checkType(OntAnnotation.class);
         return asAnnotationResource()
                 .orElseGet(() -> OntAnnotationImpl.createAnnotation(getModel(),
                         OntStatementImpl.this, getAnnotationResourceType()))

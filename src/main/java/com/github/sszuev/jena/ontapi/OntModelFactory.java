@@ -139,10 +139,10 @@ public class OntModelFactory {
      * @see OntModel#asInferenceModel()
      */
     public static OntModel createModel(Graph data, OntPersonality personality, Reasoner reasoner) {
-        UnionGraph unionGraph = Graphs.makeUnion(Objects.requireNonNull(data));
         if (Graphs.dataGraphs(data).anyMatch(it -> it instanceof InfGraph)) {
             throw new IllegalArgumentException("InfGraph detected");
         }
+        UnionGraph unionGraph = Graphs.makeUnion(Objects.requireNonNull(data));
         InfGraph infGraph = reasoner.bind(unionGraph);
         return new OntGraphModelImpl(infGraph, personality);
     }

@@ -106,7 +106,7 @@ public class OntObjectPropertyTest {
         OntObjectProperty.Named b = m.createObjectProperty("B");
         OntObjectProperty.Named c = m.createObjectProperty("C");
         Assertions.assertNotNull(a.addInverseOfStatement(b));
-        Assertions.assertEquals(b, a.findInverseProperty().orElseThrow(AssertionError::new));
+        Assertions.assertEquals(b, a.inverseProperty().orElseThrow(AssertionError::new));
         Assertions.assertEquals(1, a.inverseProperties().count());
         Assertions.assertSame(c, c.addInverseProperty(b).addInverseProperty(a));
         Assertions.assertEquals(2, c.inverseProperties().count());

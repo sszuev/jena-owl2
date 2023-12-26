@@ -11,12 +11,15 @@ import java.util.Objects;
 
 /**
  * Encapsulates a description of the components of an ontology model.
+ * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
+ * @see <a href="https://www.w3.org/TR/2008/WD-owl11-syntax-20080108/">OWL v1.1</a>
+ * @see <a href="https://www.w3.org/TR/owl-guide/">OWL v1</a>
  *
  * @see org.apache.jena.ontology.OntModelSpec
  */
 public class OntSpecification {
 
-    private static final OntPersonality OWL2_STANDARD_PERSONALITY =
+    private static final OntPersonality OWL2_FULL_PERSONALITY =
             OntPersonalities.OWL2_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.OWL_BUILTINS)
                     .setReserved(OntPersonalities.OWL_RESERVED)
@@ -24,11 +27,19 @@ public class OntSpecification {
                     .setConfig(OntPersonalities.OWL2_CONFIG)
                     .build();
 
-    private static final OntPersonality OWL1_STANDARD_PERSONALITY =
+    private static final OntPersonality OWL1_FULL_PERSONALITY =
             OntPersonalities.OWL1_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.OWL_BUILTINS)
                     .setReserved(OntPersonalities.OWL_RESERVED)
                     .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+                    .setConfig(OntPersonalities.OWL1_CONFIG)
+                    .build();
+
+    private static final OntPersonality OWL1_LITE_PERSONALITY =
+            OntPersonalities.OWL1_LITE_ONT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
                     .setConfig(OntPersonalities.OWL1_CONFIG)
                     .build();
 
@@ -66,7 +77,7 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL2_MEM = new OntSpecification(
-            OWL2_STANDARD_PERSONALITY, null
+            OWL2_FULL_PERSONALITY, null
     );
 
     /**
@@ -75,7 +86,7 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RDFS_INF
      */
     public static final OntSpecification OWL2_MEM_RDFS_INF = new OntSpecification(
-            OWL2_STANDARD_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+            OWL2_FULL_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
     );
 
     /**
@@ -84,7 +95,7 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_TRANS_INF
      */
     public static final OntSpecification OWL2_MEM_TRANS_INF = new OntSpecification(
-            OWL2_STANDARD_PERSONALITY, TransitiveReasonerFactory.theInstance()
+            OWL2_FULL_PERSONALITY, TransitiveReasonerFactory.theInstance()
     );
 
     /**
@@ -94,7 +105,7 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
      */
     public static final OntSpecification OWL1_MEM = new OntSpecification(
-            OWL1_STANDARD_PERSONALITY, null
+            OWL1_FULL_PERSONALITY, null
     );
 
     /**
@@ -104,7 +115,7 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RDFS_INF
      */
     public static final OntSpecification OWL1_MEM_RDFS_INF = new OntSpecification(
-            OWL1_STANDARD_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+            OWL1_FULL_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
     );
 
     /**
@@ -113,7 +124,17 @@ public class OntSpecification {
      * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_TRANS_INF
      */
     public static final OntSpecification OWL1_MEM_TRANS_INF = new OntSpecification(
-            OWL1_STANDARD_PERSONALITY, TransitiveReasonerFactory.theInstance()
+            OWL1_FULL_PERSONALITY, TransitiveReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL1 Lite ontology models
+     * that are stored in memory and do no additional entailment reasoning.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_LITE_MEM
+     */
+    public static final OntSpecification OWL1_LITE_MEM = new OntSpecification(
+            OWL1_LITE_PERSONALITY, null
     );
 
     /**

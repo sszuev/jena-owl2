@@ -338,15 +338,6 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return new ModelCom(getBaseGraph());
     }
 
-    public <X extends OntObject> void checkType(Class<X> type) {
-        if (!getOntPersonality().supports(type)) {
-            throw new OntJenaException.Unsupported(
-                    "Profile " + getOntPersonality().getName() + " does not support language construct " +
-                            OntEnhNodeFactories.viewAsString(type)
-            );
-        }
-    }
-
     @Override
     public OntID getID() {
         checkType(OntID.class);
@@ -379,32 +370,43 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         if (hasImport(importsURI)) {
             throw new OntJenaException.IllegalArgument("Ontology <" + importsURI + "> is already in imports.");
         }
-        addImportModel(m.getGraph(), importsURI);
+        Graph g = m.getGraph();
+        if (g instanceof InfGraph) {
+            g = ((InfGraph) g).getRawGraph();
+        }
+        addImportModel(g, importsURI);
         return this;
     }
 
     @Override
     public boolean hasImport(OntModel m) {
         Objects.requireNonNull(m);
-        return findImport(x -> Graphs.isSameBase(x.getGraph(), m.getGraph())).isPresent();
+        return findImportAsRawModel(x -> Graphs.isSameBase(x.getGraph(), m.getGraph())).isPresent();
     }
 
     @Override
     public boolean hasImport(String uri) {
-        return findImport(x -> Objects.equals(x.getID().getImportsIRI(), uri)).isPresent();
+        return findImportAsRawModel(x -> Objects.equals(x.getID().getImportsIRI(), uri)).isPresent();
     }
 
     @Override
     public OntGraphModelImpl removeImport(OntModel m) {
         Objects.requireNonNull(m);
-        findImport(x -> Graphs.isSameBase(x.getGraph(), m.getGraph()))
-                .ifPresent(x -> removeImportModel(x.getGraph(), x.getID().getImportsIRI()));
+        Graph g = m.getGraph();
+        Graph data;
+        if (g instanceof InfGraph) {
+            data = ((InfGraph) g).getRawGraph();
+        } else {
+            data = g;
+        }
+        findImportAsRawModel(it -> Graphs.isSameBase(it.getGraph(), data))
+                .ifPresent(it -> removeImportModel(it.getGraph(), it.getID().getImportsIRI()));
         return this;
     }
 
     @Override
     public OntGraphModelImpl removeImport(String uri) {
-        findImport(x -> Objects.equals(uri, x.getID().getImportsIRI()))
+        findImportAsRawModel(x -> Objects.equals(uri, x.getID().getImportsIRI()))
                 .ifPresent(x -> removeImportModel(x.getGraph(), x.getID().getImportsIRI()));
         return this;
     }
@@ -421,39 +423,42 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return {@code Stream} of {@link OntModel}s
      */
     public Stream<OntModel> imports(OntPersonality personality) {
-        return Iterators.asStream(listImportModels(personality));
+        return Iterators.asStream(listImportModels(personality, getReasoner()));
     }
 
     /**
      * Finds a model impl from the internals using the given {@code filter}.
+     * The returned model has no reasoner attached.
      *
      * @param filter {@code Predicate} to filter {@link OntGraphModelImpl}s
      * @return {@code Optional} around {@link OntGraphModelImpl}
      */
-    protected Optional<OntGraphModelImpl> findImport(Predicate<OntGraphModelImpl> filter) {
-        return Iterators.findFirst(listImportModels(getOntPersonality()).filterKeep(filter));
+    protected Optional<OntGraphModelImpl> findImportAsRawModel(Predicate<OntGraphModelImpl> filter) {
+        return Iterators.findFirst(listImportModels(getOntPersonality(), null).filterKeep(filter));
     }
 
     /**
      * Adds the graph-uri pair into the internals.
      *
-     * @param g {@link Graph}, not {@code null}
-     * @param u String, not {@code null}
+     * @param graph {@link Graph}, not {@code null}
+     * @param uri String, not {@code null}
      */
-    protected void addImportModel(Graph g, String u) {
-        getUnionGraph().addGraph(g);
-        getID().addImport(u);
+    protected void addImportModel(Graph graph, String uri) {
+        getUnionGraph().addGraph(graph);
+        getID().addImport(uri);
+        rebind();
     }
 
     /**
      * Removes the graph-uri pair from the internals.
      *
-     * @param g {@link Graph}, not {@code null}
-     * @param u String, not {@code null}
+     * @param graph {@link Graph}, not {@code null}
+     * @param uri String, not {@code null}
      */
-    protected void removeImportModel(Graph g, String u) {
-        getUnionGraph().removeParent(g);
-        getID().removeImport(u);
+    protected void removeImportModel(Graph graph, String uri) {
+        getUnionGraph().removeGraph(graph);
+        getID().removeImport(uri);
+        rebind();
     }
 
     /**
@@ -461,10 +466,19 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * from the top tier of the imports' hierarchy.
      *
      * @param personality {@link OntPersonality}, not {@code null}
+     * @param reasoner    {@link Reasoner}, can be {@code null}
      * @return <b>non-distinct</b> {@code ExtendedIterator} of {@link OntGraphModelImpl}s
      */
-    public final ExtendedIterator<OntGraphModelImpl> listImportModels(OntPersonality personality) {
-        return listImportGraphs().mapWith(u -> new OntGraphModelImpl(u, personality));
+    public final ExtendedIterator<OntGraphModelImpl> listImportModels(OntPersonality personality, Reasoner reasoner) {
+        return listImportGraphs().mapWith(u -> {
+            Graph g;
+            if (reasoner != null) {
+                g = reasoner.bind(u);
+            } else {
+                g = u;
+            }
+            return new OntGraphModelImpl(g, personality);
+        });
     }
 
     /**

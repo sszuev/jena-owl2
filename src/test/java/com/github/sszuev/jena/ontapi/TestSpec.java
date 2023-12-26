@@ -10,12 +10,13 @@ package com.github.sszuev.jena.ontapi;
         "OWL1_MEM",
         "OWL1_MEM_RDFS_INF",
         "OWL1_MEM_TRANS_INF",
+        "OWL1_LITE_MEM",
         "RDFS_MEM",
         "RDFS_MEM_RDFS_INF",
         "RDFS_MEM_TRANS_INF",
 })
 */
-@SuppressWarnings("unused")
+@SuppressWarnings("ALL")
 public enum TestSpec {
     OWL2_DL_MEM_RDFS_BUILTIN_INF(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF),
     OWL2_MEM(OntSpecification.OWL2_MEM),
@@ -24,6 +25,7 @@ public enum TestSpec {
     OWL1_MEM(OntSpecification.OWL1_MEM),
     OWL1_MEM_RDFS_INF(OntSpecification.OWL1_MEM_RDFS_INF),
     OWL1_MEM_TRANS_INF(OntSpecification.OWL1_MEM_TRANS_INF),
+    OWL1_LITE_MEM(OntSpecification.OWL1_LITE_MEM),
     RDFS_MEM(OntSpecification.RDFS_MEM),
     RDFS_MEM_RDFS_INF(OntSpecification.RDFS_MEM_RDFS_INF),
     RDFS_MEM_TRANS_INF(OntSpecification.RDFS_MEM_TRANS_INF),
@@ -32,5 +34,9 @@ public enum TestSpec {
 
     TestSpec(OntSpecification inst) {
         this.inst = inst;
+    }
+
+    boolean isOWL1() {
+        return name().startsWith("OWL1");
     }
 }

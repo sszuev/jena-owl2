@@ -205,7 +205,7 @@ public class OWL1ObjectFactories {
                     OntClasses.Factory.Type.COMPLEMENT_OF
             );
     // Value Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_VALUE_RESTRICTION_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> ANY_VALUE_RESTRICTION_CLASS_FULL =
             config -> OntClasses.createClassExpressionFactoryOWL1(
                     config,
                     OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
@@ -214,6 +214,14 @@ public class OWL1ObjectFactories {
                     OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
                     OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
                     OntClasses.Factory.Type.DATA_HAS_VALUE
+            );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_VALUE_RESTRICTION_CLASS_LITE =
+            config -> OntClasses.createClassExpressionFactoryOWL1(
+                    config,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM
             );
     // Cardinality Restrictions:
     public static final Function<OntConfig, EnhNodeFactory> ANY_CARDINALITY_RESTRICTION_CLASS =
@@ -227,7 +235,7 @@ public class OWL1ObjectFactories {
                     OntClasses.Factory.Type.DATA_EXACT_CARDINALITY
             );
     // Cardinality + Existential/Universal Restrictions + Value Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_RESTRICTION_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> ANY_RESTRICTION_CLASS_FULL =
             config -> OntClasses.createClassExpressionFactoryOWL1(
                     config,
                     OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
@@ -243,10 +251,24 @@ public class OWL1ObjectFactories {
                     OntClasses.Factory.Type.DATA_EXACT_CARDINALITY,
                     OntClasses.Factory.Type.DATA_HAS_VALUE
             );
-    public static final Function<OntConfig, EnhNodeFactory> ANY_UNARY_RESTRICTION_CLASS = ANY_RESTRICTION_CLASS;
-    public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENT_RESTRICTION_CLASS = ANY_RESTRICTION_CLASS;
+    public static final Function<OntConfig, EnhNodeFactory> ANY_RESTRICTION_CLASS_LITE =
+            config -> OntClasses.createClassExpressionFactoryOWL1(
+                    config,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_EXACT_CARDINALITY
+            );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_UNARY_RESTRICTION_CLASS = ANY_RESTRICTION_CLASS_FULL;
+    public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENT_RESTRICTION_CLASS = ANY_RESTRICTION_CLASS_FULL;
     // All Class Expressions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS_FULL =
             config -> OntClasses.createClassExpressionFactoryOWL1(
                     config,
                     OntClasses.Factory.Type.NAMED,
@@ -265,7 +287,23 @@ public class OWL1ObjectFactories {
                     OntClasses.Factory.Type.UNION_OF,
                     OntClasses.Factory.Type.INTERSECTION_OF,
                     OntClasses.Factory.Type.ONE_OF,
-                    OntClasses.Factory.Type.COMPLEMENT_OF);
+                    OntClasses.Factory.Type.COMPLEMENT_OF
+            );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS_LITE =
+            config -> OntClasses.createClassExpressionFactoryOWL1(
+                    config,
+                    OntClasses.Factory.Type.NAMED,
+                    OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.OBJECT_EXACT_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Factory.Type.DATA_MIN_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_MAX_CARDINALITY,
+                    OntClasses.Factory.Type.DATA_EXACT_CARDINALITY
+            );
 
     // Data Range Expressions
     public static final EnhNodeFactory ONE_OF_DATARANGE = OntEnhNodeFactories.createCommon(
@@ -295,7 +333,7 @@ public class OWL1ObjectFactories {
     }
 
     private static boolean isIndividual(Node n, EnhGraph eg) {
-        EnhNodeFactory factory = ANY_CLASS.apply(OntEnhGraph.config(eg));
+        EnhNodeFactory factory = ANY_CLASS_FULL.apply(OntEnhGraph.config(eg));
         return Iterators.anyMatch(
                 eg.asGraph().find(n, RDF.type.asNode(), Node.ANY)
                         .mapWith(Triple::getObject),
@@ -304,7 +342,7 @@ public class OWL1ObjectFactories {
     }
 
     private static ExtendedIterator<Node> findIndividuals(EnhGraph eg) {
-        EnhNodeFactory factory = ANY_CLASS.apply(OntEnhGraph.config(eg));
+        EnhNodeFactory factory = ANY_CLASS_FULL.apply(OntEnhGraph.config(eg));
         return eg.asGraph().find(Node.ANY, RDF.type.asNode(), Node.ANY)
                 .filterKeep(t -> factory.canWrap(t.getObject(), eg))
                 .mapWith(Triple::getSubject);

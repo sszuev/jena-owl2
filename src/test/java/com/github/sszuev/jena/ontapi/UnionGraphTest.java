@@ -79,7 +79,7 @@ public class UnionGraphTest {
 
         Graph h = createNamedGraph("H");
         c.addGraph(h);
-        a.removeParent(b);
+        a.removeGraph(b);
         a.addGraph(b = new UnionGraph(b));
         ((UnionGraph) b).addGraph(h);
         tree = Graphs.importsTreeAsString(a);
@@ -87,7 +87,7 @@ public class UnionGraphTest {
         Assertions.assertEquals(8, tree.split("\n").length);
 
         // remove recursion:
-        d.removeParent(c);
+        d.removeGraph(c);
         tree = Graphs.importsTreeAsString(a);
 
         Assertions.assertEquals(7, tree.split("\n").length);
@@ -186,7 +186,7 @@ public class UnionGraphTest {
             // expected
         }
         try {
-            b.removeParent(c);
+            b.removeGraph(c);
             Assertions.fail("Possible to remove a sub-graph");
         } catch (ClosedException ce) {
             // expected
@@ -194,7 +194,7 @@ public class UnionGraphTest {
         Assertions.assertNotNull(a.addGraph(d));
         Assertions.assertEquals(4, a.listBaseGraphs().toList().size());
 
-        Assertions.assertNotNull(a.removeParent(b));
+        Assertions.assertNotNull(a.removeGraph(b));
         Assertions.assertEquals(2, a.listBaseGraphs().toList().size());
     }
 
