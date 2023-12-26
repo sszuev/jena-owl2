@@ -5,14 +5,12 @@ import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -28,17 +26,18 @@ public abstract class OntPropertyImpl extends OntObjectImpl implements OntProper
         super(n, m);
     }
 
-    public static Stream<OntClass> declaringClasses(OntRealProperty property, boolean direct) {
-        Set<OntClass> domains = property.domains()
-                .flatMap(clazz -> Stream.concat(Stream.of(clazz), clazz.subClasses(false)))
-                .filter(OntClassImpl::isNotBuiltin)
-                .collect(Collectors.toSet());
+    public static Stream<OntClass> declaringClasses(OntProperty property, boolean direct) {
+        Set<OntClass> domains = HierarchySupport.allTreeNodesSetInclusive(
+                () -> property.domains()
+                        .filter(it -> it.canAs(OntClass.class))
+                        .map(it -> it.as(OntClass.class)).filter(it -> !isReservedOrBuiltin(it)),
+                clazz -> OntClassImpl.explicitSubClasses(clazz).filter(it -> !isReservedOrBuiltin(it))
+        );
         if (domains.isEmpty()) {
-            Stream<OntClass> res = property.getModel().ontObjects(OntClass.class).filter(OntClassImpl::isNotBuiltin);
             if (!direct) {
-                return res;
+                return property.getModel().ontObjects(OntClass.class).filter(it -> !isReservedOrBuiltin(it));
             } else {
-                return res.filter(OntClass::isHierarchyRoot);
+                return property.getModel().hierarchyRoots();
             }
         }
         return domains.stream().filter(clazz -> clazz.hasDeclaredProperty(property, direct));

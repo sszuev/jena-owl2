@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
+import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.EnhGraph;
@@ -59,6 +60,11 @@ public class OntAnnotationPropertyImpl extends OntPropertyImpl implements OntAnn
     @Override
     public Stream<Resource> ranges() {
         return objects(RDFS.range, Resource.class).filter(RDFNode::isURIResource);
+    }
+
+    @Override
+    public Stream<OntClass> declaringClasses(boolean direct) {
+        return OntPropertyImpl.declaringClasses(this, direct);
     }
 
     @Override

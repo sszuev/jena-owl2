@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,42 +64,60 @@ public final class HierarchySupport {
      * For the given object returns a {@code Set} of objects the same type,
      * that are its children which is determined by the operation {@code listChildren}.
      *
-     * @param object       {@link X}
+     * @param root         {@link X}
      * @param listChildren a {@code Function} that returns {@code Iterator} for an object of type {@link X}
      * @param <X>          subtype of {@link Resource}
-     * @return {@code Set} of {@link X}
+     * @return {@code Set} of {@link X}, {@code root} is not included
      */
-    static <X extends Resource> Stream<X> allTreeNodes(X object, Function<X, Stream<X>> listChildren) {
+    static <X extends Resource> Stream<X> allTreeNodes(X root, Function<X, Stream<X>> listChildren) {
         return Iterators.fromSet(() -> {
             Set<X> res = new HashSet<>();
-            collectIndirect(object, listChildren, res);
-            res.remove(object);
+            Map<X, Set<X>> childrenNodesCache = new HashMap<>();
+            Function<X, Set<X>> getChildren = it -> getChildren(it, listChildren, childrenNodesCache);
+            collectIndirect(root, getChildren, res);
+            res.remove(root);
             return res;
         });
     }
 
     /**
+     * Returns a forest (collection of indirect node trees) for the given roots.
+     *
+     * @param listRoots    {@code Supplier<Stream<X>>} roots provider
+     * @param listChildren {@code Function<X, Stream<X>>} called for each root
+     * @return {@code Set} of {@code X} including roots
+     */
+    public static <X extends Resource> Set<X> allTreeNodesSetInclusive(
+            Supplier<Stream<X>> listRoots,
+            Function<X, Stream<X>> listChildren) {
+        @SuppressWarnings("DuplicatedCode") Set<X> res = new HashSet<>();
+        Map<X, Set<X>> childrenNodesCache = new HashMap<>();
+        Function<X, Set<X>> getChildren = it -> getChildren(it, listChildren, childrenNodesCache);
+        try (Stream<X> roots = listRoots.get()) {
+            roots.forEach(root -> collectIndirect(root, getChildren, res));
+        }
+        return res;
+    }
+
+    /**
      * For the given object recursively collects all children determined by the operation {@code listChildren}.
      *
-     * @param root         {@link X}
-     * @param listChildren a {@code Function} that returns {@code Iterator} for an object of type {@link X}
-     * @param res          {@code Set} to store result
-     * @param <X>          any subtype of {@link Resource}
+     * @param root        {@link X}
+     * @param getChildren a {@code Function} that returns {@code Set} explicit children of an object of type {@link X}
+     * @param res         {@code Set} to store result
+     * @param <X>         any subtype of {@link Resource}
      */
     static <X extends Resource> void collectIndirect(X root,
-                                                     Function<X, Stream<X>> listChildren,
+                                                     Function<X, Set<X>> getChildren,
                                                      Set<X> res) {
         Deque<X> queue = new ArrayDeque<>();
         queue.add(root);
-        Map<X, Set<X>> childrenNodesCache = new HashMap<>();
         while (!queue.isEmpty()) {
             X next = queue.removeFirst();
-            getChildren(next, listChildren, childrenNodesCache).forEach(it -> {
-                        if (res.add(it)) {
-                            queue.add(it);
-                        }
-                    }
-            );
+            if (!res.add(next)) {
+                continue;
+            }
+            queue.addAll(getChildren.apply(next));
         }
     }
 

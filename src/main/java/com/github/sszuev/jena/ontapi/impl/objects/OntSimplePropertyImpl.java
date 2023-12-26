@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
+import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
@@ -52,6 +53,11 @@ public class OntSimplePropertyImpl extends OntPropertyImpl implements OntPropert
     @Override
     public Stream<? extends Resource> ranges() {
         return objects(RDFS.range, Resource.class).filter(RDFNode::isURIResource);
+    }
+
+    @Override
+    public Stream<OntClass> declaringClasses(boolean direct) {
+        return OntPropertyImpl.declaringClasses(this, direct);
     }
 
     @Override

@@ -187,10 +187,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static boolean testDomain(OntClass clazz, OntProperty property, boolean direct) {
-        if (property.isURIResource()
-                && OntEnhGraph.asPersonalityModel(clazz.getModel()).getOntPersonality()
-                .getReserved().getProperties().contains(property.asNode())
-        ) {
+        if (isReservedOrBuiltin(property)) {
             return false;
         }
         AtomicBoolean isGlobal = new AtomicBoolean(true);
@@ -272,10 +269,6 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    public static boolean isNotBuiltin(OntClass clazz) {
-        return !clazz.isURIResource() || !clazz.asNamed().isBuiltIn();
-    }
-
     public static boolean isDisjoint(OntClass clazz, Resource candidate) {
         if (!candidate.canAs(OntClass.class)) {
             return false;
@@ -339,6 +332,10 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     static Stream<OntClass> explicitSuperClasses(Property predicate, OntClass clazz) {
         return clazz.objects(predicate, OntClass.class);
+    }
+
+    static Stream<OntClass> explicitSubClasses(OntClass clazz) {
+        return explicitSubClasses(RDFS.subClassOf, clazz);
     }
 
     static Stream<OntClass> explicitSubClasses(Property predicate, OntClass clazz) {

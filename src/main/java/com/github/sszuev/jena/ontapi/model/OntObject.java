@@ -23,6 +23,13 @@ import java.util.stream.Stream;
 public interface OntObject extends OntResource {
 
     /**
+     * Gets a public ont-object type identifier.
+     *
+     * @return Class, the actual type of this object
+     */
+    Class<? extends OntObject> getActualClass();
+
+    /**
      * Returns the main {@link OntStatement}
      * which determines the nature of this ontological resource.
      * In most cases it is a declaration and wraps a triple with predicate {@code rdf:type}.

@@ -3,7 +3,9 @@ package com.github.sszuev.jena.ontapi.impl.objects;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
+import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
+import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntModel;
@@ -169,6 +171,20 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      */
     public static OntObject wrapAsOntObject(Node node, EnhGraph model) {
         return new OntObjectImpl(node, model);
+    }
+
+    /**
+     * Returns {@code true} if the given object is from reserved vocabulary
+     * (e.g. {@code rdf:rest} is reserved in system settings).
+     * This is the equivalent of {@link org.apache.jena.ontology.OntResource#isOntLanguageTerm()}, but more accurate.
+     */
+    public static boolean isReservedOrBuiltin(OntObject object) {
+        if (!object.isURIResource()) {
+            return false;
+        }
+        OntPersonality personality = OntEnhGraph.asPersonalityModel(object.getModel()).getOntPersonality();
+        return personality.getBuiltins().get(object.getActualClass()).contains(object.asNode())
+                || personality.getReserved().getAllResources().contains(object.asNode());
     }
 
     static boolean configValue(OntModel m, OntModelConfig setting) {
@@ -659,6 +675,7 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
      *
      * @return Class, the actual type of this object
      */
+    @Override
     public Class<? extends OntObject> getActualClass() {
         return findActualClass(this);
     }

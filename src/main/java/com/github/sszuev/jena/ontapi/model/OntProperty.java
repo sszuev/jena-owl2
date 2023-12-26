@@ -126,6 +126,22 @@ public interface OntProperty extends OntObject {
     Stream<? extends Resource> ranges();
 
     /**
+     * Answers a {@code Stream} of all the classes in this ontology,
+     * such that each returned class has this property as one of its properties in
+     * {@link OntClass#declaredProperties(boolean)}.
+     * This simulates a frame-like view of properties and classes;
+     * for more details see the
+     * <a href="https://jena.apache.org/documentation/notes/rdf-frames.html">Apache Jena: Presenting RDF as frames</a>
+     * <p>
+     * The behaviour of this method must be identical to the behaviour of the Jena method
+     * {@link org.apache.jena.ontology.OntProperty#listDeclaringClasses(boolean)}.
+     *
+     * @param direct {@code boolean} if {@code true}, use only <em>direct</em> associations between classes and properties
+     * @return a {@code Stream} of the classes having this property as one of their declared properties
+     */
+    Stream<OntClass> declaringClasses(boolean direct);
+
+    /**
      * Lists all the properties that are declared to be sub-properties of
      * this property (directly or indirectly).
      * Note: the return elements have the same type as this instance.
