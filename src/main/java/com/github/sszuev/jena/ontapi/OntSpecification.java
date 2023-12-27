@@ -4,6 +4,7 @@ import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import org.apache.jena.reasoner.ReasonerFactory;
+import org.apache.jena.reasoner.rulesys.OWLFBRuleReasonerFactory;
 import org.apache.jena.reasoner.rulesys.RDFSRuleReasonerFactory;
 import org.apache.jena.reasoner.transitiveReasoner.TransitiveReasonerFactory;
 
@@ -11,11 +12,11 @@ import java.util.Objects;
 
 /**
  * Encapsulates a description of the components of an ontology model.
+ *
  * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
  * @see <a href="https://www.w3.org/TR/2008/WD-owl11-syntax-20080108/">OWL v1.1</a>
  * @see <a href="https://www.w3.org/TR/owl-guide/">OWL v1</a>
  * @see <a href="https://www.w3.org/TR/owl-features/">OWL1 LITE</a>
- *
  * @see org.apache.jena.ontology.OntModelSpec
  */
 public class OntSpecification {
@@ -129,6 +130,16 @@ public class OntSpecification {
     );
 
     /**
+     * A specification for OWL1 ontology models
+     * that are stored in memory and do no additional entailment reasoning.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RULE_INF
+     */
+    public static final OntSpecification OWL1_MEM_RULES_INF = new OntSpecification(
+            OWL1_FULL_PERSONALITY, OWLFBRuleReasonerFactory.theInstance()
+    );
+
+    /**
      * A specification for OWL1 Lite ontology models
      * that are stored in memory and do no additional entailment reasoning.
      *
@@ -136,6 +147,16 @@ public class OntSpecification {
      */
     public static final OntSpecification OWL1_LITE_MEM = new OntSpecification(
             OWL1_LITE_PERSONALITY, null
+    );
+
+    /**
+     * A specification for OWL1 Lite ontology models
+     * that are stored in memory and use the OWL rules inference engine for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_LITE_MEM_RULES_INF
+     */
+    public static final OntSpecification OWL1_LITE_MEM_RULES_INF = new OntSpecification(
+            OWL1_LITE_PERSONALITY, OWLFBRuleReasonerFactory.theInstance()
     );
 
     /**

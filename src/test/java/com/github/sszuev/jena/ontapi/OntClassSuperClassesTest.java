@@ -48,6 +48,7 @@ public class OntClassSuperClassesTest {
     @EnumSource(names = {
             "OWL2_MEM",
             "OWL1_MEM",
+            "OWL1_LITE_MEM",
             "RDFS_MEM",
     })
     public void testListSuperClasses1a(TestSpec spec) {
@@ -94,6 +95,8 @@ public class OntClassSuperClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM_RDFS_INF",
+            "OWL1_MEM_RDFS_INF",
     })
     public void testListSuperClasses1b(TestSpec spec) {
         //      A
@@ -113,18 +116,74 @@ public class OntClassSuperClassesTest {
         Set<String> directC = superClasses(m, "C", true);
         Set<String> indirectC = superClasses(m, "C", false);
 
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
+
         Set<String> directE = superClasses(m, "E", true);
         Set<String> indirectE = superClasses(m, "E", false);
+
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
 
         Assertions.assertEquals(Set.of(), directA);
         Assertions.assertEquals(Set.of("A"), directB);
         Assertions.assertEquals(Set.of("A"), directC);
+        Assertions.assertEquals(Set.of("B"), directD);
         Assertions.assertEquals(Set.of("B", "C"), directE);
-
+        Assertions.assertEquals(Set.of("C"), directF);
         Assertions.assertEquals(Set.of(), indirectA);
         Assertions.assertEquals(Set.of("A"), indirectB);
         Assertions.assertEquals(Set.of("A"), indirectC);
+        Assertions.assertEquals(Set.of("A", "B"), indirectD);
         Assertions.assertEquals(Set.of("A", "B", "C"), indirectE);
+        Assertions.assertEquals(Set.of("A", "C"), indirectF);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+    })
+    public void testListSuperClasses1c(TestSpec spec) {
+        //      A
+        //     / \
+        //    B   C
+        //   / \ / \
+        //  D   E   F
+
+        OntModel m = createClassesABCDEF(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
+
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B", false);
+
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
+
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E", false);
+
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
+
+        Assertions.assertEquals(Set.of("Thing"), directA);
+        Assertions.assertEquals(Set.of("A"), directB);
+        Assertions.assertEquals(Set.of("A"), directC);
+        Assertions.assertEquals(Set.of("B"), directD);
+        Assertions.assertEquals(Set.of("B", "C"), directE);
+        Assertions.assertEquals(Set.of("C"), directF);
+
+        Assertions.assertEquals(Set.of("Resource", "Thing"), indirectA);
+        Assertions.assertEquals(Set.of("A", "Resource", "Thing"), indirectB);
+        Assertions.assertEquals(Set.of("A", "Resource", "Thing"), indirectC);
+        Assertions.assertEquals(Set.of("A", "B", "Resource", "Thing"), indirectD);
+        Assertions.assertEquals(Set.of("A", "B", "C", "Resource", "Thing"), indirectE);
+        Assertions.assertEquals(Set.of("A", "C", "Resource", "Thing"), indirectF);
     }
 
     @ParameterizedTest
@@ -158,6 +217,35 @@ public class OntClassSuperClassesTest {
         Assertions.assertEquals(Set.of("B", "C"), indirectA);
         Assertions.assertEquals(Set.of("C"), indirectB);
         Assertions.assertEquals(Set.of("B"), indirectC);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+    })
+    public void testListSuperClasses3b(TestSpec spec) {
+        // B = C
+        //  \ |
+        //    A
+
+        OntModel m = createClassesBCA(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> directC = superClasses(m, "C", true);
+
+        Set<String> indirectA = superClasses(m, "A");
+        Set<String> indirectB = superClasses(m, "B", false);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        Assertions.assertEquals(Set.of("B", "C"), directA);
+        Assertions.assertEquals(Set.of("Thing"), directB);
+        Assertions.assertEquals(Set.of("Thing"), directC);
+
+        Assertions.assertEquals(Set.of("B", "C", "Resource", "Thing"), indirectA);
+        Assertions.assertEquals(Set.of("C", "Resource", "Thing"), indirectB);
+        Assertions.assertEquals(Set.of("B", "Resource", "Thing"), indirectC);
     }
 
     @ParameterizedTest
@@ -461,6 +549,55 @@ public class OntClassSuperClassesTest {
         Assertions.assertEquals(Set.of(), indirectD);
         Assertions.assertEquals(Set.of("D", "F"), indirectE);
         Assertions.assertEquals(Set.of("D"), indirectF);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+    })
+    public void testListSuperClasses8c(TestSpec spec) {
+        //    D
+        //  /  \
+        // B    F
+        // |    |
+        // C    E
+        //  \  /
+        //    A
+
+        OntModel m = createClassesDBFCEA(OntModelFactory.createModel(spec.inst));
+
+        Set<String> directA = superClasses(m, "A", true);
+        Set<String> indirectA = superClasses(m, "A", false);
+
+        Set<String> directB = superClasses(m, "B", true);
+        Set<String> indirectB = superClasses(m, "B", false);
+
+        Set<String> directC = superClasses(m, "C", true);
+        Set<String> indirectC = superClasses(m, "C", false);
+
+        Set<String> directD = superClasses(m, "D", true);
+        Set<String> indirectD = superClasses(m, "D", false);
+
+        Set<String> directE = superClasses(m, "E", true);
+        Set<String> indirectE = superClasses(m, "E", false);
+
+        Set<String> directF = superClasses(m, "F", true);
+        Set<String> indirectF = superClasses(m, "F", false);
+
+        Assertions.assertEquals(Set.of("C", "E"), directA);
+        Assertions.assertEquals(Set.of("D"), directB);
+        Assertions.assertEquals(Set.of("B"), directC);
+        Assertions.assertEquals(Set.of("Thing"), directD);
+        Assertions.assertEquals(Set.of("F"), directE);
+        Assertions.assertEquals(Set.of("D"), directF);
+
+        Assertions.assertEquals(Set.of("B", "C", "D", "E", "F", "Resource", "Thing"), indirectA);
+        Assertions.assertEquals(Set.of("D", "Resource", "Thing"), indirectB);
+        Assertions.assertEquals(Set.of("B", "D", "Resource", "Thing"), indirectC);
+        Assertions.assertEquals(Set.of("Resource", "Thing"), indirectD);
+        Assertions.assertEquals(Set.of("D", "F", "Resource", "Thing"), indirectE);
+        Assertions.assertEquals(Set.of("D", "Resource", "Thing"), indirectF);
     }
 
     @ParameterizedTest
