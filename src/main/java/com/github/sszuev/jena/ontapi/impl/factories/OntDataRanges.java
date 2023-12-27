@@ -21,8 +21,7 @@ import org.apache.jena.vocabulary.RDFS;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 final class OntDataRanges {
     public static final EnhNodeFinder DR_FINDER_OWL1 = new EnhNodeFinder.ByType(OWL.DataRange);
@@ -30,6 +29,11 @@ final class OntDataRanges {
 
     public static final EnhNodeFinder DR_FINDER_OWL2 = new EnhNodeFinder.ByType(RDFS.Datatype);
     public static final EnhNodeFilter DR_FILTER_OWL2 = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(RDFS.Datatype));
+    // owl:DataRange is deprecated in OWL 2, replaced by rdfs:Datatype, but for compatibility needs to handle it
+    public static final EnhNodeFinder DR_FULL_FINDER_OWL2 = new EnhNodeFinder.ByTypes(Set.of(RDFS.Datatype, OWL.DataRange));
+    public static final EnhNodeFilter DR_FULL_FILTER_OWL2 = EnhNodeFilter.ANON.and(
+            new EnhNodeFilter.HasOneOfType(Set.of(RDFS.Datatype, OWL.DataRange))
+    );
 
     public static EnhNodeFinder makeFacetRestrictionFinder(Property predicate) {
         return new EnhNodeFinder.ByPredicate(predicate);
@@ -55,19 +59,19 @@ final class OntDataRanges {
     public static class DataRangeFactory extends BaseEnhNodeFactoryImpl {
         private static final Node TYPE = RDF.Nodes.type;
         private static final Node ANY = Node.ANY;
-        private static final Node DATATYPE = RDFS.Datatype.asNode();
+        private static final Node PRIMARY_DATATYPE_TYPE = RDFS.Datatype.asNode();
+        // owl:DataRange is deprecated in OWL 2, replaced by rdfs:Datatype, but for compatibility needs to handle it
+        private static final Node SECONDARY_DATATYPE_TYPE = OWL.DataRange.asNode();
 
-        private final EnhNodeFactory named = WrappedEnhNodeFactory.of(OntDataRange.Named.class);
-        private final EnhNodeFactory oneOf = WrappedEnhNodeFactory.of(OntDataRange.OneOf.class);
-        private final EnhNodeFactory complementOf = WrappedEnhNodeFactory.of(OntDataRange.ComplementOf.class);
-        private final EnhNodeFactory unionOf = WrappedEnhNodeFactory.of(OntDataRange.UnionOf.class);
-        private final EnhNodeFactory intersectionOf = WrappedEnhNodeFactory.of(OntDataRange.IntersectionOf.class);
-        private final EnhNodeFactory restriction = WrappedEnhNodeFactory.of(OntDataRange.Restriction.class);
-        private final List<EnhNodeFactory> anonymous = Stream.of(complementOf
-                , restriction
-                , oneOf
-                , unionOf
-                , intersectionOf).collect(Collectors.toList());
+        private static final EnhNodeFactory NAMED_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.Named.class);
+        private static final EnhNodeFactory ONE_OF_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.OneOf.class);
+        private static final EnhNodeFactory COMPLEMENT_OF_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.ComplementOf.class);
+        private static final EnhNodeFactory UNION_OF_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.UnionOf.class);
+        private static final EnhNodeFactory INTERSECTION_OF_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.IntersectionOf.class);
+        private static final EnhNodeFactory RESTRICTION_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.Restriction.class);
+        private static final List<EnhNodeFactory> ANONYMOUS_DATARANGE_FACTORIES = List.of(
+                COMPLEMENT_OF_FACTORY, RESTRICTION_FACTORY, ONE_OF_FACTORY, UNION_OF_FACTORY, INTERSECTION_OF_FACTORY
+        );
 
         public static EnhNodeFactory createFactory() {
             return new DataRangeFactory();
@@ -75,46 +79,61 @@ final class OntDataRanges {
 
         @Override
         public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {
-            return eg.asGraph().find(ANY, TYPE, DATATYPE)
+            return eg.asGraph().find(ANY, TYPE, PRIMARY_DATATYPE_TYPE)
                     .mapWith(t -> t.getSubject().isURI() ?
-                            safeWrap(t.getSubject(), eg, named) :
-                            safeWrap(t.getSubject(), eg, anonymous))
+                            safeWrap(t.getSubject(), eg, NAMED_FACTORY) :
+                            safeWrap(t.getSubject(), eg, ANONYMOUS_DATARANGE_FACTORIES))
+                    .andThen(
+                            eg.asGraph().find(ANY, TYPE, SECONDARY_DATATYPE_TYPE)
+                                    .mapWith(t -> t.getSubject().isURI() ? null : safeWrap(t.getSubject(), eg, ONE_OF_FACTORY))
+                    )
                     .filterDrop(Objects::isNull);
         }
 
         @Override
         public EnhNode createInstance(Node node, EnhGraph eg) {
-            if (node.isURI())
-                return safeWrap(node, eg, named);
-            if (!node.isBlank())
+            if (node.isURI()) {
+                return safeWrap(node, eg, NAMED_FACTORY);
+            }
+            if (!node.isBlank()) {
                 return null;
-            if (!eg.asGraph().contains(node, TYPE, DATATYPE))
+            }
+            if (!eg.asGraph().contains(node, TYPE, PRIMARY_DATATYPE_TYPE)
+                    && !eg.asGraph().contains(node, TYPE, SECONDARY_DATATYPE_TYPE)) {
                 return null;
-            return safeWrap(node, eg, anonymous);
+            }
+            return safeWrap(node, eg, ANONYMOUS_DATARANGE_FACTORIES);
         }
 
         @Override
         public boolean canWrap(Node node, EnhGraph eg) {
             if (node.isURI()) {
-                return named.canWrap(node, eg);
+                return NAMED_FACTORY.canWrap(node, eg);
             }
-            if (!node.isBlank()) return false;
-            if (!eg.asGraph().contains(node, TYPE, DATATYPE))
+            if (!node.isBlank()) {
                 return false;
-            return canWrap(node, eg, anonymous);
+            }
+            if (eg.asGraph().contains(node, TYPE, PRIMARY_DATATYPE_TYPE)) {
+                return canWrap(node, eg, ANONYMOUS_DATARANGE_FACTORIES);
+            }
+            return canWrap(node, eg, ONE_OF_FACTORY);
         }
 
         @Override
         public EnhNode wrap(Node node, EnhGraph eg) {
-            if (node.isURI())
-                return named.wrap(node, eg);
+            if (node.isURI()) {
+                return NAMED_FACTORY.wrap(node, eg);
+            }
             OntJenaException.Conversion ex = new OntJenaException.Conversion("Can't convert node " + node +
                     " to Data Range Expression.");
-            if (!node.isBlank())
+            if (!node.isBlank()) {
                 throw ex;
-            if (!eg.asGraph().contains(node, TYPE, DATATYPE))
+            }
+            if (!eg.asGraph().contains(node, TYPE, PRIMARY_DATATYPE_TYPE)
+                    && !eg.asGraph().contains(node, TYPE, SECONDARY_DATATYPE_TYPE)) {
                 throw ex;
-            return wrap(node, eg, ex, anonymous);
+            }
+            return wrap(node, eg, ex, ANONYMOUS_DATARANGE_FACTORIES);
         }
     }
 }

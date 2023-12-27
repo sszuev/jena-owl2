@@ -14,6 +14,7 @@ import java.util.Objects;
  * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
  * @see <a href="https://www.w3.org/TR/2008/WD-owl11-syntax-20080108/">OWL v1.1</a>
  * @see <a href="https://www.w3.org/TR/owl-guide/">OWL v1</a>
+ * @see <a href="https://www.w3.org/TR/owl-features/">OWL1 LITE</a>
  *
  * @see org.apache.jena.ontology.OntModelSpec
  */

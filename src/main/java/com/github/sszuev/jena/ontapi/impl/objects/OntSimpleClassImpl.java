@@ -24,12 +24,12 @@ import java.util.stream.Stream;
  * {@code owl:Class} Implementation.
  * Instance of this class as a class with unknown nature is only available in a spec with corresponding permissions
  * ({@link com.github.sszuev.jena.ontapi.OntModelConfig}).
- * Specialized classes have their own implementations (see {@link OntClassImpl}).
+ * Specialized classes have their own implementations ({@link NamedImpl} or {@link OntClassImpl}).
  * <p>
  * Created @ssz on 03.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named {
+public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
 
     public OntSimpleClassImpl(Node n, EnhGraph eg) {
         super(n, eg);
@@ -38,11 +38,6 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
     @Override
     public Optional<OntStatement> findRootStatement() {
         return getOptionalRootStatement(this, OWL.Class);
-    }
-
-    @Override
-    public boolean isBuiltIn() {
-        return getModel().isBuiltIn(this);
     }
 
     @Override
@@ -116,23 +111,6 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
         return OntClassImpl.isDisjoint(this, candidate);
     }
 
-    @Override
-    public OntList<OntClass> createDisjointUnion(Collection<OntClass> classes) {
-        return getModel().createOntList(this, OWL.disjointUnionOf, OntClass.class,
-                Objects.requireNonNull(classes).stream().distinct().iterator());
-    }
-
-    @Override
-    public Stream<OntList<OntClass>> disjointUnions() {
-        return OntListImpl.stream(getModel(), this, OWL.disjointUnionOf, OntClass.class);
-    }
-
-    @Override
-    public OntSimpleClassImpl removeDisjointUnion(Resource rdfList) throws OntJenaException.IllegalArgument {
-        getModel().deleteOntList(this, OWL.disjointUnionOf, findDisjointUnion(rdfList).orElse(null));
-        return this;
-    }
-
     /**
      * Primary (named) class ({@code <uri> a owl:Class}).
      * This is also {@link com.github.sszuev.jena.ontapi.model.OntEntity}.
@@ -155,6 +133,28 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass.Named 
         @Override
         public Class<Named> objectType() {
             return Named.class;
+        }
+
+        @Override
+        public boolean isBuiltIn() {
+            return getModel().isBuiltIn(this);
+        }
+
+        @Override
+        public OntList<OntClass> createDisjointUnion(Collection<OntClass> classes) {
+            return getModel().createOntList(this, OWL.disjointUnionOf, OntClass.class,
+                    Objects.requireNonNull(classes).stream().distinct().iterator());
+        }
+
+        @Override
+        public Stream<OntList<OntClass>> disjointUnions() {
+            return OntListImpl.stream(getModel(), this, OWL.disjointUnionOf, OntClass.class);
+        }
+
+        @Override
+        public OntClass.Named removeDisjointUnion(Resource rdfList) throws OntJenaException.IllegalArgument {
+            getModel().deleteOntList(this, OWL.disjointUnionOf, findDisjointUnion(rdfList).orElse(null));
+            return this;
         }
     }
 }

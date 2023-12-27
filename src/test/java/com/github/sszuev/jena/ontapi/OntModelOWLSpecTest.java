@@ -36,6 +36,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -881,13 +882,19 @@ public class OntModelOWLSpecTest {
 
         List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().collect(Collectors.toList());
         Assertions.assertEquals(1, equivalentToWife.size());
+        Assertions.assertInstanceOf(OntClass.IntersectionOf.class, equivalentToWife.get(0));
         Assertions.assertEquals(OntClass.IntersectionOf.class, equivalentToWife.get(0).objectType());
+        List<OntClass> equivalentToSex = m.getOntClass(ns + "Sex").equivalentClasses().collect(Collectors.toList());
+        Assertions.assertEquals(1, equivalentToSex.size());
+        Assertions.assertInstanceOf(OntClass.UnionOf.class, equivalentToSex.get(0));
+        Assertions.assertEquals(OntClass.UnionOf.class, equivalentToSex.get(0).objectType());
 
         assertOntObjectsCount(m, OntObject.class, 1684);
         assertOntObjectsCount(m, OntEntity.class, 151);
         assertOntObjectsCount(m, OntNamedProperty.class, 90);
         assertOntObjectsCount(m, OntClass.Named.class, 58);
         assertOntObjectsCount(m, OntDataRange.Named.class, 0);
+        // owl:NamedIndividual is not valid class-type in OWL1:
         assertOntObjectsCount(m, OntIndividual.Named.class, 3);
         assertOntObjectsCount(m, OntObjectProperty.Named.class, 80);
         assertOntObjectsCount(m, OntAnnotationProperty.class, 1);
@@ -918,11 +925,10 @@ public class OntModelOWLSpecTest {
         assertOntObjectsCount(m, OntClass.CollectionOf.class, 113);
         assertOntObjectsCount(m, OntClass.LogicalExpression.class, 114);
         assertOntObjectsCount(m, OntClass.ValueRestriction.class, 111);
-        assertOntObjectsCount(m, OntClass.UnaryRestriction.class, 117);
-        assertOntObjectsCount(m, OntClass.Restriction.class, 117);
+        assertOntObjectsCount(m, OntClass.UnaryRestriction.class, 111);
+        assertOntObjectsCount(m, OntClass.Restriction.class, 111);
         assertOntObjectsCount(m, OntClass.NaryRestriction.class, 0);
-        // TODO
-        /*assertOntObjectsCount(m, OntClass.ComponentRestriction.class, 117);
+        assertOntObjectsCount(m, OntClass.ComponentRestriction.class, 111);
         assertOntObjectsCount(m, OntClass.CardinalityRestriction.class, 0);
         assertOntObjectsCount(m, OntClass.CollectionOf.class, 113);
         assertOntObjectsCount(m, OntClass.IntersectionOf.class, 109);
@@ -931,7 +937,7 @@ public class OntModelOWLSpecTest {
         assertOntObjectsCount(m, OntClass.ObjectCardinality.class, 0);
         assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
         assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
-        assertOntObjectsCount(m, OntClass.ObjectHasValue.class, 6);
+        assertOntObjectsCount(m, OntClass.ObjectHasValue.class, 0);
         assertOntObjectsCount(m, OntClass.ObjectSomeValuesFrom.class, 111);
         assertOntObjectsCount(m, OntClass.ObjectAllValuesFrom.class, 0);
         assertOntObjectsCount(m, OntClass.DataCardinality.class, 0);
@@ -942,7 +948,7 @@ public class OntModelOWLSpecTest {
         assertOntObjectsCount(m, OntClass.DataAllValuesFrom.class, 0);
         assertOntObjectsCount(m, OntClass.HasSelf.class, 0);
         assertOntObjectsCount(m, OntClass.NaryDataAllValuesFrom.class, 0);
-        assertOntObjectsCount(m, OntClass.NaryDataSomeValuesFrom.class, 0);*/
+        assertOntObjectsCount(m, OntClass.NaryDataSomeValuesFrom.class, 0);
     }
 
     @ParameterizedTest
@@ -955,31 +961,76 @@ public class OntModelOWLSpecTest {
                 RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
                 spec.inst);
 
-        Assertions.assertTrue(m.getOntClass(ns + "Wife").equivalentClasses().findFirst().isEmpty());
+        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().collect(Collectors.toList());
+        Assertions.assertEquals(1, equivalentToWife.size());
+        Assertions.assertInstanceOf(OntClass.IntersectionOf.class, equivalentToWife.get(0));
+        Assertions.assertEquals(OntClass.IntersectionOf.class, equivalentToWife.get(0).objectType());
+        List<OntClass> equivalentToSex = m.getOntClass(ns + "Sex").equivalentClasses().collect(Collectors.toList());
+        Assertions.assertEquals(1, equivalentToSex.size());
+        // generic class:
+        Assertions.assertFalse(equivalentToSex.get(0) instanceof OntClass.UnionOf);
+        Assertions.assertNotEquals(OntClass.UnionOf.class, equivalentToSex.get(0).objectType());
 
-        // TODO
-//        assertOntObjectsCount(m, OntEntity.class, 656);
-//        assertOntObjectsCount(m, OntNamedProperty.class, 90);
-//
-//        assertOntObjectsCount(m, OntClass.Named.class, 58);
-//        assertOntObjectsCount(m, OntDataRange.Named.class, 0);
-//        assertOntObjectsCount(m, OntIndividual.Named.class, 508);
-//        assertOntObjectsCount(m, OntObjectProperty.Named.class, 80);
-//        assertOntObjectsCount(m, OntAnnotationProperty.class, 1);
-//        assertOntObjectsCount(m, OntDataProperty.class, 9);
-//
-//        assertOntObjectsCount(m, OntObjectProperty.class, 80);
-//        assertOntObjectsCount(m, OntRealProperty.class, 89);
-//
-//        assertOntObjectsCount(m, OntDataRange.class, 0);
-//
-//        assertOntObjectsCount(m, OntDisjoint.class, 1);
-//        assertOntObjectsCount(m, OntDisjoint.Classes.class, 0);
-//        assertOntObjectsCount(m, OntDisjoint.Individuals.class, 1);
-//        assertOntObjectsCount(m, OntDisjoint.DataProperties.class, 0);
-//        assertOntObjectsCount(m, OntDisjoint.ObjectProperties.class, 0);
-//        assertOntObjectsCount(m, OntDisjoint.Properties.class, 0);
+        assertOntObjectsCount(m, OntObject.class, 1684);
+        assertOntObjectsCount(m, OntEntity.class, 151);
+        assertOntObjectsCount(m, OntNamedProperty.class, 90);
+        assertOntObjectsCount(m, OntClass.Named.class, 58);
+        assertOntObjectsCount(m, OntDataRange.Named.class, 0);
+        // owl:NamedIndividual is not valid class-type in OWL1:
+        assertOntObjectsCount(m, OntIndividual.Named.class, 3);
+        assertOntObjectsCount(m, OntObjectProperty.Named.class, 80);
+        assertOntObjectsCount(m, OntAnnotationProperty.class, 1);
+        assertOntObjectsCount(m, OntDataProperty.class, 9);
 
+        assertOntObjectsCount(m, OntObjectProperty.class, 80);
+        assertOntObjectsCount(m, OntRealProperty.class, 89);
+        assertOntObjectsCount(m, OntProperty.class, 90);
+
+        assertOntObjectsCount(m, OntDataRange.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Named.class, 0);
+        assertOntObjectsCount(m, OntDataRange.OneOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Restriction.class, 0);
+        assertOntObjectsCount(m, OntDataRange.UnionOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.ComplementOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.IntersectionOf.class, 0);
+        assertOntObjectsCount(m, OntDataRange.Combination.class, 0);
+
+        assertOntObjectsCount(m, OntDisjoint.class, 1);
+        assertOntObjectsCount(m, OntDisjoint.Classes.class, 0);
+        assertOntObjectsCount(m, OntDisjoint.Individuals.class, 1);
+        assertOntObjectsCount(m, OntDisjoint.DataProperties.class, 0);
+        assertOntObjectsCount(m, OntDisjoint.ObjectProperties.class, 0);
+        assertOntObjectsCount(m, OntDisjoint.Properties.class, 0);
+
+        assertOntObjectsCount(m, OntClass.class, 289);
+        assertOntObjectsCount(m, OntClass.Named.class, 58);
+        assertOntObjectsCount(m, OntClass.CollectionOf.class, 109);
+        assertOntObjectsCount(m, OntClass.LogicalExpression.class, 109);
+        assertOntObjectsCount(m, OntClass.ValueRestriction.class, 111);
+        assertOntObjectsCount(m, OntClass.UnaryRestriction.class, 111);
+        assertOntObjectsCount(m, OntClass.Restriction.class, 111);
+        assertOntObjectsCount(m, OntClass.NaryRestriction.class, 0);
+        assertOntObjectsCount(m, OntClass.ComponentRestriction.class, 111);
+        assertOntObjectsCount(m, OntClass.CardinalityRestriction.class, 0);
+        assertOntObjectsCount(m, OntClass.CollectionOf.class, 109);
+        assertOntObjectsCount(m, OntClass.IntersectionOf.class, 109);
+        assertOntObjectsCount(m, OntClass.UnionOf.class, 0);
+        assertOntObjectsCount(m, OntClass.OneOf.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectHasValue.class, 0);
+        assertOntObjectsCount(m, OntClass.ObjectSomeValuesFrom.class, 111);
+        assertOntObjectsCount(m, OntClass.ObjectAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.DataCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataMinCardinality.class, 0);
+        assertOntObjectsCount(m, OntClass.DataHasValue.class, 0);
+        assertOntObjectsCount(m, OntClass.DataSomeValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.DataAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.HasSelf.class, 0);
+        assertOntObjectsCount(m, OntClass.NaryDataAllValuesFrom.class, 0);
+        assertOntObjectsCount(m, OntClass.NaryDataSomeValuesFrom.class, 0);
     }
 
     @ParameterizedTest
@@ -1125,10 +1176,51 @@ public class OntModelOWLSpecTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
+            "OWL2_MEM",
+            "OWL2_MEM_TRANS_INF",
+    })
+    public void testOneOfDataRangeForOWL2(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Combination.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.OneOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
+        Assertions.assertEquals(0, m.datatypes().count());
+
+        OntDataRange.OneOf d1 = m.createDataOneOf(m.createTypedLiteral(42));
+        OntDataRange.OneOf d2 = m.createDataOneOf(m.createTypedLiteral("A"), m.createLiteral("B"));
+        OntDataRange.OneOf d3 = m.createResource(null, OWL.DataRange)
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("C")))
+                .as(OntDataRange.OneOf.class);
+        m.createResource("X", RDFS.Datatype) // treated as named data range
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("42")));
+        Assertions.assertEquals(
+                List.of(42),
+                d1.getList().members().map(Literal::getInt).collect(Collectors.toList())
+        );
+        Assertions.assertEquals(
+                List.of("A", "B"),
+                d2.getList().members().map(Literal::getString).sorted().collect(Collectors.toList())
+        );
+        Assertions.assertEquals(
+                List.of("C"),
+                d3.getList().members().map(Literal::getString).collect(Collectors.toList())
+        );
+
+        Assertions.assertEquals(4, m.ontObjects(OntDataRange.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntDataRange.Combination.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntDataRange.OneOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
+        Assertions.assertEquals(1, m.datatypes().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
     })
-    public void testOneOfDataRangeForOWL1(TestSpec spec) {
+    public void testDataRangesForOWL1(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         Assertions.assertEquals(0, m.ontObjects(OntDataRange.class).count());
         Assertions.assertEquals(0, m.ontObjects(OntDataRange.Combination.class).count());
@@ -1140,6 +1232,8 @@ public class OntModelOWLSpecTest {
         OntDataRange.OneOf d2 = m.createDataOneOf(m.createTypedLiteral("A"), m.createLiteral("B"));
         OntDataRange.OneOf d3 = m.createResource("X", OWL.DataRange)
                 .addProperty(OWL.oneOf, m.createList(m.createLiteral("C"))).as(OntDataRange.OneOf.class);
+        m.createResource("X", RDFS.Datatype)
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("C")));
         Assertions.assertEquals(
                 List.of(42),
                 d1.getList().members().map(Literal::getInt).collect(Collectors.toList())
@@ -1160,6 +1254,38 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(3, m.ontObjects(OntDataRange.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntDataRange.Combination.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntDataRange.OneOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
+        Assertions.assertEquals(0, m.datatypes().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_LITE_MEM",
+    })
+    public void testDataRangesForOWL1Lite(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Combination.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.OneOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
+        Assertions.assertEquals(0, m.datatypes().count());
+
+        m.createResource("X", OWL.DataRange)
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("A")));
+        m.createResource(null, OWL.DataRange)
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("B")));
+        m.createResource(null, RDFS.Datatype)
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("C")));
+        m.createResource("Q", RDFS.Datatype)
+                .addProperty(OWL.oneOf, m.createList(m.createLiteral("D")));
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createDataOneOf(m.createTypedLiteral(42)));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDataUnionOf);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, m::createDataIntersectionOf);
+
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Combination.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.OneOf.class).count());
         Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
         Assertions.assertEquals(0, m.datatypes().count());
     }

@@ -78,17 +78,13 @@ public class OntPersonalities {
             .setFalse(OntModelConfig.USE_OWL_V1_VOCABULARY)
             .setTrue(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
             .setFalse(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
-            .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
-            .setFalse(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
-            .setFalse(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
+            .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS);
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
             .setFalse(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
             .setTrue(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
-            .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
-            .setTrue(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS)
-            .setTrue(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS);
+            .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS);
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
@@ -296,8 +292,8 @@ public class OntPersonalities {
             .add(OntClass.OneOf.class, OWL1ObjectFactories.ONE_OF_CLASS)
             .add(OntClass.IntersectionOf.class, OWL1ObjectFactories.INTERSECTION_OF_CLASS)
             .add(OntClass.ComplementOf.class, OWL1ObjectFactories.COMPLEMENT_OF_CLASS)
-            .add(OntClass.LogicalExpression.class, OWL1ObjectFactories.ANY_LOGICAL_CLASS)
-            .add(OntClass.CollectionOf.class, OWL1ObjectFactories.ANY_COLLECTION_OF_CLASS)
+            .add(OntClass.LogicalExpression.class, OWL1ObjectFactories.ANY_LOGICAL_CLASS_FULL)
+            .add(OntClass.CollectionOf.class, OWL1ObjectFactories.ANY_COLLECTION_OF_CLASS_FULL)
             .add(OntClass.ValueRestriction.class, OWL1ObjectFactories.ANY_VALUE_RESTRICTION_CLASS_FULL)
             .add(OntClass.CardinalityRestriction.class, OWL1ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
             .add(OntClass.ComponentRestriction.class, OWL1ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)
@@ -356,6 +352,9 @@ public class OntPersonalities {
             .add(OntClass.DataMaxCardinality.class, OWL1ObjectFactories.DATA_MAX_CARDINALITY_CLASS)
             .add(OntClass.ObjectCardinality.class, OWL1ObjectFactories.OBJECT_CARDINALITY_CLASS)
             .add(OntClass.DataCardinality.class, OWL1ObjectFactories.DATA_CARDINALITY_CLASS)
+            .add(OntClass.IntersectionOf.class, OWL1ObjectFactories.INTERSECTION_OF_CLASS)
+            .add(OntClass.LogicalExpression.class, OWL1ObjectFactories.ANY_LOGICAL_CLASS_LITE)
+            .add(OntClass.CollectionOf.class, OWL1ObjectFactories.ANY_COLLECTION_OF_CLASS_LITE)
             .add(OntClass.ValueRestriction.class, OWL1ObjectFactories.ANY_VALUE_RESTRICTION_CLASS_LITE)
             .add(OntClass.CardinalityRestriction.class, OWL1ObjectFactories.ANY_CARDINALITY_RESTRICTION_CLASS)
             .add(OntClass.ComponentRestriction.class, OWL1ObjectFactories.ANY_COMPONENT_RESTRICTION_CLASS)

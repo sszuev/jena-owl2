@@ -34,38 +34,14 @@ public enum OntModelConfig {
     ALLOW_NAMED_CLASS_EXPRESSIONS,
     /**
      * If this key is set to {@code true}, there is a special type of class expressions,
-     * which includes any structure declared as {@code owl:Class}
+     * which includes any structure declared as {@code owl:Class} or {@code owl:Restriction}
      * that cannot be classified as a specific type.
      * Casting such a construction to a particular class type
      * (e.g. {@code generic.as(OntClass.OneOf.class)}) will result in an exception,
      * but as a class expression, it can a type of the individual, can be a domain for property, etc.
      * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
-     * In OWL2, there are no generic class expressions.
      */
     ALLOW_GENERIC_CLASS_EXPRESSIONS,
-    /**
-     * If this key is set to {@code true}, there is a special type of restriction class expressions,
-     * which includes any structure
-     * declared as {@code owl:Restriction} and having predicate {@code owl:onProperty}
-     * but cannot be classified as a specific restriction type.
-     * Casting such a construction to a particular class type
-     * (e.g. {@code generic.as(OntClass.DataCardinality.class)}) will lead to an exception,
-     * but as a class expression, it can a type of the individual, can be a domain for property, etc.
-     * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
-     * In OWL2, there are no generic class expressions.
-     */
-    ALLOW_GENERIC_UNION_RESTRICTIONS,
-    /**
-     * If this key is set to {@code true}, there is a special type of restriction class expressions,
-     * which includes any structure declared as {@code owl:Restriction}
-     * but cannot be classified as a specific restriction type (nary or unary restriction).
-     * Casting such a construction to a particular class type
-     * (e.g. {@code generic.as(OntClass.DataCardinality.class)}) will lead to an exception,
-     * but as a class expression, it can a type of the individual, can be a domain for property, etc.
-     * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
-     * In OWL2, there are no generic class expressions.
-     */
-    ALLOW_GENERIC_RESTRICTIONS,
     /**
      * Used while {@link com.github.sszuev.jena.ontapi.model.OntModel#individuals()}.
      * If {@code true}, the class type is checked only by declaration

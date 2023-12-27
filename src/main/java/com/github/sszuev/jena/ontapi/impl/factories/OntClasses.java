@@ -20,7 +20,6 @@ import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -52,28 +51,17 @@ final class OntClasses {
     public static final EnhNodeFinder CLASS_FINDER = new EnhNodeFinder.ByType(OWL.Class);
     public static final EnhNodeFinder RESTRICTION_FINDER = new EnhNodeFinder.ByType(OWL.Restriction);
 
-    public static EnhNodeFactory createClassExpressionFactoryOWL2(OntConfig config, Factory.Type... filters) {
-        return new Factory(
-                config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS),
-                config.getBoolean(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS),
-                config.getBoolean(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS),
-                config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
-                /*allowQualifiedCardinalityRestrictions*/ true,
-                /*unsupported types*/ List.of(),
-                /*filter types*/ Arrays.asList(filters)
-        );
+    public static EnhNodeFactory createClassExpressionFactory(OntConfig config, Factory.Type... filters) {
+        return createClassExpressionFactory(config, false, filters);
     }
 
-    public static EnhNodeFactory createClassExpressionFactoryOWL1(OntConfig config, Factory.Type... filters) {
+    public static EnhNodeFactory createClassExpressionFactory(OntConfig config,
+                                                              boolean isBaseClass,
+                                                              Factory.Type... filters) {
         return new Factory(
-                config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS),
-                config.getBoolean(OntModelConfig.ALLOW_GENERIC_RESTRICTIONS),
-                config.getBoolean(OntModelConfig.ALLOW_GENERIC_UNION_RESTRICTIONS),
-                config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
-                /*allowQualifiedCardinalityRestrictions*/ false,
-                /*unsupported types*/ List.of(Factory.Type.OBJECT_HAS_SELF,
-                Factory.Type.DATA_NARY_ALL_VALUES_FROM,
-                Factory.Type.DATA_NARY_SOME_VALUES_FROM),
+                /*allowGenericClass*/ isBaseClass && config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS),
+                /*allowNamedClassExpressions*/ config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
+                /*allowQualifiedCardinalityRestrictions*/ true,
                 /*filter types*/ Arrays.asList(filters)
         );
     }
@@ -283,34 +271,22 @@ final class OntClasses {
         private static final EnhNodeFactory NAMED_CLASS_FACTORY = OntEntities.createNamedClassFactory();
         private static final BiFunction<Node, EnhGraph, EnhNode> NAMED_CLASS_PRODUCER = OntSimpleClassImpl.NamedImpl::new;
         private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_CLASS_PRODUCER = OntSimpleClassImpl::new;
-        private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_UNARY_RESTRICTION_PRODUCER =
-                (n, g) -> new OntClassImpl.OnPropertyRestrictionImpl<>(n, g, OntRealProperty.class);
         private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_RESTRICTION_PRODUCER = OntClassImpl.RestrictionImpl::new;
 
         protected final EnhNodeFactory objectPropertyFactory = WrappedEnhNodeFactory.of(OntObjectProperty.class);
         protected final EnhNodeFactory dataPropertyFactory = WrappedEnhNodeFactory.of(OntDataProperty.class);
 
         private final boolean withGenericClass;
-        private final boolean withGenericRestriction;
-        private final boolean withGenericUnaryRestriction;
         private final boolean allowNamedClassExpressions;
         private final boolean allowQualifiedCardinalityRestrictions;
 
         private final Set<Type> filters;
 
         private Factory(boolean allowGenericClass,
-                        boolean allowGenericRestriction,
-                        boolean allowGenericUnaryRestriction,
                         boolean allowNamedClassExpressions,
                         boolean allowQualifiedCardinalityRestrictions,
-                        List<Type> unsupported,
                         List<Type> filters) {
-            this.withGenericClass = allowGenericClass &&
-                    Type.DECLARED_CLASSES.stream().filter(t -> !unsupported.contains(t)).allMatch(filters::contains);
-            this.withGenericRestriction = allowGenericRestriction &&
-                    Type.RESTRICTIONS.stream().filter(t -> !unsupported.contains(t)).allMatch(filters::contains);
-            this.withGenericUnaryRestriction = allowGenericUnaryRestriction &&
-                    Type.UNARY_RESTRICTIONS.stream().filter(t -> !unsupported.contains(t)).allMatch(filters::contains);
+            this.withGenericClass = allowGenericClass;
             this.allowNamedClassExpressions = allowNamedClassExpressions;
             this.allowQualifiedCardinalityRestrictions = allowQualifiedCardinalityRestrictions;
             this.filters = EnumSet.copyOf(filters);
@@ -507,7 +483,7 @@ final class OntClasses {
                     return Type.DATA_NARY_ALL_VALUES_FROM;
                 }
             }
-            if (withGenericRestriction) {
+            if (withGenericClass) {
                 // can’t recognize what kind of Restriction this is,
                 // for compatibility reasons (jena OntModel) we return a “generic” factory
                 return GENERIC_RESTRICTION_PRODUCER;
@@ -581,10 +557,10 @@ final class OntClasses {
                         }
                     }
                 }
-                if (onPropertyFound && withGenericUnaryRestriction) {
+                if (onPropertyFound && withGenericClass) {
                     // can’t recognize what kind of unary Restriction this is,
                     // for compatibility reasons (jena OntModel) we return a “generic” factory
-                    return GENERIC_UNARY_RESTRICTION_PRODUCER;
+                    return GENERIC_RESTRICTION_PRODUCER;
                 }
             } finally {
                 props.close();
@@ -685,27 +661,6 @@ final class OntClasses {
             ONE_OF(OntClass.OneOf.class),
             COMPLEMENT_OF(OntClass.ComplementOf.class),
             ;
-
-            private static final Set<Type> DECLARED_CLASSES = Set.of(
-                    NAMED,
-                    COMPLEMENT_OF, UNION_OF, INTERSECTION_OF, ONE_OF
-            );
-            private static final Set<Type> UNARY_RESTRICTIONS = Set.of(
-                    OBJECT_SOME_VALUES_FROM, OBJECT_ALL_VALUES_FROM, OBJECT_HAS_VALUE,
-                    OBJECT_MIN_CARDINALITY, OBJECT_MAX_CARDINALITY, OBJECT_EXACT_CARDINALITY,
-                    DATA_SOME_VALUES_FROM, DATA_ALL_VALUES_FROM, DATA_HAS_VALUE,
-                    DATA_MIN_CARDINALITY, DATA_MAX_CARDINALITY, DATA_EXACT_CARDINALITY,
-                    OBJECT_HAS_SELF
-            );
-
-            private static final Set<Type> RESTRICTIONS = Set.of(
-                    OBJECT_SOME_VALUES_FROM, OBJECT_ALL_VALUES_FROM, OBJECT_HAS_VALUE,
-                    OBJECT_MIN_CARDINALITY, OBJECT_MAX_CARDINALITY, OBJECT_EXACT_CARDINALITY,
-                    DATA_SOME_VALUES_FROM, DATA_ALL_VALUES_FROM, DATA_HAS_VALUE,
-                    DATA_MIN_CARDINALITY, DATA_MAX_CARDINALITY, DATA_EXACT_CARDINALITY,
-                    OBJECT_HAS_SELF,
-                    DATA_NARY_SOME_VALUES_FROM, DATA_NARY_ALL_VALUES_FROM
-            );
 
             private final Class<? extends OntObject> type;
 
