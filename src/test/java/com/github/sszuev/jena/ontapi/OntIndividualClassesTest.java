@@ -26,18 +26,7 @@ import static com.github.sszuev.jena.ontapi.testutils.MiscUtils.hashSetOf;
 public class OntIndividualClassesTest {
 
     @ParameterizedTest
-    @EnumSource(names = {
-            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
-            "OWL2_MEM",
-            "OWL2_MEM_RDFS_INF",
-            "OWL2_MEM_TRANS_INF",
-            "OWL1_MEM",
-            "OWL1_MEM_RDFS_INF",
-            "OWL1_MEM_TRANS_INF",
-            "RDFS_MEM",
-            "RDFS_MEM_RDFS_INF",
-            "RDFS_MEM_TRANS_INF",
-    })
+    @EnumSource
     public void testGetOntClass0(TestSpec spec) {
         //      A
         //     / \
@@ -60,7 +49,11 @@ public class OntIndividualClassesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListOntClasses1a(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -75,6 +68,25 @@ public class OntIndividualClassesTest {
                 List.of(A, B),
                 x.classes(false).sorted(Comparator.comparing(Resource::getURI)).collect(Collectors.toList())
         );
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+    })
+    public void testListOntClasses1b(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
+        OntClass A = m.createOntClass(NS + "A");
+        OntClass B = m.createOntClass(NS + "B");
+        A.addSubClass(B);
+
+        OntIndividual x = A.createIndividual();
+        x.attachClass(B);
+
+        List<String> expected = List.of("A", "B", "Resource", "Thing");
+        List<String> actual = x.classes(false).map(Resource::getLocalName).sorted().collect(Collectors.toList());
+        Assertions.assertEquals(expected, actual);
     }
 
     @ParameterizedTest
@@ -94,18 +106,7 @@ public class OntIndividualClassesTest {
     }
 
     @ParameterizedTest
-    @EnumSource(names = {
-            "OWL2_DL_MEM_RDFS_BUILTIN_INF",
-            "OWL2_MEM",
-            "OWL2_MEM_RDFS_INF",
-            "OWL2_MEM_TRANS_INF",
-            "OWL1_MEM",
-            "OWL1_MEM_RDFS_INF",
-            "OWL1_MEM_TRANS_INF",
-            "RDFS_MEM",
-            "RDFS_MEM_RDFS_INF",
-            "RDFS_MEM_TRANS_INF",
-    })
+    @EnumSource
     public void testListOntClasses2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass A = m.createOntClass(NS + "A");
@@ -123,6 +124,7 @@ public class OntIndividualClassesTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_RDFS_INF",
     })
     public void testListOntClasses3a(TestSpec spec) {
         //      A   G
@@ -186,6 +188,8 @@ public class OntIndividualClassesTest {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_TRANS_INF",
             "RDFS_MEM",
             "RDFS_MEM_TRANS_INF",
     })
@@ -245,6 +249,8 @@ public class OntIndividualClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
             "RDFS_MEM_RDFS_INF",
     })
     public void testListOntClasses3c(TestSpec spec) {
@@ -309,6 +315,7 @@ public class OntIndividualClassesTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_RDFS_INF",
     })
     public void testListOntClasses4a(TestSpec spec) {
         //      A   G
@@ -352,6 +359,8 @@ public class OntIndividualClassesTest {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_TRANS_INF",
             "RDFS_MEM",
             "RDFS_MEM_TRANS_INF",
     })
@@ -393,6 +402,8 @@ public class OntIndividualClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
             "RDFS_MEM_RDFS_INF",
     })
     public void testListOntClasses4c(TestSpec spec) {
@@ -439,6 +450,7 @@ public class OntIndividualClassesTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM_RDFS_INF",
             "OWL1_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_RDFS_INF",
     })
     public void textListOntClasses5a(TestSpec spec) {
         //  A   B
@@ -475,6 +487,7 @@ public class OntIndividualClassesTest {
     @EnumSource(names = {
             "OWL2_MEM",
             "OWL1_MEM",
+            "OWL1_LITE_MEM",
             "RDFS_MEM",
     })
     public void textListOntClasses5b(TestSpec spec) {
@@ -510,6 +523,8 @@ public class OntIndividualClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
             "RDFS_MEM_RDFS_INF",
     })
     public void textListOntClasses5c(TestSpec spec) {
@@ -539,7 +554,11 @@ public class OntIndividualClassesTest {
 
         String R = null;
         String T = null;
-        if (TestSpec.RDFS_MEM_RDFS_INF.equals(spec)) {
+        if (TestSpec.OWL1_MEM_RULES_INF.equals(spec) ||
+                TestSpec.OWL1_LITE_MEM_RULES_INF.equals(spec)) {
+            R = "Resource";
+            T = "Thing";
+        } else if (TestSpec.RDFS_MEM_RDFS_INF.equals(spec)) {
             R = "Resource";
         }
 
@@ -553,6 +572,7 @@ public class OntIndividualClassesTest {
     @EnumSource(names = {
             "OWL2_MEM_TRANS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
             "RDFS_MEM_TRANS_INF",
     })
     public void textListOntClasses5d(TestSpec spec) {

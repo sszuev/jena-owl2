@@ -1363,42 +1363,49 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntGraphModelImpl read(String url) {
         super.read(url);
+        rebind();
         return this;
     }
 
     @Override
     public OntGraphModelImpl read(Reader reader, String base) {
         super.read(reader, base);
+        rebind();
         return this;
     }
 
     @Override
     public OntGraphModelImpl read(InputStream reader, String base) {
         super.read(reader, base);
+        rebind();
         return this;
     }
 
     @Override
     public OntGraphModelImpl read(String url, String lang) {
         super.read(url, lang);
+        rebind();
         return this;
     }
 
     @Override
     public OntGraphModelImpl read(String url, String base, String lang) {
         super.read(url, base, lang);
+        rebind();
         return this;
     }
 
     @Override
     public OntGraphModelImpl read(Reader reader, String base, String lang) {
         super.read(reader, base, lang);
+        rebind();
         return this;
     }
 
     @Override
     public OntGraphModelImpl read(InputStream reader, String base, String lang) {
         super.read(reader, base, lang);
+        rebind();
         return this;
     }
 

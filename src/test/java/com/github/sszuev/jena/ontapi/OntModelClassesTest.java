@@ -5,6 +5,7 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.shared.PrefixMapping;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -27,6 +28,9 @@ public class OntModelClassesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
     })
     public void testListClasses1a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -40,7 +44,7 @@ public class OntModelClassesTest {
         //  but connected property (`owl:onProperty`) has no `owl:DatatypeProperty`
         //  declaration (it is declared as bar `rdf:Property`),
         //  so in strict mode such construction cannot be considered as a valid class expression;
-        //  for OWL1 this is correct for compatibility with org.apache.jena.ontology.OntModel
+        //  for OWL1 this is correct for compatibility with OntModel
         List<String> expected = new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E", "X0", "X1", "Y0", "Y1", "Z"));
         if (!spec.inst.getPersonality().getName().startsWith("OWL2")) {
             expected.add("null");
@@ -51,6 +55,7 @@ public class OntModelClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListClasses1b(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -61,18 +66,25 @@ public class OntModelClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
             "RDFS_MEM_RDFS_INF",
     })
     public void testListClasses1c(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
                 OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test.rdf", Lang.RDFXML
         );
-        int expectedClassesSize = -1;
+        int expectedClassesSize;
+        /*if (spec == TestSpec.OWL1_MEM_MICRO_RULES_INF) { // TODO
+            expectedClassesSize = 36;
+        } else*/
         if (spec == TestSpec.RDFS_MEM_RDFS_INF) {
             expectedClassesSize = 25;
+        } else {
+            expectedClassesSize = 42;
         }
         boolean expectedContainsAll = TestSpec.RDFS_MEM_RDFS_INF != spec;
-        Assertions.assertEquals(expectedClassesSize, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(expectedClassesSize, m.ontObjects(OntClass.class).distinct().count());
         Assertions.assertEquals(
                 expectedContainsAll,
                 m.ontObjects(OntClass.class).map(Resource::getLocalName).collect(Collectors.toSet())
@@ -89,6 +101,9 @@ public class OntModelClassesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
     })
     public void testListClasses2a(TestSpec spec) {
         OntModel m = TestModelFactory.withBuiltIns(
@@ -109,6 +124,7 @@ public class OntModelClassesTest {
     @ParameterizedTest
     @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListClasses2b(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -119,22 +135,39 @@ public class OntModelClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
             "RDFS_MEM_RDFS_INF",
     })
     public void testListClasses2c(TestSpec spec) {
-        OntModel m = RDFIOTestUtils.readResourceToModel(
-                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-with-import.rdf", Lang.RDFXML
-        );
-        List<String> actual = m.ontObjects(OntClass.class).distinct()
+        OntModel m;
+        if (spec == TestSpec.RDFS_MEM_RDFS_INF) {
+            m = RDFIOTestUtils.readResourceToModel(
+                    OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-with-import.rdf", Lang.RDFXML
+            );
+        } else {
+            m = TestModelFactory.withBuiltIns(
+                    RDFIOTestUtils.readResourceToModel(
+                            OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-with-import.rdf", Lang.RDFXML
+                    )).setNsPrefixes(PrefixMapping.Standard);
+        }
+        List<String> actual = m.ontObjects(OntClass.class)
+                .distinct()
                 .map(it -> it.isAnon() ? "null" : it.getLocalName())
                 .sorted()
                 .collect(Collectors.toList());
         Set<String> probes = Set.of("A", "B", "C", "D", "E", "Nothing", "Thing", "X0", "X1", "Y0", "Y1", "Z", "null");
         boolean expectedContainsAll = spec != TestSpec.RDFS_MEM_RDFS_INF;
-        int expectedClassCount = -1;
+        int expectedClassCount;
+//        if (spec == TestSpec.OWL_MEM_MICRO_RULE_INF) { // TODO
+//            expectedClassCount = 43;
+//        } else
         if (spec == TestSpec.RDFS_MEM_RDFS_INF) {
             expectedClassCount = 25;
+        } else {
+            expectedClassCount = 61;
         }
+
         Assertions.assertEquals(expectedContainsAll, actual.containsAll(probes));
         Assertions.assertEquals(expectedClassCount, actual.size());
     }
@@ -148,6 +181,9 @@ public class OntModelClassesTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
     })
     public void testListClasses3a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(
@@ -166,7 +202,35 @@ public class OntModelClassesTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+    })
+    public void testListClasses3b(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(
+                OntModelFactory.createModel(spec.inst), "/list-syntax-categories-test-comps.rdf", Lang.RDFXML
+        ).setNsPrefixes(PrefixMapping.Standard);
+        List<String> expected = List.of(
+                "eg:Bundle", "eg:Computer", "eg:GameBundle", "eg:GamingComputer", "eg:GraphicsCard", "eg:MotherBoard",
+                "null", "null", "null", "null", "null",
+                "owl:Class", "owl:Nothing", "owl:Ontology", "owl:Property", "owl:Restriction", "owl:Thing",
+                "rdf:List", "rdf:Property", "rdf:Statement",
+                "rdfs:Class", "rdfs:Literal", "rdfs:Resource",
+                "xsd:boolean", "xsd:byte", "xsd:date", "xsd:dateTime", "xsd:decimal", "xsd:duration", "xsd:float", "xsd:int",
+                "xsd:integer", "xsd:long", "xsd:nonNegativeInteger", "xsd:nonPositiveInteger", "xsd:short", "xsd:string",
+                "xsd:time", "xsd:unsignedByte", "xsd:unsignedInt", "xsd:unsignedLong", "xsd:unsignedShort"
+        );
+        List<String> actual = m.ontObjects(OntClass.class)
+                .distinct()
+                .map(it -> it.isAnon() ? "null" : m.shortForm(it.getURI()))
+                .sorted()
+                .collect(Collectors.toList());
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
             "RDFS_MEM",
+            "RDFS_MEM_TRANS_INF",
     })
     public void testListClasses3c(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(

@@ -11,6 +11,8 @@ package com.github.sszuev.jena.ontapi;
         "OWL1_MEM_RDFS_INF",
         "OWL1_MEM_TRANS_INF",
         "OWL1_LITE_MEM",
+        "OWL1_LITE_MEM_RDFS_INF",
+        "OWL1_LITE_MEM_TRANS_INF",
         "OWL1_LITE_MEM_RULES_INF",
         "RDFS_MEM",
         "RDFS_MEM_RDFS_INF",
@@ -31,6 +33,8 @@ public enum TestSpec {
     OWL1_MEM_RULES_INF(OntSpecification.OWL1_MEM_RULES_INF),
 
     OWL1_LITE_MEM(OntSpecification.OWL1_LITE_MEM),
+    OWL1_LITE_MEM_RDFS_INF(OntSpecification.OWL1_LITE_MEM_RDFS_INF),
+    OWL1_LITE_MEM_TRANS_INF(OntSpecification.OWL1_LITE_MEM_TRANS_INF),
     OWL1_LITE_MEM_RULES_INF(OntSpecification.OWL1_LITE_MEM_RULES_INF),
 
     RDFS_MEM(OntSpecification.RDFS_MEM),

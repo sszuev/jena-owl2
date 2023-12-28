@@ -36,6 +36,11 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
     })
     public void testListIndividuals1(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
@@ -53,6 +58,11 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
     })
     public void testListIndividuals2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -71,6 +81,9 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
             "RDFS_MEM",
             "RDFS_MEM_TRANS_INF",
     })
@@ -91,6 +104,11 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
+            "OWL1_LITE_MEM_RULES_INF",
             "RDFS_MEM",
             "RDFS_MEM_TRANS_INF",
     })
@@ -111,6 +129,10 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM", // TODO
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
+            "OWL1_LITE_MEM_RULES_INF",
     })
     public void testListIndividuals5(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -132,6 +154,9 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
     })
     public void testListIndividuals6a(TestSpec spec) {
         OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
@@ -142,6 +167,29 @@ public class OntModelIndividualsTest {
                         "urn:x-hp:eg/budgetGraphics",
                         "urn:x-hp:eg/gamingGraphics"),
                 m.individuals().distinct().map(Resource::getURI).sorted().collect(Collectors.toList()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_LITE_MEM_RULES_INF",
+    })
+    public void testListIndividuals6b(TestSpec spec) {
+        OntModel m = RDFIOTestUtils.readResourceToModel(OntModelFactory.createModel(spec.inst),
+                "/list-syntax-categories-test-comps.rdf", Lang.RDFXML);
+        Assertions.assertEquals(
+                Arrays.asList(
+                        null,
+                        null,
+                        null,
+                        "urn:x-hp:eg/DTPGraphics",
+                        "urn:x-hp:eg/budgetGraphics",
+                        "urn:x-hp:eg/gamingGraphics"
+                ),
+                m.individuals()
+                        .map(Resource::getURI)
+                        .sorted(Comparator.nullsFirst(Comparator.naturalOrder()))
+                        .collect(Collectors.toList())
+        );
     }
 
     @ParameterizedTest
@@ -195,6 +243,9 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
     })
     public void testListIndividuals7(TestSpec spec) {
         Model schema = ModelFactory.createDefaultModel();

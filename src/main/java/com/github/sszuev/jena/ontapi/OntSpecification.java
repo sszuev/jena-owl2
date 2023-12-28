@@ -12,12 +12,20 @@ import java.util.Objects;
 
 /**
  * Encapsulates a description of the components of an ontology model.
+ * Contains OWL2, OWL1 and RDFS specifications:
+ * <ul>
+ *     <li>OWL2: full support last version of OWL</li>
+ *     <li>OWL1: does not support some language construct from OWL2, such as {@code OntDataRange.UnionOf};
+ *     supposed to be compatible with old Jena's OntModel</li>
+ *     <li>OWL1 LITE: does not support some language construct from OWL2 and OWL1, such as {@code cUnionOf};
+ *     supposed to be compatible with old Jena's OntModel</li>
+ * </ul>
  *
  * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
  * @see <a href="https://www.w3.org/TR/2008/WD-owl11-syntax-20080108/">OWL v1.1</a>
  * @see <a href="https://www.w3.org/TR/owl-guide/">OWL v1</a>
- * @see <a href="https://www.w3.org/TR/owl-features/">OWL1 LITE</a>
- * @see org.apache.jena.ontology.OntModelSpec
+ * @see <a href="https://www.w3.org/TR/owl-features/">OWL1 Lite</a>
+ * @see org.apache.jena.ontology.OntModelSpec OntModelSpec - legacy Jena's OWL1 specifications
  */
 public class OntSpecification {
 
@@ -147,6 +155,26 @@ public class OntSpecification {
      */
     public static final OntSpecification OWL1_LITE_MEM = new OntSpecification(
             OWL1_LITE_PERSONALITY, null
+    );
+
+    /**
+     * A specification for OWL1 Lite ontology models
+     * that are stored in memory and use the RDFS inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_LITE_MEM_RDFS_INF
+     */
+    public static final OntSpecification OWL1_LITE_MEM_RDFS_INF = new OntSpecification(
+            OWL1_LITE_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL1 Lite ontology models
+     * that are stored in memory and use the transitive inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_LITE_MEM_TRANS_INF
+     */
+    public static final OntSpecification OWL1_LITE_MEM_TRANS_INF = new OntSpecification(
+            OWL1_LITE_PERSONALITY, TransitiveReasonerFactory.theInstance()
     );
 
     /**
