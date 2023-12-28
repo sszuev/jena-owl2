@@ -469,8 +469,8 @@ public class OntModelOWLSpecTest {
         if (!spec.isOWL1()) {
             createSimpleEntityTest(m, "d", OntDataRange.Named.class);
         } else {
-            // no such type in OWL1
-            Assertions.assertThrows(OntJenaException.Unsupported.class,
+            // there are only built-in datatypes
+            Assertions.assertThrows(OntJenaException.Creation.class,
                     () -> createSimpleEntityTest(m, "d", OntDataRange.Named.class));
         }
         if (!spec.isOWL1()) {
@@ -777,6 +777,8 @@ public class OntModelOWLSpecTest {
 
     @ParameterizedTest
     @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
             "RDFS_MEM",
             "RDFS_MEM_RDFS_INF",
             "RDFS_MEM_TRANS_INF",
@@ -784,11 +786,12 @@ public class OntModelOWLSpecTest {
     public void testOntPropertyOrdinal(TestSpec spec) {
         Graph g = RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph();
         OntModel m = OntModelFactory.createModel(g, spec.inst);
-        OntNamedProperty<?> p = m.getOntEntity(OntNamedProperty.class, m.expandPrefix(":isIngredientOf"));
-        Assertions.assertNotNull(p);
-        Assertions.assertEquals(0, p.getOrdinal());
+
+        OntNamedProperty<?> op = m.getOntEntity(OntNamedProperty.class, m.expandPrefix(":isIngredientOf"));
+        Assertions.assertEquals(0, op.getOrdinal());
+
         Assertions.assertEquals(0, m.getRDFSComment().getOrdinal());
-        Assertions.assertEquals(0, m.getOWLBottomDataProperty().getOrdinal());
+        Assertions.assertEquals(0, m.getRDFSLabel().getOrdinal());
     }
 
     @ParameterizedTest
@@ -1379,6 +1382,65 @@ public class OntModelOWLSpecTest {
         Assertions.assertEquals(hasSelf, i.classes(false).findFirst().orElseThrow());
         hasSelf.removeIndividual(i);
         Assertions.assertTrue(i.classes(false).findFirst().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM_RULES_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+            "RDFS_MEM",
+            "RDFS_MEM_RDFS_INF",
+            "RDFS_MEM_TRANS_INF",
+    }, mode = EnumSource.Mode.EXCLUDE)
+    public void testOWLBuiltins(TestSpec spec) {
+        Graph g = RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph();
+        OntModel m = OntModelFactory.createModel(g, spec.inst);
+
+        OntNamedProperty<?> op = m.getOntEntity(OntNamedProperty.class, m.expandPrefix(":isIngredientOf"));
+        Assertions.assertNotNull(op);
+        Assertions.assertInstanceOf(OntObjectProperty.Named.class, op);
+        Assertions.assertEquals(OntObjectProperty.Named.class, op.objectType());
+
+        Assertions.assertTrue(m.getRDFSComment().isBuiltIn());
+        Assertions.assertTrue(m.getRDFSLabel().isBuiltIn());
+
+        Assertions.assertTrue(RDFS.seeAlso.inModel(m).as(OntAnnotationProperty.class).isBuiltIn());
+        if (spec.isOWL2()) {
+            Assertions.assertTrue(OWL.real.inModel(m).as(OntDataRange.Named.class).isBuiltIn());
+        } else {
+            Assertions.assertFalse(OWL.real.inModel(m).canAs(OntDataRange.Named.class));
+        }
+        Assertions.assertNotNull(m.getRDFSLiteral());
+
+        if (spec.isOWL1Lite()) {
+            Assertions.assertNull(m.getOWLNothing());
+            Assertions.assertFalse(OWL.Nothing.inModel(m).canAs(OntClass.class));
+        } else {
+            Assertions.assertNotNull(m.getOWLNothing());
+            Assertions.assertTrue(OWL.Nothing.inModel(m).as(OntClass.class).asNamed().isBuiltIn());
+        }
+        Assertions.assertTrue(OWL.Thing.inModel(m).as(OntClass.class).asNamed().isBuiltIn());
+        Assertions.assertNotNull(m.getOWLThing());
+        if (spec.isOWL1()) {
+            Assertions.assertFalse(OWL.topObjectProperty.inModel(m).canAs(OntObjectProperty.class));
+            Assertions.assertFalse(OWL.bottomObjectProperty.inModel(m).canAs(OntObjectProperty.class));
+            Assertions.assertFalse(OWL.topDataProperty.inModel(m).canAs(OntDataProperty.class));
+            Assertions.assertFalse(OWL.bottomDataProperty.inModel(m).canAs(OntDataProperty.class));
+            Assertions.assertNull(m.getOWLTopObjectProperty());
+            Assertions.assertNull(m.getOWLBottomObjectProperty());
+            Assertions.assertNull(m.getOWLTopDataProperty());
+            Assertions.assertNull(m.getOWLBottomDataProperty());
+        } else {
+            Assertions.assertTrue(OWL.topObjectProperty.inModel(m).as(OntObjectProperty.class).asNamed().isBuiltIn());
+            Assertions.assertTrue(OWL.bottomObjectProperty.inModel(m).as(OntObjectProperty.class).asNamed().isBuiltIn());
+            Assertions.assertTrue(OWL.topDataProperty.inModel(m).as(OntDataProperty.class).isBuiltIn());
+            Assertions.assertTrue(OWL.bottomDataProperty.inModel(m).as(OntDataProperty.class).isBuiltIn());
+            Assertions.assertNotNull(m.getOWLTopObjectProperty());
+            Assertions.assertNotNull(m.getOWLBottomObjectProperty());
+            Assertions.assertNotNull(m.getOWLTopDataProperty());
+            Assertions.assertNotNull(m.getOWLBottomDataProperty());
+        }
+
     }
 }
 

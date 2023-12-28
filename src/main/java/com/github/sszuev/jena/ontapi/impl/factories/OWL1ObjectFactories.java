@@ -38,7 +38,8 @@ public class OWL1ObjectFactories {
             new EnhNodeFilter.HasType(OWL.Ontology)
     );
 
-    public static final EnhNodeFactory NAMED_CLASS = OntEntities.createNamedClassFactory();
+    public static final EnhNodeFactory NAMED_CLASS = OntEntities.createOWL1NamedClassFactory();
+    public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createOWL1NamedDataRangeFactory();
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
     public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createOWL1ObjectPropertyFactory();
@@ -57,7 +58,7 @@ public class OWL1ObjectFactories {
 
     public static final EnhNodeFactory ANY_ENTITY = OntEnhNodeFactories.createFrom(
             EnhNodeFinder.ANY_TYPED,
-            NAMED_CLASS, NAMED_INDIVIDUAL, ANNOTATION_PROPERTY, DATATYPE_PROPERTY, NAMED_OBJECT_PROPERTY
+            NAMED_CLASS, NAMED_DATARANGE, NAMED_INDIVIDUAL, ANNOTATION_PROPERTY, DATATYPE_PROPERTY, NAMED_OBJECT_PROPERTY
     );
 
     public static final EnhNodeFactory ANY_INDIVIDUAL = OntEnhNodeFactories.createFrom(
@@ -281,8 +282,7 @@ public class OWL1ObjectFactories {
     public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS_FULL =
             config -> OntClasses.createClassExpressionFactory(
                     config,
-                    true,
-                    OntClasses.Factory.Type.NAMED,
+                    NAMED_CLASS,
                     OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
                     OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
                     OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,
@@ -303,8 +303,7 @@ public class OWL1ObjectFactories {
     public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS_LITE =
             config -> OntClasses.createClassExpressionFactory(
                     config,
-                    true,
-                    OntClasses.Factory.Type.NAMED,
+                    NAMED_CLASS,
                     OntClasses.Factory.Type.INTERSECTION_OF,
                     OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
                     OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
@@ -325,7 +324,10 @@ public class OWL1ObjectFactories {
             OntDataRanges.DR_FILTER_OWL1.and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
     );
     public static final EnhNodeFactory ANY_COMPONENTS_DATARANGE = ONE_OF_DATARANGE;
-    public static final EnhNodeFactory ANY_DATARANGE = ONE_OF_DATARANGE;
+    public static final EnhNodeFactory ANY_DATARANGE = OntEnhNodeFactories.createFrom(
+            ONE_OF_DATARANGE,
+            NAMED_DATARANGE
+    );
 
     public static final EnhNodeFactory DIFFERENT_INDIVIDUALS_DISJOINT = OntDisjoints.createFactory(
             OntDisjointImpl.IndividualsImpl.class,

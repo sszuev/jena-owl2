@@ -93,7 +93,7 @@ public class OntPersonalityTest {
 
 
         OntPersonality p1 = OntObjectPersonalityBuilder.from(TestOntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
-                .setBuiltins(OntPersonalities.createBuiltinsVocabulary(OntVocabulary.Factory.OWL_VOCABULARY)).build();
+                .setBuiltins(OntPersonalities.createBuiltinsVocabulary(OntVocabulary.Factory.OWL2_VOCABULARY)).build();
         OntModel m1 = OntModelFactory.createModel(g.getGraph(), p1);
         Assertions.assertEquals(1, m1.classes().count());
         Assertions.assertNull(m1.getOntClass(agent));
@@ -101,7 +101,7 @@ public class OntPersonalityTest {
         Assertions.assertEquals(0, m1.getOntClass(clazz).superClasses().count());
 
         OntVocabulary SIMPLE_FOAF_VOC = OntVocabulary.Factory.create(OWL.Class, agent, document);
-        OntVocabulary voc = OntVocabulary.Factory.create(OntVocabulary.Factory.OWL_VOCABULARY, SIMPLE_FOAF_VOC);
+        OntVocabulary voc = OntVocabulary.Factory.create(OntVocabulary.Factory.OWL2_VOCABULARY, SIMPLE_FOAF_VOC);
         OntPersonality p2 = OntObjectPersonalityBuilder.from(TestOntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
                 .setBuiltins(OntPersonalities.createBuiltinsVocabulary(voc)).build();
         OntModel m2 = OntModelFactory.createModel(g.getGraph(), p2);

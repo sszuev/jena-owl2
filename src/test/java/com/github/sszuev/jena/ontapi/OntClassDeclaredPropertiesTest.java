@@ -52,7 +52,6 @@ public class OntClassDeclaredPropertiesTest {
         OntObjectProperty o1 = m.createObjectProperty("o1");
         OntObjectProperty o2 = m.createObjectProperty("o2");
         o1.addSuperProperty(o2);
-        o2.addSuperProperty(m.getOWLTopObjectProperty());
         d1.addDomain(A);
         d2.addDomain(B);
         o1.addDomain(C);

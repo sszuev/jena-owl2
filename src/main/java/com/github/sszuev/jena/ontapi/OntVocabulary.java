@@ -165,11 +165,13 @@ public interface OntVocabulary {
     class Factory {
 
         public static final OntVocabulary RDFS_VOCABULARY = new RDFSImpl();
-        public static final OntVocabulary OWL_VOCABULARY = new OWLImpl();
+        public static final OntVocabulary OWL2_VOCABULARY = new OWL2Impl();
+        public static final OntVocabulary OWL1_VOCABULARY = new OWL1Impl(true);
+        public static final OntVocabulary OWL1_LITE_VOCABULARY = new OWL1Impl(false);
         public static final OntVocabulary DC_VOCABULARY = new DCImpl();
         public static final OntVocabulary SKOS_VOCABULARY = new SKOSImpl();
         public static final OntVocabulary SWRL_VOCABULARY = new SWRLImpl();
-        public static final OntVocabulary FULL_VOCABULARY = create(OWL_VOCABULARY, DC_VOCABULARY, SKOS_VOCABULARY, SWRL_VOCABULARY);
+        public static final OntVocabulary OWL2_DC_SKOS_SWRL_VOCABULARY = create(OWL2_VOCABULARY, DC_VOCABULARY, SKOS_VOCABULARY, SWRL_VOCABULARY);
 
 
         /**
@@ -309,18 +311,19 @@ public interface OntVocabulary {
         }
 
         /**
-         * Access to the {@link OWL OWL2} vocabulary.
+         * Access to the {@link OWL OWL2} (including RDFS & RDF & XSD) vocabulary.
          */
         @SuppressWarnings("WeakerAccess")
-        protected static class OWLImpl extends Impl {
+        protected static class OWL2Impl extends Impl {
             /**
              * The list of datatypes from owl-2 specification (35 types)
              * (see <a href="https://www.w3.org/TR/owl2-quick-reference/">Quick References, 3.1 Built-in Datatypes</a>).
              * It seems it is not full:
              */
             public static final Set<Resource> OWL2_DATATYPES =
-                    Set.of(RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
-                            RDFS.Literal, OWL.real, OWL.rational, XSD.xstring, XSD.normalizedString,
+                    Set.of(OWL.real, OWL.rational,
+                            RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
+                            RDFS.Literal, XSD.xstring, XSD.normalizedString,
                             XSD.token, XSD.language, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
                             XSD.xdouble, XSD.xfloat, XSD.xboolean,
                             XSD.nonNegativeInteger, XSD.nonPositiveInteger, XSD.positiveInteger, XSD.negativeInteger,
@@ -329,28 +332,106 @@ public interface OntVocabulary {
                             XSD.hexBinary, XSD.base64Binary,
                             XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
                     );
-            public static final Set<RDFDatatype> JENA_RDF_DATATYPE_SET = initBuiltInRDFDatatypes(TypeMapper.getInstance());
-            public static final Set<Resource> DATATYPES = JENA_RDF_DATATYPE_SET.stream().map(RDFDatatype::getURI).
-                    map(ResourceFactory::createResource).collect(Collectors.toUnmodifiableSet());
-            public static final Set<Resource> CLASSES = Set.of(OWL.Nothing, OWL.Thing);
-            public static final Set<Property> ANNOTATION_PROPERTIES =
+            public static final Set<Resource> ALL_KNOWN_DATATYPES = initOWL2BuiltInRDFDatatypes(TypeMapper.getInstance())
+                    .stream()
+                    .map(RDFDatatype::getURI)
+                    .map(ResourceFactory::createResource)
+                    .collect(Collectors.toUnmodifiableSet());
+            public static final Set<Resource> OWL2_BUILTIN_CLASSES = Set.of(OWL.Nothing, OWL.Thing);
+            public static final Set<Property> OWL2_BUILTIN_ANNOTATION_PROPERTIES =
                     Set.of(RDFS.label, RDFS.comment, RDFS.seeAlso, RDFS.isDefinedBy, OWL.versionInfo,
                             OWL.backwardCompatibleWith, OWL.priorVersion, OWL.incompatibleWith, OWL.deprecated);
-            public static final Set<Property> DATA_PROPERTIES = Set.of(OWL.topDataProperty, OWL.bottomDataProperty);
-            public static final Set<Property> OBJECT_PROPERTIES = Set.of(OWL.topObjectProperty, OWL.bottomObjectProperty);
+            public static final Set<Property> OWL2_BUILTIN_DATA_PROPERTIES = Set.of(OWL.topDataProperty, OWL.bottomDataProperty);
+            public static final Set<Property> OWL2_BUILTIN_OBJECT_PROPERTIES = Set.of(OWL.topObjectProperty, OWL.bottomObjectProperty);
             private static final Class<?>[] VOCABULARIES = new Class<?>[]{XSD.class, RDF.class, RDFS.class, OWL.class};
             public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
-            protected OWLImpl() {
-                super(ANNOTATION_PROPERTIES, DATA_PROPERTIES, OBJECT_PROPERTIES, CLASSES, DATATYPES, null, PROPERTIES, RESOURCES);
+            protected OWL2Impl() {
+                super(
+                        OWL2_BUILTIN_ANNOTATION_PROPERTIES,
+                        OWL2_BUILTIN_DATA_PROPERTIES,
+                        OWL2_BUILTIN_OBJECT_PROPERTIES,
+                        OWL2_BUILTIN_CLASSES,
+                        ALL_KNOWN_DATATYPES,
+                        /*SWRL*/ null,
+                        PROPERTIES,
+                        RESOURCES
+                );
             }
 
-            private static Set<RDFDatatype> initBuiltInRDFDatatypes(TypeMapper types) {
+            private static Set<RDFDatatype> initOWL2BuiltInRDFDatatypes(TypeMapper types) {
                 Stream.of(OWL.real, OWL.rational).forEach(d -> types.registerDatatype(new BaseDatatype(d.getURI())));
                 OWL2_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
                 Set<RDFDatatype> res = new HashSet<>();
                 types.listTypes().forEachRemaining(res::add);
+                return Collections.unmodifiableSet(res);
+            }
+        }
+
+        /**
+         * Access to the {@link org.apache.jena.vocabulary.OWL OWL1} (including RDFS & RDF & XSD) vocabulary.
+         */
+        @SuppressWarnings("WeakerAccess")
+        protected static class OWL1Impl extends Impl {
+            private static final Set<Resource> OWL1_DATATYPES =
+                    Set.of(RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
+                            RDFS.Literal, XSD.xstring, XSD.normalizedString,
+                            XSD.token, XSD.language, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
+                            XSD.xdouble, XSD.xfloat, XSD.xboolean,
+                            XSD.nonNegativeInteger, XSD.nonPositiveInteger, XSD.positiveInteger, XSD.negativeInteger,
+                            XSD.xlong, XSD.xint, XSD.xshort, XSD.xbyte,
+                            XSD.unsignedLong, XSD.unsignedInt, XSD.unsignedShort, XSD.unsignedByte,
+                            XSD.hexBinary, XSD.base64Binary,
+                            XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
+                    );
+            public static final Set<Resource> ALL_KNOWN_BUILTIN_DATATYPES = initOWL1BuiltInRDFDatatypes(TypeMapper.getInstance())
+                    .stream()
+                    .map(RDFDatatype::getURI)
+                    .map(ResourceFactory::createResource)
+                    .collect(Collectors.toUnmodifiableSet());
+            public static final Set<Resource> OWL1_FULL_BUILTIN_CLASSES = Set.of(
+                    org.apache.jena.vocabulary.OWL.Nothing, org.apache.jena.vocabulary.OWL.Thing
+            );
+            public static final Set<Resource> OWL1_LITE_BUILTIN_CLASSES = Set.of(
+                    org.apache.jena.vocabulary.OWL.Thing
+            );
+            public static final Set<Property> OWL1_BUILTIN_ANNOTATION_PROPERTIES = Set.of(
+                    RDFS.label, RDFS.comment, RDFS.seeAlso, RDFS.isDefinedBy,
+                    org.apache.jena.vocabulary.OWL.versionInfo, org.apache.jena.vocabulary.OWL.backwardCompatibleWith,
+                    org.apache.jena.vocabulary.OWL.priorVersion, org.apache.jena.vocabulary.OWL.incompatibleWith
+            );
+            public static final Set<Property> OWL1_BUILTIN_DATA_PROPERTIES = Set.of();
+            public static final Set<Property> OWL1_BUILTIN_OBJECT_PROPERTIES = Set.of();
+            private static final Class<?>[] VOCABULARIES = new Class<?>[]{XSD.class, RDF.class, RDFS.class, org.apache.jena.vocabulary.OWL.class};
+            public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
+            public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
+
+            protected OWL1Impl(boolean full) {
+                super(
+                        OWL1_BUILTIN_ANNOTATION_PROPERTIES,
+                        OWL1_BUILTIN_DATA_PROPERTIES,
+                        OWL1_BUILTIN_OBJECT_PROPERTIES,
+                        full ? OWL1_FULL_BUILTIN_CLASSES : OWL1_LITE_BUILTIN_CLASSES,
+                        ALL_KNOWN_BUILTIN_DATATYPES,
+                        /*SWRL*/ null,
+                        PROPERTIES,
+                        RESOURCES
+                );
+            }
+
+            private static Set<RDFDatatype> initOWL1BuiltInRDFDatatypes(TypeMapper types) {
+                OWL1_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
+                Set<String> exclude = OWL2Impl.OWL2_DATATYPES.stream()
+                        .filter(it -> !OWL1_DATATYPES.contains(it))
+                        .map(Resource::getURI)
+                        .collect(Collectors.toUnmodifiableSet());
+                Set<RDFDatatype> res = new HashSet<>();
+                types.listTypes().forEachRemaining(it -> {
+                    if (!exclude.contains(it.getURI())) {
+                        res.add(it);
+                    }
+                });
                 return Collections.unmodifiableSet(res);
             }
         }

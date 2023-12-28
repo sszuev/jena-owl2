@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi.impl;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.UnionGraph;
+import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
@@ -441,7 +442,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * Adds the graph-uri pair into the internals.
      *
      * @param graph {@link Graph}, not {@code null}
-     * @param uri String, not {@code null}
+     * @param uri   String, not {@code null}
      */
     protected void addImportModel(Graph graph, String uri) {
         getUnionGraph().addGraph(graph);
@@ -453,7 +454,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * Removes the graph-uri pair from the internals.
      *
      * @param graph {@link Graph}, not {@code null}
-     * @param uri String, not {@code null}
+     * @param uri   String, not {@code null}
      */
     protected void removeImportModel(Graph graph, String uri) {
         getUnionGraph().removeGraph(graph);
@@ -665,10 +666,12 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public <T extends OntEntity> T createOntEntity(Class<T> type, String iri) {
         try {
             return createOntObject(type, iri);
-        } catch (OntJenaException.Creation e) {
+        } catch (OntJenaException.Creation ex) {
             // illegal punning ?
-            throw new OntJenaException.Creation(String.format("Unable to create entity [%s: <%s>].",
-                    OntEnhNodeFactories.viewAsString(type), iri), e);
+            throw new OntJenaException.Creation(
+                    String.format("Creation of %s <%s> is not allowed by the configuration. Profile: %s",
+                            OntEnhNodeFactories.viewAsString(type), iri, getOntPersonality().getName()),
+                    ex);
         }
     }
 
@@ -689,7 +692,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                             " does not support language construct " + OntEnhNodeFactories.viewAsString(type)
             );
         }
-        return personality.getObjectFactory(type).createInGraph(Graphs.createNode(uri), this).as(type);
+        Node node = Graphs.createNode(uri);
+        EnhNodeFactory factory = personality.getObjectFactory(type);
+        return factory.createInGraph(node, this).as(type);
     }
 
     @Override

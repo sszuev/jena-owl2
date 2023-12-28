@@ -102,7 +102,7 @@ final class OntEntities {
         );
     }
 
-    public static EnhNodeFactory createNamedClassFactory() {
+    public static EnhNodeFactory createOWL2NamedClassFactory() {
         return createOntEntityFactory(
                 OntClass.Named.class,
                 OntSimpleClassImpl.NamedImpl.class,
@@ -113,7 +113,11 @@ final class OntEntities {
         );
     }
 
-    public static EnhNodeFactory createNamedDataRangeFactory() {
+    public static EnhNodeFactory createOWL1NamedClassFactory() {
+        return createOWL2NamedClassFactory();
+    }
+
+    public static EnhNodeFactory createOWL2NamedDataRangeFactory() {
         return createOntEntityFactory(
                 OntDataRange.Named.class,
                 OntNamedDataRangeImpl.class,
@@ -121,6 +125,15 @@ final class OntEntities {
                 OntPersonality.Builtins::getDatatypes,
                 OntPersonality.Punnings::getDatatypes,
                 RDFS.Datatype
+        );
+    }
+
+    public static EnhNodeFactory createOWL1NamedDataRangeFactory() {
+        // In OWL1 only builtins
+        return OntEnhNodeFactories.createCommon(OntDataRange.class,
+                new EnhNodeProducer.Default(OntNamedDataRangeImpl.class, OntNamedDataRangeImpl::new),
+                EnhNodeFinder.NOTHING,
+                EnhNodeFilter.URI.and(createBuiltinsFilter(OntPersonality.Builtins::getDatatypes))
         );
     }
 

@@ -32,6 +32,7 @@ public interface EnhNodeFinder {
     EnhNodeFinder ANY_BLANK_SUBJECT = eg -> Iterators.distinct(eg.asGraph().find().mapWith(Triple::getSubject).filterKeep(Node::isBlank));
     EnhNodeFinder ANY_SUBJECT_AND_OBJECT = eg -> Graphs.listSubjectsAndObjects(eg.asGraph());
     EnhNodeFinder ANYTHING = eg -> Graphs.listAllNodes(eg.asGraph());
+    EnhNodeFinder NOTHING = eg -> NullIterator.instance();
     EnhNodeFinder ANY_TYPED = new ByPredicate(RDF.type);
 
     /**

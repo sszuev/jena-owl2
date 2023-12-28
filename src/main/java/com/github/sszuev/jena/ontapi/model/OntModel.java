@@ -311,6 +311,7 @@ public interface OntModel extends Model,
      * @param <E>  type of ont-entity
      * @return {@link OntEntity}
      * @throws OntJenaException.Creation in case something is wrong
+     * (e.g. configuration does not support creation of the specified type)
      * @see #getOntEntity(Class, String)
      */
     <E extends OntEntity> E createOntEntity(Class<E> type, String iri);

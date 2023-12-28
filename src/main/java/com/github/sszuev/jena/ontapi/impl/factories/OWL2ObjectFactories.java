@@ -51,8 +51,8 @@ public final class OWL2ObjectFactories {
             OntAnnotations::testAnnotation
     );
 
-    public static final EnhNodeFactory NAMED_CLASS = OntEntities.createNamedClassFactory();
-    public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createNamedDataRangeFactory();
+    public static final EnhNodeFactory NAMED_CLASS = OntEntities.createOWL2NamedClassFactory();
+    public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createOWL2NamedDataRangeFactory();
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
     public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createOWL2ObjectPropertyFactory();
@@ -311,8 +311,7 @@ public final class OWL2ObjectFactories {
     public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
-                    true,
-                    OntClasses.Factory.Type.NAMED,
+                    NAMED_CLASS,
                     OntClasses.Factory.Type.OBJECT_SOME_VALUES_FROM,
                     OntClasses.Factory.Type.OBJECT_ALL_VALUES_FROM,
                     OntClasses.Factory.Type.OBJECT_MIN_CARDINALITY,

@@ -31,24 +31,24 @@ public class OntSpecification {
 
     private static final OntPersonality OWL2_FULL_PERSONALITY =
             OntPersonalities.OWL2_ONT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                    .setReserved(OntPersonalities.OWL_RESERVED)
-                    .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+                    .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL2_RESERVED)
+                    .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
                     .setConfig(OntPersonalities.OWL2_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_FULL_PERSONALITY =
             OntPersonalities.OWL1_ONT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                    .setReserved(OntPersonalities.OWL_RESERVED)
-                    .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+                    .setBuiltins(OntPersonalities.OWL1_FULL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL1_RESERVED)
+                    .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
                     .setConfig(OntPersonalities.OWL1_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_LITE_PERSONALITY =
             OntPersonalities.OWL1_LITE_ONT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setBuiltins(OntPersonalities.OWL1_LITE_BUILTINS)
+                    .setReserved(OntPersonalities.OWL1_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
                     .setConfig(OntPersonalities.OWL1_CONFIG)
                     .build();
@@ -57,7 +57,7 @@ public class OntSpecification {
             OntPersonalities.RDFS_ONT_PERSONALITY()
                     .setBuiltins(OntPersonalities.RDFS_BUILTINS)
                     .setReserved(OntPersonalities.RDFS_RESERVED)
-                    .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+                    .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
                     .setConfig(OntPersonalities.RDFS_CONFIG)
                     .build();
 
@@ -72,8 +72,8 @@ public class OntSpecification {
      */
     public static final OntSpecification OWL2_DL_MEM_RDFS_BUILTIN_INF = new OntSpecification(
             OntPersonalities.OWL2_ONT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                    .setReserved(OntPersonalities.OWL_RESERVED)
+                    .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
                     .setConfig(OntPersonalities.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
                     .build(),

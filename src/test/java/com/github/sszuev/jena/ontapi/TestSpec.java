@@ -50,4 +50,12 @@ public enum TestSpec {
     boolean isOWL1() {
         return name().startsWith("OWL1");
     }
+
+    boolean isOWL1Lite() {
+        return name().startsWith("OWL1_LITE");
+    }
+
+    boolean isOWL2() {
+        return name().startsWith("OWL2");
+    }
 }

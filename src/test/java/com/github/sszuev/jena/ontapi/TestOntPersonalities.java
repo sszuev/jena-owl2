@@ -20,9 +20,9 @@ class TestOntPersonalities {
      */
     public static final OntPersonality OWL2_PERSONALITY_LAX_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_LAX_PUNNS")
-            .setBuiltins(OntPersonalities.OWL_BUILTINS)
-            .setReserved(OntPersonalities.OWL_RESERVED)
-            .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+            .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+            .setReserved(OntPersonalities.OWL2_RESERVED)
+            .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
             .setConfig(OntConfig.DEFAULT)
             .build();
     /**
@@ -38,8 +38,8 @@ class TestOntPersonalities {
      */
     public static final OntPersonality OWL2_PERSONALITY_MEDIUM_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_MEDIUM_PUNNS")
-            .setBuiltins(OntPersonalities.OWL_BUILTINS)
-            .setReserved(OntPersonalities.OWL_RESERVED)
+            .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+            .setReserved(OntPersonalities.OWL2_RESERVED)
             .setPunnings(OntPersonalities.OWL_DL_WEAK_PUNNINGS)
             .setConfig(OntConfig.DEFAULT)
             .build();
@@ -62,8 +62,8 @@ class TestOntPersonalities {
      */
     public static final OntPersonality OWL2_PERSONALITY_STRICT_PUNNS = OntPersonalities.OWL2_ONT_PERSONALITY()
             .setName("TEST-OWL2_PERSONALITY_STRICT_PUNNS")
-            .setBuiltins(OntPersonalities.OWL_BUILTINS)
-            .setReserved(OntPersonalities.OWL_RESERVED)
+            .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+            .setReserved(OntPersonalities.OWL2_RESERVED)
             .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
             .setConfig(OntConfig.DEFAULT)
             .build();

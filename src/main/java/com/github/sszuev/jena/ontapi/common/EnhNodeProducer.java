@@ -39,16 +39,12 @@ public interface EnhNodeProducer {
      * @param node {@link Node}
      * @param eg   {@link EnhGraph}
      */
-    default void doInsert(Node node, EnhGraph eg) {
-        throw new OntJenaException.IllegalCall();
-    }
+    void doInsert(Node node, EnhGraph eg);
 
     /**
      * Answers {@code true} if the given {@code node} can be created in graph
      */
-    default boolean canInsert(Node node, EnhGraph eg) {
-        return false;
-    }
+    boolean canInsert(Node node, EnhGraph eg);
 
     /**
      * Returns a view string representation.
@@ -117,6 +113,11 @@ public interface EnhNodeProducer {
         public void doInsert(Node node, EnhGraph eg) {
             throw new OntJenaException.IllegalCall("Creation is not allowed for node " +
                     node + " and target " + targetName());
+        }
+
+        @Override
+        public boolean canInsert(Node node, EnhGraph eg) {
+            return false;
         }
 
         @Override

@@ -64,14 +64,19 @@ import java.util.Set;
 public class OntPersonalities {
 
     public static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
+    public static final OntPersonality.Builtins OWL2_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL2_DC_SKOS_SWRL_VOCABULARY);
+    public static final OntPersonality.Builtins OWL1_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL1_VOCABULARY);
+    public static final OntPersonality.Builtins OWL1_LITE_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL1_LITE_VOCABULARY);
+
     public static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
-    public static final OntPersonality.Builtins OWL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
-    public static final OntPersonality.Reserved OWL_RESERVED = createReservedVocabulary(OntVocabulary.Factory.FULL_VOCABULARY);
+    public static final OntPersonality.Reserved OWL2_RESERVED = createReservedVocabulary(OntVocabulary.Factory.OWL2_DC_SKOS_SWRL_VOCABULARY);
+    public static final OntPersonality.Reserved OWL1_RESERVED = createReservedVocabulary(OntVocabulary.Factory.OWL1_VOCABULARY);
+
     public static final OntPersonality.Punnings OWL_DL1_PUNNINGS = createPunningsVocabulary(PunningsMode.DL1);
     public static final OntPersonality.Punnings OWL_DL2_PUNNINGS = createPunningsVocabulary(PunningsMode.DL2);
     public static final OntPersonality.Punnings OWL_DL_WEAK_PUNNINGS = createPunningsVocabulary(PunningsMode.DL_WEAK);
-    public static final OntPersonality.Punnings OWL_FULL_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
-    public static final OntPersonality.Punnings RDFS_FULL_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
+    public static final OntPersonality.Punnings OWL_NO_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
+    public static final OntPersonality.Punnings RDFS_NO_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
 
     public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -259,6 +264,7 @@ public class OntPersonalities {
 
             // entities:
             .add(OntClass.Named.class, OWL1ObjectFactories.NAMED_CLASS)
+            .add(OntDataRange.Named.class, OWL1ObjectFactories.NAMED_DATARANGE)
             .add(OntIndividual.Named.class, OWL1ObjectFactories.NAMED_INDIVIDUAL)
             .add(OntObjectProperty.Named.class, OWL1ObjectFactories.NAMED_OBJECT_PROPERTY)
             .add(OntDataProperty.class, OWL1ObjectFactories.DATATYPE_PROPERTY)
@@ -325,6 +331,7 @@ public class OntPersonalities {
 
             // entities:
             .add(OntClass.Named.class, OWL1ObjectFactories.NAMED_CLASS)
+            .add(OntDataRange.Named.class, OWL1ObjectFactories.NAMED_DATARANGE)
             .add(OntIndividual.Named.class, OWL1ObjectFactories.NAMED_INDIVIDUAL)
             .add(OntObjectProperty.Named.class, OWL1ObjectFactories.NAMED_OBJECT_PROPERTY)
             .add(OntDataProperty.class, OWL1ObjectFactories.DATATYPE_PROPERTY)
@@ -372,7 +379,7 @@ public class OntPersonalities {
         return RDFS_OBJECT_FACTORIES.copy()
                 .setBuiltins(OntPersonalities.RDFS_BUILTINS)
                 .setReserved(OntPersonalities.RDFS_RESERVED)
-                .setPunnings(OntPersonalities.RDFS_FULL_PUNNINGS)
+                .setPunnings(OntPersonalities.RDFS_NO_PUNNINGS)
                 .setConfig(OntPersonalities.RDFS_CONFIG);
     }
 
@@ -382,9 +389,9 @@ public class OntPersonalities {
     public static OntObjectPersonalityBuilder OWL2_ONT_PERSONALITY() {
         return OWL2_OBJECT_FACTORIES
                 .copy()
-                .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                .setReserved(OntPersonalities.OWL_RESERVED)
-                .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+                .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                .setReserved(OntPersonalities.OWL2_RESERVED)
+                .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
                 .setConfig(OntPersonalities.OWL2_CONFIG);
     }
 
@@ -393,9 +400,9 @@ public class OntPersonalities {
      */
     public static OntObjectPersonalityBuilder OWL1_ONT_PERSONALITY() {
         return OWL1_OBJECT_FACTORIES.copy()
-                .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                .setReserved(OntPersonalities.OWL_RESERVED)
-                .setPunnings(OntPersonalities.OWL_FULL_PUNNINGS)
+                .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                .setReserved(OntPersonalities.OWL2_RESERVED)
+                .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
                 .setConfig(OntPersonalities.OWL1_CONFIG);
     }
 
@@ -404,8 +411,8 @@ public class OntPersonalities {
      */
     public static OntObjectPersonalityBuilder OWL1_LITE_ONT_PERSONALITY() {
         return OWL1_LITE_OBJECT_FACTORIES.copy()
-                .setBuiltins(OntPersonalities.OWL_BUILTINS)
-                .setReserved(OntPersonalities.OWL_RESERVED)
+                .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                .setReserved(OntPersonalities.OWL2_RESERVED)
                 .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
                 .setConfig(OntPersonalities.OWL1_CONFIG);
     }

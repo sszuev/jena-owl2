@@ -187,7 +187,7 @@ public class OntPropertyTest {
             "OWL1_MEM_RDFS_INF",
     })
     public void testListDeclaringClasses2a(TestSpec spec) {
-        OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD).setNsPrefix("", "http://ex.com#");
+        OntModel m = OntModelFactory.createModel(spec.inst);
 
         OntClass c1 = m.createOntClass(":C1");
         OntClass c2 = m.createOntClass(":C2");
@@ -203,9 +203,9 @@ public class OntPropertyTest {
         OntProperty p5 = m.createDataProperty(":p5");
         OntProperty p6 = m.createDataProperty(":p6");
         OntProperty p7 = m.createDataProperty(":p7");
-        OntProperty p8 = m.getOWLTopObjectProperty();
-        OntProperty p9 = m.getOWLBottomDataProperty();
-        OntProperty p10 = m.getOWLBottomObjectProperty();
+        OntObjectProperty p8 = spec.isOWL1() ? m.createObjectProperty(":p8") : m.getOWLTopObjectProperty();
+        OntDataProperty p9 = spec.isOWL1() ? m.createDataProperty(":p9") : m.getOWLBottomDataProperty();
+        OntObjectProperty p10 = spec.isOWL1() ? m.createObjectProperty(":p10") : m.getOWLBottomObjectProperty();
 
         p1.addSubPropertyOfStatement(p2);
         p2.addSubPropertyOfStatement(p3);
@@ -276,9 +276,9 @@ public class OntPropertyTest {
         OntDataProperty p5 = m.createDataProperty(":p5");
         OntDataProperty p6 = m.createDataProperty(":p6");
         OntDataProperty p7 = m.createDataProperty(":p7");
-        OntObjectProperty p8 = m.getOWLTopObjectProperty();
-        OntDataProperty p9 = m.getOWLBottomDataProperty();
-        OntObjectProperty p10 = m.getOWLBottomObjectProperty();
+        OntObjectProperty p8 = spec.isOWL1() ? m.createObjectProperty(":p8") : m.getOWLTopObjectProperty();
+        OntDataProperty p9 = spec.isOWL1() ? m.createDataProperty(":p9") : m.getOWLBottomDataProperty();
+        OntObjectProperty p10 = spec.isOWL1() ? m.createObjectProperty(":p10") : m.getOWLBottomObjectProperty();
 
         p1.addSuperProperty(p2);
         p2.addSuperProperty(p3);

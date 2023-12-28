@@ -77,7 +77,8 @@ public enum PunningsMode {
     private static final Set<Resource> DATATYPE_PROPERTIES = Set.of(OWL.DatatypeProperty);
     private static final Set<Resource> ANNOTATION_PROPERTIES = Set.of(OWL.AnnotationProperty);
     private static final Set<Resource> RDF_PROPERTIES = Set.of(RDF.Property);
-    private static final Set<Resource> CLASSES = Set.of(OWL.Class);
+    private static final Set<Resource> OWL2_CLASSES = Set.of(OWL.Class);
+    private static final Set<Resource> OWL1_CLASSES = Set.of(OWL.Class, OWL.Restriction, RDFS.Class, RDFS.Datatype);
     private static final Set<Resource> OWL2_DATATYPES = Set.of(RDFS.Datatype);
     private static final Set<Resource> OWL2_INDIVIDUALS = Set.of(OWL.NamedIndividual);
 
@@ -108,20 +109,20 @@ public enum PunningsMode {
     private static Map<Class<? extends OntObject>, Set<Set<Resource>>> OWL1_DL() {
         return Map.of(
                 OntAnnotationProperty.class, Set.of(
-                        OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, CLASSES
+                        OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, OWL1_CLASSES
                 ),
                 OntObjectProperty.Named.class, Set.of(
-                        DATATYPE_PROPERTIES, ANNOTATION_PROPERTIES, CLASSES
+                        DATATYPE_PROPERTIES, ANNOTATION_PROPERTIES, OWL1_CLASSES
                 ),
                 OntDataProperty.class, Set.of(
-                        OWL1_OBJECT_PROPERTIES, ANNOTATION_PROPERTIES, CLASSES
+                        OWL1_OBJECT_PROPERTIES, ANNOTATION_PROPERTIES, OWL1_CLASSES
                 ),
                 OntDataRange.Named.class, Set.of(),
                 OntClass.Named.class, Set.of(
                         ANNOTATION_PROPERTIES, OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES
                 ),
                 OntIndividual.Named.class, Set.of(
-                        ANNOTATION_PROPERTIES, OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, CLASSES, RDF_PROPERTIES
+                        ANNOTATION_PROPERTIES, OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, OWL1_CLASSES, RDF_PROPERTIES
                 )
         );
     }
@@ -138,7 +139,7 @@ public enum PunningsMode {
                         OWL2_OBJECT_PROPERTIES, ANNOTATION_PROPERTIES
                 ),
                 OntDataRange.Named.class, Set.of(
-                        CLASSES
+                        OWL2_CLASSES
                 ),
                 OntClass.Named.class, Set.of(
                         OWL2_DATATYPES
@@ -152,7 +153,7 @@ public enum PunningsMode {
                 OntAnnotationProperty.class, Set.of(),
                 OntObjectProperty.Named.class, Set.of(DATATYPE_PROPERTIES),
                 OntDataProperty.class, Set.of(OWL2_OBJECT_PROPERTIES),
-                OntDataRange.Named.class, Set.of(CLASSES),
+                OntDataRange.Named.class, Set.of(OWL2_CLASSES),
                 OntClass.Named.class, Set.of(OWL2_DATATYPES),
                 OntIndividual.Named.class, Set.of()
         );

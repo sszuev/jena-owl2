@@ -56,8 +56,9 @@ public class CommonEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
 
     @Override
     public EnhNode createInGraph(Node node, EnhGraph eg) {
-        if (!canCreateInGraph(node, eg))
-            throw new OntJenaException.Creation(String.format("Can't modify graph for %s (%s)", node, maker.targetName()));
+        if (!canCreateInGraph(node, eg)) {
+            throw new OntJenaException.Creation(String.format("Can't modify graph for <%s> (impl: %s)", node, maker.targetName()));
+        }
         maker.doInsert(node, eg);
         return createInstance(node, eg);
     }
