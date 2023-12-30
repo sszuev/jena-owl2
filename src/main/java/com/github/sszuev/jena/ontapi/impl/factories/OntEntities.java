@@ -29,7 +29,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.EnhNode;
 import org.apache.jena.graph.FrontsNode;
-import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Resource;
@@ -123,17 +122,9 @@ final class OntEntities {
         return config -> {
             Function<OntPersonality.Punnings, Set<Node>> punnings = OntPersonality.Punnings::getNamedClasses;
             Function<OntPersonality.Builtins, Set<Node>> builtins = OntPersonality.Builtins::getNamedClasses;
+            boolean useLegacyClassTesting = config.getBoolean(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
             EnhNodeFinder finder = new EnhNodeFinder.ByType(OWL.Class);
-            EnhNodeFilter filter = EnhNodeFilter.URI.and(createBuiltinsFilter(builtins).or((n, eg) -> {
-                Graph g = eg.asGraph();
-                if (!config.getBoolean(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)) {
-                    return g.contains(n, RDF.type.asNode(), OWL.Class.asNode()) && !hasIllegalPunnings(n, eg, punnings);
-                }
-                if (hasIllegalPunnings(n, eg, punnings)) {
-                    return false;
-                }
-                return OntClasses.canBeClass(n, g);
-            }));
+            EnhNodeFilter filter = (n, g) -> OntClasses.canBeNamedClass(n, g, useLegacyClassTesting);
             EnhNodeProducer maker =
                     new EnhNodeProducer.WithType(OntSimpleClassImpl.NamedImpl.class, OWL.Class, OntSimpleClassImpl.NamedImpl::new)
                             .restrict(createIllegalPunningsFilter(punnings));
@@ -225,10 +216,18 @@ final class OntEntities {
             Function<OntPersonality.Builtins, Set<Node>> builtins,
             Function<OntPersonality.Punnings, Set<Node>> punnings
     ) {
-        EnhNodeFilter hasTypes = types.size() == 1 ?
-                new EnhNodeFilter.HasType(types.iterator().next()) :
-                new EnhNodeFilter.HasOneOfType(types);
-        return EnhNodeFilter.URI.and(createBuiltinsFilter(builtins).or(hasTypes.and(createIllegalPunningsFilter(punnings))));
+        Set<Node> whiteList = types.stream().map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
+        return (n, eg) -> {
+            if (!n.isURI()) {
+                return false;
+            }
+            OntPersonality personality = OntEnhGraph.asPersonalityModel(eg).getOntPersonality();
+            if (builtins.apply(personality.getBuiltins()).contains(n)) {
+                return true;
+            }
+            Set<Node> blackList = punnings.apply(personality.getPunnings());
+            return Graphs.testTypes(n, eg.asGraph(), whiteList, blackList);
+        };
     }
 
     static EnhNodeFilter createIllegalPunningsFilter(Function<OntPersonality.Punnings, Set<Node>> punnings) {

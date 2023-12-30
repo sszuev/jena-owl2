@@ -136,6 +136,16 @@ public class Graphs {
     }
 
     /**
+     * Answers {@code true} if the graph specified is {@code InfGraph}.
+     *
+     * @param graph {@link Graph}
+     * @return {@code boolean}
+     */
+    public static boolean isGraphInf(Graph graph) {
+        return graph instanceof InfGraph;
+    }
+
+    /**
      * Lists all indivisible graphs extracted from the composite or wrapper graph
      * including the base as flat stream of non-composite (primitive) graphs.
      * For a well-formed ontological {@code Graph} the returned stream must
@@ -563,31 +573,110 @@ public class Graphs {
     /**
      * Answers {@code true}, if there is a declaration {@code node rdf:type $type},
      * where $type is one of the specified types.
+     * <p>
+     * Impl note: depending on the type of the underlying graph, it may or may not be advantageous
+     * to get all types at once, or ask many separate queries.
+     * Heuristically, we assume that fine-grain queries to an inference graph are preferable,
+     * and all-at-once for other types, including persistent stores.
      *
      * @param node  {@link Node} to test
-     * @param g     {@link Graph}
+     * @param graph {@link Graph}
      * @param types Set of {@link Node}-types
      * @return boolean
      */
-    public static boolean hasOneOfType(Node node, Graph g, Set<Node> types) {
+    public static boolean hasOneOfType(Node node, Graph graph, Set<Node> types) {
         if (types.isEmpty()) {
             return false;
         }
         if (types.size() == 1) {
-            return g.contains(node, RDF.Nodes.type, types.iterator().next());
+            return graph.contains(node, RDF.Nodes.type, types.iterator().next());
         }
-        // depending on the type of the underlying graph, it may or may not be advantageous
-        // to get all types at once, or ask many separate queries.
-        // heuristically, we assume that fine-grain queries to an inference graph are preferable,
-        // and all-at-once for other types, including persistent stores
-        if (g instanceof InfGraph) {
+        if (isGraphInf(graph)) {
             for (Node type : types) {
-                if (g.contains(node, RDF.Nodes.type, type)) {
+                if (graph.contains(node, RDF.Nodes.type, type)) {
                     return true;
                 }
             }
             return false;
         }
-        return Iterators.anyMatch(g.find(node, RDF.Nodes.type, Node.ANY), triple -> types.contains(triple.getObject()));
+        return Iterators.anyMatch(graph.find(node, RDF.Nodes.type, Node.ANY), triple -> types.contains(triple.getObject()));
+    }
+
+    /**
+     * Answers {@code true}, if there is a declaration {@code node rdf:type $type},
+     * where $type is from the white types list, but not from the black types list.
+     * <p>
+     * Impl note: depending on the type of the underlying graph, it may or may not be advantageous
+     * to get all types at once, or ask many separate queries.
+     * Heuristically, we assume that fine-grain queries to an inference graph are preferable,
+     * and all-at-once for other types, including persistent stores.
+     *
+     * @param node       {@link Node} to test
+     * @param graph      {@link Graph}
+     * @param whiteTypes Set of {@link Node}-types
+     * @param blackTypes Set of {@link Node}-types
+     * @return boolean
+     */
+    public static boolean testTypes(Node node, Graph graph, Set<Node> whiteTypes, Set<Node> blackTypes) {
+        if (isGraphInf(graph)) {
+            return testTypesUsingContains(node, graph, whiteTypes, blackTypes);
+        }
+        Set<Node> allTypes;
+        ExtendedIterator<Node> findTypes = graph.find(node, RDF.Nodes.type, Node.ANY).mapWith(Triple::getObject);
+        try {
+            allTypes = findTypes.toSet();
+        } finally {
+            findTypes.close();
+        }
+        boolean hasWhiteType = false;
+        for (Node type : allTypes) {
+            if (blackTypes.contains(type)) {
+                return false;
+            }
+            if (whiteTypes.contains(type)) {
+                hasWhiteType = true;
+            }
+        }
+        return hasWhiteType;
+    }
+
+    public static boolean testTypesUsingContains(Node node, Graph g, Set<Node> whiteTypes, Set<Node> blackTypes) {
+        boolean hasWhiteType = false;
+        boolean hasBlackType = false;
+        if (whiteTypes.size() > blackTypes.size()) {
+            for (Node type : whiteTypes) {
+                if (g.contains(node, RDF.Nodes.type, type)) {
+                    hasWhiteType = true;
+                    break;
+                }
+            }
+            if (!hasWhiteType) {
+                return false;
+            }
+            for (Node type : blackTypes) {
+                if (g.contains(node, RDF.Nodes.type, type)) {
+                    hasBlackType = true;
+                    break;
+                }
+            }
+            return !hasBlackType;
+        } else {
+            for (Node type : blackTypes) {
+                if (g.contains(node, RDF.Nodes.type, type)) {
+                    hasBlackType = true;
+                    break;
+                }
+            }
+            if (hasBlackType) {
+                return false;
+            }
+            for (Node type : whiteTypes) {
+                if (g.contains(node, RDF.Nodes.type, type)) {
+                    hasWhiteType = true;
+                    break;
+                }
+            }
+            return hasWhiteType;
+        }
     }
 }
