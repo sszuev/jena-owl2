@@ -59,7 +59,7 @@ public class OntPropertyTest {
 
     @Test
     public void testListPropertyHierarchy() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntDataProperty da = m.createDataProperty("dA");
         OntDataProperty db = m.createDataProperty("dB");
 

@@ -87,7 +87,7 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(Graph graph) {
-        return createModel(graph, OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF);
+        return createModel(graph, OntSpecification.OWL2_DL_MEM_BUILTIN_INF);
     }
 
     /**

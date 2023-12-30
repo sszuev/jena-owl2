@@ -23,7 +23,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testCreateCardinalityRestrictions() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c = m.createOntClass("C");
         OntObjectProperty op = m.createObjectProperty("OP");
         OntDataProperty dp = m.createDataProperty("DP");
@@ -47,7 +47,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testListClassHierarchy() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass a = m.createOntClass("A");
         OntClass b = m.createOntClass("B");
         OntClass c = m.createOntClass("C");
@@ -65,7 +65,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testClassExpressionSubClassOf() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass a = m.createOntClass("A");
         OntClass b = m.createOntClass("B");
         OntClass c = m.createOntClass("C");
@@ -78,7 +78,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testClassExpressionDisjointWith() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass a = m.createOntClass("A");
         OntClass b = m.createOntClass("B");
         OntClass c = m.createOntClass("C");
@@ -91,7 +91,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testClassExpressionEquivalentClass() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass.Named a = m.createOntClass("A");
         OntClass.Named b = m.createOntClass("B");
         OntClass.Named c = m.createOntClass("C");
@@ -104,7 +104,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testHasKeys() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntObjectProperty o1 = m.createObjectProperty("O1");
         OntObjectProperty o2 = m.createObjectProperty("O2");
         OntDataProperty d1 = m.createDataProperty("D1");
@@ -124,7 +124,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testClassExpressionCollectionOf() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass("C1");
         OntClass c2 = m.createOntClass("C2");
         OntClass c3 = m.createOntClass("C3");
@@ -160,7 +160,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testListDisjoints() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass("C1");
         OntClass c2 = m.createOntClass("C2");
         OntClass c3 = m.createOntClass("C3");
@@ -176,7 +176,7 @@ public class OntClassMiscTest {
 
     @Test
     public void testIsDisjoint() {
-        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
+        OntModel m = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass c1 = m.createOntClass(":C1");
         OntClass c2 = m.createOntClass(":C2");
         OntClass c3 = m.createOntClass(":C3");

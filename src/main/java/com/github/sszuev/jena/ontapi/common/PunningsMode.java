@@ -28,6 +28,17 @@ public enum PunningsMode {
     /**
      * For OWL1 DL.
      * OWL1 DL required a strict separation between the names of, e.g., classes and individuals.
+     * The difference between this mode
+     * and {@code DL1} is that declarations {@code rdfs:Class} & {@code rdfs:Datatype} considered as OntClass declarations;
+     * also, {@code owl:Restriction}
+     * is considered as prohibited declaration for entities that aren't classes (properties, datarange, named individuals).
+     * See {@link com.github.sszuev.jena.ontapi.OntModelConfig#USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY}
+     */
+    DL1_COMPATIBLE,
+    /**
+     * For OWL1 DL.
+     * OWL1 DL required a strict separation between the names of, e.g., classes and individuals.
+     *
      */
     DL1,
     /**
@@ -59,7 +70,7 @@ public enum PunningsMode {
     FULL,
     ;
 
-    private static final Set<Resource> OWL2_OBJECT_PROPERTIES = Set.of(
+    private static final Set<Resource> OWL2_ALL_OBJECT_PROPERTIES = Set.of(
             OWL.ObjectProperty,
             OWL.InverseFunctionalProperty,
             OWL.ReflexiveProperty,
@@ -68,24 +79,31 @@ public enum PunningsMode {
             OWL.AsymmetricProperty,
             OWL.TransitiveProperty
     );
-    private static final Set<Resource> OWL1_OBJECT_PROPERTIES = Set.of(
+    private static final Set<Resource> OWL1_ALL_OBJECT_PROPERTIES = Set.of(
             OWL.ObjectProperty,
             OWL.InverseFunctionalProperty,
             OWL.SymmetricProperty,
             OWL.TransitiveProperty
     );
+    private static final Set<Resource> OWL2_OBJECT_PROPERTIES = Set.of(
+            OWL.ObjectProperty
+    );
     private static final Set<Resource> DATATYPE_PROPERTIES = Set.of(OWL.DatatypeProperty);
     private static final Set<Resource> ANNOTATION_PROPERTIES = Set.of(OWL.AnnotationProperty);
     private static final Set<Resource> RDF_PROPERTIES = Set.of(RDF.Property);
     private static final Set<Resource> OWL2_CLASSES = Set.of(OWL.Class);
-    private static final Set<Resource> OWL1_CLASSES = Set.of(OWL.Class, OWL.Restriction, RDFS.Class, RDFS.Datatype);
+    private static final Set<Resource> OWL1_CLASSES = Set.of(OWL.Class);
+    private static final Set<Resource> OWL1_ALL_CLASSES = Set.of(OWL.Class, OWL.Restriction, RDFS.Class, RDFS.Datatype);
     private static final Set<Resource> OWL2_DATATYPES = Set.of(RDFS.Datatype);
+    private static final Set<Resource> OWL1_DATATYPES = Set.of(OWL.DataRange);
     private static final Set<Resource> OWL2_INDIVIDUALS = Set.of(OWL.NamedIndividual);
 
     static Map<Class<? extends OntObject>, Set<Node>> toMap(PunningsMode mode) {
         Map<Class<? extends OntObject>, Set<Set<Resource>>> res;
-        if (PunningsMode.DL1 == mode) {
-            res = OWL1_DL();
+        if (PunningsMode.DL1_COMPATIBLE == mode) {
+            res = OWL1_DL(true);
+        } else if (PunningsMode.DL1 == mode) {
+            res = OWL1_DL(false);
         } else if (PunningsMode.DL2 == mode) {
             res = OWL2_DL();
         } else if (PunningsMode.DL_WEAK == mode) {
@@ -106,23 +124,26 @@ public enum PunningsMode {
         );
     }
 
-    private static Map<Class<? extends OntObject>, Set<Set<Resource>>> OWL1_DL() {
+    private static Map<Class<? extends OntObject>, Set<Set<Resource>>> OWL1_DL(boolean compatible) {
+        Set<Resource> classes = compatible ? OWL1_ALL_CLASSES : OWL1_CLASSES;
         return Map.of(
                 OntAnnotationProperty.class, Set.of(
-                        OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, OWL1_CLASSES
+                        OWL1_ALL_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, classes
                 ),
                 OntObjectProperty.Named.class, Set.of(
-                        DATATYPE_PROPERTIES, ANNOTATION_PROPERTIES, OWL1_CLASSES
+                        DATATYPE_PROPERTIES, ANNOTATION_PROPERTIES, classes
                 ),
                 OntDataProperty.class, Set.of(
-                        OWL1_OBJECT_PROPERTIES, ANNOTATION_PROPERTIES, OWL1_CLASSES
+                        OWL1_ALL_OBJECT_PROPERTIES, ANNOTATION_PROPERTIES, classes
                 ),
-                OntDataRange.Named.class, Set.of(),
+                OntDataRange.Named.class, Set.of(
+                        OWL1_DATATYPES // no named classes but still require
+                ),
                 OntClass.Named.class, Set.of(
-                        ANNOTATION_PROPERTIES, OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES
+                        ANNOTATION_PROPERTIES, OWL1_ALL_OBJECT_PROPERTIES, DATATYPE_PROPERTIES
                 ),
                 OntIndividual.Named.class, Set.of(
-                        ANNOTATION_PROPERTIES, OWL1_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, OWL1_CLASSES, RDF_PROPERTIES
+                        ANNOTATION_PROPERTIES, OWL1_ALL_OBJECT_PROPERTIES, DATATYPE_PROPERTIES, classes, RDF_PROPERTIES
                 )
         );
     }
@@ -130,13 +151,13 @@ public enum PunningsMode {
     private static Map<Class<? extends OntObject>, Set<Set<Resource>>> OWL2_DL() {
         return Map.of(
                 OntAnnotationProperty.class, Set.of(
-                        OWL2_OBJECT_PROPERTIES, DATATYPE_PROPERTIES
+                        OWL2_ALL_OBJECT_PROPERTIES, DATATYPE_PROPERTIES
                 ),
                 OntObjectProperty.Named.class, Set.of(
                         DATATYPE_PROPERTIES, ANNOTATION_PROPERTIES
                 ),
                 OntDataProperty.class, Set.of(
-                        OWL2_OBJECT_PROPERTIES, ANNOTATION_PROPERTIES
+                        OWL2_ALL_OBJECT_PROPERTIES, ANNOTATION_PROPERTIES
                 ),
                 OntDataRange.Named.class, Set.of(
                         OWL2_CLASSES

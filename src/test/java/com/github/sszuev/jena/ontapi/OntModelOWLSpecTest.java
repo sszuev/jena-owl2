@@ -780,6 +780,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL1_MEM_RULES_INF",
             "OWL1_LITE_MEM_RULES_INF",
+            "OWL1_DL_MEM_RULES_INF",
             "RDFS_MEM",
             "RDFS_MEM_RDFS_INF",
             "RDFS_MEM_TRANS_INF",
@@ -1389,6 +1390,7 @@ public class OntModelOWLSpecTest {
     @EnumSource(names = {
             "OWL1_MEM_RULES_INF",
             "OWL1_LITE_MEM_RULES_INF",
+            "OWL1_DL_MEM_RULES_INF",
             "RDFS_MEM",
             "RDFS_MEM_RDFS_INF",
             "RDFS_MEM_TRANS_INF",

@@ -322,7 +322,7 @@ public class OntListTest {
     public void testTypedList() {
         OntGraphModelImpl m = new OntGraphModelImpl(
                 GraphMemFactory.createGraphMem(),
-                OntSpecification.OWL2_DL_MEM_RDFS_BUILTIN_INF.getPersonality()
+                OntSpecification.OWL2_DL_MEM_BUILTIN_INF.getPersonality()
         );
         m.setNsPrefixes(OntModelFactory.STANDARD);
         Resource a = m.createResource("A");

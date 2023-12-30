@@ -72,7 +72,7 @@ public class OntPersonalities {
     public static final OntPersonality.Reserved OWL2_RESERVED = createReservedVocabulary(OntVocabulary.Factory.OWL2_DC_SKOS_SWRL_VOCABULARY);
     public static final OntPersonality.Reserved OWL1_RESERVED = createReservedVocabulary(OntVocabulary.Factory.OWL1_VOCABULARY);
 
-    public static final OntPersonality.Punnings OWL_DL1_PUNNINGS = createPunningsVocabulary(PunningsMode.DL1);
+    public static final OntPersonality.Punnings OWL_DL1_PUNNINGS = createPunningsVocabulary(PunningsMode.DL1_COMPATIBLE);
     public static final OntPersonality.Punnings OWL_DL2_PUNNINGS = createPunningsVocabulary(PunningsMode.DL2);
     public static final OntPersonality.Punnings OWL_DL_WEAK_PUNNINGS = createPunningsVocabulary(PunningsMode.DL_WEAK);
     public static final OntPersonality.Punnings OWL_NO_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
