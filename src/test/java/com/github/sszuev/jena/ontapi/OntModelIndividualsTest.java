@@ -129,7 +129,7 @@ public class OntModelIndividualsTest {
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
-            "OWL1_LITE_MEM", // TODO
+            "OWL1_LITE_MEM",
             "OWL1_LITE_MEM_RDFS_INF",
             "OWL1_LITE_MEM_TRANS_INF",
             "OWL1_LITE_MEM_RULES_INF",

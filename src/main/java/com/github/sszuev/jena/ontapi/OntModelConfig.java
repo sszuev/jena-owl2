@@ -49,4 +49,16 @@ public enum OntModelConfig {
      * Otherwise, a full checking is performed.
      */
     USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS,
+    /**
+     * If {@code true},
+     * named class testing is compatible with the legacy {@link org.apache.jena.ontology.OntModel Jena OntModel},
+     * otherwise, a strict check against the specification for the class declaration is performed
+     * ({@code owl:Class} for OWL & {@code rdfs:Class} for RDFS types are required).
+     * Note that this only applies to
+     * {@link org.apache.jena.enhanced.EnhNode#canAs EnhNode#canAs} and {@link org.apache.jena.enhanced.EnhNode#as EnhNode#as} methods;
+     * iteration (e.g. methods {@code OntModel.ontObjects(OntClass.class)})
+     * still does not take into account classes with incorrect or missing declarations.
+     * For legacy Jena's casting rules see {@link org.apache.jena.ontology.Profile} impls.
+     */
+    USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY,
 }

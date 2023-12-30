@@ -36,6 +36,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -1440,7 +1441,39 @@ public class OntModelOWLSpecTest {
             Assertions.assertNotNull(m.getOWLTopDataProperty());
             Assertions.assertNotNull(m.getOWLBottomDataProperty());
         }
+    }
 
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+            "OWL1_MEM_RDFS_INF",
+            "OWL1_MEM_TRANS_INF",
+            "OWL1_LITE_MEM",
+            "OWL1_LITE_MEM_RDFS_INF",
+            "OWL1_LITE_MEM_TRANS_INF",
+            "OWL1_LITE_MEM_RULES_INF",
+    })
+    public void testOntClassCastOWL1(TestSpec spec) {
+        Model g = ModelFactory.createDefaultModel();
+        Resource namedRdfsClass = g.createResource("rdfsClass", RDFS.Class);
+        Resource namedRdfsDatatype = g.createResource("rdfsDatatype", RDFS.Datatype);
+        Resource namedOwlClass = g.createResource("owlClass", OWL.Class);
+        Resource anonRdfsClass = g.createResource(RDFS.Class);
+        Resource anonRdfsDatatype = g.createResource(RDFS.Datatype);
+        Resource anonOwlClass = g.createResource(OWL.Class);
+        Resource anonRdfsDomain = g.createResource();
+        Resource anonRdfsRange = g.createResource();
+        Resource namedRdfsDomain = g.createResource("rdfsDomain");
+        Resource namedRdfsRange = g.createResource("rdfsRange");
+        g.createResource("p", RDF.Property).addProperty(RDFS.domain, anonRdfsDomain).addProperty(RDFS.range, namedRdfsRange);
+        g.createResource(null, RDF.Property).addProperty(RDFS.domain, namedRdfsDomain).addProperty(RDFS.range, anonRdfsRange);
+
+        OntModel m = OntModelFactory.createModel(g.getGraph(), spec.inst).setNsPrefixes(PrefixMapping.Standard);
+        Assertions.assertTrue(anonOwlClass.inModel(m).canAs(OntClass.class) && !anonOwlClass.inModel(m).canAs(OntClass.Named.class));
+        Assertions.assertTrue(anonRdfsClass.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(anonRdfsDatatype.inModel(m).canAs(OntClass.class));
+        Stream.of(namedOwlClass, namedRdfsClass, namedRdfsDatatype, namedRdfsDomain, namedRdfsRange)
+                .forEach(x -> Assertions.assertTrue(x.inModel(m).canAs(OntClass.Named.class)));
     }
 }
 

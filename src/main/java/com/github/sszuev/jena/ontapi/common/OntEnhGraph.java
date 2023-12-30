@@ -81,7 +81,7 @@ public interface OntEnhGraph {
      * @return {@code true} if the node can be safely cast to the specified type
      */
     static boolean canAs(Class<? extends RDFNode> view, Node node, EnhGraph graph) {
-        return asPersonalityModel(graph).safeFindNodeAs(node, view) != null;
+        return asPersonalityModel(graph).canNodeAs(view, node);
     }
 
     /**
@@ -128,6 +128,13 @@ public interface OntEnhGraph {
      * @see OntEnhGraph#getNodeAs(Node, Class)
      */
     <N extends RDFNode> N safeFindNodeAs(Node node, Class<N> view);
+
+    /**
+     * Equivalent to {@code safeFindNodeAs(node, view) != null}.
+     */
+    default boolean canNodeAs(Class<? extends RDFNode> view, Node node) {
+        return safeFindNodeAs(node, view) != null;
+    }
 
     /**
      * @throws OntJenaException.Unsupported if the {@code type} is not supported by the configuration

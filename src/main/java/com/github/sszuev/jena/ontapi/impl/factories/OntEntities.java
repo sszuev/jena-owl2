@@ -1,9 +1,11 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
+import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
@@ -21,10 +23,12 @@ import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.EnhNode;
+import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -113,8 +117,28 @@ final class OntEntities {
         );
     }
 
-    public static EnhNodeFactory createOWL1NamedClassFactory() {
-        return createOWL2NamedClassFactory();
+    public static Function<OntConfig, EnhNodeFactory> createOWL1NamedClassFactory() {
+        Set<Node> compatibleTypes = Stream.of(OWL.Class, RDFS.Class, RDFS.Datatype)
+                .map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
+        return config -> {
+            Function<OntPersonality.Punnings, Set<Node>> punnings = OntPersonality.Punnings::getNamedClasses;
+            Function<OntPersonality.Builtins, Set<Node>> builtins = OntPersonality.Builtins::getNamedClasses;
+            EnhNodeFinder finder = new EnhNodeFinder.ByType(OWL.Class);
+            EnhNodeFilter filter = EnhNodeFilter.URI.and(createBuiltinsFilter(builtins).or((n, eg) -> {
+                Graph g = eg.asGraph();
+                if (!config.getBoolean(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)) {
+                    return g.contains(n, RDF.type.asNode(), OWL.Class.asNode()) && !hasIllegalPunnings(n, eg, punnings);
+                }
+                if (hasIllegalPunnings(n, eg, punnings)) {
+                    return false;
+                }
+                return OntClasses.canBeClass(n, g);
+            }));
+            EnhNodeProducer maker =
+                    new EnhNodeProducer.WithType(OntSimpleClassImpl.NamedImpl.class, OWL.Class, OntSimpleClassImpl.NamedImpl::new)
+                            .restrict(createIllegalPunningsFilter(punnings));
+            return OntEnhNodeFactories.createCommon(OntClass.Named.class, maker, finder, filter);
+        };
     }
 
     public static EnhNodeFactory createOWL2NamedDataRangeFactory() {
@@ -201,25 +225,26 @@ final class OntEntities {
             Function<OntPersonality.Builtins, Set<Node>> builtins,
             Function<OntPersonality.Punnings, Set<Node>> punnings
     ) {
-        EnhNodeFilter modelEntity = new EnhNodeFilter.HasOneOfType(types).and(createIllegalPunningsFilter(punnings));
-        EnhNodeFilter entity = createBuiltinsFilter(builtins).or(modelEntity);
-        return EnhNodeFilter.URI.and(entity);
+        EnhNodeFilter hasTypes = types.size() == 1 ?
+                new EnhNodeFilter.HasType(types.iterator().next()) :
+                new EnhNodeFilter.HasOneOfType(types);
+        return EnhNodeFilter.URI.and(createBuiltinsFilter(builtins).or(hasTypes.and(createIllegalPunningsFilter(punnings))));
     }
 
-    static EnhNodeFilter createIllegalPunningsFilter(Function<OntPersonality.Punnings, Set<Node>> extractNodeSet) {
-        return (n, eg) -> {
-            Set<Node> punnings = extractNodeSet.apply(OntEnhGraph.asPersonalityModel(eg).getOntPersonality().getPunnings());
-            Graph g = eg.asGraph();
-            for (Node t : punnings) {
-                if (g.contains(n, RDF.Nodes.type, t)) {
-                    return false;
-                }
-            }
-            return true;
-        };
+    static EnhNodeFilter createIllegalPunningsFilter(Function<OntPersonality.Punnings, Set<Node>> punnings) {
+        return (n, eg) -> !hasIllegalPunnings(n, eg, punnings);
     }
 
     static EnhNodeFilter createBuiltinsFilter(Function<OntPersonality.Builtins, Set<Node>> extractNodeSet) {
-        return (n, g) -> extractNodeSet.apply(OntEnhGraph.asPersonalityModel(g).getOntPersonality().getBuiltins()).contains(n);
+        return (n, g) -> isBuiltIn(n, g, extractNodeSet);
+    }
+
+    static boolean hasIllegalPunnings(Node n, EnhGraph eg, Function<OntPersonality.Punnings, Set<Node>> extractNodeSet) {
+        Set<Node> punnings = extractNodeSet.apply(OntEnhGraph.asPersonalityModel(eg).getOntPersonality().getPunnings());
+        return Graphs.hasOneOfType(n, eg.asGraph(), punnings);
+    }
+
+    static boolean isBuiltIn(Node n, EnhGraph eg, Function<OntPersonality.Builtins, Set<Node>> extractNodeSet) {
+        return extractNodeSet.apply(OntEnhGraph.asPersonalityModel(eg).getOntPersonality().getBuiltins()).contains(n);
     }
 }

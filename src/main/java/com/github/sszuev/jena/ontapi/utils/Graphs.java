@@ -12,6 +12,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.Dyadic;
 import org.apache.jena.graph.compose.Polyadic;
 import org.apache.jena.mem.GraphMem;
+import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.graph.GraphWrapper;
 import org.apache.jena.sparql.util.graph.GraphUtils;
@@ -557,5 +558,36 @@ public class Graphs {
             return res | Spliterator.DISTINCT;
         }
         return res;
+    }
+
+    /**
+     * Answers {@code true}, if there is a declaration {@code node rdf:type $type},
+     * where $type is one of the specified types.
+     *
+     * @param node  {@link Node} to test
+     * @param g     {@link Graph}
+     * @param types Set of {@link Node}-types
+     * @return boolean
+     */
+    public static boolean hasOneOfType(Node node, Graph g, Set<Node> types) {
+        if (types.isEmpty()) {
+            return false;
+        }
+        if (types.size() == 1) {
+            return g.contains(node, RDF.Nodes.type, types.iterator().next());
+        }
+        // depending on the type of the underlying graph, it may or may not be advantageous
+        // to get all types at once, or ask many separate queries.
+        // heuristically, we assume that fine-grain queries to an inference graph are preferable,
+        // and all-at-once for other types, including persistent stores
+        if (g instanceof InfGraph) {
+            for (Node type : types) {
+                if (g.contains(node, RDF.Nodes.type, type)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return Iterators.anyMatch(g.find(node, RDF.Nodes.type, Node.ANY), triple -> types.contains(triple.getObject()));
     }
 }

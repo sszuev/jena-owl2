@@ -196,7 +196,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * Filters {@code OntIndividual}s from the specified {@code ExtendedIterator}.
      *
      * @param model      {@link M}, not {@code null}
-     * @param system     a {@code Set} of forbidden URIs,
+     * @param reserved   a {@code Set} of forbidden URIs,
      *                   that cannot be treated as {@link OntClass Ontology Class}es, not {@code null}
      * @param assertions {@link ExtendedIterator} of {@link Triple}s
      *                   with the {@link RDF#type rdf:type} as predicate, not {@code null}
@@ -204,18 +204,19 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return {@link ExtendedIterator} of {@link OntIndividual}s that are attached to the {@code model}
      */
     public static <M extends OntModel & OntEnhGraph> ExtendedIterator<OntIndividual> listIndividuals(M model,
-                                                                                                     Set<String> system,
+                                                                                                     Set<String> reserved,
                                                                                                      ExtendedIterator<Triple> assertions) {
         Set<Triple> seen = new HashSet<>();
         boolean useSimplifiedClassChecking = model.getOntPersonality()
                 .getConfig().getBoolean(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
         boolean isRDFS = OntPersonalities.isRDFS(model.getOntPersonality());
+
         return assertions
                 .mapWith(t -> {
                     // to speed up the process,
                     // the investigation (that includes TTO, PS, HP, GALEN, FAMILY and PIZZA ontologies),
                     // shows that the profit exists, and it is significant sometimes:
-                    if (t.getObject().isURI() && system.contains(t.getObject().getURI())) {
+                    if (t.getObject().isURI() && reserved.contains(t.getObject().getURI())) {
                         return null;
                     }
 
@@ -253,17 +254,30 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     private static <M extends OntModel & OntEnhGraph> boolean testIsClass(
             M model,
             Node candidate,
-            boolean simple,
+            boolean simpleCheck,
             boolean isRDFS
     ) {
-        if (simple) {
+        if (simpleCheck) {
             if (isRDFS) {
-                return model.getGraph().contains(candidate, RDF.type.asNode(), RDFS.Class.asNode());
+                return testIsRDFSClass(model, candidate);
             }
-            return model.getGraph().contains(candidate, RDF.type.asNode(), OWL.Class.asNode()) ||
-                    model.getGraph().contains(candidate, RDF.type.asNode(), OWL.Restriction.asNode());
+            return testIsOWLClass(model, candidate);
         }
-        return model.findNodeAs(candidate, OntClass.class) != null;
+        return model.canNodeAs(OntClass.class, candidate);
+    }
+
+    private static <M extends OntModel & OntEnhGraph> boolean testIsOWLClass(M model, Node candidate) {
+        if (model.getOntPersonality().getPunnings().getNamedClasses().contains(candidate)) {
+            return false;
+        }
+        if (model.getOntPersonality().getBuiltins().getNamedClasses().contains(candidate)) {
+            return true;
+        }
+        return Graphs.hasOneOfType(candidate, model.getGraph(), Set.of(OWL.Class.asNode(), OWL.Restriction.asNode()));
+    }
+
+    private static boolean testIsRDFSClass(Model model, Node candidate) {
+        return model.getGraph().contains(candidate, RDF.type.asNode(), RDFS.Class.asNode());
     }
 
     /**

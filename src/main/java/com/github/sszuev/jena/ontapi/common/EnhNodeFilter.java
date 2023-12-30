@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi.common;
 
+import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.FrontsNode;
@@ -8,8 +9,8 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -159,23 +160,18 @@ public interface EnhNodeFilter {
     }
 
     class HasOneOfType implements EnhNodeFilter {
-        protected final List<Node> types;
+        protected final Set<Node> types;
 
         public HasOneOfType(Collection<Resource> types) {
             if (types.isEmpty()) {
                 throw new IllegalStateException();
             }
-            this.types = types.stream().map(FrontsNode::asNode).distinct().collect(Collectors.toUnmodifiableList());
+            this.types = types.stream().map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
         }
 
         @Override
         public boolean test(Node node, EnhGraph eg) {
-            for (Node type : types) {
-                if (eg.asGraph().contains(node, RDF.Nodes.type, type)) {
-                    return true;
-                }
-            }
-            return false;
+            return Graphs.hasOneOfType(node, eg.asGraph(), types);
         }
 
         @Override

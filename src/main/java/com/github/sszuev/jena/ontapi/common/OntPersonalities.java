@@ -83,18 +83,20 @@ public class OntPersonalities {
             .setFalse(OntModelConfig.USE_OWL_V1_VOCABULARY)
             .setTrue(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
             .setFalse(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
-            .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS);
+            .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
+            .setFalse(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
             .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
             .setFalse(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
             .setTrue(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
-            .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS);
+            .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
+            .setTrue(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
-            .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY) // <- for RDFS it doesn't matter
-            .setFalse(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
-            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
+            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
+            .setTrue(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
 
     /**
      * Standard resources. Private access since this constant is mutable.
