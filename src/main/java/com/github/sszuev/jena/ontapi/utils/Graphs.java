@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi.utils;
 
+import com.github.sszuev.jena.ontapi.OntModelFactory;
 import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -30,7 +31,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -153,7 +153,6 @@ public class Graphs {
      *
      * @param graph {@link Graph}
      * @return {@code Stream} of {@link Graph}s
-     * @see UnionGraph#listBaseGraphs()
      * @see OntModels#importsClosure(OntModel)
      */
     public static Stream<Graph> dataGraphs(Graph graph) {
@@ -266,7 +265,7 @@ public class Graphs {
             return (UnionGraph) graph;
         }
         if (isGraphMem(graph)) {
-            return new UnionGraph(graph);
+            return OntModelFactory.wrapAsUnionGraph(graph);
         }
         return makeUnion(getBase(graph), dataGraphs(graph).collect(Collectors.toSet()));
     }
@@ -282,24 +281,12 @@ public class Graphs {
     public static UnionGraph makeUnion(Graph graph, Collection<Graph> repository) {
         Graph base = getBase(graph);
         Set<String> imports = getImports(base);
-        UnionGraph res = new UnionGraph(base);
+        UnionGraph res = OntModelFactory.wrapAsUnionGraph(base);
         repository.stream()
                 .filter(x -> !isSameBase(base, x))
                 .filter(g -> imports.contains(getOntologyIRI(g)))
                 .forEach(g -> res.addGraph(makeUnion(g, repository)));
         return res;
-    }
-
-    /**
-     * Creates a new {@code UnionGraph} with the given base {@code Graph}
-     * and the same structure and settings as in the specified {@code UnionGraph}.
-     *
-     * @param base  {@link Graph} new base, not {@code null}
-     * @param union {@link UnionGraph} to inherit settings and hierarchy, not {@code null}
-     * @return {@link UnionGraph}
-     */
-    public static UnionGraph withBase(Graph base, UnionGraph union) {
-        return new UnionGraph(base, union.getUnderlying(), union.getEventManager(), union.isDistinct());
     }
 
     /**
@@ -326,36 +313,64 @@ public class Graphs {
         if (graph.isClosed()) {
             return "(closed)";
         }
-        Optional<Node> res = ontologyNode(getBase(graph));
-        if (res.isEmpty()) return ANONYMOUS_ONTOLOGY_IDENTIFIER;
-        List<String> versions = graph.find(res.get(), OWL.versionIRI.asNode(), Node.ANY)
-                .mapWith(Triple::getObject).mapWith(Node::toString).toList();
-        if (versions.isEmpty()) {
-            return String.format("<%s>", res.get());
+        Optional<Node> id = ontologyNode(getBase(graph));
+        if (id.isEmpty()) {
+            return ANONYMOUS_ONTOLOGY_IDENTIFIER;
         }
-        return String.format("<%s%s>", res.get(), versions);
+        ExtendedIterator<String> versions = graph.find(id.get(), OWL.versionIRI.asNode(), Node.ANY)
+                .mapWith(Triple::getObject).mapWith(Node::toString);
+        try {
+            Set<String> res = versions.toSet();
+            if (res.isEmpty()) {
+                return String.format("<%s>", id.get());
+            }
+            return String.format("<%s%s>", id.get(), res);
+        } finally {
+            versions.close();
+        }
     }
 
     /**
      * Finds and returns the primary node within the given graph,
      * which is the subject in the {@code _:x rdf:type owl:Ontology} statement.
-     * If there are both uri and blank ontological nodes together in the graph then it prefers uri.
-     * Of several ontological nodes the same kind, it chooses the most bulky.
+     * If there are both uri and blank ontological nodes simultaneously in the graph, then it prefers uri one.
+     * If several ontological nodes of the same kind, it chooses the most bulky.
      * Note: it works with any graph, not necessarily with the base;
      * for a valid composite ontology graph a lot of ontological nodes are expected.
      *
      * @param graph {@link Graph}
-     * @return {@link Optional} around the {@link Node} which could be uri or blank.
+     * @return {@link Optional} around the {@link Node} which could be uri or blank
      */
     public static Optional<Node> ontologyNode(Graph graph) {
-        List<Node> res = graph.find(Node.ANY, RDF.Nodes.type, OWL.Ontology.asNode())
+        List<Node> res = getOntologyNodes(graph);
+        return res.isEmpty() ? Optional.empty() : Optional.of(res.get(0));
+    }
+
+    /**
+     * Finds and returns the List of nodes
+     * that are the subject in the {@code _:x rdf:type owl:Ontology} statement.
+     * If there are both uri and blank ontological nodes simultaneously in the graph, then it prefers uri one.
+     * If several ontological nodes of the same kind, it chooses the most bulky.
+     * Note: it works with any graph, not necessarily with the base;
+     * for a valid composite ontology graph a lot of ontological nodes are expected.
+     *
+     * @param graph {@link Graph}
+     * @return {@link List} of {@link Node nodes} which could be uri or blank.
+     */
+    public static List<Node> getOntologyNodes(Graph graph) {
+        ExtendedIterator<Node> ontologyNodes = graph.find(Node.ANY, RDF.Nodes.type, OWL.Ontology.asNode())
                 .mapWith(t -> {
                     Node n = t.getSubject();
                     return n.isURI() || n.isBlank() ? n : null;
-                }).filterDrop(Objects::isNull).toList();
-        if (res.isEmpty()) return Optional.empty();
-        res.sort(rootNodeComparator(graph));
-        return Optional.of(res.get(0));
+                }).filterDrop(Objects::isNull);
+        try {
+            List<Node> res = ontologyNodes.toList();
+            if (res.isEmpty()) return List.of();
+            res.sort(rootNodeComparator(graph));
+            return List.copyOf(res);
+        } finally {
+            ontologyNodes.close();
+        }
     }
 
     /**
@@ -375,19 +390,24 @@ public class Graphs {
 
     /**
      * Returns all uri-objects from the {@code _:x owl:imports _:uri} statements.
-     * In case of composite graph imports are listed transitively.
+     * In the case of composite graph, imports are listed transitively.
      *
      * @param graph {@link Graph}, not {@code null}
      * @return unordered Set of uris from the whole graph (it may be composite)
      * @see Graphs#getOntologyIRI(Graph)
      */
     public static Set<String> getImports(Graph graph) {
-        return listImports(graph).toSet();
+        ExtendedIterator<String> imports = listImports(graph);
+        try {
+            return imports.toSet();
+        } finally {
+            imports.close();
+        }
     }
 
     /**
      * Returns an {@code ExtendedIterator} over all URIs from the {@code _:x owl:imports _:uri} statements.
-     * In case of composite graph imports are listed transitively.
+     * In the case of composite graph, imports are listed transitively.
      *
      * @param graph {@link Graph}, not {@code null}
      * @return {@link ExtendedIterator} of {@code String}-URIs
@@ -401,65 +421,7 @@ public class Graphs {
     }
 
     /**
-     * Prints a graph hierarchy tree.
-     * For a valid ontology it should match an imports ({@code owl:imports}) tree also.
-     * For debugging.
-     * <p>
-     * An examples of possible output:
-     * <pre> {@code
-     * <http://imports.test.Main.ttl>
-     *      <http://imports.test.C.ttl>
-     *          <http://imports.test.A.ttl>
-     *          <http://imports.test.B.ttl>
-     *      <http://imports.test.D.ttl>
-     * }, {@code
-     * <http://imports.test.D.ttl>
-     *      <http://imports.test.C.ttl>
-     *          <http://imports.test.A.ttl>
-     *          <http://imports.test.B.ttl>
-     *              <http://imports.test.Main.ttl>
-     * } </pre>
-     *
-     * @param graph {@link Graph}
-     * @return hierarchy tree as String
-     */
-    public static String importsTreeAsString(Graph graph) {
-        Function<Graph, String> printDefaultGraphName = g -> g.getClass().getSimpleName() + "@" + Integer.toHexString(g.hashCode());
-        return makeImportsTree(graph, g -> {
-            if (g.isClosed()) return "Closed(" + printDefaultGraphName.apply(g) + ")";
-            String res = getName(g);
-            if (ANONYMOUS_ONTOLOGY_IDENTIFIER.equals(res)) {
-                res += "(" + printDefaultGraphName.apply(g) + ")";
-            }
-            return res;
-        }, "\t", "\t", new HashSet<>()).toString();
-    }
-
-    private static StringBuilder makeImportsTree(Graph graph,
-                                                 Function<Graph, String> getName,
-                                                 String indent,
-                                                 String step,
-                                                 Set<Graph> seen) {
-        StringBuilder res = new StringBuilder();
-        Graph base = getBase(graph);
-        String name = getName.apply(base);
-        try {
-            if (!seen.add(graph)) {
-                return res.append(RECURSIVE_GRAPH_IDENTIFIER).append(": ").append(name);
-            }
-            res.append(name).append("\n");
-            directSubGraphs(graph)
-                    .sorted(Comparator.comparingLong(o -> directSubGraphs(o).count()))
-                    .forEach(sub -> res.append(indent)
-                            .append(makeImportsTree(sub, getName, indent + step, step, seen)));
-            return res;
-        } finally {
-            seen.remove(graph);
-        }
-    }
-
-    /**
-     * Collects a prefixes library from the collection of the graphs.
+     * Collects a prefixes' library from the collection of the graphs.
      *
      * @param graphs {@link Iterable} a collection of graphs
      * @return unmodifiable (locked) {@link PrefixMapping prefix mapping}
@@ -487,7 +449,7 @@ public class Graphs {
      *
      * @param graph {@link Graph}, not {@code null}
      * @return an {@link ExtendedIterator ExtendedIterator} (<b>distinct</b>) of all subjects in the graph
-     * @throws OutOfMemoryError while iterating in case the graph is too large
+     * @throws OutOfMemoryError may occur while iterating, e.g.when the graph is huge
      *                          so that all its subjects can be placed in memory as a {@code Set}
      * @see GraphUtil#listSubjects(Graph, Node, Node)
      */

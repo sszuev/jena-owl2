@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi;
 
+import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -160,7 +161,7 @@ public class StreamsTest {
     @Test
     public void testNonDistinctModelStreams() {
         String ns = "http://ex#";
-        UnionGraph g = new UnionGraph(GraphFactory.createGraphMem(), null, null, false);
+        UnionGraph g = new UnionGraphImpl(GraphFactory.createGraphMem(), null, null, false);
         OntModel a = OntModelFactory.createModel(g).setNsPrefixes(OntModelFactory.STANDARD).setNsPrefix("x", ns);
         OntModel b = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD).setNsPrefix("x", ns);
         a.setID(ns + "a");

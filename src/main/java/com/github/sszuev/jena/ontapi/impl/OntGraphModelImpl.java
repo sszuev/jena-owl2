@@ -106,6 +106,14 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     private Model deductionsModel = null;
     private final Set<Class<? extends OntEntity>> supportedEntityTypes;
 
+    public OntGraphModelImpl(UnionGraph graph, OntPersonality personality) {
+        this((Graph) graph, personality);
+    }
+
+    public OntGraphModelImpl(InfGraph graph, OntPersonality personality) {
+        this((Graph) graph, personality);
+    }
+
     /**
      * This {@link OntModel} implementation wraps
      * only {@link UnionGraph} or {@link InfGraph} which in turn wraps {@link UnionGraph}.
@@ -113,12 +121,13 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
      */
-    public OntGraphModelImpl(Graph graph, OntPersonality personality) {
+    protected OntGraphModelImpl(Graph graph, OntPersonality personality) {
         super(makeGraph(graph), OntPersonality.asJenaPersonality(personality));
         this.supportedEntityTypes = OntEntity.TYPES.stream().filter(personality::supports).collect(Collectors.toSet());
     }
 
     protected static Graph makeGraph(Graph given) {
+        Objects.requireNonNull(given);
         if (given instanceof InfGraph) {
             Graph raw = ((InfGraph) given).getRawGraph();
             if (raw instanceof UnionGraph) {
@@ -128,7 +137,12 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                     "The specified InfGraph does not wrap UnionGraph, instead it wraps " + raw.getClass().getSimpleName()
             );
         }
-        return Graphs.makeUnion(given);
+        if (given instanceof UnionGraph) {
+            return given;
+        }
+        throw new IllegalArgumentException(
+                "The specified graph is not UnionGraph or InfGraph: " + given.getClass().getSimpleName()
+        );
     }
 
     /**
@@ -1557,7 +1571,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     /**
      * Causes the inference model to reconsult the underlying data to take into account changes.
      * Normally, changes are made through the InfModel's, add and remove calls are will be handled appropriately.
-     * However, in some cases, changes are made "behind the InfModel's back and
+     * However, in some cases, changes are made behind the InfModel's back and
      * this forces a full reconsult of the changed data.
      */
     @Override
@@ -1589,7 +1603,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * Resets any internal caches.
      * Some systems, such as the tabled backchainer, retain information after each query.
      * A reset will wipe this information preventing unbounded memory use at the expense of more expensive future queries.
-     * A reset does not cause the raw data to be reconsulted and so is less expensive than a rebind.
+     * A reset does not cause the raw data to be reconsulted and so is less expensive than a rebinding.
      */
     @Override
     public void reset() {

@@ -4,6 +4,7 @@ import com.github.sszuev.jena.ontapi.common.OntObjectPersonalityBuilder;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
+import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -59,6 +60,16 @@ public class OntModelFactory {
      */
     public static Graph createDefaultGraph() {
         return GraphMemFactory.createGraphMem();
+    }
+
+    /**
+     * Wraps the given {@code base} graph as {@link UnionGraph}
+     *
+     * @param base {@code Graph}
+     * @return {@link UnionGraph}
+     */
+    public static UnionGraph wrapAsUnionGraph(Graph base) {
+        return new UnionGraphImpl(base);
     }
 
     /**

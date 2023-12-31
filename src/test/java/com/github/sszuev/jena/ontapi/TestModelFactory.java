@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi;
 
+import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
@@ -18,7 +19,7 @@ class TestModelFactory {
                 ModelFactory.createDefaultModel(), "/builtins-rdfs.rdf", Lang.RDFXML).getGraph();
         Graph owl = RDFIOTestUtils.readResourceToModel(
                 ModelFactory.createDefaultModel(), "/builtins-owl.rdf", Lang.RDFXML).getGraph();
-        model.addGraph(new UnionGraph(owl).addGraph(rdfs));
+        model.addGraph(new UnionGraphImpl(owl).addGraph(rdfs));
         return m;
     }
 

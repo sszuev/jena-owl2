@@ -21,7 +21,7 @@ import java.util.Objects;
  *     supposed to be compatible with legacy Jena's OntModel</li>
  *     <li>OWL1 LITE: does not support some language construct from OWL2 and OWL1, such as {@code OntClass.UnionOf};
  *     supposed to be compatible with old Jena's OntModel</li>
- *     <li>RDFS: supports only rdf:Property & rdf:Class</li>
+ *     <li>RDFS: supports only RDFS language: rdf:Property, rdf:Class, rdfs:subClassOf, etc</li>
  * </ul>
  *
  * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
@@ -91,7 +91,7 @@ public class OntSpecification {
      * and use fast but incomplete builtin OWL inference engine for additional entailments
      * that handles hierarchy.
      * It supports {@code rdfs:subClassOf}, {@code rdfs:subPropertyOf} and class-individuals hierarchy,
-     * otherwise it behaves like a regular {@link #OWL2_FULL_MEM}.
+     * otherwise it behaves like a regular {@link #OWL2_DL_MEM}.
      *
      * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM_RDFS_INF
      */

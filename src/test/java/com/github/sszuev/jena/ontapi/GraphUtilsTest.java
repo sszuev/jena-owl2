@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi;
 
 import com.github.andrewoma.dexx.collection.Sets;
+import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
@@ -35,10 +36,10 @@ public class GraphUtilsTest {
 
     @Test
     public void testListBaseGraphs() {
-        UnionGraph u = new UnionGraph(UnionGraphTest.createTestMemGraph("a"));
+        UnionGraph u = new UnionGraphImpl(UnionGraphTest.createTestMemGraph("a"));
         u.addGraph(UnionGraphTest.createTestMemGraph("b"));
         u.addGraph(UnionGraphTest.createTestMemGraph("c"));
-        UnionGraph g2 = new UnionGraph(UnionGraphTest.createTestMemGraph("d"));
+        UnionGraph g2 = new UnionGraphImpl(UnionGraphTest.createTestMemGraph("d"));
         g2.addGraph(UnionGraphTest.createTestMemGraph("e"));
         u.addGraph(g2);
         u.addGraph(new WrappedGraph(UnionGraphTest.createTestMemGraph("x")));
@@ -52,10 +53,10 @@ public class GraphUtilsTest {
     @Test
     public void testIsSized() {
         Assertions.assertTrue(Graphs.isSized(new GraphMem()));
-        Assertions.assertTrue(Graphs.isSized(new UnionGraph(new GraphMem())));
-        Assertions.assertTrue(Graphs.isSized(new UnionGraph(new GraphWrapper(new GraphMem()))));
+        Assertions.assertTrue(Graphs.isSized(new UnionGraphImpl(new GraphMem())));
+        Assertions.assertTrue(Graphs.isSized(new UnionGraphImpl(new GraphWrapper(new GraphMem()))));
 
-        UnionGraph u1 = new UnionGraph(new GraphMem());
+        UnionGraph u1 = new UnionGraphImpl(new GraphMem());
         u1.addGraph(u1);
         Assertions.assertFalse(Graphs.isSized(u1));
 
@@ -71,10 +72,10 @@ public class GraphUtilsTest {
     @Test
     public void testIsDistinct() {
         Assertions.assertTrue(Graphs.isDistinct(new GraphMem()));
-        Assertions.assertTrue(Graphs.isDistinct(new UnionGraph(new GraphMem())));
-        Assertions.assertTrue(Graphs.isDistinct(new UnionGraph(new GraphWrapper(new GraphMem()))));
+        Assertions.assertTrue(Graphs.isDistinct(new UnionGraphImpl(new GraphMem())));
+        Assertions.assertTrue(Graphs.isDistinct(new UnionGraphImpl(new GraphWrapper(new GraphMem()))));
 
-        UnionGraph u1 = new UnionGraph(new GraphMem(), false);
+        UnionGraph u1 = new UnionGraphImpl(new GraphMem(), false);
         Assertions.assertTrue(Graphs.isDistinct(u1));
 
         u1.addGraph(new GraphMem());
@@ -94,7 +95,7 @@ public class GraphUtilsTest {
         Graph g = Factory.createGraphMem();
         Assertions.assertTrue(Graphs.isSameBase(g, g));
 
-        Graph a = new UnionGraph(new GraphWrapper(new GraphWrapper(g)));
+        Graph a = new UnionGraphImpl(new GraphWrapper(new GraphWrapper(g)));
         Assertions.assertTrue(Graphs.isSameBase(a, g));
 
         MultiUnion b = new MultiUnion();
@@ -102,15 +103,15 @@ public class GraphUtilsTest {
         b.addGraph(new GraphMem());
         Assertions.assertTrue(Graphs.isSameBase(a, b));
 
-        UnionGraph c = new UnionGraph(new GraphWrapper(g));
+        UnionGraph c = new UnionGraphImpl(new GraphWrapper(g));
         Assertions.assertTrue(Graphs.isSameBase(a, c));
 
         Assertions.assertFalse(Graphs.isSameBase(g, new GraphMem()));
 
-        Graph d = new UnionGraph(new WrappedGraph(new WrappedGraph(g)));
+        Graph d = new UnionGraphImpl(new WrappedGraph(new WrappedGraph(g)));
         Assertions.assertFalse(Graphs.isSameBase(a, d));
 
-        Assertions.assertFalse(Graphs.isSameBase(new UnionGraph(g), new UnionGraph(new GraphMem())));
+        Assertions.assertFalse(Graphs.isSameBase(new UnionGraphImpl(g), new UnionGraphImpl(new GraphMem())));
 
         MultiUnion e = new MultiUnion();
         e.addGraph(new GraphMem());

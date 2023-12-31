@@ -321,7 +321,7 @@ public class OntListTest {
     @Test
     public void testTypedList() {
         OntGraphModelImpl m = new OntGraphModelImpl(
-                GraphMemFactory.createGraphMem(),
+                OntModelFactory.wrapAsUnionGraph(GraphMemFactory.createGraphMem()),
                 OntSpecification.OWL2_DL_MEM_BUILTIN_INF.getPersonality()
         );
         m.setNsPrefixes(OntModelFactory.STANDARD);

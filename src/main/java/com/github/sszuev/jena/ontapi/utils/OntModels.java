@@ -122,7 +122,6 @@ public class OntModels {
      *
      * @param m {@link OntModel}, not {@code null}
      * @throws StackOverflowError in case the given model has a recursion in the hierarchy
-     * @see Graphs#importsTreeAsString(Graph)
      */
     public static void syncImports(OntModel m) {
         OntID id = m.getID();

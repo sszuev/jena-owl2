@@ -1,8 +1,10 @@
 package com.github.sszuev.jena.ontapi.testutils;
 
+import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
@@ -11,8 +13,10 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 public class ModelTestUtils {
     /**
@@ -135,5 +139,63 @@ public class ModelTestUtils {
         return Iterators.flatMap(subject.asResource().listProperties(),
                 s -> s.getObject().isAnon() ?
                         Iterators.concat(Iterators.of(s), listDescendingStatements(s.getResource())) : Iterators.of(s));
+    }
+
+    /**
+     * Prints a graph hierarchy tree.
+     * For a valid ontology it should match an imports ({@code owl:imports}) tree also.
+     * For debugging.
+     * <p>
+     * An examples of possible output:
+     * <pre> {@code
+     * <http://imports.test.Main.ttl>
+     *      <http://imports.test.C.ttl>
+     *          <http://imports.test.A.ttl>
+     *          <http://imports.test.B.ttl>
+     *      <http://imports.test.D.ttl>
+     * }, {@code
+     * <http://imports.test.D.ttl>
+     *      <http://imports.test.C.ttl>
+     *          <http://imports.test.A.ttl>
+     *          <http://imports.test.B.ttl>
+     *              <http://imports.test.Main.ttl>
+     * } </pre>
+     *
+     * @param graph {@link Graph}
+     * @return hierarchy tree as String
+     */
+    public static String importsTreeAsString(Graph graph) {
+        Function<Graph, String> printDefaultGraphName = g -> g.getClass().getSimpleName() + "@" + Integer.toHexString(g.hashCode());
+        return makeImportsTree(graph, g -> {
+            if (g.isClosed()) return "Closed(" + printDefaultGraphName.apply(g) + ")";
+            String res = Graphs.getName(g);
+            if (Graphs.ANONYMOUS_ONTOLOGY_IDENTIFIER.equals(res)) {
+                res += "(" + printDefaultGraphName.apply(g) + ")";
+            }
+            return res;
+        }, "\t", "\t", new HashSet<>()).toString();
+    }
+
+    private static StringBuilder makeImportsTree(Graph graph,
+                                                 Function<Graph, String> getName,
+                                                 String indent,
+                                                 String step,
+                                                 Set<Graph> seen) {
+        StringBuilder res = new StringBuilder();
+        Graph base = Graphs.getBase(graph);
+        String name = getName.apply(base);
+        try {
+            if (!seen.add(graph)) {
+                return res.append(Graphs.RECURSIVE_GRAPH_IDENTIFIER).append(": ").append(name);
+            }
+            res.append(name).append("\n");
+            Graphs.directSubGraphs(graph)
+                    .sorted(Comparator.comparingLong(o -> Graphs.directSubGraphs(o).count()))
+                    .forEach(sub -> res.append(indent)
+                            .append(makeImportsTree(sub, getName, indent + step, step, seen)));
+            return res;
+        } finally {
+            seen.remove(graph);
+        }
     }
 }

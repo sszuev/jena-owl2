@@ -17,8 +17,8 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
+import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
-import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -685,24 +685,24 @@ public class OntModelOWLSpecTest {
         Assertions.assertFalse(b.hasImport(av1));
         Assertions.assertFalse(b.hasImport(av2));
 
-        String tree = Graphs.importsTreeAsString(b.getGraph());
+        String tree = ModelTestUtils.importsTreeAsString(b.getGraph());
         Assertions.assertEquals(Arrays.asList("<b>", "<c>", "<a[v2]>"),
                 Arrays.stream(tree.split("\n")).map(String::trim).collect(Collectors.toList()));
 
         c.removeImport(av1);
-        tree = Graphs.importsTreeAsString(b.getGraph());
+        tree = ModelTestUtils.importsTreeAsString(b.getGraph());
         Assertions.assertEquals(Arrays.asList("<b>", "<c>", "<a[v2]>"),
                 Arrays.stream(tree.split("\n")).map(String::trim).collect(Collectors.toList()));
 
         c.removeImport(av2).addImport(av1);
-        tree = Graphs.importsTreeAsString(b.getGraph());
+        tree = ModelTestUtils.importsTreeAsString(b.getGraph());
         Assertions.assertEquals(Arrays.asList("<b>", "<c>", "<a[v1]>"),
                 Arrays.stream(tree.split("\n")).map(String::trim).collect(Collectors.toList()));
 
         // sync imports:
         ((UnionGraph) c.getGraph()).addGraph(av2.getGraph());
         OntModels.syncImports(b);
-        tree = Graphs.importsTreeAsString(b.getGraph());
+        tree = ModelTestUtils.importsTreeAsString(b.getGraph());
         Assertions.assertEquals(4, OntModels.importsClosure(b).count());
         Assertions.assertEquals(3, OntModels.importsClosure(c).count());
         Assertions.assertEquals(Arrays.asList("<b>", "<c>", "<a[v1]>", "<a[v2]>"),
