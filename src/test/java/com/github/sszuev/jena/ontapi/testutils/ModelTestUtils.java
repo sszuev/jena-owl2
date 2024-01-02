@@ -1,11 +1,16 @@
 package com.github.sszuev.jena.ontapi.testutils;
 
+import com.github.sszuev.jena.ontapi.UnionGraph;
+import com.github.sszuev.jena.ontapi.model.OntID;
+import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -15,10 +20,17 @@ import org.apache.jena.util.iterator.NullIterator;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ModelTestUtils {
+    public static final String RECURSIVE_GRAPH_IDENTIFIER = "Recursion";
+    public static final String ANONYMOUS_ONTOLOGY_IDENTIFIER = "AnonymousOntology";
+
     /**
      * Recursively deletes all resource children.
      *
@@ -167,9 +179,11 @@ public class ModelTestUtils {
     public static String importsTreeAsString(Graph graph) {
         Function<Graph, String> printDefaultGraphName = g -> g.getClass().getSimpleName() + "@" + Integer.toHexString(g.hashCode());
         return makeImportsTree(graph, g -> {
-            if (g.isClosed()) return "Closed(" + printDefaultGraphName.apply(g) + ")";
-            String res = Graphs.getName(g);
-            if (Graphs.ANONYMOUS_ONTOLOGY_IDENTIFIER.equals(res)) {
+            if (g.isClosed()) {
+                return "Closed(" + printDefaultGraphName.apply(g) + ")";
+            }
+            String res = getOntologyGraphPrintName(g);
+            if (ANONYMOUS_ONTOLOGY_IDENTIFIER.equals(res)) {
                 res += "(" + printDefaultGraphName.apply(g) + ")";
             }
             return res;
@@ -186,7 +200,7 @@ public class ModelTestUtils {
         String name = getName.apply(base);
         try {
             if (!seen.add(graph)) {
-                return res.append(Graphs.RECURSIVE_GRAPH_IDENTIFIER).append(": ").append(name);
+                return res.append(RECURSIVE_GRAPH_IDENTIFIER).append(": ").append(name);
             }
             res.append(name).append("\n");
             Graphs.directSubGraphs(graph)
@@ -197,5 +211,59 @@ public class ModelTestUtils {
         } finally {
             seen.remove(graph);
         }
+    }
+
+    public static Optional<Graph> findSubGraphByIri(UnionGraph graph, String name) {
+        return graph.subGraphs().filter(it -> getOntologyGraphIri(it).equals(name)).findFirst();
+    }
+
+    public static List<String> getSubGraphsIris(UnionGraph graph) {
+        return graph.subGraphs().map(ModelTestUtils::getOntologyGraphIri).sorted().collect(Collectors.toList());
+    }
+
+    /**
+     * Gets the "name" of the base graph: uri, blank-node-id as string or null string if there is no ontology at all.
+     *
+     * @param graph {@link Graph}
+     * @return String (uri or blank-node label) or {@code null}
+     */
+    public static String getOntologyGraphPrintName(Graph graph) {
+        if (graph.isClosed()) {
+            return "(closed)";
+        }
+        Optional<Node> id = Graphs.ontologyNode(Graphs.getBase(graph));
+        if (id.isEmpty()) {
+            return ANONYMOUS_ONTOLOGY_IDENTIFIER;
+        }
+        ExtendedIterator<String> versions = graph.find(id.get(), OWL.versionIRI.asNode(), Node.ANY)
+                .mapWith(Triple::getObject).mapWith(Node::toString);
+        try {
+            Set<String> res = versions.toSet();
+            if (res.isEmpty()) {
+                return String.format("<%s>", id.get());
+            }
+            return String.format("<%s%s>", id.get(), res);
+        } finally {
+            versions.close();
+        }
+    }
+
+    public static String getOntologyGraphIri(Graph graph) {
+        return Graphs.findOntologyNameNode(Graphs.getBase(graph)).map(Node::toString).orElse(null);
+    }
+
+    /**
+     * Recursively lists all models that are associated with the given model in the form of a flat stream.
+     * In normal situation, each of the models must have {@code owl:imports} statement in the overlying graph.
+     * In this case the returned stream must correspond the result of the {@link Graphs#dataGraphs(Graph)} method.
+     *
+     * @param m {@link OntModel}, not {@code null}
+     * @return {@code Stream} of models, cannot be empty: must contain at least the input (root) model
+     * @throws StackOverflowError in case the given model has a recursion in the hierarchy
+     * @see Graphs#dataGraphs(Graph)
+     * @see OntID#getImportsIRI()
+     */
+    public static Stream<OntModel> importsClosure(OntModel m) {
+        return Stream.concat(Stream.of(m), m.imports().flatMap(ModelTestUtils::importsClosure));
     }
 }

@@ -54,7 +54,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
      * @see <a href='https://www.w3.org/TR/owl2-quick-reference/#Additional_Vocabulary_in_OWL_2_RDF_Syntax'>4.2 Additional Vocabulary in OWL 2 RDF Syntax</a>
      */
     public static Individuals createDifferentIndividuals(OntGraphModelImpl model, Stream<OntIndividual> individuals) {
-        Property membersPredicate = configValue(model, OntModelConfig.USE_OWL_V1_VOCABULARY) ?
+        Property membersPredicate = OntGraphModelImpl.configValue(model, OntModelConfig.USE_OWL_V1_VOCABULARY) ?
                 OWL.distinctMembers :
                 OWL.members;
         return create(model, OWL.AllDifferent, Individuals.class, OntIndividual.class, individuals, membersPredicate);

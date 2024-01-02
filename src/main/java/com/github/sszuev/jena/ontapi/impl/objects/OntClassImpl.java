@@ -157,7 +157,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
         Resource res = model.createResource(OntJenaException.notNull(uri, "Null uri"), source);
-        if (configValue(model, OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)) {
+        if (OntGraphModelImpl.configValue(model, OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)) {
             res.addProperty(RDF.type, OWL.NamedIndividual);
         }
         return res.as(OntIndividual.Named.class);
@@ -293,7 +293,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
-        if (configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)) {
+        if (OntGraphModelImpl.configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)) {
             // TODO: optimize
             return clazz.getModel().individuals().filter(i -> i.hasOntClass(clazz, direct));
         }
@@ -311,7 +311,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                 clazz,
                 it -> explicitSubClasses(RDFS.subClassOf, it),
                 direct,
-                configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 
@@ -326,7 +326,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                 clazz,
                 it -> explicitSuperClasses(RDFS.subClassOf, it),
                 direct,
-                configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 

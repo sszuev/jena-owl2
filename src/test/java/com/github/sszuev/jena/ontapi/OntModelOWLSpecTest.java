@@ -700,11 +700,11 @@ public class OntModelOWLSpecTest {
                 Arrays.stream(tree.split("\n")).map(String::trim).collect(Collectors.toList()));
 
         // sync imports:
-        ((UnionGraph) c.getGraph()).addGraph(av2.getGraph());
+        ((UnionGraph) c.getGraph()).addSubGraph(av2.getGraph());
         OntModels.syncImports(b);
         tree = ModelTestUtils.importsTreeAsString(b.getGraph());
-        Assertions.assertEquals(4, OntModels.importsClosure(b).count());
-        Assertions.assertEquals(3, OntModels.importsClosure(c).count());
+        Assertions.assertEquals(4, ModelTestUtils.importsClosure(b).count());
+        Assertions.assertEquals(3, ModelTestUtils.importsClosure(c).count());
         Assertions.assertEquals(Arrays.asList("<b>", "<c>", "<a[v1]>", "<a[v2]>"),
                 Arrays.stream(tree.split("\n")).map(String::trim).collect(Collectors.toList()));
         Assertions.assertEquals(Arrays.asList("v1", "v2"), c.statements(null, OWL.imports, null)

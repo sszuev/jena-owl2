@@ -4,6 +4,7 @@ import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
@@ -35,6 +36,7 @@ import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.datatypes.BaseDatatype;
@@ -315,18 +317,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return Iterators.asStream(it, size, characteristics);
     }
 
-    /**
-     * Answers {@code true} iff the given {@code SPO} corresponds {@link Triple#ANY}.
-     *
-     * @param s {@link Resource}, the subject
-     * @param p {@link Property}, the predicate
-     * @param o {@link RDFNode}, the object
-     * @return boolean
-     */
-    private static boolean isANY(Resource s, Property p, RDFNode o) {
-        if (s != null) return false;
-        if (p != null) return false;
-        return o == null;
+    public static boolean configValue(OntModel m, OntModelConfig setting) {
+        OntConfig config = OntModels.config(m);
+        return config != null && config.getBoolean(setting);
     }
 
     @Override
@@ -370,8 +363,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntID getID() {
         checkType(OntID.class);
-        return getNodeAs(Graphs.ontologyNode(getBaseGraph())
-                .orElseGet(() -> createResource(OWL.Ontology).asNode()), OntID.class);
+        return id().orElseGet(() -> setID(null));
     }
 
     @Override
@@ -473,7 +465,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @param uri   String, not {@code null}
      */
     protected void addImportModel(Graph graph, String uri) {
-        getUnionGraph().addGraph(graph);
+        getUnionGraph().addSubGraph(graph);
         getID().addImport(uri);
         rebind();
     }
@@ -485,7 +477,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @param uri   String, not {@code null}
      */
     protected void removeImportModel(Graph graph, String uri) {
-        getUnionGraph().removeGraph(graph);
+        getUnionGraph().removeSubGraph(graph);
         getID().removeImport(uri);
         rebind();
     }
@@ -517,7 +509,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return <b>non-distinct</b> {@code ExtendedIterator} of {@link UnionGraph}
      */
     protected final ExtendedIterator<UnionGraph> listImportGraphs() {
-        return getUnionGraph().getUnderlying().listGraphs()
+        return getUnionGraph()
+                .listSubGraphs()
                 .filterKeep(x -> x instanceof UnionGraph)
                 .mapWith(x -> (UnionGraph) x);
     }
@@ -545,7 +538,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      */
     @Override
     public boolean independent() {
-        return getUnionGraph().getUnderlying().isEmpty();
+        return !getUnionGraph().hasSubGraph();
     }
 
     /**
@@ -746,12 +739,12 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public Stream<OntStatement> statements(Resource s, Property p, RDFNode o) {
-        return asStream(getGraph(), listOntStatements(s, p, o), isANY(s, p, o));
+        return asStream(getGraph(), listOntStatements(s, p, o), ModelUtils.isANY(s, p, o));
     }
 
     @Override
     public Stream<OntStatement> localStatements(Resource s, Property p, RDFNode o) {
-        return asStream(getBaseGraph(), listLocalStatements(s, p, o), isANY(s, p, o));
+        return asStream(getBaseGraph(), listLocalStatements(s, p, o), ModelUtils.isANY(s, p, o));
     }
 
     /**
@@ -1793,10 +1786,4 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return super.getNodeAs(Objects.requireNonNull(node, "Null node"),
                 Objects.requireNonNull(type, "Null class view."));
     }
-
-    @Override
-    public String toString() {
-        return String.format("OntGraphModel{%s}", Graphs.getName(getBaseGraph()));
-    }
-
 }

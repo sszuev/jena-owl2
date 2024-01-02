@@ -37,7 +37,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
     }
 
     private static Resource create(OntGraphModelImpl model) {
-        Resource type = configValue(model, OntModelConfig.USE_OWL_V1_VOCABULARY) ?
+        Resource type = OntGraphModelImpl.configValue(model, OntModelConfig.USE_OWL_V1_VOCABULARY) ?
                 OWL.DataRange :
                 RDFS.Datatype;
         return model.createResource().addProperty(RDF.type, type);
@@ -90,7 +90,7 @@ public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {
 
     @Override
     public Optional<OntStatement> findRootStatement() {
-        Resource type = configValue(getModel(), OntModelConfig.USE_OWL_V1_VOCABULARY) ? OWL.DataRange : RDFS.Datatype;
+        Resource type = OntGraphModelImpl.configValue(getModel(), OntModelConfig.USE_OWL_V1_VOCABULARY) ? OWL.DataRange : RDFS.Datatype;
         return getRequiredRootStatement(this, type);
     }
 

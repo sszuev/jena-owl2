@@ -1,8 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.OntModelConfig;
-import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
@@ -15,7 +13,6 @@ import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
-import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.graph.Node;
@@ -185,11 +182,6 @@ public class OntObjectImpl extends ResourceImpl implements OntObject {
         OntPersonality personality = OntEnhGraph.asPersonalityModel(object.getModel()).getOntPersonality();
         return personality.getBuiltins().get(object.objectType()).contains(object.asNode())
                 || personality.getReserved().getAllResources().contains(object.asNode());
-    }
-
-    static boolean configValue(OntModel m, OntModelConfig setting) {
-        OntConfig config = OntModels.config(m);
-        return config != null && config.getBoolean(setting);
     }
 
     static Property reasonerProperty(OntModel m, Property predicate) {

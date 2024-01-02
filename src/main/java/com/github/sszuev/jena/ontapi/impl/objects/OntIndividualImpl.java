@@ -74,7 +74,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
                 (OntObject) clazz,
                 it -> (Stream<OntObject>) ((Stream<?>) listClassesFor(it, isIndividual)),
                 direct,
-                configValue(getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 
@@ -99,7 +99,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         Stream<?> res = HierarchySupport.treeNodes(individual,
                 it -> (Stream<OntObject>) ((Stream<?>) listClassesFor(it, isIndividual)),
                 direct,
-                configValue(individual.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(individual.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
         return (Stream<OntClass>) res;
     }

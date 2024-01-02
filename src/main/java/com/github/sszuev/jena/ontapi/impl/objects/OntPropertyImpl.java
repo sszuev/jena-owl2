@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi.impl.objects;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
+import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import org.apache.jena.enhanced.EnhGraph;
@@ -54,7 +55,7 @@ public abstract class OntPropertyImpl extends OntObjectImpl implements OntProper
                 property,
                 it -> explicitSubProperties(it, RDFS.subPropertyOf, type),
                 direct,
-                configValue(property.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(property.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 
@@ -69,7 +70,7 @@ public abstract class OntPropertyImpl extends OntObjectImpl implements OntProper
                 property,
                 it -> explicitSuperProperties(it, RDFS.subPropertyOf, type),
                 direct,
-                configValue(property.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(property.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 

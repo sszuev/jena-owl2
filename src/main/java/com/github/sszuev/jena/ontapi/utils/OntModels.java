@@ -24,7 +24,6 @@ import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.model.RDFNodeList;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
-import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -33,8 +32,13 @@ import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -109,7 +113,7 @@ public class OntModels {
                     m.imports()
                             .filter(i -> uri.equals(i.getID().getImportsIRI()))
                             .findFirst()
-                            .ifPresent(i -> ((UnionGraph) m.getGraph()).removeGraph(i.getGraph()));
+                            .ifPresent(i -> ((UnionGraph) m.getGraph()).removeSubGraph(i.getGraph()));
                 })
                 .filter(m -> m.imports().map(OntModel::getID).map(OntID::getImportsIRI).noneMatch(uri::equals))
                 .forEach(m -> m.addImport(ont));
@@ -121,32 +125,26 @@ public class OntModels {
      * This method tries to fix such a situation by modifying base graph.
      *
      * @param m {@link OntModel}, not {@code null}
-     * @throws StackOverflowError in case the given model has a recursion in the hierarchy
      */
     public static void syncImports(OntModel m) {
-        OntID id = m.getID();
-        id.removeAll(OWL.imports);
-        m.imports()
-                .peek(OntModels::syncImports)
-                .map(OntModel::getID)
-                .filter(Resource::isURIResource)
-                .map(OntID::getImportsIRI)
-                .forEach(id::addImport);
-    }
-
-    /**
-     * Recursively lists all models that are associated with the given model in the form of a flat stream.
-     * In normal situation, each of the models must have {@code owl:imports} statement in the overlying graph.
-     * In this case the returned stream must correspond the result of the {@link Graphs#dataGraphs(Graph)} method.
-     *
-     * @param m {@link OntModel}, not {@code null}
-     * @return {@code Stream} of models, cannot be empty: must contain at least the input (root) model
-     * @throws StackOverflowError in case the given model has a recursion in the hierarchy
-     * @see Graphs#dataGraphs(Graph)
-     * @see OntID#getImportsIRI()
-     */
-    public static Stream<OntModel> importsClosure(OntModel m) {
-        return Stream.concat(Stream.of(m), m.imports().flatMap(OntModels::importsClosure));
+        Deque<OntModel> queue = new ArrayDeque<>();
+        queue.add(m);
+        Set<String> seen = new HashSet<>();
+        while (!queue.isEmpty()) {
+            OntModel next = queue.removeFirst();
+            OntID id = next.getID();
+            if (!seen.add(id.getImportsIRI())) {
+                continue;
+            }
+            id.removeAll(OWL.imports);
+            next.imports().collect(Collectors.toSet()).forEach(it -> {
+                String uri = it.getID().getImportsIRI();
+                if (uri != null) {
+                    id.addImport(uri);
+                    queue.add(it);
+                }
+            });
+        }
     }
 
     /**
@@ -395,7 +393,8 @@ public class OntModels {
                         , OntSWRL.class)
                 .filter(subj::canAs).map(subj::as)
                 .map(OntObject::getMainStatement).filter(res::equals)
-                .findFirst().orElse(res);
+                .findFirst()
+                .orElse(res);
     }
 
     /**

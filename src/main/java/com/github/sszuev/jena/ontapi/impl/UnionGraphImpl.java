@@ -4,7 +4,7 @@ import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import org.apache.jena.graph.Graph;
-import org.apache.jena.graph.GraphListener;
+import org.apache.jena.graph.GraphEventManager;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.CompositionBase;
 import org.apache.jena.graph.impl.SimpleEventManager;
@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 /**
  * UnionGraph.
  * <p>
- * It consists of two parts: a {@link #base base graph} and an {@link UnionGraph.SubGraphs sub-graphs} collection.
+ * It consists of two parts: a {@link #base base graph} and an {@link UnionGraphImpl.SubGraphs sub-graphs} collection.
  * Unlike {@link org.apache.jena.graph.compose.MultiUnion MultiUnion} this implementation explicitly requires primary (base) graph.
  * Underlying sub-graphs are only used for searching; modify operations are performed only on the base graph.
  * This graph allows building graph hierarchy which can be used to link different models.
@@ -41,20 +41,24 @@ import java.util.stream.Stream;
 public class UnionGraphImpl extends CompositionBase implements UnionGraph {
 
     protected final Graph base;
-    protected final SubGraphsImpl subGraphs;
+    protected final SubGraphs subGraphs;
     protected final boolean distinct;
 
     /**
-     * A set of parents, used to control {@link #bases}.
+     * A set of parents, used when collecting cache {@link #descendantBases},
+     * which is used in read operations.
+     * This allows the {@code UnionGraphImpl} instance
+     * to know when the structure has changed to rebuild the cache.
      * Items of this {@code Set} are removed automatically by GC
      * if there are no more strong references (a graph/model is removed, i.e. there is no usage any more).
      */
-    protected Set<UnionGraphImpl> parents = Collections.newSetFromMap(new WeakHashMap<>());
+    protected final Set<UnionGraphImpl> parents = Collections.newSetFromMap(new WeakHashMap<>());
     /**
-     * Internal cache to hold all base graphs, used while {@link Graph#find(Triple) #find(..)}.
+     * Internal cache to hold all data graphs with except of {@link #base},
+     * used while {@link Graph#find(Triple) #find(..)}.
      * This {@code Set} cannot contain {@link UnionGraph}s.
      */
-    protected Set<Graph> bases;
+    protected Set<Graph> descendantBases;
 
     /**
      * Creates an instance with default settings.
@@ -91,18 +95,18 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * The base constructor.
      * A well-formed ontology {@link UnionGraph} is expected to
      * have a plain (non-union) graph as a {@link #getBaseGraph() root}
-     * and {@code UnionGraph} as {@link #getUnderlying() leaves}.
+     * and {@code UnionGraph} as {@link #getSubGraphs() leaves}.
      *
      * @param base      {@link Graph}, not {@code null}
      * @param subGraphs {@link SubGraphs} or {@code null} to use default empty sub-graph container
-     * @param gem       {@link OntEventManager} or {@code null} to use default fresh event manager
+     * @param gem       {@link GraphEventManager} or {@code null} to use default fresh event manager
      * @param distinct  if {@code true}, the method {@link #find(Triple)} returns an iterator avoiding duplicates
      * @throws NullPointerException if base graph is {@code null}
      */
-    public UnionGraphImpl(Graph base, SubGraphsImpl subGraphs, OntEventManager gem, boolean distinct) {
+    public UnionGraphImpl(Graph base, SubGraphs subGraphs, GraphEventManager gem, boolean distinct) {
         this.base = Objects.requireNonNull(base, "Null base graph.");
-        this.subGraphs = subGraphs == null ? new SubGraphsImpl() : subGraphs;
-        this.gem = gem == null ? new OntEventManagerImpl() : gem;
+        this.subGraphs = subGraphs == null ? new SubGraphs() : subGraphs;
+        this.gem = gem == null ? new SimpleEventManager() : gem;
         this.distinct = distinct;
     }
 
@@ -113,12 +117,13 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
 
     /**
      * Answers the ont event manager for this graph.
+     * Override to use in {@link org.apache.jena.graph.impl.GraphBase#add(Triple)}.
      *
-     * @return {@link OntEventManager}, not {@code null}
+     * @return {@link GraphEventManager}, not {@code null}
      */
     @Override
-    public OntEventManager getEventManager() {
-        return (OntEventManager) gem;
+    public GraphEventManager getEventManager() {
+        return gem;
     }
 
     /**
@@ -147,9 +152,23 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      *
      * @return {@link SubGraphs}, not {@code null}
      */
-    @Override
-    public SubGraphsImpl getUnderlying() {
+    public SubGraphs getSubGraphs() {
         return subGraphs;
+    }
+
+    @Override
+    public boolean hasSubGraph() {
+        return !getSubGraphs().isEmpty();
+    }
+
+    @Override
+    public ExtendedIterator<Graph> listSubGraphs() {
+        return getSubGraphs().listGraphs();
+    }
+
+    @Override
+    public Stream<Graph> subGraphs() {
+        return getSubGraphs().graphs();
     }
 
     @Override
@@ -173,9 +192,9 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * @return this instance
      */
     @Override
-    public UnionGraph addGraph(Graph graph) {
+    public UnionGraph addSubGraph(Graph graph) {
         checkOpen();
-        getUnderlying().add(graph);
+        getSubGraphs().add(graph);
         addParent(graph);
         resetGraphsCache();
         return this;
@@ -195,9 +214,9 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * @return this instance
      */
     @Override
-    public UnionGraph removeGraph(Graph graph) {
+    public UnionGraph removeSubGraph(Graph graph) {
         checkOpen();
-        getUnderlying().remove(graph);
+        getSubGraphs().remove(graph);
         removeUnion(graph);
         resetGraphsCache();
         return this;
@@ -211,10 +230,10 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
     }
 
     /**
-     * Clears the {@link #bases cache}.
+     * Clears the {@link #descendantBases cache}.
      */
     protected void resetGraphsCache() {
-        getAllLinkedUnionGraphs().forEach(x -> x.bases = null);
+        getAllLinkedUnionGraphs().forEach(x -> x.descendantBases = null);
     }
 
     /**
@@ -225,8 +244,8 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * @return <b>distinct</b> {@link ExtendedIterator} of {@link Graph}s, including the base graph
      * @see UnionGraph#getBaseGraph()
      */
-    public ExtendedIterator<Graph> listBaseGraphs() {
-        return Iterators.create(bases == null ? bases = getAllBaseGraphs() : bases);
+    public ExtendedIterator<Graph> listSubGraphBases() {
+        return Iterators.create(descendantBases == null ? descendantBases = getAllBaseGraphs() : descendantBases);
     }
 
     /**
@@ -251,13 +270,21 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     @Override
     public boolean graphBaseContains(Triple t) {
-        if (base.contains(t)) return true;
-        if (subGraphs.isEmpty()) return false;
-        Iterator<Graph> graphs = listBaseGraphs();
+        if (base.contains(t)) {
+            return true;
+        }
+        if (subGraphs.isEmpty()) {
+            return false;
+        }
+        Iterator<Graph> graphs = listSubGraphBases();
         while (graphs.hasNext()) {
             Graph g = graphs.next();
-            if (g == base) continue;
-            if (g.contains(t)) return true;
+            if (g == base) {
+                continue;
+            }
+            if (g.contains(t)) {
+                return true;
+            }
         }
         return false;
     }
@@ -272,8 +299,9 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
 
     @Override
     public boolean isEmpty() {
-        // the default implementation use size(), which is extremely ineffective in general,
-        // since implies iterating over whole graph
+        if (subGraphs.isEmpty()) {
+            return base.isEmpty();
+        }
         return Iterators.findFirst(find()).isEmpty();
     }
 
@@ -291,14 +319,10 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
             return base.find(m);
         }
         if (!distinct) {
-            return Iterators.flatMap(listBaseGraphs(), x -> x.find(m));
+            return Iterators.flatMap(listSubGraphBases(), x -> x.find(m));
         }
-        // The logic and the comment below have been copy-pasted from the org.apache.jena.graph.compose.Union:
-        // To find in the union, find in the components, concatenate the results, and omit duplicates.
-        // That last is a performance penalty,
-        // but I see no way to remove it unless we know the graphs do not overlap.
         Set<Triple> seen = createSet();
-        return Iterators.flatMap(listBaseGraphs(), x -> CompositionBase.recording(rejecting(x.find(m), seen), seen));
+        return Iterators.flatMap(listSubGraphBases(), x -> CompositionBase.recording(rejecting(x.find(m), seen), seen));
     }
 
     /**
@@ -320,7 +344,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     @Override
     public void close() {
-        listBaseGraphs().forEachRemaining(Graph::close);
+        listSubGraphBases().forEachRemaining(Graph::close);
         getAllUnderlyingUnionGraphs().forEach(x -> x.closed = true);
     }
 
@@ -333,7 +357,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
     @Override
     public boolean dependsOn(Graph other) {
         return (other instanceof UnionGraphImpl && getAllUnderlyingUnionGraphs().contains(other))
-                || Iterators.anyMatch(listBaseGraphs(), x -> Graphs.dependsOn(x, other));
+                || Iterators.anyMatch(listSubGraphBases(), x -> Graphs.dependsOn(x, other));
     }
 
     /**
@@ -384,7 +408,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
                 next.parents.stream().filter(res::add).forEach(queue::add);
                 next.getAllUnderlyingUnionGraphs().stream().filter(res::add).forEach(queue::add);
             }
-
         }
         return res;
     }
@@ -408,14 +431,9 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
     }
 
     private Stream<UnionGraphImpl> unionSubGraphs() {
-        return getUnderlying().graphs()
+        return getSubGraphs().graphs()
                 .filter(g -> g instanceof UnionGraphImpl)
                 .map(u -> (UnionGraphImpl) u);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s(%s)@%s", getClass().getName(), Graphs.getName(this), Integer.toHexString(hashCode()));
     }
 
     /**
@@ -424,14 +442,14 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * sharing its instance among different {@code UnionGraph} instances
      * to impart whole hierarchy structure when it is needed.
      */
-    public static class SubGraphsImpl implements SubGraphs {
+    public static class SubGraphs {
         protected final Collection<Graph> graphs;
 
-        protected SubGraphsImpl() {
+        protected SubGraphs() {
             this(new ArrayList<>());
         }
 
-        protected SubGraphsImpl(Collection<Graph> graphs) {
+        protected SubGraphs(Collection<Graph> graphs) {
             this.graphs = Objects.requireNonNull(graphs);
         }
 
@@ -440,7 +458,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
          *
          * @return {@link ExtendedIterator} of sub-{@link Graph graph}s
          */
-        @Override
         public ExtendedIterator<Graph> listGraphs() {
             return Iterators.create(graphs);
         }
@@ -450,7 +467,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
          *
          * @return {@code Stream} of sub-{@link Graph graph}s
          */
-        @Override
         public Stream<Graph> graphs() {
             return graphs.stream();
         }
@@ -460,7 +476,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
          *
          * @return boolean
          */
-        @Override
         public boolean isEmpty() {
             return graphs.isEmpty();
         }
@@ -471,7 +486,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
          *
          * @param graph {@link Graph}
          */
-        @Override
         public void remove(Graph graph) {
             graphs.remove(graph);
         }
@@ -482,7 +496,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
          *
          * @param graph {@link Graph}
          */
-        @Override
         public void add(Graph graph) {
             graphs.add(Objects.requireNonNull(graph));
         }
@@ -507,20 +520,4 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         }
     }
 
-    /**
-     * An extended {@link org.apache.jena.graph.GraphEventManager Jena Graph Event Manager},
-     * a holder for {@link GraphListener}s.
-     */
-    public static class OntEventManagerImpl extends SimpleEventManager implements OntEventManager {
-
-        /**
-         * Lists all encapsulated listeners.
-         *
-         * @return Stream of {@link GraphListener}s
-         */
-        @Override
-        public Stream<GraphListener> listeners() {
-            return listeners.stream();
-        }
-    }
 }

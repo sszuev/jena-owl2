@@ -68,8 +68,11 @@ public class OntModelFactory {
      * @param base {@code Graph}
      * @return {@link UnionGraph}
      */
-    public static UnionGraph wrapAsUnionGraph(Graph base) {
-        return new UnionGraphImpl(base);
+    public static UnionGraph createUnionGraph(Graph base) {
+        // non-distinct graph since requiring distinct is expensive;
+        // usually OWL imports-closure does not contain duplicate data and
+        // cyclic imports are resolved by the UnionGraph itself and do non lead to duplication data
+        return new UnionGraphImpl(base, false);
     }
 
     /**
@@ -128,16 +131,17 @@ public class OntModelFactory {
     /**
      * Creates an Ontology Model according to the specified specification.
      *
-     * @param spec  {@link OntSpecification}
-     * @param graph {@link Graph} (base graph)
+     * @param spec {@link OntSpecification}
+     * @param data {@link Graph} (base graph)
      * @return {@link OntModel}
      */
-    public static OntModel createModel(Graph graph, OntSpecification spec) {
+    public static OntModel createModel(Graph data, OntSpecification spec) {
+        Objects.requireNonNull(data);
         ReasonerFactory reasonerFactory = spec.getReasonerFactory();
         if (reasonerFactory == null) {
-            return new OntGraphModelImpl(Graphs.makeUnion(graph), spec.getPersonality());
+            return new OntGraphModelImpl(Graphs.makeUnionFrom(data, OntModelFactory::createUnionGraph), spec.getPersonality());
         }
-        return createModel(graph, spec.getPersonality(), reasonerFactory.create(null));
+        return createModel(data, spec.getPersonality(), reasonerFactory.create(null));
     }
 
     /**
@@ -150,10 +154,10 @@ public class OntModelFactory {
      * @see OntModel#asInferenceModel()
      */
     public static OntModel createModel(Graph data, OntPersonality personality, Reasoner reasoner) {
-        if (Graphs.dataGraphs(data).anyMatch(it -> it instanceof InfGraph)) {
+        if (Graphs.dataGraphs(Objects.requireNonNull(data)).anyMatch(it -> it instanceof InfGraph)) {
             throw new IllegalArgumentException("InfGraph detected");
         }
-        UnionGraph unionGraph = Graphs.makeUnion(Objects.requireNonNull(data));
+        UnionGraph unionGraph = Graphs.makeUnionFrom(data, OntModelFactory::createUnionGraph);
         InfGraph infGraph = reasoner.bind(unionGraph);
         return new OntGraphModelImpl(infGraph, personality);
     }

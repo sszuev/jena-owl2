@@ -4,7 +4,6 @@ import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.testutils.UnmodifiableGraph;
-import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.commons.lang3.StringUtils;
@@ -61,35 +60,35 @@ public class UnionGraphTest {
     public void testAddRemoveSubGraphs() {
         UnionGraph a = new UnionGraphImpl(createNamedGraph("a"));
         Graph b = createNamedGraph("b");
-        a.addGraph(b);
+        a.addSubGraph(b);
         UnionGraph c = new UnionGraphImpl(createNamedGraph("c"));
-        a.addGraph(c);
+        a.addSubGraph(c);
         UnionGraph d = new UnionGraphImpl(createNamedGraph("d"));
-        c.addGraph(d);
+        c.addSubGraph(d);
         String tree = ModelTestUtils.importsTreeAsString(a);
 
         Assertions.assertEquals(4, tree.split("\n").length);
-        d.addGraph(b);
+        d.addSubGraph(b);
         tree = ModelTestUtils.importsTreeAsString(a);
 
         Assertions.assertEquals(5, tree.split("\n").length);
         // recursion:
-        d.addGraph(c);
+        d.addSubGraph(c);
         tree = ModelTestUtils.importsTreeAsString(a);
 
         Assertions.assertEquals(6, tree.split("\n").length);
 
         Graph h = createNamedGraph("H");
-        c.addGraph(h);
-        a.removeGraph(b);
-        a.addGraph(b = new UnionGraphImpl(b));
-        ((UnionGraph) b).addGraph(h);
+        c.addSubGraph(h);
+        a.removeSubGraph(b);
+        a.addSubGraph(b = new UnionGraphImpl(b));
+        ((UnionGraph) b).addSubGraph(h);
         tree = ModelTestUtils.importsTreeAsString(a);
 
         Assertions.assertEquals(8, tree.split("\n").length);
 
         // remove recursion:
-        d.removeGraph(c);
+        d.removeSubGraph(c);
         tree = ModelTestUtils.importsTreeAsString(a);
 
         Assertions.assertEquals(7, tree.split("\n").length);
@@ -151,10 +150,10 @@ public class UnionGraphTest {
         assertClosed(d, false);
         assertClosed(e, false);
 
-        c.addGraph(a);
-        b.addGraph(c);
-        c.addGraph(b).addGraph(d).addGraph(e);
-        a.addGraph(c);
+        c.addSubGraph(a);
+        b.addSubGraph(c);
+        c.addSubGraph(b).addSubGraph(d).addSubGraph(e);
+        a.addSubGraph(c);
 
         c.close();
         assertClosed(a, true);
@@ -173,7 +172,7 @@ public class UnionGraphTest {
         assertClosed(b, false);
         assertClosed(c, false);
 
-        a.addGraph(b.addGraph(c));
+        a.addSubGraph(b.addSubGraph(c));
 
         b.close();
         assertClosed(b, true);
@@ -182,22 +181,22 @@ public class UnionGraphTest {
 
         UnionGraphImpl d = new UnionGraphImpl(GraphMemFactory.createGraphMem());
         try {
-            b.addGraph(d);
+            b.addSubGraph(d);
             Assertions.fail("Possible to add a sub-graph");
         } catch (ClosedException ce) {
             // expected
         }
         try {
-            b.removeGraph(c);
+            b.removeSubGraph(c);
             Assertions.fail("Possible to remove a sub-graph");
         } catch (ClosedException ce) {
             // expected
         }
-        Assertions.assertNotNull(a.addGraph(d));
-        Assertions.assertEquals(4, a.listBaseGraphs().toList().size());
+        Assertions.assertNotNull(a.addSubGraph(d));
+        Assertions.assertEquals(4, a.listSubGraphBases().toList().size());
 
-        Assertions.assertNotNull(a.removeGraph(b));
-        Assertions.assertEquals(2, a.listBaseGraphs().toList().size());
+        Assertions.assertNotNull(a.removeSubGraph(b));
+        Assertions.assertEquals(2, a.listSubGraphBases().toList().size());
     }
 
     @Test
@@ -212,11 +211,11 @@ public class UnionGraphTest {
 
         UnionGraphImpl b = new UnionGraphImpl(g1);
         UnionGraphImpl c = new UnionGraphImpl(GraphMemFactory.createGraphMem());
-        a.addGraph(b.addGraph(c));
-        Assertions.assertEquals(2, a.listBaseGraphs().toList().size());
+        a.addSubGraph(b.addSubGraph(c));
+        Assertions.assertEquals(2, a.listSubGraphBases().toList().size());
         String tree = ModelTestUtils.importsTreeAsString(a);
         Assertions.assertEquals(3, tree.split("\n").length);
-        Assertions.assertEquals(0, StringUtils.countMatches(tree, Graphs.RECURSIVE_GRAPH_IDENTIFIER));
+        Assertions.assertEquals(0, StringUtils.countMatches(tree, ModelTestUtils.RECURSIVE_GRAPH_IDENTIFIER));
 
         Assertions.assertTrue(a.dependsOn(b));
         Assertions.assertTrue(a.dependsOn(c));
@@ -224,14 +223,14 @@ public class UnionGraphTest {
         Assertions.assertFalse(a.dependsOn(g2));
 
         UnionGraphImpl d = new UnionGraphImpl(createNamedGraph("d"));
-        c.addGraph(d);
+        c.addSubGraph(d);
         // recursion:
-        d.addGraph(a);
-        Assertions.assertEquals(3, a.listBaseGraphs().toList().size());
+        d.addSubGraph(a);
+        Assertions.assertEquals(3, a.listSubGraphBases().toList().size());
         tree = ModelTestUtils.importsTreeAsString(a);
         Assertions.assertEquals(5, tree.split("\n").length);
-        Assertions.assertEquals(4, StringUtils.countMatches(tree, Graphs.ANONYMOUS_ONTOLOGY_IDENTIFIER));
-        Assertions.assertEquals(1, StringUtils.countMatches(tree, Graphs.RECURSIVE_GRAPH_IDENTIFIER));
+        Assertions.assertEquals(4, StringUtils.countMatches(tree, ModelTestUtils.ANONYMOUS_ONTOLOGY_IDENTIFIER));
+        Assertions.assertEquals(1, StringUtils.countMatches(tree, ModelTestUtils.RECURSIVE_GRAPH_IDENTIFIER));
 
         Assertions.assertTrue(a.dependsOn(b));
         Assertions.assertTrue(a.dependsOn(c));
@@ -250,11 +249,11 @@ public class UnionGraphTest {
         UnionGraphImpl u1 = new UnionGraphImpl(a);
         UnionGraphImpl u2 = new UnionGraphImpl(b);
         UnionGraphImpl u3 = new UnionGraphImpl(c);
-        u1.addGraph(u1);
-        u1.addGraph(u2);
-        u1.addGraph(u3);
-        u1.addGraph(b);
-        Assertions.assertEquals(new HashSet<>(Arrays.asList(a, b, c)), u1.listBaseGraphs().toSet());
+        u1.addSubGraph(u1);
+        u1.addSubGraph(u2);
+        u1.addSubGraph(u3);
+        u1.addSubGraph(b);
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(a, b, c)), u1.listSubGraphBases().toSet());
     }
 
     @Test
@@ -263,13 +262,13 @@ public class UnionGraphTest {
         Graph b = createTestMemGraph("b");
         Graph c = createTestMemGraph("c");
         Graph d = createTestMemGraph("d");
-        UnionGraphImpl u1 = new UnionGraphImpl(new UnionGraphImpl(a).addGraph(d));
+        UnionGraphImpl u1 = new UnionGraphImpl(new UnionGraphImpl(a).addSubGraph(d));
         UnionGraphImpl u2 = new UnionGraphImpl(b);
         UnionGraphImpl u3 = new UnionGraphImpl(new UnionGraphImpl(c));
-        u1.addGraph(u1);
-        u1.addGraph(u2);
-        u1.addGraph(u3);
-        u1.addGraph(b);
-        Assertions.assertEquals(new HashSet<>(Arrays.asList(a, b, c, d)), u1.listBaseGraphs().toSet());
+        u1.addSubGraph(u1);
+        u1.addSubGraph(u2);
+        u1.addSubGraph(u3);
+        u1.addSubGraph(b);
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(a, b, c, d)), u1.listSubGraphBases().toSet());
     }
 }

@@ -257,4 +257,18 @@ public class ModelUtils {
     public static Set<Node> asUnmodifiableNodeSet(Collection<? extends RDFNode> nodes) {
         return nodes.stream().map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());
     }
+
+    /**
+     * Answers {@code true} iff the given {@code SPO} corresponds {@link Triple#ANY}.
+     *
+     * @param s {@link Resource}, the subject
+     * @param p {@link Property}, the predicate
+     * @param o {@link RDFNode}, the object
+     * @return boolean
+     */
+    public static boolean isANY(Resource s, Property p, RDFNode o) {
+        if (s != null) return false;
+        if (p != null) return false;
+        return o == null;
+    }
 }

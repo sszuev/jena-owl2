@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 public interface OntID extends OntObject {
 
     /**
-     * Returns an IRI from the right side of {@code this owl:versionIRI IRI} statement.
+     * Returns an IRI from the right side of {@code this owl:versionIRI IRI} statement if it is uniquely determined.
      *
      * @return String IRI or {@code null}
      */

@@ -1,8 +1,6 @@
 package com.github.sszuev.jena.ontapi.utils;
 
-import com.github.sszuev.jena.ontapi.OntModelFactory;
 import com.github.sszuev.jena.ontapi.UnionGraph;
-import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
@@ -22,15 +20,16 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,9 +44,6 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class Graphs {
-
-    public static final String ANONYMOUS_ONTOLOGY_IDENTIFIER = "AnonymousOntology";
-    public static final String RECURSIVE_GRAPH_IDENTIFIER = "Recursion";
 
     /**
      * Extracts and lists all top-level sub-graphs from the given composite graph-container,
@@ -65,7 +61,7 @@ public class Graphs {
      */
     public static Stream<Graph> directSubGraphs(Graph graph) {
         if (graph instanceof UnionGraph) {
-            return ((UnionGraph) graph).getUnderlying().graphs();
+            return ((UnionGraph) graph).subGraphs();
         }
         if (graph instanceof Polyadic) {
             return ((Polyadic) graph).getSubGraphs().stream();
@@ -148,12 +144,9 @@ public class Graphs {
     /**
      * Lists all indivisible graphs extracted from the composite or wrapper graph
      * including the base as flat stream of non-composite (primitive) graphs.
-     * For a well-formed ontological {@code Graph} the returned stream must
-     * correspond the result of the method {@link OntModels#importsClosure(OntModel)}.
      *
      * @param graph {@link Graph}
      * @return {@code Stream} of {@link Graph}s
-     * @see OntModels#importsClosure(OntModel)
      */
     public static Stream<Graph> dataGraphs(Graph graph) {
         if (graph == null) {
@@ -205,7 +198,7 @@ public class Graphs {
         }
         if (graph instanceof UnionGraph) {
             UnionGraph u = (UnionGraph) graph;
-            return u.isDistinct() || u.getUnderlying().isEmpty() && isDistinct(getBase(u));
+            return u.isDistinct() || !u.hasSubGraph() && isDistinct(getBase(u));
         }
         return false;
     }
@@ -249,92 +242,95 @@ public class Graphs {
     }
 
     /**
-     * Converts the given graph to the hierarchical {@link UnionGraph Union Graph}
-     * in accordance with their {@code owl:imports} declarations.
-     * Irrelevant graphs are skipped from consideration.
-     * If the input graph is already {@link UnionGraph} it will be returned unchanged.
-     * The method can be used, for example, to get an ONT graph from the {@link org.apache.jena.ontology.OntModel}.
-     * Note: it is a recursive method.
-     *
-     * @param graph {@link Graph}
+     * Creates an {@link UnionGraph} from the specified {@code graph} of arbitrary nature.
+     * The method can be used, for example,
+     * to transform the legacy {@link org.apache.jena.graph.compose.MultiUnion MultiUnion} Graph to {@link UnionGraph}.
+     * @param graph       {@link Graph}
+     * @param wrapAsUnion {@link Function} to produce new instance {@link UnionGraph} from {@link Graph}
      * @return {@link UnionGraph}
-     * @throws StackOverflowError in case there is a loop in imports (i.e. a recursion in the hierarchy)
      */
-    public static UnionGraph makeUnion(Graph graph) {
+    public static UnionGraph makeUnionFrom(Graph graph, Function<Graph, UnionGraph> wrapAsUnion) {
         if (graph instanceof UnionGraph) {
             return (UnionGraph) graph;
         }
         if (isGraphMem(graph)) {
-            return OntModelFactory.wrapAsUnionGraph(graph);
+            return wrapAsUnion.apply(graph);
         }
-        return makeUnion(getBase(graph), dataGraphs(graph).collect(Collectors.toSet()));
+        return makeUnion(getBase(graph), dataGraphs(graph).collect(Collectors.toSet()), wrapAsUnion);
     }
 
     /**
-     * Builds a union-graph using the specified components.
-     * Note: this is a recursive method.
+     * Assembles the hierarchical {@link UnionGraph Union Graph} from the specified components
+     * in accordance with their {@code owl:imports} and {@code owl:Ontology} declarations.
+     * Irrelevant graphs are ignored.
      *
-     * @param graph      {@link Graph} the base graph (root)
-     * @param repository a {@code Collection} of {@link Graph graph}s to search in for missed dependencies
+     * @param graph       {@link Graph}
+     * @param repository  a {@code Collection} of {@link Graph graph}s to search in for missed dependencies
+     * @param wrapAsUnion {@link Function} to produce new instance {@link UnionGraph} from {@link Graph}
      * @return {@link UnionGraph}
      */
-    public static UnionGraph makeUnion(Graph graph, Collection<Graph> repository) {
-        Graph base = getBase(graph);
-        Set<String> imports = getImports(base);
-        UnionGraph res = OntModelFactory.wrapAsUnionGraph(base);
-        repository.stream()
-                .filter(x -> !isSameBase(base, x))
-                .filter(g -> imports.contains(getOntologyIRI(g)))
-                .forEach(g -> res.addGraph(makeUnion(g, repository)));
-        return res;
-    }
-
-    /**
-     * Gets Ontology URI from the base graph or returns {@code null}
-     * if there is no {@code owl:Ontology} or it is anonymous ontology.
-     *
-     * @param graph {@link Graph}
-     * @return String uri or {@code null}
-     * @see Graphs#getImports(Graph)
-     */
-    public static String getOntologyIRI(Graph graph) {
-        return ontologyNode(getBase(graph)).filter(Node::isURI).map(Node::getURI).orElse(null);
-    }
-
-    /**
-     * Gets the "name" of the base graph: uri, blank-node-id as string or dummy string if there is no ontology at all.
-     * The version IRI info is also included if it is present in the graph for the found ontology node.
-     *
-     * @param graph {@link Graph}
-     * @return String
-     * @see Graphs#getOntologyIRI(Graph)
-     */
-    public static String getName(Graph graph) {
-        if (graph.isClosed()) {
-            return "(closed)";
-        }
-        Optional<Node> id = ontologyNode(getBase(graph));
-        if (id.isEmpty()) {
-            return ANONYMOUS_ONTOLOGY_IDENTIFIER;
-        }
-        ExtendedIterator<String> versions = graph.find(id.get(), OWL.versionIRI.asNode(), Node.ANY)
-                .mapWith(Triple::getObject).mapWith(Node::toString);
-        try {
-            Set<String> res = versions.toSet();
-            if (res.isEmpty()) {
-                return String.format("<%s>", id.get());
+    public static UnionGraph makeUnion(Graph graph, Collection<Graph> repository, Function<Graph, UnionGraph> wrapAsUnion) {
+        Deque<Graph> graphs = new ArrayDeque<>();
+        graphs.add(graph);
+        Map<String, UnionGraph> res = new LinkedHashMap<>();
+        Set<String> seen = new HashSet<>();
+        while (!graphs.isEmpty()) {
+            Graph next = graphs.removeFirst();
+            String name = findOntologyNameNode(next).map(Node::toString).orElse(null);
+            if (name == null || !seen.add(name)) {
+                continue;
             }
-            return String.format("<%s%s>", id.get(), res);
+            UnionGraph parent = res.computeIfAbsent(name, s -> wrapAsUnion.apply(next));
+            Set<String> imports = getImports(next);
+            repository.forEach(candidate -> {
+                String candidateIri = findOntologyNameNode(candidate)
+                        .filter(Node::isURI)
+                        .map(Node::getURI)
+                        .orElse(null);
+                if (imports.contains(candidateIri)) {
+                    UnionGraph child = res.computeIfAbsent(candidateIri, s -> wrapAsUnion.apply(candidate));
+                    parent.addSubGraph(child);
+                    graphs.add(child);
+                }
+            });
+        }
+        return res.isEmpty() ? wrapAsUnion.apply(graph) : res.values().iterator().next();
+    }
+
+    /**
+     * Returns OWL Ontology ID
+     * (either object in {@code any owl:versionIRI <uri>} statement or subject in {@code <uri> rdf:type owl:Ontology} statement).
+     *
+     * @param graph {@link Graph}
+     * @return {@code Optional} with {@link Node} blank or URI,
+     * or {@code Optional#empty} if the ontology Node cannot be uniquely defined or absent in the {@code graph}
+     * @see <a href='https://www.w3.org/TR/owl2-syntax/#Ontology_Documents'>3.2 Ontology Documents</a>
+     */
+    public static Optional<Node> findOntologyNameNode(Graph graph) {
+        if (graph.isClosed()) {
+            throw new IllegalArgumentException("Graph is closed");
+        }
+        Node ontologyIri = ontologyNode(graph).orElse(null);
+        if (ontologyIri == null) {
+            return Optional.empty();
+        }
+        ExtendedIterator<Node> versionNodes = graph.find(ontologyIri, OWL.versionIRI.asNode(), Node.ANY)
+                .mapWith(Triple::getObject)
+                .filterKeep(Node::isURI);
+        try {
+            Set<Node> res = versionNodes.toSet();
+            if (res.size() != 1) {
+                return Optional.of(ontologyIri);
+            }
+            return Optional.of(res.iterator().next());
         } finally {
-            versions.close();
+            versionNodes.close();
         }
     }
 
     /**
-     * Finds and returns the primary node within the given graph,
-     * which is the subject in the {@code _:x rdf:type owl:Ontology} statement.
-     * If there are both uri and blank ontological nodes simultaneously in the graph, then it prefers uri one.
-     * If several ontological nodes of the same kind, it chooses the most bulky.
+     * Returns the primary Ontology Node (the subject in the {@code _:x rdf:type owl:Ontology} statement)
+     * within the given graph if it can be uniquely determined.
      * Note: it works with any graph, not necessarily with the base;
      * for a valid composite ontology graph a lot of ontological nodes are expected.
      *
@@ -342,50 +338,31 @@ public class Graphs {
      * @return {@link Optional} around the {@link Node} which could be uri or blank
      */
     public static Optional<Node> ontologyNode(Graph graph) {
-        List<Node> res = getOntologyNodes(graph);
-        return res.isEmpty() ? Optional.empty() : Optional.of(res.get(0));
+        Set<Node> ontologyNodesSet;
+        ExtendedIterator<Node> ontologyNodes = listOntologyNodes(graph);
+        try {
+            ontologyNodesSet = ontologyNodes.toSet();
+        } finally {
+            ontologyNodes.close();
+        }
+        if (ontologyNodesSet.size() != 1) {
+            return Optional.empty();
+        }
+        return Optional.of(ontologyNodesSet.iterator().next());
     }
 
     /**
-     * Finds and returns the List of nodes
-     * that are the subject in the {@code _:x rdf:type owl:Ontology} statement.
-     * If there are both uri and blank ontological nodes simultaneously in the graph, then it prefers uri one.
-     * If several ontological nodes of the same kind, it chooses the most bulky.
-     * Note: it works with any graph, not necessarily with the base;
-     * for a valid composite ontology graph a lot of ontological nodes are expected.
+     * Lists all subjects from {@code uriOrBlankNode rdf:type owl:Ontology} statements.
      *
-     * @param graph {@link Graph}
-     * @return {@link List} of {@link Node nodes} which could be uri or blank.
+     * @param graph {@code Graph}
+     * @return {@link ExtendedIterator} of {@link Node}
      */
-    public static List<Node> getOntologyNodes(Graph graph) {
-        ExtendedIterator<Node> ontologyNodes = graph.find(Node.ANY, RDF.Nodes.type, OWL.Ontology.asNode())
+    public static ExtendedIterator<Node> listOntologyNodes(Graph graph) {
+        return graph.find(Node.ANY, RDF.Nodes.type, OWL.Ontology.asNode())
                 .mapWith(t -> {
                     Node n = t.getSubject();
                     return n.isURI() || n.isBlank() ? n : null;
                 }).filterDrop(Objects::isNull);
-        try {
-            List<Node> res = ontologyNodes.toList();
-            if (res.isEmpty()) return List.of();
-            res.sort(rootNodeComparator(graph));
-            return List.copyOf(res);
-        } finally {
-            ontologyNodes.close();
-        }
-    }
-
-    /**
-     * Returns a comparator for root nodes.
-     * Tricky logic:
-     * first compares roots as standalone nodes and any uri-node is considered less than any blank-node,
-     * then compares roots as part of the graph using the rule 'the fewer children -&gt; the greater weight'.
-     *
-     * @param graph {@link Graph}
-     * @return {@link Comparator}
-     */
-    public static Comparator<Node> rootNodeComparator(Graph graph) {
-        return Comparator.comparing(Node::isURI).reversed()
-                .thenComparing(Comparator.comparingInt((Node x) ->
-                        graph.find(x, Node.ANY, Node.ANY).toList().size()).reversed());
     }
 
     /**
@@ -394,7 +371,6 @@ public class Graphs {
      *
      * @param graph {@link Graph}, not {@code null}
      * @return unordered Set of uris from the whole graph (it may be composite)
-     * @see Graphs#getOntologyIRI(Graph)
      */
     public static Set<String> getImports(Graph graph) {
         ExtendedIterator<String> imports = listImports(graph);
@@ -411,7 +387,6 @@ public class Graphs {
      *
      * @param graph {@link Graph}, not {@code null}
      * @return {@link ExtendedIterator} of {@code String}-URIs
-     * @see Graphs#getOntologyIRI(Graph)
      */
     public static ExtendedIterator<String> listImports(Graph graph) {
         return graph.find(Node.ANY, OWL.imports.asNode(), Node.ANY).mapWith(t -> {

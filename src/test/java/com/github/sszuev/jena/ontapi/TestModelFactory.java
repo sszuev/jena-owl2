@@ -19,7 +19,7 @@ class TestModelFactory {
                 ModelFactory.createDefaultModel(), "/builtins-rdfs.rdf", Lang.RDFXML).getGraph();
         Graph owl = RDFIOTestUtils.readResourceToModel(
                 ModelFactory.createDefaultModel(), "/builtins-owl.rdf", Lang.RDFXML).getGraph();
-        model.addGraph(new UnionGraphImpl(owl).addGraph(rdfs));
+        model.addSubGraph(new UnionGraphImpl(owl).addSubGraph(rdfs));
         return m;
     }
 

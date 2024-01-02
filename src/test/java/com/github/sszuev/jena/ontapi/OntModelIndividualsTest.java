@@ -258,7 +258,7 @@ public class OntModelIndividualsTest {
         OntModel composite = OntModelFactory.createModel(schema.getGraph(), spec.inst);
         Graph g = composite.getGraph();
         UnionGraph ug = (UnionGraph) (g instanceof UnionGraph ? g : ((InfGraph) g).getRawGraph());
-        ug.addGraph(data.getGraph());
+        ug.addSubGraph(data.getGraph());
 
         Assertions.assertEquals(
                 List.of("http://example.com/foo#anInd"),

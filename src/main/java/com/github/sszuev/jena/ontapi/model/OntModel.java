@@ -76,11 +76,8 @@ public interface OntModel extends Model,
     /**
      * Finds an Ontology ID object.
      * <p>
-     * Since OWL2 graph can only contain single {@code @uri rdf:type owl:Ontology} triple inside itself,
-     * in case there are more than one such {@code Resource}s with the type {@link OWL#Ontology owl:Ontology},
-     * the method chooses the most bulky one
-     * (i.e. those that contains the largest number of associated statements)
-     * and all the other triples leave intact.
+     * Since OWL2 graph requires only one {@code @uri rdf:type owl:Ontology} triple,
+     * the method returns {@code Optional#empty} in other cases.
      * No changes in the {@code Graph} is made.
      * The method works only with the {@link #getBaseGraph() base graph}.
      *
@@ -94,7 +91,7 @@ public interface OntModel extends Model,
      * Creates a new {@code @uri rdf:type owl:Ontology} statement for the specified {@code uri}
      * and wraps it as Ontology ID Resource.
      * Removes all extra ontology objects if they are present and moves their content to the new one,
-     * as it is required by OWL2 specification.
+     * to have a single Ontology header as it is required by OWL2 specification.
      *
      * @param uri String, can be {@code null} to make this ontology to be anonymous
      * @return the new {@link OntID} instance
@@ -311,7 +308,7 @@ public interface OntModel extends Model,
      * @param <E>  type of ont-entity
      * @return {@link OntEntity}
      * @throws OntJenaException.Creation in case something is wrong
-     * (e.g. configuration does not support creation of the specified type)
+     *                                   (e.g. configuration does not support creation of the specified type)
      * @see #getOntEntity(Class, String)
      */
     <E extends OntEntity> E createOntEntity(Class<E> type, String iri);
@@ -369,7 +366,7 @@ public interface OntModel extends Model,
      * that is subject in the {@code _:x rdf:type owl:Ontology} statement
      */
     default OntID getID() {
-        return id().orElseGet(() -> createResource(OWL.Ontology).as(OntID.class));
+        return id().orElseGet(() -> setID(null));
     }
 
     /**
