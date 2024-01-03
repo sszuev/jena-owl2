@@ -356,13 +356,20 @@ public class Iterators {
      *
      * @param <X>        the element type of the iterator, not {@code null}
      * @param <C>        the {@code Collection} type, not {@code null}
-     * @param iterator   the {@code Iterator} with elements of type {@link X}
-     * @param collection the collection of type {@link C}
+     * @param source   the {@code Iterator} with elements of type {@link X}
+     * @param target the collection of type {@link C}
      * @return {@link C}, the same instance as specified
      */
-    public static <X, C extends Collection<X>> C addAll(Iterator<? extends X> iterator, C collection) {
-        iterator.forEachRemaining(collection::add);
-        return collection;
+    public static <X, C extends Collection<X>> C addAll(Iterator<? extends X> source, C target) {
+        if (source instanceof NullIterator) {
+            return target;
+        }
+        try {
+            source.forEachRemaining(target::add);
+            return target;
+        } finally {
+            close(source);
+        }
     }
 
     /**

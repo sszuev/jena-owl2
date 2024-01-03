@@ -384,7 +384,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         if (Objects.requireNonNull(m, "Null model specified.").getID().isAnon()) {
             throw new OntJenaException.IllegalArgument("Anonymous sub models are not allowed.");
         }
-        String importsURI = Objects.requireNonNull(m.getID().getImportsIRI());
+        String importsURI = m.id().map(OntID::getImportsIRI)
+                .orElseThrow(() -> new IllegalArgumentException("Attempt to import unnamed ontology"));
         if (importsURI.equals(getID().getURI())) {
             throw new OntJenaException.IllegalArgument("Attempt to import ontology with the same name: " + importsURI);
         }
@@ -394,6 +395,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         Graph g = m.getGraph();
         if (g instanceof InfGraph) {
             g = ((InfGraph) g).getRawGraph();
+        }
+        if (g instanceof UnionGraph && !Graphs.isOntUnionGraph((UnionGraph) g)) {
+            throw new OntJenaException.IllegalArgument("Ontology <" + importsURI + "> has wrong structure.");
         }
         addImportModel(g, importsURI);
         return this;

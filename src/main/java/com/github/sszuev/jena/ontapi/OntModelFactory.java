@@ -139,7 +139,7 @@ public class OntModelFactory {
         Objects.requireNonNull(data);
         ReasonerFactory reasonerFactory = spec.getReasonerFactory();
         if (reasonerFactory == null) {
-            return new OntGraphModelImpl(Graphs.makeUnionFrom(data, OntModelFactory::createUnionGraph), spec.getPersonality());
+            return new OntGraphModelImpl(Graphs.makeOntUnionFrom(data, OntModelFactory::createUnionGraph), spec.getPersonality());
         }
         return createModel(data, spec.getPersonality(), reasonerFactory.create(null));
     }
@@ -157,7 +157,7 @@ public class OntModelFactory {
         if (Graphs.dataGraphs(Objects.requireNonNull(data)).anyMatch(it -> it instanceof InfGraph)) {
             throw new IllegalArgumentException("InfGraph detected");
         }
-        UnionGraph unionGraph = Graphs.makeUnionFrom(data, OntModelFactory::createUnionGraph);
+        UnionGraph unionGraph = Graphs.makeOntUnionFrom(data, OntModelFactory::createUnionGraph);
         InfGraph infGraph = reasoner.bind(unionGraph);
         return new OntGraphModelImpl(infGraph, personality);
     }

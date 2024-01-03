@@ -1,6 +1,6 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.impl.DocumentGraphRepository;
+import com.github.sszuev.jena.ontapi.impl.repositories.DocumentGraphRepository;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphMemFactory;
 

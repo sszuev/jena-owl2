@@ -1,4 +1,4 @@
-package com.github.sszuev.jena.ontapi.impl;
+package com.github.sszuev.jena.ontapi.impl.repositories;
 
 import com.github.sszuev.jena.ontapi.GraphRepository;
 import org.apache.jena.graph.Graph;

@@ -1,6 +1,8 @@
 package com.github.sszuev.jena.ontapi;
 
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphEventManager;
+import org.apache.jena.graph.GraphListener;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
@@ -20,6 +22,9 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings({"WeakerAccess"})
 public interface UnionGraph extends Graph {
+
+    @Override
+    EventManager getEventManager();
 
     /**
      * Answers {@code true} iff this graph is distinct,
@@ -79,4 +84,54 @@ public interface UnionGraph extends Graph {
      */
     UnionGraph removeSubGraph(Graph graph);
 
+    /**
+     * An enhanced {@link GraphEventManager Jena Graph Event Manager} and {@link Listener}s.
+     */
+    interface EventManager extends GraphEventManager, Listener {
+
+        /**
+         * Lists all encapsulated listeners.
+         *
+         * @return Stream of {@link GraphListener}s
+         */
+        Stream<GraphListener> listeners();
+
+        /**
+         * Transforms given graph before adding it to hierarchy.
+         *
+         * @param graph {@link Graph}
+         * @return {@link Graph}
+         */
+        default Graph transform(Graph graph) {
+            return graph;
+        }
+
+        /**
+         * Lists all encapsulated listeners.
+         *
+         * @param type {@code Class}-type of {@link GraphListener}
+         * @return Stream of {@link GraphListener}s
+         */
+        @SuppressWarnings("unchecked")
+        default <L extends GraphListener> Stream<L> listeners(Class<L> type) {
+            return listeners().filter(it -> type.isAssignableFrom(it.getClass())).map(it -> (L) it);
+        }
+    }
+
+    interface Listener extends GraphListener {
+        /**
+         * Called on {@link UnionGraph#addSubGraph(Graph)}
+         *
+         * @param graph {@link Graph}
+         */
+        void notifyAddSubGraph(Graph graph);
+
+        /**
+         * Called on {@link UnionGraph#removeSubGraph(Graph)}
+         *
+         * @param graph {@link Graph}
+         */
+        void notifyRemoveSubGraph(Graph graph);
+
+    }
 }

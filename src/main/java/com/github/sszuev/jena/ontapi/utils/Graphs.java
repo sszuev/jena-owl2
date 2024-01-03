@@ -16,12 +16,14 @@ import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.graph.GraphWrapper;
 import org.apache.jena.sparql.util.graph.GraphUtils;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.util.iterator.NullIterator;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -242,25 +244,26 @@ public class Graphs {
     }
 
     /**
-     * Creates an {@link UnionGraph} from the specified {@code graph} of arbitrary nature.
+     * Creates an ontology {@link UnionGraph} from the specified {@code graph} of arbitrary nature.
      * The method can be used, for example,
      * to transform the legacy {@link org.apache.jena.graph.compose.MultiUnion MultiUnion} Graph to {@link UnionGraph}.
+     *
      * @param graph       {@link Graph}
      * @param wrapAsUnion {@link Function} to produce new instance {@link UnionGraph} from {@link Graph}
      * @return {@link UnionGraph}
      */
-    public static UnionGraph makeUnionFrom(Graph graph, Function<Graph, UnionGraph> wrapAsUnion) {
+    public static UnionGraph makeOntUnionFrom(Graph graph, Function<Graph, UnionGraph> wrapAsUnion) {
         if (graph instanceof UnionGraph) {
             return (UnionGraph) graph;
         }
         if (isGraphMem(graph)) {
             return wrapAsUnion.apply(graph);
         }
-        return makeUnion(getBase(graph), dataGraphs(graph).collect(Collectors.toSet()), wrapAsUnion);
+        return makeOntUnion(getBase(graph), dataGraphs(graph).collect(Collectors.toSet()), wrapAsUnion);
     }
 
     /**
-     * Assembles the hierarchical {@link UnionGraph Union Graph} from the specified components
+     * Assembles the hierarchical ontology {@link UnionGraph Union Graph} from the specified components
      * in accordance with their {@code owl:imports} and {@code owl:Ontology} declarations.
      * Irrelevant graphs are ignored.
      *
@@ -269,20 +272,29 @@ public class Graphs {
      * @param wrapAsUnion {@link Function} to produce new instance {@link UnionGraph} from {@link Graph}
      * @return {@link UnionGraph}
      */
-    public static UnionGraph makeUnion(Graph graph, Collection<Graph> repository, Function<Graph, UnionGraph> wrapAsUnion) {
+    public static UnionGraph makeOntUnion(Graph graph,
+                                          Collection<Graph> repository,
+                                          Function<Graph, UnionGraph> wrapAsUnion) {
         Deque<Graph> graphs = new ArrayDeque<>();
         graphs.add(graph);
         Map<String, UnionGraph> res = new LinkedHashMap<>();
         Set<String> seen = new HashSet<>();
         while (!graphs.isEmpty()) {
             Graph next = graphs.removeFirst();
-            String name = findOntologyNameNode(next).map(Node::toString).orElse(null);
+            Node ontology = findOntologyNameNode(next).orElse(null);
+            if (ontology == null) {
+                continue;
+            }
+            String name = ontology.toString();
             if (name == null || !seen.add(name)) {
                 continue;
             }
+            Set<String> imports = Iterators.addAll(listImports(ontology, next), new HashSet<>());
+            if (imports.isEmpty()) {
+                continue;
+            }
             UnionGraph parent = res.computeIfAbsent(name, s -> wrapAsUnion.apply(next));
-            Set<String> imports = getImports(next);
-            repository.forEach(candidate -> {
+            repository.stream().filter(it -> !imports.isEmpty()).forEach(candidate -> {
                 String candidateIri = findOntologyNameNode(candidate)
                         .filter(Node::isURI)
                         .map(Node::getURI)
@@ -291,10 +303,69 @@ public class Graphs {
                     UnionGraph child = res.computeIfAbsent(candidateIri, s -> wrapAsUnion.apply(candidate));
                     parent.addSubGraph(child);
                     graphs.add(child);
+                    imports.remove(candidateIri);
                 }
             });
         }
         return res.isEmpty() ? wrapAsUnion.apply(graph) : res.values().iterator().next();
+    }
+
+    /**
+     * Lists all {@code UnionGraph} from the hierarchy.
+     *
+     * @param graph {@link UnionGraph} root
+     * @return {@code Stream} of {@link UnionGraph}s
+     */
+    public static Stream<UnionGraph> unionGraphs(UnionGraph graph) {
+        Set<UnionGraph> res = new LinkedHashSet<>();
+        Deque<UnionGraph> queue = new ArrayDeque<>();
+        queue.add(graph);
+        while (!queue.isEmpty()) {
+            UnionGraph next = queue.removeFirst();
+            if (res.add(next)) {
+                next.subGraphs().filter(it -> it instanceof UnionGraph).map(it -> (UnionGraph) it).forEach(queue::add);
+            }
+        }
+        return res.stream();
+    }
+
+    /**
+     * Checks whether the specified graph is ontological, that is,
+     * has a hierarchy synchronized with the {@code owl:imports} & {@code owl:Ontology} relationships.
+     *
+     * @param graph {@link UnionGraph}
+     * @return boolean
+     */
+    public static boolean isOntUnionGraph(UnionGraph graph) {
+        Node id = findOntologyNameNode(graph.getBaseGraph()).orElse(null);
+        if (id == null) {
+            return false;
+        }
+        Set<UnionGraph> res = new LinkedHashSet<>();
+        Map<Node, UnionGraph> queue = new LinkedHashMap<>();
+        queue.put(id, graph);
+        Set<Node> seen = new HashSet<>();
+        while (!queue.isEmpty()) {
+            Node nextId = queue.keySet().iterator().next();
+            UnionGraph nextGraph = queue.remove(nextId);
+            Set<String> nextImports = Iterators.addAll(listImports(nextId, nextGraph.getBaseGraph()), new HashSet<>());
+            if (!seen.add(nextId)) {
+                continue;
+            }
+            Iterator<UnionGraph> children = nextGraph.subGraphs()
+                    .filter(it -> it instanceof UnionGraph)
+                    .map(it -> (UnionGraph) it)
+                    .iterator();
+            while (children.hasNext()) {
+                UnionGraph g = children.next();
+                Node gid = findOntologyNameNode(g.getBaseGraph()).orElse(null);
+                if (gid == null || !gid.isURI() || !nextImports.contains(gid.getURI())) {
+                    return false;
+                }
+                queue.put(gid, g);
+            }
+        }
+        return true;
     }
 
     /**
@@ -373,12 +444,7 @@ public class Graphs {
      * @return unordered Set of uris from the whole graph (it may be composite)
      */
     public static Set<String> getImports(Graph graph) {
-        ExtendedIterator<String> imports = listImports(graph);
-        try {
-            return imports.toSet();
-        } finally {
-            imports.close();
-        }
+        return Set.copyOf(Iterators.addAll(listImports(graph), new HashSet<>()));
     }
 
     /**
@@ -389,7 +455,15 @@ public class Graphs {
      * @return {@link ExtendedIterator} of {@code String}-URIs
      */
     public static ExtendedIterator<String> listImports(Graph graph) {
-        return graph.find(Node.ANY, OWL.imports.asNode(), Node.ANY).mapWith(t -> {
+        Node ontology = ontologyNode(graph).orElse(null);
+        if (ontology == null) {
+            return NullIterator.instance();
+        }
+        return listImports(ontology, graph);
+    }
+
+    private static ExtendedIterator<String> listImports(Node ontology, Graph graph) {
+        return graph.find(ontology, OWL.imports.asNode(), Node.ANY).mapWith(t -> {
             Node n = t.getObject();
             return n.isURI() ? n.getURI() : null;
         }).filterDrop(Objects::isNull);

@@ -196,7 +196,7 @@ public class GraphUtilsTest {
         mH.createResource(H, OWL.Ontology);
         mK.createResource(K, OWL.Ontology);
 
-        UnionGraph actual = Graphs.makeUnion(
+        UnionGraph actual = Graphs.makeOntUnion(
                 mA.getGraph(),
                 Stream.of(mA, mB, mC, mD, mE, mF, mG, mH, mK)
                         .map(ModelGraphInterface::getGraph)
@@ -234,5 +234,40 @@ public class GraphUtilsTest {
         UnionGraph gH = (UnionGraph) ModelTestUtils.findSubGraphByIri(gF, H).orElseThrow();
         Assertions.assertSame(mH.getGraph(), gH.getBaseGraph());
         Assertions.assertFalse(gH.hasSubGraph());
+    }
+
+    @Test
+    public void testIsOntUnionGraph() {
+        String A = "a";
+        String B = "b";
+        String C = "c";
+        String D = "d";
+        String E = "e";
+
+        Model mA = ModelFactory.createDefaultModel();
+        Model mB = ModelFactory.createDefaultModel();
+        Model mC = ModelFactory.createDefaultModel();
+        Model mD = ModelFactory.createDefaultModel();
+        Model mE = ModelFactory.createDefaultModel();
+        mA.createResource(A, OWL.Ontology)
+                .addProperty(OWL.imports, mA.createResource(B))
+                .addProperty(OWL.imports, mA.createResource(C))
+                .addProperty(OWL.imports, mD.createResource(E));
+        mB.createResource(B, OWL.Ontology);
+        mC.createResource(C, OWL.Ontology).addProperty(OWL.imports, mC.createResource(D));
+        mD.createResource(D, OWL.Ontology);
+
+        UnionGraph u = new UnionGraphImpl(mA.getGraph())
+                .addSubGraph(new UnionGraphImpl(mB.getGraph()))
+                .addSubGraph(new UnionGraphImpl(mC.getGraph())
+                        .addSubGraph(new UnionGraphImpl(mD.getGraph())));
+
+        Assertions.assertTrue(Graphs.isOntUnionGraph(u));
+
+        u.addSubGraph(new UnionGraphImpl(mE.getGraph()));
+        Assertions.assertFalse(Graphs.isOntUnionGraph(u));
+
+        mE.createResource(E, OWL.Ontology);
+        Assertions.assertTrue(Graphs.isOntUnionGraph(u));
     }
 }

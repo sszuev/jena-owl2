@@ -5,20 +5,21 @@ import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphEventManager;
+import org.apache.jena.graph.GraphListener;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.CompositionBase;
 import org.apache.jena.graph.impl.SimpleEventManager;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -50,7 +51,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * This allows the {@code UnionGraphImpl} instance
      * to know when the structure has changed to rebuild the cache.
      * Items of this {@code Set} are removed automatically by GC
-     * if there are no more strong references (a graph/model is removed, i.e. there is no usage any more).
+     * if there are no more strong references (a graph/model is removed, i.e. there is no usage anymore).
      */
     protected final Set<UnionGraphImpl> parents = Collections.newSetFromMap(new WeakHashMap<>());
     /**
@@ -88,7 +89,18 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * @param distinct if {@code true} a distinct graph is created
      */
     public UnionGraphImpl(Graph base, boolean distinct) {
-        this(base, null, null, distinct);
+        this(base, new EventManagerImpl(), distinct);
+    }
+
+    /**
+     * Creates a graph for the given {@code base}.
+     *
+     * @param base         {@link Graph}, not {@code null}
+     * @param eventManager {@link EventManager} or {@code null} to use default fresh event manager
+     * @param distinct     if {@code true} a distinct graph is created
+     */
+    public UnionGraphImpl(Graph base, EventManager eventManager, boolean distinct) {
+        this(base, new SubGraphs(), eventManager, distinct);
     }
 
     /**
@@ -97,16 +109,16 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * have a plain (non-union) graph as a {@link #getBaseGraph() root}
      * and {@code UnionGraph} as {@link #getSubGraphs() leaves}.
      *
-     * @param base      {@link Graph}, not {@code null}
-     * @param subGraphs {@link SubGraphs} or {@code null} to use default empty sub-graph container
-     * @param gem       {@link GraphEventManager} or {@code null} to use default fresh event manager
-     * @param distinct  if {@code true}, the method {@link #find(Triple)} returns an iterator avoiding duplicates
+     * @param base         {@link Graph}, not {@code null}
+     * @param subGraphs    {@link SubGraphs} or {@code null} to use default empty sub-graph container
+     * @param eventManager {@link EventManager} or {@code null} to use default fresh event manager
+     * @param distinct     if {@code true}, the method {@link #find(Triple)} returns an iterator avoiding duplicates
      * @throws NullPointerException if base graph is {@code null}
      */
-    public UnionGraphImpl(Graph base, SubGraphs subGraphs, GraphEventManager gem, boolean distinct) {
+    protected UnionGraphImpl(Graph base, SubGraphs subGraphs, EventManager eventManager, boolean distinct) {
         this.base = Objects.requireNonNull(base, "Null base graph.");
-        this.subGraphs = subGraphs == null ? new SubGraphs() : subGraphs;
-        this.gem = gem == null ? new SimpleEventManager() : gem;
+        this.subGraphs = Objects.requireNonNull(subGraphs, "Null SubGraphs");
+        this.gem = Objects.requireNonNull(eventManager, "Null EventManager");
         this.distinct = distinct;
     }
 
@@ -122,8 +134,8 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      * @return {@link GraphEventManager}, not {@code null}
      */
     @Override
-    public GraphEventManager getEventManager() {
-        return gem;
+    public EventManager getEventManager() {
+        return (EventManager) gem;
     }
 
     /**
@@ -193,10 +205,13 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     @Override
     public UnionGraph addSubGraph(Graph graph) {
+        EventManager eventManager = getEventManager();
+        Graph g = eventManager.transform(graph);
         checkOpen();
-        getSubGraphs().add(graph);
-        addParent(graph);
+        getSubGraphs().add(g);
+        addParent(g);
         resetGraphsCache();
+        eventManager.notifyAddSubGraph(g);
         return this;
     }
 
@@ -219,6 +234,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         getSubGraphs().remove(graph);
         removeUnion(graph);
         resetGraphsCache();
+        getEventManager().notifyRemoveSubGraph(graph);
         return this;
     }
 
@@ -373,10 +389,10 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
     protected Set<Graph> getAllBaseGraphs() {
         Set<Graph> res = new LinkedHashSet<>();
         Set<UnionGraphImpl> visited = new HashSet<>();
-        List<Graph> queue = new LinkedList<>();
+        Deque<Graph> queue = new ArrayDeque<>();
         queue.add(this);
         while (!queue.isEmpty()) {
-            Graph next = queue.remove(0);
+            Graph next = queue.removeFirst();
             if (next instanceof UnionGraphImpl) {
                 UnionGraphImpl u = (UnionGraphImpl) next;
                 if (visited.add(u)) {
@@ -400,10 +416,10 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     protected Set<UnionGraphImpl> getAllLinkedUnionGraphs() {
         Set<UnionGraphImpl> res = new LinkedHashSet<>();
-        List<UnionGraphImpl> queue = new LinkedList<>();
+        Deque<UnionGraphImpl> queue = new ArrayDeque<>();
         queue.add(this);
         while (!queue.isEmpty()) {
-            UnionGraphImpl next = queue.remove(0);
+            UnionGraphImpl next = queue.removeFirst();
             if (res.add(next)) {
                 next.parents.stream().filter(res::add).forEach(queue::add);
                 next.getAllUnderlyingUnionGraphs().stream().filter(res::add).forEach(queue::add);
@@ -419,10 +435,10 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     protected Set<UnionGraphImpl> getAllUnderlyingUnionGraphs() {
         Set<UnionGraphImpl> res = new LinkedHashSet<>();
-        List<UnionGraphImpl> queue = new LinkedList<>();
+        Deque<UnionGraphImpl> queue = new ArrayDeque<>();
         queue.add(this);
         while (!queue.isEmpty()) {
-            UnionGraphImpl next = queue.remove(0);
+            UnionGraphImpl next = queue.removeFirst();
             if (res.add(next)) {
                 next.unionSubGraphs().forEach(queue::add);
             }
@@ -520,4 +536,30 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         }
     }
 
+    /**
+     * An extended {@link org.apache.jena.graph.GraphEventManager Jena Graph Event Manager},
+     * a holder for {@link org.apache.jena.graph.GraphListener}s.
+     */
+    public static class EventManagerImpl extends SimpleEventManager implements EventManager {
+
+        @Override
+        public void notifyAddSubGraph(Graph graph) {
+            listeners(Listener.class).forEach(it -> it.notifyAddSubGraph(graph));
+        }
+
+        @Override
+        public void notifyRemoveSubGraph(Graph graph) {
+            listeners(Listener.class).forEach(it -> it.notifyRemoveSubGraph(graph));
+        }
+
+        /**
+         * Lists all encapsulated listeners.
+         *
+         * @return Stream of {@link GraphListener}s
+         */
+        @Override
+        public Stream<GraphListener> listeners() {
+            return listeners.stream();
+        }
+    }
 }

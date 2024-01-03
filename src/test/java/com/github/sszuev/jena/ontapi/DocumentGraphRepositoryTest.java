@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.impl.DocumentGraphRepository;
 import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
+import com.github.sszuev.jena.ontapi.impl.repositories.DocumentGraphRepository;
 import com.github.sszuev.jena.ontapi.testutils.MiscUtils;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import org.apache.jena.graph.Graph;

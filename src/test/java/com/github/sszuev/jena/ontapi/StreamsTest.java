@@ -161,7 +161,7 @@ public class StreamsTest {
     @Test
     public void testNonDistinctModelStreams() {
         String ns = "http://ex#";
-        UnionGraph g = new UnionGraphImpl(GraphFactory.createGraphMem(), null, null, false);
+        UnionGraph g = new UnionGraphImpl(GraphFactory.createGraphMem(), false);
         OntModel a = OntModelFactory.createModel(g).setNsPrefixes(OntModelFactory.STANDARD).setNsPrefix("x", ns);
         OntModel b = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD).setNsPrefix("x", ns);
         a.setID(ns + "a");
