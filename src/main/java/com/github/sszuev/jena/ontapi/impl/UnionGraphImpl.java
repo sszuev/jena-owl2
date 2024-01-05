@@ -20,6 +20,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -205,13 +206,14 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     @Override
     public UnionGraph addSubGraph(Graph graph) {
-        EventManager eventManager = getEventManager();
-        Graph g = eventManager.transform(graph);
+        Objects.requireNonNull(graph);
         checkOpen();
-        getSubGraphs().add(g);
-        addParent(g);
+        EventManager eventManager = getEventManager();
+        eventManager.onAddSubGraph(this, graph);
+        getSubGraphs().add(graph);
+        addParent(graph);
         resetGraphsCache();
-        eventManager.notifyAddSubGraph(g);
+        eventManager.notifySubGraphAdded(this, graph);
         return this;
     }
 
@@ -230,11 +232,14 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     @Override
     public UnionGraph removeSubGraph(Graph graph) {
+        Objects.requireNonNull(graph);
         checkOpen();
+        EventManager eventManager = getEventManager();
+        eventManager.onRemoveSubGraph(this, graph);
         getSubGraphs().remove(graph);
         removeUnion(graph);
         resetGraphsCache();
-        getEventManager().notifyRemoveSubGraph(graph);
+        eventManager.notifySubGraphRemoved(this, graph);
         return this;
     }
 
@@ -542,14 +547,38 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
      */
     public static class EventManagerImpl extends SimpleEventManager implements EventManager {
 
+        private final List<GraphListener> inactive = new ArrayList<>();
+
         @Override
-        public void notifyAddSubGraph(Graph graph) {
-            listeners(Listener.class).forEach(it -> it.notifyAddSubGraph(graph));
+        public void onAddSubGraph(UnionGraph graph, Graph subGraph) {
+            listeners(Listener.class).forEach(it -> it.onAddSubGraph(graph, subGraph));
         }
 
         @Override
-        public void notifyRemoveSubGraph(Graph graph) {
-            listeners(Listener.class).forEach(it -> it.notifyRemoveSubGraph(graph));
+        public void notifySubGraphAdded(UnionGraph graph, Graph subGraph) {
+            listeners(Listener.class).forEach(it -> it.notifySubGraphAdded(graph, subGraph));
+        }
+
+        @Override
+        public void onRemoveSubGraph(UnionGraph graph, Graph subGraph) {
+            listeners(Listener.class).forEach(it -> it.onRemoveSubGraph(graph, graph));
+        }
+
+        @Override
+        public void notifySubGraphRemoved(UnionGraph graph, Graph subGraph) {
+            listeners(Listener.class).forEach(it -> it.notifySubGraphRemoved(graph, graph));
+        }
+
+        @Override
+        public void off() {
+            inactive.addAll(listeners);
+            listeners.clear();
+        }
+
+        @Override
+        public void on() {
+            listeners.addAll(inactive);
+            inactive.clear();
         }
 
         /**

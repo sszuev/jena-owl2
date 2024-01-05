@@ -47,7 +47,7 @@ public class DocumentGraphRepositoryTest {
     @Test
     public void testLoadFiles(@TempDir Path dir) {
         Path file = MiscUtils.save("/builtins-rdfs.rdf", dir);
-        DocumentGraphRepository repository = GraphRepository.createGraphDocumentRepository(null)
+        DocumentGraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem()
                 .addMapping("http://www.w3.org/2002/07/owl#", file.toUri().toString());
         Graph g = repository.get("http://www.w3.org/2002/07/owl#");
         Assertions.assertEquals(163, g.size());

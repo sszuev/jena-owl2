@@ -85,9 +85,43 @@ public interface UnionGraph extends Graph {
     UnionGraph removeSubGraph(Graph graph);
 
     /**
+     * Adds the specified graph to the underlying graph collection if it is absent.
+     * Note: for a well-formed ontological {@code UnionGraph}
+     * the input {@code graph} is expected to also be a {@code UnionGraph}.
+     *
+     * @param graph {@link Graph}, not {@code null}
+     * @return this instance
+     */
+    default UnionGraph addSubGraphIfAbsent(Graph graph) {
+        if (!contains(graph)) {
+            addSubGraph(graph);
+        }
+        return this;
+    }
+
+    /**
+     * Answers {@code true} iff this {@code UnionGraph} contains the specified graph as a sub-graph.
+     *
+     * @return boolean
+     */
+    default boolean contains(Graph graph) {
+        return subGraphs().anyMatch(it -> it.equals(graph));
+    }
+
+    /**
      * An enhanced {@link GraphEventManager Jena Graph Event Manager} and {@link Listener}s.
      */
     interface EventManager extends GraphEventManager, Listener {
+
+        /**
+         * Turns off all listeners.
+         */
+        void off();
+
+        /**
+         * Turns on all listeners.
+         */
+        void on();
 
         /**
          * Lists all encapsulated listeners.
@@ -95,16 +129,6 @@ public interface UnionGraph extends Graph {
          * @return Stream of {@link GraphListener}s
          */
         Stream<GraphListener> listeners();
-
-        /**
-         * Transforms given graph before adding it to hierarchy.
-         *
-         * @param graph {@link Graph}
-         * @return {@link Graph}
-         */
-        default Graph transform(Graph graph) {
-            return graph;
-        }
 
         /**
          * Lists all encapsulated listeners.
@@ -120,18 +144,36 @@ public interface UnionGraph extends Graph {
 
     interface Listener extends GraphListener {
         /**
-         * Called on {@link UnionGraph#addSubGraph(Graph)}
+         * Called before {@link UnionGraph#addSubGraph(Graph)}
          *
-         * @param graph {@link Graph}
+         * @param graph    {@link UnionGraph}
+         * @param subGraph {@link Graph}
          */
-        void notifyAddSubGraph(Graph graph);
+        void onAddSubGraph(UnionGraph graph, Graph subGraph);
 
         /**
-         * Called on {@link UnionGraph#removeSubGraph(Graph)}
+         * Called after {@link UnionGraph#addSubGraph(Graph)}
          *
-         * @param graph {@link Graph}
+         * @param graph    {@link UnionGraph}
+         * @param subGraph {@link Graph}
          */
-        void notifyRemoveSubGraph(Graph graph);
+        void notifySubGraphAdded(UnionGraph graph, Graph subGraph);
+
+        /**
+         * Called before {@link UnionGraph#removeSubGraph(Graph)}
+         *
+         * @param graph    {@link Graph}
+         * @param subGraph {@link Graph}
+         */
+        void onRemoveSubGraph(UnionGraph graph, Graph subGraph);
+
+        /**
+         * Called after {@link UnionGraph#removeSubGraph(Graph)}
+         *
+         * @param graph    {@link Graph}
+         * @param subGraph {@link Graph}
+         */
+        void notifySubGraphRemoved(UnionGraph graph, Graph subGraph);
 
     }
 }

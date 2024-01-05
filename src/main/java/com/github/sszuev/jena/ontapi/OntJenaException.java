@@ -45,6 +45,44 @@ public class OntJenaException extends JenaException {
     }
 
     /**
+     * @throws IllegalStateException if {@link X} is {@code null}
+     * @see java.util.Objects#requireNonNull(Object)
+     */
+    public static <X> X checkNotNull(X object) {
+        if (object == null) {
+            throw new IllegalStateException();
+        }
+        return object;
+    }
+
+    /**
+     * @throws IllegalStateException if {@link X} is {@code null}
+     * @see java.util.Objects#requireNonNull(Object)
+     */
+    public static <X> X checkNotNull(X object, String message) {
+        checkTrue(object != null, message);
+        return object;
+    }
+
+    /**
+     * @throws IllegalStateException if parameter condition is {@code true}
+     */
+    public static void checkFalse(Boolean mustBeFalse, String message) {
+        if (mustBeFalse) {
+            throw new IllegalStateException(message);
+        }
+    }
+
+    /**
+     * @throws IllegalStateException if parameter condition is {@code false}
+     */
+    public static void checkTrue(Boolean mustBeTrue, String message) {
+        if (!mustBeTrue) {
+            throw new IllegalStateException(message);
+        }
+    }
+
+    /**
      * Exception that is thrown when an ontology resource is converted to another facet,
      * using {@link org.apache.jena.rdf.model.RDFNode#as as()},
      * and the requested conversion is not possible.

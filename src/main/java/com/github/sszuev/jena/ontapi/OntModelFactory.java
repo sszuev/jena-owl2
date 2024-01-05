@@ -5,6 +5,7 @@ import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
+import com.github.sszuev.jena.ontapi.impl.repositories.OntUnionGraphRepository;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -56,7 +57,7 @@ public class OntModelFactory {
     /**
      * Creates default (in-memory) graph implementation.
      *
-     * @return {@code GraphMem}
+     * @return {@code Graph}
      */
     public static Graph createDefaultGraph() {
         return GraphMemFactory.createGraphMem();
@@ -131,13 +132,13 @@ public class OntModelFactory {
     /**
      * Creates an Ontology Model according to the specified specification.
      *
-     * @param spec {@link OntSpecification}
      * @param data {@link Graph} (base graph)
+     * @param spec {@link OntSpecification}
      * @return {@link OntModel}
      */
     public static OntModel createModel(Graph data, OntSpecification spec) {
         Objects.requireNonNull(data);
-        ReasonerFactory reasonerFactory = spec.getReasonerFactory();
+        ReasonerFactory reasonerFactory = Objects.requireNonNull(spec).getReasonerFactory();
         if (reasonerFactory == null) {
             return new OntGraphModelImpl(Graphs.makeOntUnionFrom(data, OntModelFactory::createUnionGraph), spec.getPersonality());
         }
@@ -147,18 +148,55 @@ public class OntModelFactory {
     /**
      * Creates an {@link OntModel Ontology Model} which is {@link org.apache.jena.rdf.model.InfModel Inference Model}.
      *
-     * @param data        {@link Graph} to wrap (base graph)
+     * @param data        {@link Graph}
      * @param personality {@link OntPersonality}
      * @param reasoner    {@link Reasoner}
      * @return {@link OntModel}
      * @see OntModel#asInferenceModel()
      */
     public static OntModel createModel(Graph data, OntPersonality personality, Reasoner reasoner) {
-        if (Graphs.dataGraphs(Objects.requireNonNull(data)).anyMatch(it -> it instanceof InfGraph)) {
-            throw new IllegalArgumentException("InfGraph detected");
-        }
+        Objects.requireNonNull(reasoner);
+        Objects.requireNonNull(personality);
         UnionGraph unionGraph = Graphs.makeOntUnionFrom(data, OntModelFactory::createUnionGraph);
         InfGraph infGraph = reasoner.bind(unionGraph);
         return new OntGraphModelImpl(infGraph, personality);
     }
+
+    /**
+     * Creates an Ontology Model according to the specified specification.
+     * The {@code repository} manages all the dependencies.
+     *
+     * @param spec       {@link OntSpecification}
+     * @param repository {@link GraphRepository}
+     * @return {@link OntModel}
+     */
+    public static OntModel createModel(OntSpecification spec, GraphRepository repository) {
+        return createModel(createDefaultGraph(), spec, repository);
+    }
+
+    /**
+     * Creates an Ontology Model according to the specified specification.
+     * The {@code repository} manages all the dependencies.
+     *
+     * @param data       {@link Graph}
+     * @param spec       {@link OntSpecification}
+     * @param repository {@link GraphRepository}
+     * @return {@link OntModel}
+     */
+    public static OntModel createModel(Graph data, OntSpecification spec, GraphRepository repository) {
+        Objects.requireNonNull(data);
+        ReasonerFactory reasonerFactory = Objects.requireNonNull(spec).getReasonerFactory();
+        Graphs.dataGraphs(data).forEach(graph -> {
+            String name = Graphs.getOrCreateOntologyName(graph, null).toString();
+            repository.put(name, graph);
+        });
+        UnionGraph union = new OntUnionGraphRepository(repository, OntModelFactory::createUnionGraph, true)
+                .put(Graphs.getBase(data));
+        if (reasonerFactory == null) {
+            return new OntGraphModelImpl(union, spec.getPersonality());
+        }
+        InfGraph inf = reasonerFactory.create(null).bind(union);
+        return new OntGraphModelImpl(inf, spec.getPersonality());
+    }
+
 }

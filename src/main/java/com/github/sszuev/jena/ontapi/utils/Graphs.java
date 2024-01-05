@@ -19,6 +19,7 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -88,6 +90,7 @@ public class Graphs {
      * @see UnionGraph
      * @see Polyadic
      * @see Dyadic
+     * @see InfGraph
      */
     public static Graph getBase(Graph graph) {
         if (isGraphMem(graph)) {
@@ -116,6 +119,9 @@ public class Graphs {
             if (g instanceof Dyadic) {
                 candidates.add(((Dyadic) g).getL());
                 continue;
+            }
+            if (g instanceof InfGraph) {
+                candidates.add(((InfGraph) g).getRawGraph());
             }
             return g;
         }
@@ -330,6 +336,17 @@ public class Graphs {
     }
 
     /**
+     * Checks whether the specified graph is ontological, that is, has an OWL header.
+     * This method does not check the graph for validity; it may still be misconfigured (if there are several headers).
+     *
+     * @param graph {@link Graph}
+     * @return boolean
+     */
+    public static boolean isOntGraph(Graph graph) {
+        return graph.contains(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode());
+    }
+
+    /**
      * Checks whether the specified graph is ontological, that is,
      * has a hierarchy synchronized with the {@code owl:imports} & {@code owl:Ontology} relationships.
      *
@@ -366,6 +383,42 @@ public class Graphs {
             }
         }
         return true;
+    }
+
+    /**
+     * Creates a new ontology header if it is not present in the graph.
+     * According to the OWL specification,
+     * each non-composite ontology graph must contain one and only one ontology header.
+     * If a well-formed header already exists, the method returns it unchanged.
+     * If there are multiple other headers,
+     * the graph is considered misconfigured, and
+     * any extra headers will be removed, and the content will be moved to a new generated anonymous header.
+     *
+     * @param graph {@link Graph}
+     * @param uri   expected header ontology IRI,
+     *              if {@code null} then the method returns either existing header (can be named or blank)
+     *              or generates new anonymous (blank) header
+     * @return existing or new header
+     */
+    public static Node getOrCreateOntologyName(Graph graph, String uri) {
+        Node ontology = findOntologyNameNode(graph).orElse(null);
+        if (ontology != null) {
+            if (uri == null) {
+                return ontology;
+            } else if (ontology.isURI() && uri.equals(ontology.getURI())) {
+                return ontology;
+            }
+        }
+        List<Triple> prev = Iterators.addAll(Iterators.flatMap(
+                graph.find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
+                it -> graph.find(it.getSubject(), Node.ANY, Node.ANY)), new ArrayList<>());
+        Node newOntology = createNode(uri);
+        graph.add(newOntology, RDF.type.asNode(), OWL.Ontology.asNode());
+        prev.forEach(triple -> {
+            graph.delete(triple);
+            graph.add(newOntology, triple.getPredicate(), triple.getObject());
+        });
+        return newOntology;
     }
 
     /**
