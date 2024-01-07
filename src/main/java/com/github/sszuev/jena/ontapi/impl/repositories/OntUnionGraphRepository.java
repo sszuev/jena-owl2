@@ -116,9 +116,7 @@ public class OntUnionGraphRepository {
             UnionGraph parent = findOrPut(current, currentName);
             Graphs.getImports(parent.getBaseGraph()).forEach(uri -> {
                 UnionGraph u = putSubGraph(parent, uri);
-                if (u != null) {
-                    queue.add(u);
-                }
+                queue.add(u);
             });
             parent.superGraphs().forEach(queue::add);
         }
@@ -130,7 +128,7 @@ public class OntUnionGraphRepository {
         Graph sub = findSubGraphByOntName(parent, name).orElse(null);
         UnionGraph u = findOrPut(sub, name);
         if (graphEquals(sub, u)) {
-            return null;
+            return u;
         }
         UnionGraph.EventManager events = parent.getEventManager();
         try {

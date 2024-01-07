@@ -53,7 +53,6 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     @Override
     public void notifySubGraphAdded(UnionGraph thisGraph, Graph subGraph) {
         if (Graphs.isOntGraph(Graphs.getBase(subGraph))) {
-
             Graph ontSubGraphBase = OntUnionGraphRepository.getBase(subGraph);
             Node ontSubGraphIri = Graphs.findOntologyNameNode(ontSubGraphBase)
                     .filter(Node::isURI)
@@ -79,6 +78,19 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
             }
         }
         listeners(UnionGraph.Listener.class).forEach(it -> it.notifySubGraphAdded(thisGraph, subGraph));
+    }
+
+    @Override
+    public void notifySuperGraphAdded(UnionGraph graph, UnionGraph superGraph) {
+        Node superGraphOntology = Graphs.ontologyNode(superGraph.getBaseGraph()).orElse(null);
+        if (superGraphOntology != null) {
+            Node graphName = Graphs.findOntologyNameNode(graph.getBaseGraph()).filter(Node::isURI).orElse(null);
+            if (graphName != null) {
+                superGraph.getBaseGraph().add(superGraphOntology, OWL.imports.asNode(), graphName);
+                ontUnionGraphRepository.put(superGraph);
+            }
+        }
+        listeners(UnionGraph.Listener.class).forEach(it -> it.notifySuperGraphAdded(graph, superGraph));
     }
 
     @Override

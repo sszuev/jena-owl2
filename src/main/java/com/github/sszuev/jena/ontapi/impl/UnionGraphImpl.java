@@ -218,6 +218,10 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         addParent(graph);
         resetGraphsCache();
         eventManager.notifySubGraphAdded(this, graph);
+        if (graph instanceof UnionGraph) {
+            UnionGraph subGraph = (UnionGraph) graph;
+            subGraph.getEventManager().notifySuperGraphAdded(subGraph, this);
+        }
         return this;
     }
 
@@ -567,6 +571,11 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         @Override
         public void notifySubGraphAdded(UnionGraph graph, Graph subGraph) {
             listeners(Listener.class).forEach(it -> it.notifySubGraphAdded(graph, subGraph));
+        }
+
+        @Override
+        public void notifySuperGraphAdded(UnionGraph graph, UnionGraph superGraph) {
+            listeners(Listener.class).forEach(it -> it.notifySuperGraphAdded(graph, superGraph));
         }
 
         @Override

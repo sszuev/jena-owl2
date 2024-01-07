@@ -158,6 +158,14 @@ public interface UnionGraph extends Graph {
         void notifySubGraphAdded(UnionGraph graph, Graph subGraph);
 
         /**
+         * Called after {@link UnionGraph#addSubGraph(Graph)}
+         *
+         * @param graph      {@link UnionGraph}
+         * @param superGraph {@link UnionGraph}
+         */
+        void notifySuperGraphAdded(UnionGraph graph, UnionGraph superGraph);
+
+        /**
          * Called before {@link UnionGraph#removeSubGraph(Graph)}
          *
          * @param graph    {@link Graph}
