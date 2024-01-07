@@ -10,6 +10,7 @@ import org.apache.jena.util.iterator.WrappedIterator;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -28,9 +29,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Misc utils to work with Iterators, Streams, Collections, etc.,
- * which are related somehow to Jena or/and used inside {@link com.github.sszuev.jena.ontapi} package.
- * Created @ssz on 11.04.2017.
+ * Misc utils to work with Iterators, Streams, Collections, etc.
  *
  * @see ExtendedIterator
  * @see ClosableIterator
@@ -66,7 +65,7 @@ public class Iterators {
      * create a {@code Stream} for an iterator that may deliver {@code null}s.
      * <p>
      * If the given parameter is {@link ClosableIterator},
-     * do not forget to call {@link Stream#close()} explicitly if the iterator is not exhausted
+     * remember to call {@link Stream#close()} explicitly if the iterator is not exhausted
      * (i.e. in case {@link Iterator#hasNext()} is still {@code true}).
      * It should be done for all short-circuiting terminal operations such as {@link Stream#findFirst()},
      * {@link Stream#findAny()}, {@link Stream#anyMatch(Predicate)} etc.
@@ -354,9 +353,9 @@ public class Iterators {
      * and returns this collection itself.
      * This is a terminal operation.
      *
-     * @param <X>        the element type of the iterator, not {@code null}
-     * @param <C>        the {@code Collection} type, not {@code null}
-     * @param source   the {@code Iterator} with elements of type {@link X}
+     * @param <X>    the element type of the iterator, not {@code null}
+     * @param <C>    the {@code Collection} type, not {@code null}
+     * @param source the {@code Iterator} with elements of type {@link X}
      * @param target the collection of type {@link C}
      * @return {@link C}, the same instance as specified
      */
@@ -373,6 +372,33 @@ public class Iterators {
     }
 
     /**
+     * Takes the specified number of items from the source iterator.
+     *
+     * @param source {@link Iterator}
+     * @param number int, positive
+     * @param <X>    any
+     * @return {@link Set}
+     */
+    public static <X> Set<X> takeAsSet(Iterator<? extends X> source, int number) {
+        if (number < 0) {
+            throw new IllegalArgumentException();
+        }
+        if (number == 0) {
+            return Set.of();
+        }
+        Set<X> res = new HashSet<>();
+        try {
+            int i = 0;
+            while (source.hasNext() && res.size() < number) {
+                res.add(source.next());
+            }
+            return res;
+        } finally {
+            close(source);
+        }
+    }
+
+    /**
      * Returns a {@code Map} (of the type of {@link M})
      * whose keys and values are the result of applying the provided mapping functions to the input elements.
      * A functional equivalent of {@code stream.collect(Collectors.toMap(...))}, but for plain {@link Iterator}s.
@@ -383,7 +409,7 @@ public class Iterators {
      * @param valueMapper   a mapping function to produce values
      * @param mergeFunction a merge function, used to resolve collisions between values associated with the same key,
      *                      as supplied to {@link Map#merge(Object, Object, BiFunction)}
-     * @param mapSupplier   a function which returns a new, empty {@code Map} into which the results will be inserted
+     * @param mapSupplier   a function which returns new, empty {@code Map} into which the results will be inserted
      * @param <X>           the type of the input elements
      * @param <K>           the output type of the key mapping function
      * @param <V>           the output type of the value mapping function
@@ -442,7 +468,7 @@ public class Iterators {
     }
 
     /**
-     * Creates a new {@link ExtendedIterator Extended Iterator}} containing single specified element.
+     * Creates a new {@link ExtendedIterator Extended Iterator}} containing a single specified element.
      *
      * @param item - an object of type {@link X}
      * @param <X>  the element type of the new iterator
@@ -488,7 +514,7 @@ public class Iterators {
      * When any distinct operation (i.e. {@link #distinct(ExtendedIterator)} or {@link Stream#distinct()}) is used,
      * it, in fact, collects on demand an in-memory {@code Set} containing all elements,
      * but it will be appeared in process and an iterator or a stream initially weighs nothing.
-     * This method allows to achieve a similar behaviour:
+     * This method allows achieving a similar behavior:
      * when creating an {@code ExtendedIterator} does not weight anything,
      * but it materializes itself when processing.
      * Therefore, operations such as {@code (stream-1 + stream-2).findFirst()} will demand less memory.

@@ -76,4 +76,29 @@ public interface GraphRepository {
      */
     void clear();
 
+    /**
+     * @return number of graphs
+     */
+    default long count() {
+        return ids().count();
+    }
+
+    /**
+     * Lists all graphs.
+     *
+     * @return {@code Stream} of {@link Graph}s
+     */
+    default Stream<Graph> graphs() {
+        return ids().map(this::get).filter(Objects::nonNull);
+    }
+
+    /**
+     * @param id {@code String} Graph's identifier
+     * @return boolean
+     */
+    default boolean contains(String id) {
+        Objects.requireNonNull(id);
+        return ids().anyMatch(id::equals);
+    }
+
 }

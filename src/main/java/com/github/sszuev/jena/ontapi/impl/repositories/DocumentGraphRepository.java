@@ -6,14 +6,17 @@ import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RDFParser;
+import org.apache.jena.shared.JenaException;
 
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -92,6 +95,13 @@ public class DocumentGraphRepository implements GraphRepository {
         return mappings.computeIfAbsent(id, DocumentGraphRepository::parseLocation);
     }
 
+    /**
+     * Gets Graph by ID.
+     *
+     * @param id {@code String} Graph's identifier
+     * @return {@link Graph}
+     * @throws JenaException if graph can't be found
+     */
     @Override
     public Graph get(String id) {
         return graphs.computeIfAbsent(Objects.requireNonNull(id, "Null Graph Id"), s -> read(getMapping(s), factory.get()));
@@ -99,7 +109,7 @@ public class DocumentGraphRepository implements GraphRepository {
 
     @Override
     public Stream<String> ids() {
-        return Set.copyOf(graphs.keySet()).stream();
+        return getIds().stream();
     }
 
     @Override
@@ -109,6 +119,7 @@ public class DocumentGraphRepository implements GraphRepository {
 
     @Override
     public Graph remove(String id) {
+        mappings.remove(id);
         return graphs.remove(Objects.requireNonNull(id, "Null Graph Id"));
     }
 
@@ -116,6 +127,20 @@ public class DocumentGraphRepository implements GraphRepository {
     public void clear() {
         mappings.clear();
         graphs.clear();
+    }
+
+    @Override
+    public long count() {
+        return getIds().size();
+    }
+
+    @Override
+    public boolean contains(String id) {
+        return graphs.containsKey(id) || mappings.containsKey(id);
+    }
+
+    public Set<String> getIds() {
+        return Stream.of(graphs.keySet(), mappings.keySet()).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
     }
 
     private static class Source {

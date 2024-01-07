@@ -128,7 +128,7 @@ public class OntJenaException extends JenaException {
 
     /**
      * An exception that is thrown if a recursion is found in the graph.
-     * Example of such graph recursion:
+     * Example of such a graph recursion:
      * <pre>{@code  _:b0 a owl:Class ; owl:complementOf  _:b0 .}</pre>
      */
     public static class Recursion extends OntJenaException {

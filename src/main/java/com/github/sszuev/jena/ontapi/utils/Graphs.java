@@ -164,17 +164,17 @@ public class Graphs {
             return Stream.of(graph);
         }
         Set<Graph> res = new LinkedHashSet<>();
-        Deque<Graph> candidates = new ArrayDeque<>();
+        Deque<Graph> queue = new ArrayDeque<>();
         Set<Graph> seen = new HashSet<>();
-        candidates.add(graph);
-        while (!candidates.isEmpty()) {
-            Graph g = candidates.removeFirst();
+        queue.add(graph);
+        while (!queue.isEmpty()) {
+            Graph g = queue.removeFirst();
             if (!seen.add(g)) {
                 continue;
             }
             Graph bg = getBase(g);
             res.add(bg);
-            directSubGraphs(g).forEach(candidates::add);
+            directSubGraphs(g).forEach(queue::add);
         }
         return res.stream();
     }
@@ -323,6 +323,7 @@ public class Graphs {
      * @return {@code Stream} of {@link UnionGraph}s
      */
     public static Stream<UnionGraph> unionGraphs(UnionGraph graph) {
+        Objects.requireNonNull(graph);
         Set<UnionGraph> res = new LinkedHashSet<>();
         Deque<UnionGraph> queue = new ArrayDeque<>();
         queue.add(graph);
@@ -386,38 +387,39 @@ public class Graphs {
     }
 
     /**
-     * Creates a new ontology header if it is not present in the graph.
+     * Creates a new ontology header ({@code uriOrBlank rdf:type owl:Ontology}) if it is not present in the graph.
      * According to the OWL specification,
      * each non-composite ontology graph must contain one and only one ontology header.
      * If a well-formed header already exists, the method returns it unchanged.
      * If there are multiple other headers,
      * the graph is considered misconfigured, and
-     * any extra headers will be removed, and the content will be moved to a new generated anonymous header.
+     * any extra headers will be removed,
+     * and the content will be moved to a new generated anonymous header.
      *
      * @param graph {@link Graph}
-     * @param uri   expected header ontology IRI,
-     *              if {@code null} then the method returns either existing header (can be named or blank)
+     * @param uri   ontology header IRI,
+     *              if {@code null} then the method returns either existing anonymous header
      *              or generates new anonymous (blank) header
      * @return existing or new header
      */
-    public static Node getOrCreateOntologyName(Graph graph, String uri) {
-        Node ontology = findOntologyNameNode(graph).orElse(null);
-        if (ontology != null) {
-            if (uri == null) {
-                return ontology;
-            } else if (ontology.isURI() && uri.equals(ontology.getURI())) {
-                return ontology;
+    public static Node createOntologyHeaderNode(Graph graph, String uri) {
+        Node header = ontologyNode(graph).orElse(null);
+        if (header != null) {
+            if (uri != null && header.isURI() && header.getURI().equals(uri)) {
+                return header;
+            }
+            if (uri == null && header.isBlank()) {
+                return header;
             }
         }
         List<Triple> prev = Iterators.addAll(Iterators.flatMap(
                 graph.find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
                 it -> graph.find(it.getSubject(), Node.ANY, Node.ANY)), new ArrayList<>());
+
+        prev.forEach(graph::delete);
         Node newOntology = createNode(uri);
         graph.add(newOntology, RDF.type.asNode(), OWL.Ontology.asNode());
-        prev.forEach(triple -> {
-            graph.delete(triple);
-            graph.add(newOntology, triple.getPredicate(), triple.getObject());
-        });
+        prev.forEach(triple -> graph.add(newOntology, triple.getPredicate(), triple.getObject()));
         return newOntology;
     }
 
@@ -462,13 +464,8 @@ public class Graphs {
      * @return {@link Optional} around the {@link Node} which could be uri or blank
      */
     public static Optional<Node> ontologyNode(Graph graph) {
-        Set<Node> ontologyNodesSet;
         ExtendedIterator<Node> ontologyNodes = listOntologyNodes(graph);
-        try {
-            ontologyNodesSet = ontologyNodes.toSet();
-        } finally {
-            ontologyNodes.close();
-        }
+        Set<Node> ontologyNodesSet = Iterators.takeAsSet(ontologyNodes, 2);
         if (ontologyNodesSet.size() != 1) {
             return Optional.empty();
         }

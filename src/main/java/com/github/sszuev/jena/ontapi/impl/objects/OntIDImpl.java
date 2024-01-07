@@ -2,7 +2,6 @@ package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.model.OntID;
-import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.EnhGraph;
@@ -13,7 +12,6 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -29,14 +27,14 @@ public class OntIDImpl extends OntObjectImpl implements OntID {
 
     @Override
     public String getVersionIRI() {
-        try (Stream<OntStatement> versions = statements(OWL.versionIRI)) {
-            Set<String> res = versions
-                    .map(Statement::getObject)
-                    .filter(RDFNode::isURIResource)
-                    .map(it -> it.asResource().getURI())
-                    .collect(Collectors.toSet());
-            return res.size() == 1 ? res.iterator().next() : null;
-        }
+        Set<String> res = Iterators.takeAsSet(listProperties(OWL.versionIRI)
+                        .mapWith(Statement::getObject)
+                        .filterKeep(RDFNode::isURIResource)
+                        .mapWith(RDFNode::asResource)
+                        .mapWith(Resource::getURI),
+                2
+        );
+        return res.size() == 1 ? res.iterator().next() : null;
     }
 
     @Override

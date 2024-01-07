@@ -147,17 +147,22 @@ public class OntModelFactory {
 
     /**
      * Creates an {@link OntModel Ontology Model} which is {@link org.apache.jena.rdf.model.InfModel Inference Model}.
+     * The specified graph and its subgraphs (if any) must not be {@link InfGraph}.
      *
-     * @param data        {@link Graph}
+     * @param graph        {@link Graph}
      * @param personality {@link OntPersonality}
      * @param reasoner    {@link Reasoner}
      * @return {@link OntModel}
      * @see OntModel#asInferenceModel()
      */
-    public static OntModel createModel(Graph data, OntPersonality personality, Reasoner reasoner) {
+    public static OntModel createModel(Graph graph, OntPersonality personality, Reasoner reasoner) {
+        Objects.requireNonNull(graph);
         Objects.requireNonNull(reasoner);
         Objects.requireNonNull(personality);
-        UnionGraph unionGraph = Graphs.makeOntUnionFrom(data, OntModelFactory::createUnionGraph);
+        if (Graphs.dataGraphs(graph).anyMatch(it -> it instanceof InfGraph)) {
+            throw new IllegalArgumentException("InfGraph in the hierarchy detected");
+        }
+        UnionGraph unionGraph = Graphs.makeOntUnionFrom(graph, OntModelFactory::createUnionGraph);
         InfGraph infGraph = reasoner.bind(unionGraph);
         return new OntGraphModelImpl(infGraph, personality);
     }
@@ -165,6 +170,7 @@ public class OntModelFactory {
     /**
      * Creates an Ontology Model according to the specified specification.
      * The {@code repository} manages all the dependencies.
+     * See {@link #createModel(Graph, OntSpecification, GraphRepository)}.
      *
      * @param spec       {@link OntSpecification}
      * @param repository {@link GraphRepository}
@@ -176,22 +182,54 @@ public class OntModelFactory {
 
     /**
      * Creates an Ontology Model according to the specified specification.
-     * The {@code repository} manages all the dependencies.
+     * The {@code repository} manages all the dependencies (imports closure).
+     * Note that for consistency it is necessary to work only
+     * through the {@link OntModel} or {@link UnionGraph} interfaces.
+     * Working directly with the {@link UnionGraph#getBaseGraph()} or {@code repository} may break the state.
+     * Imports closure control is performed via {@link UnionGraph.Listener},
+     * any ontological graphs from the {@code repository} which are in use, will be wrapped as {@link UnionGraph}.
+     * When adding subgraph using the {@link UnionGraph#addSubGraph(Graph)} method
+     * a statement {@code a owl:import b} will be added.
+     * In turns, adding a statement {@code a owl:import b} will cause adding a subgraph.
+     * If a subgraph cannot be found in the {@code repository},
+     * an empty ontology graph will be associated with the corresponding {@code owl:import}.
+     * The specified graph and its subgraphs (if any) must not be {@link InfGraph}.
+     * Note that the method adds ontology headers to each subgraph of the specified graph, including itself.
      *
-     * @param data       {@link Graph}
+     * @param graph       {@link Graph}
      * @param spec       {@link OntSpecification}
      * @param repository {@link GraphRepository}
      * @return {@link OntModel}
      */
-    public static OntModel createModel(Graph data, OntSpecification spec, GraphRepository repository) {
-        Objects.requireNonNull(data);
-        ReasonerFactory reasonerFactory = Objects.requireNonNull(spec).getReasonerFactory();
-        Graphs.dataGraphs(data).forEach(graph -> {
-            String name = Graphs.getOrCreateOntologyName(graph, null).toString();
-            repository.put(name, graph);
-        });
-        UnionGraph union = new OntUnionGraphRepository(repository, OntModelFactory::createUnionGraph, true)
-                .put(Graphs.getBase(data));
+    public static OntModel createModel(Graph graph, OntSpecification spec, GraphRepository repository) {
+        Objects.requireNonNull(spec);
+        Objects.requireNonNull(repository);
+        Objects.requireNonNull(graph);
+        if (Graphs.dataGraphs(graph).anyMatch(it -> it instanceof InfGraph)) {
+            throw new IllegalArgumentException("InfGraph in the hierarchy detected");
+        }
+        OntUnionGraphRepository ontUnionGraphRepository = new OntUnionGraphRepository(
+                repository,
+                OntModelFactory::createUnionGraph,
+                OntModelFactory::createDefaultGraph,
+                /*ignoreUnresolvedImports*/ true);
+        ReasonerFactory reasonerFactory = spec.getReasonerFactory();
+        UnionGraph union;
+        if (graph instanceof UnionGraph) {
+            union = (UnionGraph) graph;
+            Graphs.unionGraphs((UnionGraph) graph).forEach(it -> {
+                Graphs.findOntologyNameNode(it.getBaseGraph()).orElseGet(() -> Graphs.createOntologyHeaderNode(it, null));
+                ontUnionGraphRepository.put(it);
+            });
+        } else {
+            Graphs.dataGraphs(graph).forEach(it -> {
+                String name = Graphs.findOntologyNameNode(it)
+                        .orElseGet(() -> Graphs.createOntologyHeaderNode(it, null))
+                        .toString();
+                repository.put(name, it);
+            });
+            union = ontUnionGraphRepository.put(Graphs.getBase(graph));
+        }
         if (reasonerFactory == null) {
             return new OntGraphModelImpl(union, spec.getPersonality());
         }

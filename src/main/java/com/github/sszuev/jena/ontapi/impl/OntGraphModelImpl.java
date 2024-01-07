@@ -148,19 +148,6 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     }
 
     /**
-     * Creates a fresh ontology resource (i.e. {@code @uri rdf:type owl:Ontology} triple)
-     * and moves to it all content from existing ontology resources (if they present).
-     *
-     * @param model {@link Model} graph holder
-     * @param uri   String an ontology iri, null for anonymous ontology
-     * @return {@link Resource} in model
-     * @throws OntJenaException if creation is not possible by some reason.
-     */
-    public static Resource createOntologyID(Model model, String uri) throws OntJenaException {
-        return model.wrapAsResource(Graphs.getOrCreateOntologyName(model.getGraph(), uri));
-    }
-
-    /**
      * Lists all {@code OntObject}s for the given {@code OntGraphModelImpl}.
      *
      * @param m    {@link OntGraphModelImpl} the impl to cache
@@ -346,7 +333,10 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntID setID(String uri) {
         checkType(OntID.class);
-        return getNodeAs(createOntologyID(getBaseModel(), uri).asNode(), OntID.class);
+        OntID res = getNodeAs(Graphs.createOntologyHeaderNode(getBaseGraph(), uri), OntID.class);
+        UnionGraph u = getUnionGraph();
+        u.getEventManager().notifyEvent(u, OntModelEvents.NOTIFY_ONT_ID_CHANGED);
+        return res;
     }
 
     @Override

@@ -3,12 +3,14 @@ package com.github.sszuev.jena.ontapi.impl.repositories;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.impl.GraphListenerBase;
+import com.github.sszuev.jena.ontapi.impl.OntModelEvents;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
+import com.github.sszuev.jena.ontapi.vocabulary.OWL;
+import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphListener;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.vocabulary.OWL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +20,10 @@ import java.util.stream.Collectors;
 public class OntUnionGraphListener extends GraphListenerBase implements UnionGraph.EventManager {
 
     private final List<GraphListener> inactive = new ArrayList<>();
-    final OntUnionGraphRepository repository;
+    final OntUnionGraphRepository ontUnionGraphRepository;
 
-    protected OntUnionGraphListener(OntUnionGraphRepository repository) {
-        this.repository = Objects.requireNonNull(repository);
+    protected OntUnionGraphListener(OntUnionGraphRepository ontUnionGraphRepository) {
+        this.ontUnionGraphRepository = Objects.requireNonNull(ontUnionGraphRepository);
     }
 
     @Override
@@ -49,32 +51,34 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     }
 
     @Override
-    public void notifySubGraphAdded(UnionGraph graph, Graph subGraph) {
+    public void notifySubGraphAdded(UnionGraph thisGraph, Graph subGraph) {
         if (Graphs.isOntGraph(Graphs.getBase(subGraph))) {
-            UnionGraph ontSubGraph = repository.put(subGraph);
-            if (subGraph != ontSubGraph) {
-                Graph justAddedGraph = graph.subGraphs().filter(it -> it == subGraph).findFirst()
-                        .orElseThrow(() -> new IllegalStateException("Where is just added graph?"));
-                // addSubGraph is a recursive method, so off listening
-                try {
-                    graph.getEventManager().off();
-                    graph.removeSubGraph(justAddedGraph).addSubGraph(ontSubGraph);
-                } finally {
-                    graph.getEventManager().on();
-                }
-            }
-            Graph ontSubGraphBase = ontSubGraph.getBaseGraph();
+
+            Graph ontSubGraphBase = OntUnionGraphRepository.getBase(subGraph);
             Node ontSubGraphIri = Graphs.findOntologyNameNode(ontSubGraphBase)
                     .filter(Node::isURI)
                     .orElseThrow(() -> new IllegalStateException("Expected to be named"));
-            Graph thisOntBaseGraph = graph.getBaseGraph();
-            thisOntBaseGraph.add(
-                    Graphs.getOrCreateOntologyName(thisOntBaseGraph, null),
-                    OWL.imports.asNode(),
-                    ontSubGraphIri
-            );
+            Graph thisOntBaseGraph = thisGraph.getBaseGraph();
+            Node ontology = Graphs.ontologyNode(thisOntBaseGraph)
+                    .orElseGet(() -> Graphs.createOntologyHeaderNode(thisOntBaseGraph, null));
+            thisOntBaseGraph.add(ontology, OWL.imports.asNode(), ontSubGraphIri);
+
+            UnionGraph ontSubGraph = ontUnionGraphRepository.put(subGraph);
+            if (subGraph != ontSubGraph) {
+                Graph justAddedGraph = thisGraph.subGraphs()
+                        .filter(it -> OntUnionGraphRepository.graphEquals(it, subGraph))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("Where is just added graph?"));
+                // addSubGraph is a recursive method, so off listening
+                try {
+                    thisGraph.getEventManager().off();
+                    thisGraph.removeSubGraph(justAddedGraph).addSubGraph(ontSubGraph);
+                } finally {
+                    thisGraph.getEventManager().on();
+                }
+            }
         }
-        listeners(UnionGraph.Listener.class).forEach(it -> it.notifySubGraphAdded(graph, subGraph));
+        listeners(UnionGraph.Listener.class).forEach(it -> it.notifySubGraphAdded(thisGraph, subGraph));
     }
 
     @Override
@@ -90,11 +94,9 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
                     .filter(Node::isURI).orElse(null);
             if (ontSubGraphIri != null) {
                 Graph thisOntBaseGraph = graph.getBaseGraph();
-                thisOntBaseGraph.delete(
-                        Graphs.getOrCreateOntologyName(thisOntBaseGraph, null),
-                        OWL.imports.asNode(),
-                        ontSubGraphIri
-                );
+                Node ontology = Graphs.ontologyNode(thisOntBaseGraph)
+                        .orElseGet(() -> Graphs.createOntologyHeaderNode(thisOntBaseGraph, null));
+                thisOntBaseGraph.delete(ontology, OWL.imports.asNode(), ontSubGraphIri);
                 List<Graph> toDetach = graph.subGraphs()
                         .filter(it -> it instanceof UnionGraph)
                         .filter(
@@ -115,36 +117,41 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
         listeners(UnionGraph.Listener.class).forEach(it -> it.notifySubGraphRemoved(graph, graph));
     }
 
-
     @Override
     protected void addTripleEvent(Graph g, Triple t) {
-        if (t.getObject().isURI() && OWL.imports.asNode().equals(t.getPredicate())) {
-            UnionGraph thisGraph = (UnionGraph) g;
-            Node subject = Graphs.findOntologyNameNode(thisGraph.getBaseGraph()).orElse(null);
-            if (!t.getSubject().equals(subject)) {
-                return;
-            }
+        UnionGraph thisGraph = (UnionGraph) g;
+        if (isNameTriple(t)) {
+            ontUnionGraphRepository.remap(thisGraph);
+        } else if (isImportTriple(t, thisGraph.getBaseGraph())) {
+            UnionGraph.EventManager manager = thisGraph.getEventManager();
             try {
-                UnionGraph add = repository.get(t.getObject().getURI());
+                manager.off();
+                UnionGraph add = ontUnionGraphRepository.get(t.getObject());
                 thisGraph.addSubGraphIfAbsent(add);
             } catch (Exception ex) {
                 // rollback the addition of an import statement
                 thisGraph.getBaseGraph().delete(t);
                 throw ex;
+            } finally {
+                manager.on();
             }
         }
     }
 
     @Override
     protected void deleteTripleEvent(Graph g, Triple t) {
-        if (t.getObject().isURI() && OWL.imports.asNode().equals(t.getPredicate())) {
-            UnionGraph thisGraph = (UnionGraph) g;
-            Node subject = Graphs.findOntologyNameNode(thisGraph.getBaseGraph()).orElse(null);
-            if (!t.getSubject().equals(subject)) {
-                return;
+        UnionGraph thisGraph = (UnionGraph) g;
+        if (isNameTriple(t)) {
+            ontUnionGraphRepository.remap(thisGraph);
+        } else if (isImportTriple(t, thisGraph.getBaseGraph())) {
+            UnionGraph.EventManager manager = thisGraph.getEventManager();
+            try {
+                manager.off();
+                UnionGraph toRemove = ontUnionGraphRepository.get(t.getObject());
+                thisGraph.removeSubGraph(toRemove);
+            } finally {
+                manager.on();
             }
-            UnionGraph toRemove = repository.get(t.getObject().getURI());
-            thisGraph.removeSubGraph(toRemove);
         }
     }
 
@@ -162,8 +169,23 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
 
     @Override
     public void notifyEvent(Graph source, Object event) {
+        if (OntModelEvents.NOTIFY_ONT_ID_CHANGED.equals(event)) {
+            ontUnionGraphRepository.remap(source);
+        }
         // TODO:
         super.notifyEvent(source, event);
     }
 
+    private boolean isNameTriple(Triple t) {
+        return t.getPredicate().equals(RDF.type.asNode()) && t.getObject().equals(OWL.Ontology.asNode()) ||
+                t.getPredicate().equals(OWL.versionIRI.asNode()) && t.getObject().isURI();
+    }
+
+    private boolean isImportTriple(Triple t, Graph g) {
+        if (!t.getObject().isURI() || !OWL.imports.asNode().equals(t.getPredicate())) {
+            return false;
+        }
+        Node subject = Graphs.ontologyNode(g).orElse(null);
+        return t.getSubject().equals(subject);
+    }
 }
