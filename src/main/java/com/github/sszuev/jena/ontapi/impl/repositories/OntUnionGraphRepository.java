@@ -15,6 +15,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -54,6 +55,12 @@ public class OntUnionGraphRepository {
         return left == right;
     }
 
+    public static Optional<Graph> findSubGraphByOntName(UnionGraph graph, Node name) {
+        return graph.subGraphs()
+                .filter(it -> Graphs.findOntologyNameNode(getBase(it)).filter(name::equals).isPresent())
+                .findFirst();
+    }
+
     public void remap(Graph graph) {
         String newName = Graphs.findOntologyNameNode(getBase(graph)).map(Node::toString).orElse(null);
         if (newName != null && repository.contains(newName)) {
@@ -79,9 +86,6 @@ public class OntUnionGraphRepository {
     }
 
     protected UnionGraph putGraph(Graph root, String rootGraphId) {
-        Set<UnionGraph> seen = new HashSet<>();
-        Deque<UnionGraph> queue = new ArrayDeque<>();
-
         Node ontologyName = Graphs.findOntologyNameNode(getBase(root)).orElse(null);
         if (ontologyName == null) {
             throw new OntJenaException.IllegalArgument(
@@ -95,6 +99,9 @@ public class OntUnionGraphRepository {
             );
         }
         UnionGraph res = findOrPut(root, ontologyName);
+
+        Set<UnionGraph> seen = new HashSet<>();
+        Deque<UnionGraph> queue = new ArrayDeque<>();
         queue.add(res);
 
         while (!queue.isEmpty()) {
@@ -102,30 +109,40 @@ public class OntUnionGraphRepository {
             if (!seen.add(current)) {
                 continue;
             }
-            Graphs.getImports(current.getBaseGraph()).forEach(uri -> {
-                Node name = NodeFactory.createURI(uri);
-                Graph sub = current.subGraphs()
-                        .filter(it -> Graphs.findOntologyNameNode(getBase(it)).filter(name::equals).isPresent())
-                        .findFirst()
-                        .orElse(null);
-                UnionGraph u = findOrPut(sub, name);
-                if (graphEquals(sub, u)) {
-                    return;
+            Node currentName = Graphs.findOntologyNameNode(current.getBaseGraph()).orElse(null);
+            if (currentName == null) {
+                continue;
+            }
+            UnionGraph parent = findOrPut(current, currentName);
+            Graphs.getImports(parent.getBaseGraph()).forEach(uri -> {
+                UnionGraph u = putSubGraph(parent, uri);
+                if (u != null) {
+                    queue.add(u);
                 }
-                UnionGraph.EventManager events = current.getEventManager();
-                try {
-                    events.off();
-                    if (sub != null) {
-                        current.removeSubGraph(sub);
-                    }
-                    current.addSubGraphIfAbsent(u);
-                } finally {
-                    events.on();
-                }
-                queue.add(u);
             });
+            parent.superGraphs().forEach(queue::add);
         }
         return res;
+    }
+
+    private UnionGraph putSubGraph(UnionGraph parent, String uri) {
+        Node name = NodeFactory.createURI(uri);
+        Graph sub = findSubGraphByOntName(parent, name).orElse(null);
+        UnionGraph u = findOrPut(sub, name);
+        if (graphEquals(sub, u)) {
+            return null;
+        }
+        UnionGraph.EventManager events = parent.getEventManager();
+        try {
+            events.off();
+            if (sub != null) {
+                parent.removeSubGraph(sub);
+            }
+            parent.addSubGraphIfAbsent(u);
+        } finally {
+            events.on();
+        }
+        return u;
     }
 
     protected UnionGraph findOrPut(Graph graph, Node ontologyName) {

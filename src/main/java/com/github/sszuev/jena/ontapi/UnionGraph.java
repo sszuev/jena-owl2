@@ -5,20 +5,23 @@ import org.apache.jena.graph.GraphEventManager;
 import org.apache.jena.graph.GraphListener;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.stream.Stream;
 
 /**
- * UnionGraph.
+ * Hierarchical graph.
  * <p>
  * It consists of two parts:
- * a {@link #getBaseGraph() base graph} and an {@link #listSubGraphs() sub-graphs} collection.
+ * a {@link #getBaseGraph() base graph} and an {@link #subGraphs() sub-graphs} collection.
+ * A hierarchical UnionGraph may have parents, called super-graphs ({@link #superGraphs()}.
  * Underlying sub-graphs are only used for searching; modify operations are performed only on the base graph.
  * This graph allows building graph hierarchy which can be used to link different models.
  * Also, it allows recursion, that is, it can contain itself somewhere in the hierarchy.
  * The {@link PrefixMapping} of this graph is taken from the base graph,
  * and, therefore, any changes in it reflect both the base and this graph.
+ * <p>
+ * Well-formed OWL ontology {@code UnionGraph} is expected to contain {@link UnionGraph}s as subgraphs,
+ * where graphs also connected by {@code owl:imports} relationships.
  */
 @SuppressWarnings({"WeakerAccess"})
 public interface UnionGraph extends Graph {
@@ -52,24 +55,21 @@ public interface UnionGraph extends Graph {
      * Lists all sub-graphs.
      * The {@link #getBaseGraph() base graph} is not included in the result.
      *
-     * @return {@link ExtendedIterator} of sub-{@link Graph graph}s
-     */
-    ExtendedIterator<Graph> listSubGraphs();
-
-    /**
-     * Lists all sub-graphs.
-     * The {@link #getBaseGraph() base graph} is not included in the result.
-     * Note: in a well-formed ontological {@code UnionGraph}
-     * the result will contain only {@code UnionGraph}s.
-     *
-     * @return {@link ExtendedIterator} of sub-{@link Graph graph}s
+     * @return {@link Stream} of sub-{@link Graph graph}s
      */
     Stream<Graph> subGraphs();
 
     /**
+     * Lists all parent graphs.
+     * The {@link #getBaseGraph() base graph} is not included in the result.
+     *
+     * @return {@link Stream} of sub-{@link UnionGraph graph}s
+     */
+    Stream<UnionGraph> superGraphs();
+
+    /**
      * Adds the specified graph to the underlying graph collection.
-     * Note: for a well-formed ontological {@code UnionGraph}
-     * the input {@code graph} is expected to also be a {@code UnionGraph}.
+     * If the specified graph is {@link UnionGraph}, this graph becomes a super graph (see {@link #superGraphs()})
      *
      * @param graph {@link Graph}, not {@code null}
      * @return this instance
@@ -86,8 +86,6 @@ public interface UnionGraph extends Graph {
 
     /**
      * Adds the specified graph to the underlying graph collection if it is absent.
-     * Note: for a well-formed ontological {@code UnionGraph}
-     * the input {@code graph} is expected to also be a {@code UnionGraph}.
      *
      * @param graph {@link Graph}, not {@code null}
      * @return this instance

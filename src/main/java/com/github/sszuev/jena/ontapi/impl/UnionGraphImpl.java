@@ -174,7 +174,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         return !getSubGraphs().isEmpty();
     }
 
-    @Override
     public ExtendedIterator<Graph> listSubGraphs() {
         return getSubGraphs().listGraphs();
     }
@@ -182,6 +181,11 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
     @Override
     public Stream<Graph> subGraphs() {
         return getSubGraphs().graphs();
+    }
+
+    @Override
+    public Stream<UnionGraph> superGraphs() {
+        return parents.stream().map(it -> it);
     }
 
     @Override
@@ -455,6 +459,12 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         return getSubGraphs().graphs()
                 .filter(g -> g instanceof UnionGraphImpl)
                 .map(u -> (UnionGraphImpl) u);
+    }
+
+    @Override
+    public String toString() {
+        // do not print the whole graph since it is expensive
+        return "UnionGraph{@" + hashCode() + "}";
     }
 
     /**

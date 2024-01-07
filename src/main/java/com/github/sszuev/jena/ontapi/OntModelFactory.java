@@ -217,7 +217,7 @@ public class OntModelFactory {
         UnionGraph union;
         if (graph instanceof UnionGraph) {
             union = (UnionGraph) graph;
-            Graphs.unionGraphs((UnionGraph) graph).forEach(it -> {
+            Graphs.flatTree((UnionGraph) graph).forEach(it -> {
                 Graphs.findOntologyNameNode(it.getBaseGraph()).orElseGet(() -> Graphs.createOntologyHeaderNode(it, null));
                 ontUnionGraphRepository.put(it);
             });

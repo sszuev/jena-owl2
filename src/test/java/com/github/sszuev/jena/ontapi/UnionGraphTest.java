@@ -21,6 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * To test {@link UnionGraph}.
@@ -271,4 +274,28 @@ public class UnionGraphTest {
         u1.addSubGraph(b);
         Assertions.assertEquals(new HashSet<>(Arrays.asList(a, b, c, d)), u1.listSubGraphBases().toSet());
     }
+
+    @Test
+    public void testListParents() {
+        UnionGraph a = new UnionGraphImpl(createNamedGraph("A"));
+        UnionGraph b = new UnionGraphImpl(createNamedGraph("B"));
+        UnionGraph c = new UnionGraphImpl(createNamedGraph("C"));
+        UnionGraph d = new UnionGraphImpl(createNamedGraph("D"));
+        UnionGraph e = new UnionGraphImpl(createNamedGraph("E"));
+
+        a.addSubGraph(b);
+        a.addSubGraph(c);
+        b.addSubGraph(d);
+        a.addSubGraph(d);
+        d.addSubGraph(e);
+        e.addSubGraph(a);
+        e.addSubGraph(e);
+
+        Assertions.assertEquals(List.of(e), a.superGraphs().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(a), b.superGraphs().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(a), c.superGraphs().collect(Collectors.toList()));
+        Assertions.assertEquals(Set.of(a, b), d.superGraphs().collect(Collectors.toSet()));
+        Assertions.assertEquals(Set.of(d, e), e.superGraphs().collect(Collectors.toSet()));
+    }
+
 }

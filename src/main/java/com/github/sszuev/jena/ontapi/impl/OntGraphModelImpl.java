@@ -68,6 +68,7 @@ import org.apache.jena.shared.JenaException;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
+import org.apache.jena.util.iterator.WrappedIterator;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.ReasonerVocabulary;
 
@@ -474,10 +475,14 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return <b>non-distinct</b> {@code ExtendedIterator} of {@link UnionGraph}
      */
     protected final ExtendedIterator<UnionGraph> listImportGraphs() {
-        return getUnionGraph()
-                .listSubGraphs()
-                .filterKeep(x -> x instanceof UnionGraph)
-                .mapWith(x -> (UnionGraph) x);
+        UnionGraph u = getUnionGraph();
+        ExtendedIterator<Graph> subGraphs;
+        if (u instanceof UnionGraphImpl) {
+            subGraphs = ((UnionGraphImpl) u).listSubGraphs();
+        } else {
+            subGraphs = WrappedIterator.create(u.subGraphs().iterator());
+        }
+        return subGraphs.filterKeep(x -> x instanceof UnionGraph).mapWith(x -> (UnionGraph) x);
     }
 
     /**

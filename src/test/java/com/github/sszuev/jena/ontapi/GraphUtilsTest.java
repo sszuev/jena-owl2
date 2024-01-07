@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -269,5 +270,41 @@ public class GraphUtilsTest {
 
         mE.createResource(E, OWL.Ontology);
         Assertions.assertTrue(Graphs.isOntUnionGraph(u));
+    }
+
+    @Test
+    public void testListAllGraphs() {
+        UnionGraph a = new UnionGraphImpl(UnionGraphTest.createNamedGraph("A"));
+        UnionGraph b = new UnionGraphImpl(UnionGraphTest.createNamedGraph("B"));
+        UnionGraph c = new UnionGraphImpl(UnionGraphTest.createNamedGraph("C"));
+        UnionGraph d = new UnionGraphImpl(UnionGraphTest.createNamedGraph("D"));
+        UnionGraph e = new UnionGraphImpl(UnionGraphTest.createNamedGraph("E"));
+        UnionGraph f = new UnionGraphImpl(UnionGraphTest.createNamedGraph("F"));
+
+        //     a    f
+        //  /  | \ /
+        // |   b  c
+        // | /
+        // d
+        //  \
+        //   e
+        //  / \
+        // e   a
+        a.addSubGraph(b);
+        a.addSubGraph(c);
+        a.addSubGraph(d);
+        b.addSubGraph(d);
+        d.addSubGraph(e);
+        e.addSubGraph(a);
+        e.addSubGraph(e);
+        f.addSubGraph(c);
+
+        Stream.of(a, b, c, d, e, f).forEach(graph -> {
+            List<UnionGraph> actual = Graphs.flatTree(a)
+                    .sorted(Comparator.comparing(it -> it.getBaseGraph().toString()))
+                    .collect(Collectors.toList());
+            Assertions.assertEquals(List.of(a, b, c, d, e, f), actual);
+        });
+
     }
 }

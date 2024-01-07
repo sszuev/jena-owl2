@@ -317,12 +317,14 @@ public class Graphs {
     }
 
     /**
-     * Lists all {@code UnionGraph} from the hierarchy.
+     * Lists all graphs in the tree which is specified as {@code UnionGraph}.
      *
-     * @param graph {@link UnionGraph} root
+     * @param graph {@link UnionGraph}
      * @return {@code Stream} of {@link UnionGraph}s
+     * @see UnionGraph#superGraphs()
+     * @see UnionGraph#subGraphs()
      */
-    public static Stream<UnionGraph> unionGraphs(UnionGraph graph) {
+    public static Stream<UnionGraph> flatTree(UnionGraph graph) {
         Objects.requireNonNull(graph);
         Set<UnionGraph> res = new LinkedHashSet<>();
         Deque<UnionGraph> queue = new ArrayDeque<>();
@@ -331,6 +333,7 @@ public class Graphs {
             UnionGraph next = queue.removeFirst();
             if (res.add(next)) {
                 next.subGraphs().filter(it -> it instanceof UnionGraph).map(it -> (UnionGraph) it).forEach(queue::add);
+                next.superGraphs().forEach(queue::add);
             }
         }
         return res.stream();
