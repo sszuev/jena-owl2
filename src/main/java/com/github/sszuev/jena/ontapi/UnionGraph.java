@@ -169,6 +169,11 @@ public interface UnionGraph extends Graph {
         void onAddSubGraph(UnionGraph graph, Graph subGraph);
 
         /**
+         * Called before {@link UnionGraph#clear()}.
+         */
+        void onClear(UnionGraph graph);
+
+        /**
          * Called before {@link UnionGraph#removeSubGraph(Graph)}.
          *
          * @param graph    {@link Graph}

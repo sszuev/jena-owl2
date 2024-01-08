@@ -75,6 +75,12 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     }
 
     @Override
+    public void onClear(UnionGraph graph) {
+        OntUnionGraphRepository.checkIDCanBeChanged(graph);
+        Graphs.findOntologyNameNode(graph.getBaseGraph()).ifPresent(ontGraphRepository::remove);
+    }
+
+    @Override
     public void notifySubGraphAdded(UnionGraph thisGraph, Graph subGraph) {
         if (Graphs.isOntGraph(Graphs.getBase(subGraph))) {
             Graph ontSubGraphBase = OntUnionGraphRepository.getBase(subGraph);

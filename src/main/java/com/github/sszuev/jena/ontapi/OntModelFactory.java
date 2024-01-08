@@ -12,6 +12,8 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphMemFactory;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.reasoner.InfGraph;
@@ -240,7 +242,6 @@ public class OntModelFactory {
                 OntModelFactory::createUnionGraph,
                 OntModelFactory::createDefaultGraph,
                 /*ignoreUnresolvedImports*/ true);
-        ReasonerFactory reasonerFactory = spec.getReasonerFactory();
         UnionGraph union;
         if (graph instanceof UnionGraph) {
             union = (UnionGraph) graph;
@@ -257,11 +258,63 @@ public class OntModelFactory {
             });
             union = ontUnionGraphRepository.put(Graphs.getBase(graph));
         }
+        ReasonerFactory reasonerFactory = spec.getReasonerFactory();
         if (reasonerFactory == null) {
             return new OntGraphModelImpl(union, spec.getPersonality());
         }
         InfGraph inf = reasonerFactory.create(null).bind(union);
         return new OntGraphModelImpl(inf, spec.getPersonality());
+    }
+
+    /**
+     * Finds {@link OntModel} in the {@code repository},
+     * returning {@code null} if there is no ontology with the specified {@code uri}.
+     * The method constructs new {@link OntModel} instance, wrapping the found {@link UnionGraph}.
+     *
+     * @param uri        ontology name:
+     *                   object from the statement {@code <ont> owl:versionIri <name>} or
+     *                   subject from the statement {@code <name> rdf:type owl:Ontology}
+     * @param spec       {@link OntSpecification}
+     * @param repository {@link GraphRepository}
+     * @return {@link OntModel} or {@code null} if there is no such ontology
+     */
+    public static OntModel getModelOrNull(String uri, OntSpecification spec, GraphRepository repository) {
+        return getModelOrNull(NodeFactory.createURI(Objects.requireNonNull(uri)), spec, repository);
+    }
+
+    /**
+     * Finds {@link OntModel} in the {@code repository},
+     * returning {@code null} if there is no ontology with the specified {@code name}.
+     * The method constructs new {@link OntModel} instance, wrapping the found {@link UnionGraph}.
+     *
+     * @param name       {@link Node} ontology name, URI or blank
+     * @param spec       {@link OntSpecification}
+     * @param repository {@link GraphRepository}
+     * @return {@link OntModel} or {@code null} if there is no such ontology
+     */
+    public static OntModel getModelOrNull(Node name, OntSpecification spec, GraphRepository repository) {
+        Objects.requireNonNull(spec);
+        Objects.requireNonNull(repository);
+        Objects.requireNonNull(name);
+        if (!name.isURI() && !name.isBlank()) {
+            throw new IllegalArgumentException("Ontology name must be URI or blank Node");
+        }
+        OntUnionGraphRepository ontUnionGraphRepository = new OntUnionGraphRepository(
+                repository,
+                OntModelFactory::createUnionGraph,
+                OntModelFactory::createDefaultGraph,
+                /*ignoreUnresolvedImports*/ true);
+        if (!ontUnionGraphRepository.contains(name)) {
+            return null;
+        }
+        UnionGraph union = ontUnionGraphRepository.get(name);
+        ReasonerFactory reasonerFactory = spec.getReasonerFactory();
+        if (reasonerFactory == null) {
+            return new OntGraphModelImpl(union, spec.getPersonality());
+        }
+        InfGraph inf = reasonerFactory.create(null).bind(union);
+        return new OntGraphModelImpl(inf, spec.getPersonality());
+
     }
 
 }

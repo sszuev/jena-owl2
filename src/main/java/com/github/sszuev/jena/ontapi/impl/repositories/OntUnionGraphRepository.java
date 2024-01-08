@@ -62,6 +62,11 @@ public class OntUnionGraphRepository {
                 .findFirst();
     }
 
+    /**
+     * Throws exception if graph's ontology name is in imports closure.
+     *
+     * @param graph {@link UnionGraph}
+     */
     public static void checkIDCanBeChanged(UnionGraph graph) {
         Node name = Graphs.findOntologyNameNode(graph.getBaseGraph()).orElse(null);
         if (name == null || !name.isURI()) {
@@ -79,6 +84,14 @@ public class OntUnionGraphRepository {
                     "Can't change ontology ID <" + name + ">: it is used by <" + String.join(">, <", parents) + ">"
             );
         }
+    }
+
+    /**
+     * @param node {@link Node} graph's ontology name ({@code owl:Ontology} or {@code owl:versionIRI}).
+     * @return boolean
+     */
+    public boolean contains(Node node) {
+        return repository.contains(node.toString());
     }
 
     /**
@@ -127,6 +140,10 @@ public class OntUnionGraphRepository {
             repository.put(newName, graph);
         }
         return true;
+    }
+
+    protected void remove(Node name) {
+        repository.remove(name.toString());
     }
 
     protected UnionGraph putGraph(Graph root, String rootGraphId) {

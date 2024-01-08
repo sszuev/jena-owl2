@@ -5,6 +5,7 @@ import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphEventManager;
+import org.apache.jena.graph.GraphEvents;
 import org.apache.jena.graph.GraphListener;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -203,8 +204,19 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
     public void remove(Node s, Node p, Node o) {
         checkOpen();
         Triple t = Triple.createMatch(s, p, o);
-        getEventManager().onDeleteTriple(this, t);
-        super.remove(s, p, o);
+        UnionGraph.EventManager em = getEventManager();
+        em.onDeleteTriple(this, t);
+        base.remove(s, p, o);
+        em.notifyEvent(this, GraphEvents.remove(s, p, o));
+    }
+
+    @Override
+    public void clear() {
+        checkOpen();
+        UnionGraph.EventManager em = getEventManager();
+        em.onClear(this);
+        base.clear();
+        em.notifyEvent(this, GraphEvents.removeAll);
     }
 
     /**
@@ -583,6 +595,11 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         @Override
         public void onAddSubGraph(UnionGraph graph, Graph subGraph) {
             listeners(Listener.class).forEach(it -> it.onAddSubGraph(graph, subGraph));
+        }
+
+        @Override
+        public void onClear(UnionGraph graph) {
+            listeners(Listener.class).forEach(it -> it.onClear(graph));
         }
 
         @Override

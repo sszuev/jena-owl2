@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi;
 
+import com.github.sszuev.jena.ontapi.impl.repositories.DocumentGraphRepository;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -20,6 +21,29 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class OntUnionGraphRepositoryTest {
+
+    @Test
+    public void testGetModel() {
+        String wineURI = "http://www.w3.org/TR/2003/PR-owl-guide-20031209/wine";
+        String foodURI = "http://www.w3.org/TR/2003/PR-owl-guide-20031209/food";
+        DocumentGraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem()
+                .addMapping(foodURI, "food.ttl")
+                .addMapping(wineURI, "wine.ttl");
+
+        OntModel wine = OntModelFactory.getModelOrNull(wineURI, OntSpecification.OWL2_DL_MEM, repository);
+        OntModel food = OntModelFactory.getModelOrNull(foodURI, OntSpecification.OWL2_DL_MEM, repository);
+
+        Assertions.assertNotNull(wine);
+        Assertions.assertNotNull(food);
+
+        UnionGraph uWine = (UnionGraph) wine.getGraph();
+        UnionGraph uFood = (UnionGraph) food.getGraph();
+        Assertions.assertEquals(List.of(uFood), uWine.subGraphs().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(uWine), uFood.subGraphs().collect(Collectors.toList()));
+
+        Assertions.assertEquals(2, repository.count());
+        Assertions.assertEquals(Set.of(uWine, uFood), repository.graphs().collect(Collectors.toSet()));
+    }
 
     @Test
     public void testChangeId1() {
@@ -123,7 +147,6 @@ public class OntUnionGraphRepositoryTest {
         Assertions.assertEquals("B", b.getID().getImportsIRI());
         Assertions.assertEquals("C", c.getID().getImportsIRI());
         Assertions.assertEquals(List.of("A", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
-
     }
 
     @Test
@@ -412,6 +435,25 @@ public class OntUnionGraphRepositoryTest {
         Assertions.assertThrows(OntJenaException.IllegalArgument.class, () -> b.add(data2));
         Assertions.assertEquals(List.of("A", "B"), repository.ids().sorted().collect(Collectors.toList()));
         Assertions.assertEquals(3, A.size());
+    }
+
+    @Test
+    public void testRemoveAll() {
+        OntModel a = OntModelFactory.createModel().setID("A").getModel();
+        OntModel b = OntModelFactory.createModel().setID("B").getModel();
+
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel A = OntModelFactory.createModel(a.getGraph(), OntSpecification.OWL2_DL_MEM_BUILTIN_INF, repository);
+        A.addImport(b);
+        Assertions.assertEquals(List.of("A", "B"), repository.ids().sorted().collect(Collectors.toList()));
+        Assertions.assertNotNull(OntModelFactory.getModelOrNull(NodeFactory.createURI("A"), OntSpecification.OWL2_DL_MEM_TRANS_INF, repository));
+        Assertions.assertNotNull(OntModelFactory.getModelOrNull(NodeFactory.createURI("B"), OntSpecification.OWL1_FULL_MEM, repository));
+
+        A.removeAll();
+        Assertions.assertEquals(List.of("B"), repository.ids().collect(Collectors.toList()));
+
+        Assertions.assertNull(OntModelFactory.getModelOrNull(NodeFactory.createURI("A"), OntSpecification.OWL2_DL_MEM, repository));
+        Assertions.assertNotNull(OntModelFactory.getModelOrNull(NodeFactory.createURI("B"), OntSpecification.OWL2_DL_MEM_RDFS_INF, repository));
     }
 
 }
