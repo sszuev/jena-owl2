@@ -39,6 +39,22 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     }
 
     @Override
+    public void onAddTriple(UnionGraph graph, Triple triple) {
+        if (isNameTriple(triple)) {
+            OntUnionGraphRepository.checkIDCanBeChanged(graph);
+        }
+        listeners(UnionGraph.Listener.class).forEach(it -> it.onAddTriple(graph, triple));
+    }
+
+    @Override
+    public void onDeleteTriple(UnionGraph graph, Triple triple) {
+        if (isNameTriple(triple)) {
+            OntUnionGraphRepository.checkIDCanBeChanged(graph);
+        }
+        listeners(UnionGraph.Listener.class).forEach(it -> it.onDeleteTriple(graph, triple));
+    }
+
+    @Override
     public void onAddSubGraph(UnionGraph graph, Graph subGraph) {
         if (Graphs.isOntGraph(Graphs.getBase(subGraph))) {
             Node ontology = Graphs.findOntologyNameNode(Graphs.getBase(subGraph))
@@ -181,6 +197,9 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
 
     @Override
     public void notifyEvent(Graph source, Object event) {
+        if (OntModelEvents.ON_ONT_ID_CHANGE.equals(event)) {
+            OntUnionGraphRepository.checkIDCanBeChanged((UnionGraph) source);
+        }
         if (OntModelEvents.NOTIFY_ONT_ID_CHANGED.equals(event)) {
             ontUnionGraphRepository.remap(source);
         }

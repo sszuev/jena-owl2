@@ -6,6 +6,7 @@ import com.github.sszuev.jena.ontapi.utils.Iterators;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphEventManager;
 import org.apache.jena.graph.GraphListener;
+import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.CompositionBase;
 import org.apache.jena.graph.impl.SimpleEventManager;
@@ -174,10 +175,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         return !getSubGraphs().isEmpty();
     }
 
-    public ExtendedIterator<Graph> listSubGraphs() {
-        return getSubGraphs().listGraphs();
-    }
-
     @Override
     public Stream<Graph> subGraphs() {
         return getSubGraphs().graphs();
@@ -190,6 +187,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
 
     @Override
     public void performAdd(Triple t) {
+        getEventManager().onAddTriple(this, t);
         if (!subGraphs.contains(t)) {
             base.add(t);
         }
@@ -197,7 +195,16 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
 
     @Override
     public void performDelete(Triple t) {
+        getEventManager().onDeleteTriple(this, t);
         base.delete(t);
+    }
+
+    @Override
+    public void remove(Node s, Node p, Node o) {
+        checkOpen();
+        Triple t = Triple.createMatch(s, p, o);
+        getEventManager().onDeleteTriple(this, t);
+        super.remove(s, p, o);
     }
 
     /**
@@ -562,6 +569,16 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
     public static class EventManagerImpl extends SimpleEventManager implements EventManager {
 
         private final List<GraphListener> inactive = new ArrayList<>();
+
+        @Override
+        public void onAddTriple(UnionGraph graph, Triple triple) {
+            listeners(Listener.class).forEach(it -> it.onAddTriple(graph, triple));
+        }
+
+        @Override
+        public void onDeleteTriple(UnionGraph graph, Triple triple) {
+            listeners(Listener.class).forEach(it -> it.onDeleteTriple(graph, triple));
+        }
 
         @Override
         public void onAddSubGraph(UnionGraph graph, Graph subGraph) {

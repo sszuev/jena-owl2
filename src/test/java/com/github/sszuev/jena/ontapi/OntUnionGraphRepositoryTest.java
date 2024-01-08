@@ -1,11 +1,14 @@
 package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.model.OntModel;
+import com.github.sszuev.jena.ontapi.utils.Graphs;
+import com.github.sszuev.jena.ontapi.vocabulary.OWL;
+import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ModelGraphInterface;
-import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.reasoner.InfGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +19,111 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class OntUnionGraphRepositoryTest {
+
+    @Test
+    public void testChangeId1() {
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel("A", repository);
+        OntModel b = OntModelFactory.createModel("B", repository);
+        OntModel c = OntModelFactory.createModel("C", repository);
+
+        a.addImport(b);
+        Assertions.assertEquals(List.of("A", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
+        Assertions.assertEquals(
+                Stream.of(a, b, c).map(ModelGraphInterface::getGraph).collect(Collectors.toSet()),
+                repository.graphs().collect(Collectors.toSet())
+        );
+
+        a.setID("A-X");
+        Assertions.assertEquals(3, repository.count());
+        Assertions.assertEquals(
+                Stream.of(a, b, c).map(ModelGraphInterface::getGraph).collect(Collectors.toSet()),
+                repository.graphs().collect(Collectors.toSet())
+        );
+
+        Assertions.assertEquals("A-X", a.getID().getURI());
+        Assertions.assertEquals("B", b.getID().getURI());
+        Assertions.assertEquals("C", c.getID().getURI());
+        Assertions.assertEquals("A-X", a.getID().getImportsIRI());
+        Assertions.assertEquals("B", b.getID().getImportsIRI());
+        Assertions.assertEquals("C", c.getID().getImportsIRI());
+        Assertions.assertEquals(List.of("A-X", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
+
+        a.getID().setVersionIRI("A-Y");
+        Assertions.assertEquals("A-X", a.getID().getURI());
+        Assertions.assertEquals("B", b.getID().getURI());
+        Assertions.assertEquals("C", c.getID().getURI());
+        Assertions.assertEquals("A-Y", a.getID().getImportsIRI());
+        Assertions.assertEquals("B", b.getID().getImportsIRI());
+        Assertions.assertEquals("C", c.getID().getImportsIRI());
+        Assertions.assertEquals(List.of("A-Y", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
+
+        a.statements(null, RDF.type, OWL.Ontology).findFirst().orElseThrow().getSubject()
+                .removeAll(OWL.versionIRI)
+                .addProperty(OWL.versionIRI, a.createResource("A-Q"));
+        Assertions.assertEquals("A-X", a.getID().getURI());
+        Assertions.assertEquals("B", b.getID().getURI());
+        Assertions.assertEquals("C", c.getID().getURI());
+        Assertions.assertEquals("A-Q", a.getID().getImportsIRI());
+        Assertions.assertEquals("B", b.getID().getImportsIRI());
+        Assertions.assertEquals("C", c.getID().getImportsIRI());
+        Assertions.assertEquals(List.of("A-Q", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
+        Assertions.assertEquals(
+                Stream.of(a, b, c).map(ModelGraphInterface::getGraph).collect(Collectors.toSet()),
+                repository.graphs().collect(Collectors.toSet())
+        );
+    }
+
+    @Test
+    public void testChangeId2() {
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel("A", repository);
+        OntModel b = OntModelFactory.createModel("B", repository);
+        OntModel c = OntModelFactory.createModel("C", repository);
+
+        a.addImport(b);
+        Assertions.assertEquals(3, repository.count());
+
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class, () -> b.setID("B-X"));
+
+        Assertions.assertEquals("A", a.getID().getImportsIRI());
+        Assertions.assertEquals("B", b.getID().getImportsIRI());
+        Assertions.assertEquals("C", c.getID().getImportsIRI());
+
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class,
+                () -> b.createResource().addProperty(RDF.type, OWL.Ontology)
+        );
+
+        Assertions.assertEquals("A", a.getID().getImportsIRI());
+        Assertions.assertEquals("B", b.getID().getImportsIRI());
+        Assertions.assertEquals("C", c.getID().getImportsIRI());
+
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class,
+                () -> b.getGraph().add(
+                        Graphs.ontologyNode(b.getGraph()).orElseThrow(),
+                        RDF.type.asNode(),
+                        OWL.Ontology.asNode()
+                )
+        );
+
+        Assertions.assertEquals("A", a.getID().getImportsIRI());
+        Assertions.assertEquals("B", b.getID().getImportsIRI());
+        Assertions.assertEquals("C", c.getID().getImportsIRI());
+
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class,
+                () -> b.getGraph().delete(
+                        Graphs.ontologyNode(b.getGraph()).orElseThrow(),
+                        RDF.type.asNode(),
+                        OWL.Ontology.asNode()
+                )
+        );
+
+        Assertions.assertEquals("A", a.getID().getImportsIRI());
+        Assertions.assertEquals("B", b.getID().getImportsIRI());
+        Assertions.assertEquals("C", c.getID().getImportsIRI());
+        Assertions.assertEquals(List.of("A", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
+
+    }
 
     @Test
     public void testCreateOntModel1() {
@@ -76,6 +184,26 @@ public class OntUnionGraphRepositoryTest {
         Assertions.assertEquals(6, repository.count());
         Assertions.assertEquals(f.getGraph(), repository.get("F"));
     }
+
+    @Test
+    public void testCreateOntModel3() {
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_RDFS_INF, repository).setID("A").getModel();
+        OntModel b = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM_TRANS_INF, repository).setID("B").getModel();
+        OntModel c = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM, repository).setID("C").getModel();
+
+        a.addImport(b);
+
+        Assertions.assertEquals(3, repository.count());
+
+        Set<Graph> expected = Stream.of(a, b, c)
+                .map(ModelGraphInterface::getGraph)
+                .map(graph -> graph instanceof InfGraph ? ((InfGraph) graph).getRawGraph() : graph)
+                .collect(Collectors.toSet());
+        Set<Graph> actual = repository.graphs().collect(Collectors.toSet());
+        Assertions.assertEquals(expected, actual);
+    }
+
 
     @Test
     public void testAddImportModel1() {

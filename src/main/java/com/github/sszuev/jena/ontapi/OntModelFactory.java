@@ -149,7 +149,7 @@ public class OntModelFactory {
      * Creates an {@link OntModel Ontology Model} which is {@link org.apache.jena.rdf.model.InfModel Inference Model}.
      * The specified graph and its subgraphs (if any) must not be {@link InfGraph}.
      *
-     * @param graph        {@link Graph}
+     * @param graph       {@link Graph}
      * @param personality {@link OntPersonality}
      * @param reasoner    {@link Reasoner}
      * @return {@link OntModel}
@@ -168,6 +168,24 @@ public class OntModelFactory {
     }
 
     /**
+     * Creates an Ontology Model associated with {@link OntSpecification#OWL2_DL_MEM_BUILTIN_INF} spec.
+     * The {@code repository} manages all the dependencies.
+     * See {@link #createModel(Graph, OntSpecification, GraphRepository)}.
+     *
+     * @param uri        String, subject of {@code uri rdf:type owl:Ontology} statement.
+     * @param repository {@link GraphRepository}
+     * @return {@link OntModel}
+     */
+    public static OntModel createModel(String uri, GraphRepository repository) {
+        Objects.requireNonNull(uri);
+        return createModel(
+                createDefaultModel().createResource(uri, OWL.Ontology).getModel().getGraph(),
+                OntSpecification.OWL2_DL_MEM_BUILTIN_INF,
+                repository
+        );
+    }
+
+    /**
      * Creates an Ontology Model according to the specified specification.
      * The {@code repository} manages all the dependencies.
      * See {@link #createModel(Graph, OntSpecification, GraphRepository)}.
@@ -183,11 +201,13 @@ public class OntModelFactory {
     /**
      * Creates an Ontology Model according to the specified specification.
      * The {@code repository} manages all the dependencies (imports closure).
+     * <p>
      * Note that for consistency it is necessary to work only
      * through the {@link OntModel} or {@link UnionGraph} interfaces.
      * Working directly with the {@link UnionGraph#getBaseGraph()} or {@code repository} may break the state.
      * Imports closure control is performed via {@link UnionGraph.Listener},
-     * any ontological graphs from the {@code repository} which are in use, will be wrapped as {@link UnionGraph}.
+     * any ontological graphs in the {@code repository} is wrapped as {@link UnionGraph},
+     * {@link InfGraph} are not stored in the {@code repository}.
      * When adding subgraph using the {@link UnionGraph#addSubGraph(Graph)} method
      * a statement {@code a owl:import b} will be added.
      * In turns, adding a statement {@code a owl:import b} will cause adding a subgraph.
@@ -195,8 +215,15 @@ public class OntModelFactory {
      * an empty ontology graph will be associated with the corresponding {@code owl:import}.
      * The specified graph and its subgraphs (if any) must not be {@link InfGraph}.
      * Note that the method adds ontology headers to each subgraph of the specified graph, including itself.
+     * Also note that attempt to change {@link com.github.sszuev.jena.ontapi.model.OntID OntID}
+     * will cause {@link OntJenaException.IllegalArgument}
+     * if the ontology is in some other ontologies' import closure.
+     * <p>
+     * This method can also be used to retrieve {@link OntModel} from the {@code repository}:
+     * it returns a new instance of {@link OntModel} wrapping the existing {@link UnionGraph}
+     * if it is present in the {@code repository}.
      *
-     * @param graph       {@link Graph}
+     * @param graph      {@link Graph}
      * @param spec       {@link OntSpecification}
      * @param repository {@link GraphRepository}
      * @return {@link OntModel}

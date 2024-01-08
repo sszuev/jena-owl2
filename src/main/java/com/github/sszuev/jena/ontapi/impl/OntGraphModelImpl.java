@@ -334,9 +334,11 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntID setID(String uri) {
         checkType(OntID.class);
+        UnionGraph ug = getUnionGraph();
+        UnionGraph.EventManager em = ug.getEventManager();
+        em.notifyEvent(ug, OntModelEvents.ON_ONT_ID_CHANGE);
         OntID res = getNodeAs(Graphs.createOntologyHeaderNode(getBaseGraph(), uri), OntID.class);
-        UnionGraph u = getUnionGraph();
-        u.getEventManager().notifyEvent(u, OntModelEvents.NOTIFY_ONT_ID_CHANGED);
+        em.notifyEvent(ug, OntModelEvents.NOTIFY_ONT_ID_CHANGED);
         return res;
     }
 
@@ -478,7 +480,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         UnionGraph u = getUnionGraph();
         ExtendedIterator<Graph> subGraphs;
         if (u instanceof UnionGraphImpl) {
-            subGraphs = ((UnionGraphImpl) u).listSubGraphs();
+            subGraphs = ((UnionGraphImpl) u).getSubGraphs().listGraphs();
         } else {
             subGraphs = WrappedIterator.create(u.subGraphs().iterator());
         }

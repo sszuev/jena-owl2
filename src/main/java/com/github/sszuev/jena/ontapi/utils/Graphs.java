@@ -501,6 +501,18 @@ public class Graphs {
     }
 
     /**
+     * Answers {@code true} if the given uri is present in the import closure.
+     *
+     * @param graph {@link Graph}, not {@code null}
+     * @param uri   to test
+     * @return boolean
+     */
+    public static boolean hasImports(Graph graph, String uri) {
+        Objects.requireNonNull(uri);
+        return Iterators.findFirst(listImports(graph).filterKeep(uri::equals)).isPresent();
+    }
+
+    /**
      * Returns an {@code ExtendedIterator} over all URIs from the {@code _:x owl:imports _:uri} statements.
      * In the case of composite graph, imports are listed transitively.
      *
@@ -508,7 +520,7 @@ public class Graphs {
      * @return {@link ExtendedIterator} of {@code String}-URIs
      */
     public static ExtendedIterator<String> listImports(Graph graph) {
-        Node ontology = ontologyNode(graph).orElse(null);
+        Node ontology = ontologyNode(Objects.requireNonNull(graph)).orElse(null);
         if (ontology == null) {
             return NullIterator.instance();
         }

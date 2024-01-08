@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * A wrapper for {@link DocumentGraphRepository} that controls imports {@link com.github.sszuev.jena.ontapi.model.OntModel} closure.
@@ -59,6 +60,28 @@ public class OntUnionGraphRepository {
         return graph.subGraphs()
                 .filter(it -> Graphs.findOntologyNameNode(getBase(it)).filter(name::equals).isPresent())
                 .findFirst();
+    }
+
+    public static void checkIDCanBeChanged(UnionGraph graph) {
+        String uri = Graphs.findOntologyNameNode(graph.getBaseGraph())
+                .filter(Node::isURI)
+                .map(Node::getURI)
+                .orElse(null);
+        if (uri == null) {
+            return;
+        }
+        Set<String> parents = graph.superGraphs()
+                .filter(it -> !graph.equals(it))
+                .filter(it -> Graphs.hasImports(it.getBaseGraph(), uri))
+                .map(it -> Graphs.findOntologyNameNode(it.getBaseGraph()))
+                .filter(Optional::isPresent)
+                .map(Optional::toString)
+                .collect(Collectors.toSet());
+        if (!parents.isEmpty()) {
+            throw new OntJenaException.IllegalArgument(
+                    "Can't change ontology ID <" + uri + ">: it is used by <" + String.join(">, <", parents) + ">"
+            );
+        }
     }
 
     public void remap(Graph graph) {

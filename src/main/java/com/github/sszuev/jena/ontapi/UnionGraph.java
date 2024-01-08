@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphEventManager;
 import org.apache.jena.graph.GraphListener;
+import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.shared.PrefixMapping;
 
@@ -129,7 +130,7 @@ public interface UnionGraph extends Graph {
         Stream<GraphListener> listeners();
 
         /**
-         * Lists all encapsulated listeners.
+         * Lists all encapsulated listeners for the given type.
          *
          * @param type {@code Class}-type of {@link GraphListener}
          * @return Stream of {@link GraphListener}s
@@ -141,6 +142,24 @@ public interface UnionGraph extends Graph {
     }
 
     interface Listener extends GraphListener {
+
+        /**
+         * Called before {@link UnionGraph#add(Node, Node, Node)} & {@link UnionGraph#add(Triple)}.
+         *
+         * @param graph  {@link UnionGraph}
+         * @param triple {@link Triple}
+         */
+        void onAddTriple(UnionGraph graph, Triple triple);
+
+        /**
+         * Called before
+         * {@link UnionGraph#delete(Node, Node, Node)} & {@link UnionGraph#delete(Triple)} & {@link UnionGraph#remove(Node, Node, Node)}.
+         *
+         * @param graph  {@link UnionGraph}
+         * @param triple {@link Triple}
+         */
+        void onDeleteTriple(UnionGraph graph, Triple triple);
+
         /**
          * Called before {@link UnionGraph#addSubGraph(Graph)}
          *
@@ -148,6 +167,14 @@ public interface UnionGraph extends Graph {
          * @param subGraph {@link Graph}
          */
         void onAddSubGraph(UnionGraph graph, Graph subGraph);
+
+        /**
+         * Called before {@link UnionGraph#removeSubGraph(Graph)}
+         *
+         * @param graph    {@link Graph}
+         * @param subGraph {@link Graph}
+         */
+        void onRemoveSubGraph(UnionGraph graph, Graph subGraph);
 
         /**
          * Called after {@link UnionGraph#addSubGraph(Graph)}
@@ -164,14 +191,6 @@ public interface UnionGraph extends Graph {
          * @param superGraph {@link UnionGraph}
          */
         void notifySuperGraphAdded(UnionGraph graph, UnionGraph superGraph);
-
-        /**
-         * Called before {@link UnionGraph#removeSubGraph(Graph)}
-         *
-         * @param graph    {@link Graph}
-         * @param subGraph {@link Graph}
-         */
-        void onRemoveSubGraph(UnionGraph graph, Graph subGraph);
 
         /**
          * Called after {@link UnionGraph#removeSubGraph(Graph)}
