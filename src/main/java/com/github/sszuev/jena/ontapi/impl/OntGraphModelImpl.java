@@ -336,9 +336,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         checkType(OntID.class);
         UnionGraph ug = getUnionGraph();
         UnionGraph.EventManager em = ug.getEventManager();
-        em.notifyEvent(ug, OntModelEvents.ON_ONT_ID_CHANGE);
+        em.notifyEvent(ug, OntModelEvent.startChangeIDEvent());
         OntID res = getNodeAs(Graphs.createOntologyHeaderNode(getBaseGraph(), uri), OntID.class);
-        em.notifyEvent(ug, OntModelEvents.NOTIFY_ONT_ID_CHANGED);
+        em.notifyEvent(ug, OntModelEvent.finishChangeIDEvent());
         return res;
     }
 
@@ -1232,14 +1232,22 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     }
 
     @Override
-    public OntGraphModelImpl add(Model m) {
-        super.add(m);
+    public OntGraphModelImpl add(Model data) {
+        UnionGraph ug = getUnionGraph();
+        UnionGraph.EventManager em = ug.getEventManager();
+        em.notifyEvent(ug, OntModelEvent.startAddDataGraphEvent(data.getGraph()));
+        super.add(data);
+        em.notifyEvent(ug, OntModelEvent.finishAddDataGraphEvent(data.getGraph()));
         return this;
     }
 
     @Override
-    public OntGraphModelImpl remove(Model m) {
-        super.remove(m);
+    public OntGraphModelImpl remove(Model data) {
+        UnionGraph ug = getUnionGraph();
+        UnionGraph.EventManager em = ug.getEventManager();
+        em.notifyEvent(ug, OntModelEvent.startDeleteDataGraphEvent(data.getGraph()));
+        super.remove(data);
+        em.notifyEvent(ug, OntModelEvent.finishDeleteDataGraphEvent(data.getGraph()));
         return this;
     }
 

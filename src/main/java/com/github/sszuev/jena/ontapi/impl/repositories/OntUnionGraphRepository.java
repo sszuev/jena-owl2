@@ -63,49 +63,70 @@ public class OntUnionGraphRepository {
     }
 
     public static void checkIDCanBeChanged(UnionGraph graph) {
-        String uri = Graphs.findOntologyNameNode(graph.getBaseGraph())
-                .filter(Node::isURI)
-                .map(Node::getURI)
-                .orElse(null);
-        if (uri == null) {
+        Node name = Graphs.findOntologyNameNode(graph.getBaseGraph()).orElse(null);
+        if (name == null || !name.isURI()) {
             return;
         }
         Set<String> parents = graph.superGraphs()
-                .filter(it -> !graph.equals(it))
-                .filter(it -> Graphs.hasImports(it.getBaseGraph(), uri))
-                .map(it -> Graphs.findOntologyNameNode(it.getBaseGraph()))
+                .filter(it -> Graphs.hasImports(it.getBaseGraph(), name.getURI()))
+                .map(it -> Graphs.findOntologyNameNode(it.getBaseGraph()).filter(x -> !name.equals(x)))
                 .filter(Optional::isPresent)
-                .map(Optional::toString)
+                .map(Optional::get)
+                .map(Node::toString)
                 .collect(Collectors.toSet());
         if (!parents.isEmpty()) {
             throw new OntJenaException.IllegalArgument(
-                    "Can't change ontology ID <" + uri + ">: it is used by <" + String.join(">, <", parents) + ">"
+                    "Can't change ontology ID <" + name + ">: it is used by <" + String.join(">, <", parents) + ">"
             );
         }
     }
 
-    public void remap(Graph graph) {
+    /**
+     * Returns the graph by its ontology name.
+     *
+     * @param name {@link Node}
+     * @return {@link UnionGraph}, never {@code null}
+     */
+    public UnionGraph get(Node name) {
+        return putGraph(repositoryGet(name), name.toString());
+    }
+
+    /**
+     * Puts the graph into the repository returning {@link UnionGraph} wrapper.
+     * All dependencies are processed.
+     *
+     * @param graph {@link Graph}
+     * @return {@link UnionGraph}
+     */
+    public UnionGraph put(Graph graph) {
+        return putGraph(graph, null);
+    }
+
+    /**
+     * Synchronizes graph's ontology name with the underlying storage.
+     * Graph's identifier in the storage must match ontology name ({@code owl:Ontology} or {@code owl:versionIRI}).
+     * If there is no ontology name, the graph will be removed from the {@code repository}.
+     *
+     * @param graph {@link UnionGraph}
+     * @return {@code true} if graph's identifier has been changed, {@code false} if no change is made
+     */
+    public boolean remap(UnionGraph graph) {
         String newName = Graphs.findOntologyNameNode(getBase(graph)).map(Node::toString).orElse(null);
         if (newName != null && repository.contains(newName)) {
-            return;
+            return false;
         }
         String prevName = repository.ids()
                 .filter(name -> graphEquals(graph, repositoryGerOrNull(name)))
                 .findFirst()
                 .orElse(null);
         if (Objects.equals(newName, prevName)) {
-            return;
+            return false;
         }
         repository.remove(prevName);
-        repository.put(newName, graph);
-    }
-
-    public UnionGraph get(Node name) {
-        return putGraph(repositoryGet(name), name.toString());
-    }
-
-    public UnionGraph put(Graph givenGraph) {
-        return putGraph(givenGraph, null);
+        if (newName != null) {
+            repository.put(newName, graph);
+        }
+        return true;
     }
 
     protected UnionGraph putGraph(Graph root, String rootGraphId) {
@@ -215,7 +236,7 @@ public class OntUnionGraphRepository {
 
     protected void attachListener(UnionGraph res) {
         UnionGraph.EventManager manager = res.getEventManager();
-        if (manager.listeners(OntUnionGraphListener.class).noneMatch(it -> isSameRepository(it.ontUnionGraphRepository))) {
+        if (manager.listeners(OntUnionGraphListener.class).noneMatch(it -> isSameRepository(it.ontGraphRepository))) {
             manager.register(new OntUnionGraphListener(this));
         }
     }
@@ -223,6 +244,5 @@ public class OntUnionGraphRepository {
     protected boolean isSameRepository(OntUnionGraphRepository repository) {
         return this.repository == repository.repository;
     }
-
 
 }

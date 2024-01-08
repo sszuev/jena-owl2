@@ -161,7 +161,7 @@ public interface UnionGraph extends Graph {
         void onDeleteTriple(UnionGraph graph, Triple triple);
 
         /**
-         * Called before {@link UnionGraph#addSubGraph(Graph)}
+         * Called before {@link UnionGraph#addSubGraph(Graph)}.
          *
          * @param graph    {@link UnionGraph}
          * @param subGraph {@link Graph}
@@ -169,7 +169,7 @@ public interface UnionGraph extends Graph {
         void onAddSubGraph(UnionGraph graph, Graph subGraph);
 
         /**
-         * Called before {@link UnionGraph#removeSubGraph(Graph)}
+         * Called before {@link UnionGraph#removeSubGraph(Graph)}.
          *
          * @param graph    {@link Graph}
          * @param subGraph {@link Graph}
@@ -177,7 +177,9 @@ public interface UnionGraph extends Graph {
         void onRemoveSubGraph(UnionGraph graph, Graph subGraph);
 
         /**
-         * Called after {@link UnionGraph#addSubGraph(Graph)}
+         * Called after {@link UnionGraph#addSubGraph(Graph)}.
+         * Note it differs from {@link #notifyAddGraph(Graph, Graph)},
+         * which is called when RDF data added into the {@link UnionGraph#getBaseGraph()}.
          *
          * @param graph    {@link UnionGraph}
          * @param subGraph {@link Graph}
@@ -185,7 +187,7 @@ public interface UnionGraph extends Graph {
         void notifySubGraphAdded(UnionGraph graph, Graph subGraph);
 
         /**
-         * Called after {@link UnionGraph#addSubGraph(Graph)}
+         * Called after {@link UnionGraph#addSubGraph(Graph)}.
          *
          * @param graph      {@link UnionGraph}
          * @param superGraph {@link UnionGraph}
@@ -193,7 +195,9 @@ public interface UnionGraph extends Graph {
         void notifySuperGraphAdded(UnionGraph graph, UnionGraph superGraph);
 
         /**
-         * Called after {@link UnionGraph#removeSubGraph(Graph)}
+         * Called after {@link UnionGraph#removeSubGraph(Graph)}.
+         * Note it differs from {@link #notifyDeleteGraph(Graph, Graph)},
+         * which is called when RDF data is added into the {@link UnionGraph#getBaseGraph()}.
          *
          * @param graph    {@link Graph}
          * @param subGraph {@link Graph}

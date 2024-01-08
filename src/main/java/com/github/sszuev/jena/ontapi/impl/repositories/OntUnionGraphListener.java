@@ -3,27 +3,31 @@ package com.github.sszuev.jena.ontapi.impl.repositories;
 import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.impl.GraphListenerBase;
-import com.github.sszuev.jena.ontapi.impl.OntModelEvents;
+import com.github.sszuev.jena.ontapi.impl.OntModelEvent;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
+import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphListener;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OntUnionGraphListener extends GraphListenerBase implements UnionGraph.EventManager {
 
     private final List<GraphListener> inactive = new ArrayList<>();
-    final OntUnionGraphRepository ontUnionGraphRepository;
+    final OntUnionGraphRepository ontGraphRepository;
 
-    protected OntUnionGraphListener(OntUnionGraphRepository ontUnionGraphRepository) {
-        this.ontUnionGraphRepository = Objects.requireNonNull(ontUnionGraphRepository);
+    protected OntUnionGraphListener(OntUnionGraphRepository ontGraphRepository) {
+        this.ontGraphRepository = Objects.requireNonNull(ontGraphRepository);
     }
 
     @Override
@@ -41,7 +45,9 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     @Override
     public void onAddTriple(UnionGraph graph, Triple triple) {
         if (isNameTriple(triple)) {
-            OntUnionGraphRepository.checkIDCanBeChanged(graph);
+            if (!graph.getBaseGraph().contains(triple)) {
+                OntUnionGraphRepository.checkIDCanBeChanged(graph);
+            }
         }
         listeners(UnionGraph.Listener.class).forEach(it -> it.onAddTriple(graph, triple));
     }
@@ -49,7 +55,9 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     @Override
     public void onDeleteTriple(UnionGraph graph, Triple triple) {
         if (isNameTriple(triple)) {
-            OntUnionGraphRepository.checkIDCanBeChanged(graph);
+            if (graph.getBaseGraph().contains(triple)) {
+                OntUnionGraphRepository.checkIDCanBeChanged(graph);
+            }
         }
         listeners(UnionGraph.Listener.class).forEach(it -> it.onDeleteTriple(graph, triple));
     }
@@ -78,7 +86,7 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
                     .orElseGet(() -> Graphs.createOntologyHeaderNode(thisOntBaseGraph, null));
             thisOntBaseGraph.add(ontology, OWL.imports.asNode(), ontSubGraphIri);
 
-            UnionGraph ontSubGraph = ontUnionGraphRepository.put(subGraph);
+            UnionGraph ontSubGraph = ontGraphRepository.put(subGraph);
             if (subGraph != ontSubGraph) {
                 Graph justAddedGraph = thisGraph.subGraphs()
                         .filter(it -> OntUnionGraphRepository.graphEquals(it, subGraph))
@@ -103,7 +111,7 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
             Node graphName = Graphs.findOntologyNameNode(graph.getBaseGraph()).filter(Node::isURI).orElse(null);
             if (graphName != null) {
                 superGraph.getBaseGraph().add(superGraphOntology, OWL.imports.asNode(), graphName);
-                ontUnionGraphRepository.put(superGraph);
+                ontGraphRepository.put(superGraph);
             }
         }
         listeners(UnionGraph.Listener.class).forEach(it -> it.notifySuperGraphAdded(graph, superGraph));
@@ -149,12 +157,12 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     protected void addTripleEvent(Graph g, Triple t) {
         UnionGraph thisGraph = (UnionGraph) g;
         if (isNameTriple(t)) {
-            ontUnionGraphRepository.remap(thisGraph);
+            ontGraphRepository.remap(thisGraph);
         } else if (isImportTriple(t, thisGraph.getBaseGraph())) {
             UnionGraph.EventManager manager = thisGraph.getEventManager();
             try {
                 manager.off();
-                UnionGraph add = ontUnionGraphRepository.get(t.getObject());
+                UnionGraph add = ontGraphRepository.get(t.getObject());
                 thisGraph.addSubGraphIfAbsent(add);
             } catch (Exception ex) {
                 // rollback the addition of an import statement
@@ -170,12 +178,12 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     protected void deleteTripleEvent(Graph g, Triple t) {
         UnionGraph thisGraph = (UnionGraph) g;
         if (isNameTriple(t)) {
-            ontUnionGraphRepository.remap(thisGraph);
+            ontGraphRepository.remap(thisGraph);
         } else if (isImportTriple(t, thisGraph.getBaseGraph())) {
             UnionGraph.EventManager manager = thisGraph.getEventManager();
             try {
                 manager.off();
-                UnionGraph toRemove = ontUnionGraphRepository.get(t.getObject());
+                UnionGraph toRemove = ontGraphRepository.get(t.getObject());
                 thisGraph.removeSubGraph(toRemove);
             } finally {
                 manager.on();
@@ -184,24 +192,39 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
     }
 
     @Override
-    public void notifyAddGraph(Graph g, Graph other) {
-        // TODO:
-        super.notifyAddGraph(g, other);
-    }
-
-    @Override
-    public void notifyDeleteGraph(Graph g, Graph other) {
-        // TODO:
-        super.notifyDeleteGraph(g, other);
-    }
-
-    @Override
     public void notifyEvent(Graph source, Object event) {
-        if (OntModelEvents.ON_ONT_ID_CHANGE.equals(event)) {
-            OntUnionGraphRepository.checkIDCanBeChanged((UnionGraph) source);
+        UnionGraph thisGraph = (UnionGraph) source;
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.START_ADD_DATA_GRAPH)) {
+            Graph data = (Graph) ((OntModelEvent) event).getContent();
+            Set<Triple> header = Iterators.addAll(
+                    thisGraph.getBaseGraph().find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
+                    new HashSet<>()
+            );
+            Iterators.addAll(
+                    data.find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
+                    header
+            );
+            Graph tmp = GraphMemFactory.createDefaultGraph();
+            header.forEach(tmp::add);
+            Node newName = Graphs.findOntologyNameNode(tmp).orElse(null);
+            if (newName == null) {
+                throw new OntJenaException.IllegalArgument("Cancel. Adding data will result in invalid ontology ID");
+            }
+            Node prevName = Graphs.findOntologyNameNode(thisGraph.getBaseGraph()).orElse(null);
+            if (!Objects.equals(newName, prevName)) {
+                OntUnionGraphRepository.checkIDCanBeChanged(thisGraph);
+            }
         }
-        if (OntModelEvents.NOTIFY_ONT_ID_CHANGED.equals(event)) {
-            ontUnionGraphRepository.remap(source);
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.FINISH_ADD_DATA_GRAPH)) {
+            ontGraphRepository.remap(thisGraph);
+            // put to process imports
+            ontGraphRepository.put(thisGraph);
+        }
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.START_CHANGE_ID)) {
+            OntUnionGraphRepository.checkIDCanBeChanged(thisGraph);
+        }
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.FINISH_CHANGE_ID)) {
+            ontGraphRepository.remap(thisGraph);
         }
         // TODO:
         super.notifyEvent(source, event);

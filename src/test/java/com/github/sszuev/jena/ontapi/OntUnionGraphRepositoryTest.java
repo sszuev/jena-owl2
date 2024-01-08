@@ -5,6 +5,7 @@ import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ModelGraphInterface;
@@ -100,7 +101,7 @@ public class OntUnionGraphRepositoryTest {
 
         Assertions.assertThrows(OntJenaException.IllegalArgument.class,
                 () -> b.getGraph().add(
-                        Graphs.ontologyNode(b.getGraph()).orElseThrow(),
+                        NodeFactory.createURI("B-v1"),
                         RDF.type.asNode(),
                         OWL.Ontology.asNode()
                 )
@@ -341,4 +342,76 @@ public class OntUnionGraphRepositoryTest {
 
         Assertions.assertEquals(3, repository.ids().count());
     }
+
+    @Test
+    public void testAddGraphData1() {
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel("A", repository);
+        OntModel b = OntModelFactory.createModel("B", repository);
+
+        a.createOntClass("C-A-1");
+        b.createOntClass("C-B");
+
+        Model data1 = ModelFactory.createDefaultModel();
+        data1.createResource("C-A-2", OWL.Class);
+        data1.createResource("A").addProperty(OWL.imports, data1.createResource("B"));
+
+        a.add(data1);
+
+        Assertions.assertEquals(3, a.classes().count());
+        Assertions.assertEquals(List.of(b.getGraph()), ((UnionGraph) a.getGraph()).subGraphs().collect(Collectors.toList()));
+        Assertions.assertEquals(2, repository.count());
+        Assertions.assertEquals(
+                Stream.of(a, b).map(ModelGraphInterface::getGraph).collect(Collectors.toSet()),
+                repository.graphs().collect(Collectors.toSet())
+        );
+
+        Model data2 = ModelFactory.createDefaultModel();
+        data2.createResource("X").addProperty(RDF.type, OWL.Ontology);
+
+        // Adding data will result in invalid ontology ID
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class, () -> a.add(data2));
+        Assertions.assertEquals(4, a.getBaseGraph().size());
+        Assertions.assertEquals(List.of("A", "B"), repository.ids().sorted().collect(Collectors.toList()));
+
+        // change id
+        Model data3 = ModelFactory.createDefaultModel();
+        data3.createResource("A").addProperty(OWL.versionIRI, data3.createResource("A-X"));
+        a.add(data3);
+
+        Assertions.assertEquals(3, a.classes().count());
+        Assertions.assertEquals(List.of("A-X", "B"), repository.ids().sorted().collect(Collectors.toList()));
+        Assertions.assertEquals(
+                Stream.of(a, b).map(ModelGraphInterface::getGraph).collect(Collectors.toSet()),
+                repository.graphs().collect(Collectors.toSet())
+        );
+    }
+
+    @Test
+    public void testAddGraphData2() {
+        OntModel a = OntModelFactory.createModel().setID("A").getModel();
+        OntModel b = OntModelFactory.createModel().setID("B").getModel();
+        a.addImport(b);
+
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel A = OntModelFactory.createModel(a.getGraph(), OntSpecification.OWL2_DL_MEM_BUILTIN_INF, repository);
+        Assertions.assertEquals(3, A.size());
+        Assertions.assertEquals(List.of("A", "B"), repository.ids().sorted().collect(Collectors.toList()));
+
+        Model data1 = ModelFactory.createDefaultModel();
+        data1.createResource("B", OWL.Ontology);
+
+        b.add(data1);
+        Assertions.assertEquals(List.of("A", "B"), repository.ids().sorted().collect(Collectors.toList()));
+        Assertions.assertEquals(3, A.size());
+
+        Model data2 = ModelFactory.createDefaultModel();
+        data2.createResource("B", OWL.Ontology).addProperty(OWL.versionIRI, data2.createResource("B-v1"));
+
+        // Can't change ontology ID <B>: it is used by <A>
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class, () -> b.add(data2));
+        Assertions.assertEquals(List.of("A", "B"), repository.ids().sorted().collect(Collectors.toList()));
+        Assertions.assertEquals(3, A.size());
+    }
+
 }

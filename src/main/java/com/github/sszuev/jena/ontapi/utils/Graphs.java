@@ -443,18 +443,14 @@ public class Graphs {
         if (ontologyIri == null) {
             return Optional.empty();
         }
-        ExtendedIterator<Node> versionNodes = graph.find(ontologyIri, OWL.versionIRI.asNode(), Node.ANY)
-                .mapWith(Triple::getObject)
-                .filterKeep(Node::isURI);
-        try {
-            Set<Node> res = versionNodes.toSet();
-            if (res.size() != 1) {
-                return Optional.of(ontologyIri);
-            }
-            return Optional.of(res.iterator().next());
-        } finally {
-            versionNodes.close();
+        Set<Node> versionNodes = Iterators.takeAsSet(
+                graph.find(ontologyIri, OWL.versionIRI.asNode(), Node.ANY)
+                        .mapWith(Triple::getObject)
+                        .filterKeep(Node::isURI), 2);
+        if (versionNodes.size() == 1) {
+            return Optional.of(versionNodes.iterator().next());
         }
+        return Optional.of(ontologyIri);
     }
 
     /**
