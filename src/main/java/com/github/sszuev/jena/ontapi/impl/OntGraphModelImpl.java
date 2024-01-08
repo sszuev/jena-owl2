@@ -86,6 +86,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -474,7 +475,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * Lists all top-level {@link UnionGraph}s of the model's {@code owl:import} hierarchy.
      * This model graph is not included.
      *
-     * @return <b>non-distinct</b> {@code ExtendedIterator} of {@link UnionGraph}
+     * @return {@code ExtendedIterator} of {@link UnionGraph}s
      */
     protected final ExtendedIterator<UnionGraph> listImportGraphs() {
         UnionGraph u = getUnionGraph();
@@ -484,7 +485,16 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         } else {
             subGraphs = WrappedIterator.create(u.subGraphs().iterator());
         }
-        return subGraphs.filterKeep(x -> x instanceof UnionGraph).mapWith(x -> (UnionGraph) x);
+        Set<String> imports = Graphs.getImports(u.getBaseGraph());
+        return subGraphs
+                .filterKeep(x -> x instanceof UnionGraph)
+                .mapWith(x -> (UnionGraph) x)
+                .filterKeep(it -> Graphs.findOntologyNameNode(it.getBaseGraph())
+                        .filter(Node::isURI)
+                        .map(Node::getURI)
+                        .filter(imports::contains)
+                        .isPresent()
+                );
     }
 
     /**
@@ -1236,7 +1246,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         UnionGraph ug = getUnionGraph();
         UnionGraph.EventManager em = ug.getEventManager();
         em.notifyEvent(ug, OntModelEvent.startAddDataGraphEvent(data.getGraph()));
-        super.add(data);
+        getBaseModel().add(data);
         em.notifyEvent(ug, OntModelEvent.finishAddDataGraphEvent(data.getGraph()));
         return this;
     }
@@ -1246,7 +1256,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         UnionGraph ug = getUnionGraph();
         UnionGraph.EventManager em = ug.getEventManager();
         em.notifyEvent(ug, OntModelEvent.startDeleteDataGraphEvent(data.getGraph()));
-        super.remove(data);
+        getBaseModel().remove(data);
         em.notifyEvent(ug, OntModelEvent.finishDeleteDataGraphEvent(data.getGraph()));
         return this;
     }
@@ -1368,49 +1378,45 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public OntGraphModelImpl read(String url) {
-        super.read(url);
-        rebind();
-        return this;
+        return read(it -> it.read(url));
     }
 
     @Override
     public OntGraphModelImpl read(Reader reader, String base) {
-        super.read(reader, base);
-        rebind();
-        return this;
+        return read(it -> it.read(reader, base));
     }
 
     @Override
     public OntGraphModelImpl read(InputStream reader, String base) {
-        super.read(reader, base);
-        rebind();
-        return this;
+        return read(it -> it.read(reader, base));
     }
 
     @Override
     public OntGraphModelImpl read(String url, String lang) {
-        super.read(url, lang);
-        rebind();
-        return this;
+        return read(it -> it.read(url, lang));
     }
 
     @Override
     public OntGraphModelImpl read(String url, String base, String lang) {
-        super.read(url, base, lang);
-        rebind();
-        return this;
+        return read(it -> it.read(url, base, lang));
     }
 
     @Override
     public OntGraphModelImpl read(Reader reader, String base, String lang) {
-        super.read(reader, base, lang);
-        rebind();
-        return this;
+        return read(it -> it.read(reader, base, lang));
     }
 
     @Override
     public OntGraphModelImpl read(InputStream reader, String base, String lang) {
-        super.read(reader, base, lang);
+        return read(it -> it.read(reader, base, lang));
+    }
+
+    private OntGraphModelImpl read(Consumer<Model> reader) {
+        UnionGraph ug = getUnionGraph();
+        UnionGraph.EventManager em = ug.getEventManager();
+        em.notifyEvent(ug, OntModelEvent.startReadDataGraphEvent());
+        reader.accept(getBaseModel());
+        em.notifyEvent(ug, OntModelEvent.finishReadDataGraphEvent());
         rebind();
         return this;
     }

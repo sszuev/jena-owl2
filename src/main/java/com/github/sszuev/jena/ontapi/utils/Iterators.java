@@ -349,6 +349,24 @@ public class Iterators {
     }
 
     /**
+     * Performs {@code forEach}.
+     * On finish iteration, the iterator will be closed.
+     *
+     * @param iterator {@link Iterator}, not {@code null}
+     * @param action   {@link Consumer} accepting {@link X}
+     * @param <X>      any
+     */
+    public static <X> void forEach(Iterator<X> iterator, Consumer<X> action) {
+        try {
+            while (iterator.hasNext()) {
+                action.accept(iterator.next());
+            }
+        } finally {
+            close(iterator);
+        }
+    }
+
+    /**
      * Puts all the remaining items of the given iterator into the {@code collection},
      * and returns this collection itself.
      * This is a terminal operation.

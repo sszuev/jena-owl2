@@ -6,7 +6,10 @@ import org.apache.jena.riot.Lang;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public class RDFIOTestUtils {
@@ -31,6 +34,14 @@ public class RDFIOTestUtils {
             return (X) m.read(in, null, lang.getName());
         } catch (IOException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    public static void save(Model data, Path file, Lang lang) {
+        try (OutputStream out = Files.newOutputStream(file)) {
+            data.write(out, lang.getName());
+        } catch (IOException e) {
+            throw new IllegalStateException();
         }
     }
 }

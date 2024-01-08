@@ -56,6 +56,33 @@ public class OntUnionGraphRepository {
         return left == right;
     }
 
+    /**
+     * Removes all subgraphs which are not connected to the parent by the {@code owl:imports} relationship.
+     *
+     * @param graph {@link UnionGraph}
+     */
+    public static void removeUnusedImportSubGraphs(UnionGraph graph) {
+        Set<String> imports = Graphs.getImports(graph.getBaseGraph());
+        Set<Graph> delete = graph.subGraphs().filter(it -> {
+            String uri = Graphs.findOntologyNameNode(getBase(it)).filter(Node::isURI).map(Node::getURI).orElse(null);
+            return uri != null && !imports.contains(uri);
+        }).collect(Collectors.toSet());
+        UnionGraph.EventManager events = graph.getEventManager();
+        try {
+            events.off();
+            delete.forEach(graph::removeSubGraph);
+        } finally {
+            events.on();
+        }
+    }
+
+    /**
+     * Finds ont subgraph by its ontology name  ({@code owl:Ontology} or {@code owl:versionIRI}).
+     *
+     * @param graph {@link UnionGraph}
+     * @param name  {@link Node}
+     * @return {@link  Optional} wrapping subgraph
+     */
     public static Optional<Graph> findSubGraphByOntName(UnionGraph graph, Node name) {
         return graph.subGraphs()
                 .filter(it -> Graphs.findOntologyNameNode(getBase(it)).filter(name::equals).isPresent())

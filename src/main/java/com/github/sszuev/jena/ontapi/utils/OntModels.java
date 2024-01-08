@@ -23,7 +23,6 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.model.RDFNodeList;
-import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -32,13 +31,8 @@ import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -117,34 +111,6 @@ public class OntModels {
                 })
                 .filter(m -> m.imports().map(OntModel::getID).map(OntID::getImportsIRI).noneMatch(uri::equals))
                 .forEach(m -> m.addImport(ont));
-    }
-
-    /**
-     * Synchronizes the import declarations with the graph hierarchy.
-     * Underling graph tree may content named graphs which are not included to the {@code owl:imports} declaration.
-     * This method tries to fix such a situation by modifying base graph.
-     *
-     * @param m {@link OntModel}, not {@code null}
-     */
-    public static void syncImports(OntModel m) {
-        Deque<OntModel> queue = new ArrayDeque<>();
-        queue.add(m);
-        Set<String> seen = new HashSet<>();
-        while (!queue.isEmpty()) {
-            OntModel next = queue.removeFirst();
-            OntID id = next.getID();
-            if (!seen.add(id.getImportsIRI())) {
-                continue;
-            }
-            id.removeAll(OWL.imports);
-            next.imports().collect(Collectors.toSet()).forEach(it -> {
-                String uri = it.getID().getImportsIRI();
-                if (uri != null) {
-                    id.addImport(uri);
-                    queue.add(it);
-                }
-            });
-        }
     }
 
     /**

@@ -18,7 +18,9 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
 
+import java.util.ArrayDeque;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -265,5 +267,39 @@ public class ModelTestUtils {
      */
     public static Stream<OntModel> importsClosure(OntModel m) {
         return Stream.concat(Stream.of(m), m.imports().flatMap(ModelTestUtils::importsClosure));
+    }
+
+    /**
+     * Synchronizes the import declarations with the graph hierarchy.
+     * Underling graph tree may content named graphs which are not included to the {@code owl:imports} declaration.
+     * This method tries to fix such a situation by modifying base graph.
+     *
+     * @param m {@link OntModel}, not {@code null}
+     */
+    public static void syncImports(OntModel m) {
+        Deque<Graph> queue = new ArrayDeque<>();
+        queue.add(m.getGraph());
+        m.getID();
+        Set<Node> seen = new HashSet<>();
+        while (!queue.isEmpty()) {
+            Graph next = queue.removeFirst();
+            Graph base = Graphs.getBase(next);
+            Node id = Graphs.findOntologyNameNode(base).orElse(null);
+            if (id == null || !seen.add(id)) {
+                continue;
+            }
+            Node ont = Graphs.ontologyNode(base).orElseThrow();
+            base.remove(Node.ANY, OWL.imports.asNode(), Node.ANY);
+            if (!(next instanceof UnionGraph)) {
+                continue;
+            }
+            ((UnionGraph) next).subGraphs().forEach(it -> {
+                Node uri = Graphs.findOntologyNameNode(Graphs.getBase(it)).filter(Node::isURI).orElse(null);
+                if (uri != null) {
+                    next.add(ont, OWL.imports.asNode(), uri);
+                    queue.add(it);
+                }
+            });
+        }
     }
 }

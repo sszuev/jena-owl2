@@ -20,7 +20,6 @@ import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
-import com.github.sszuev.jena.ontapi.utils.OntModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
@@ -701,7 +700,7 @@ public class OntModelOWLSpecTest {
 
         // sync imports:
         ((UnionGraph) c.getGraph()).addSubGraph(av2.getGraph());
-        OntModels.syncImports(b);
+        ModelTestUtils.syncImports(b);
         tree = ModelTestUtils.importsTreeAsString(b.getGraph());
         Assertions.assertEquals(4, ModelTestUtils.importsClosure(b).count());
         Assertions.assertEquals(3, ModelTestUtils.importsClosure(c).count());

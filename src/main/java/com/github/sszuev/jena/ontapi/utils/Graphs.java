@@ -369,10 +369,10 @@ public class Graphs {
         while (!queue.isEmpty()) {
             Node nextId = queue.keySet().iterator().next();
             UnionGraph nextGraph = queue.remove(nextId);
-            Set<String> nextImports = Iterators.addAll(listImports(nextId, nextGraph.getBaseGraph()), new HashSet<>());
             if (!seen.add(nextId)) {
                 continue;
             }
+            Set<String> nextImports = getImports(nextGraph.getBaseGraph());
             Iterator<UnionGraph> children = nextGraph.subGraphs()
                     .filter(it -> it instanceof UnionGraph)
                     .map(it -> (UnionGraph) it)
@@ -528,6 +528,20 @@ public class Graphs {
             Node n = t.getObject();
             return n.isURI() ? n.getURI() : null;
         }).filterDrop(Objects::isNull);
+    }
+
+    /**
+     * Lists all triples which related to ontology header somehow.
+     *
+     * @param graph {@link Graph}
+     * @return {@link ExtendedIterator} of {@link Triple}s
+     */
+    public static ExtendedIterator<Triple> listOntHeaderTriples(Graph graph) {
+        return Iterators.concat(
+                graph.find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
+                graph.find(Node.ANY, OWL.imports.asNode(), Node.ANY),
+                graph.find(Node.ANY, OWL.versionIRI.asNode(), Node.ANY)
+        );
     }
 
     /**

@@ -16,7 +16,7 @@ public class OntModelEvent extends GraphEvents {
     public static final String FINISH_ADD_DATA_GRAPH = "finishAddDataGraph";
     public static final String FINISH_DELETE_DATA_GRAPH = "finishDeleteDataGraph";
     public static final String START_READ_DATA_GRAPH = "startReadDataGraph";
-    public static final String END_READ_DATA_GRAPH = "endReadDataGraph";
+    public static final String FINISH_READ_DATA_GRAPH = "endReadDataGraph";
 
     private final String type;
 
@@ -33,7 +33,7 @@ public class OntModelEvent extends GraphEvents {
             if (any == startRead && START_READ_DATA_GRAPH.equals(type)) {
                 return true;
             }
-            if (any == finishRead && END_READ_DATA_GRAPH.equals(type)) {
+            if (any == finishRead && FINISH_READ_DATA_GRAPH.equals(type)) {
                 return true;
             }
         }
@@ -62,5 +62,13 @@ public class OntModelEvent extends GraphEvents {
 
     public static OntModelEvent finishDeleteDataGraphEvent(Graph graph) {
         return new OntModelEvent(FINISH_DELETE_DATA_GRAPH, graph);
+    }
+
+    public static GraphEvents startReadDataGraphEvent() {
+        return startRead;
+    }
+
+    public static GraphEvents finishReadDataGraphEvent() {
+        return finishRead;
     }
 }

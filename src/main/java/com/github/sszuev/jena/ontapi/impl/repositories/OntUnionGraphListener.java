@@ -15,10 +15,8 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OntUnionGraphListener extends GraphListenerBase implements UnionGraph.EventManager {
@@ -199,41 +197,79 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
 
     @Override
     public void notifyEvent(Graph source, Object event) {
-        UnionGraph thisGraph = (UnionGraph) source;
+        UnionGraph graph = (UnionGraph) source;
+        handleChangeIDEvents(graph, event);
+        handleAddDataGraphEvents(graph, event);
+        handleReadDataGraphEvents(graph, event);
+        handleDeleteDataGraphEvents(graph, event);
+        super.notifyEvent(source, event);
+    }
+
+    private void handleReadDataGraphEvents(UnionGraph graph, Object event) {
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.START_READ_DATA_GRAPH)) {
+            // we do not know the incoming data, so the required ontology is not used
+            OntUnionGraphRepository.checkIDCanBeChanged(graph);
+        }
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.FINISH_READ_DATA_GRAPH)) {
+            ontGraphRepository.remap(graph);
+            // put to process imports
+            ontGraphRepository.put(graph);
+        }
+    }
+
+    private void handleChangeIDEvents(UnionGraph graph, Object event) {
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.START_CHANGE_ID)) {
+            OntUnionGraphRepository.checkIDCanBeChanged(graph);
+        }
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.FINISH_CHANGE_ID)) {
+            ontGraphRepository.remap(graph);
+        }
+    }
+
+    private void handleAddDataGraphEvents(UnionGraph graph, Object event) {
         if (OntModelEvent.isEventOfType(event, OntModelEvent.START_ADD_DATA_GRAPH)) {
             Graph data = (Graph) ((OntModelEvent) event).getContent();
-            Set<Triple> header = Iterators.addAll(
-                    thisGraph.getBaseGraph().find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
-                    new HashSet<>()
-            );
-            Iterators.addAll(
-                    data.find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
-                    header
-            );
-            Graph tmp = GraphMemFactory.createDefaultGraph();
-            header.forEach(tmp::add);
-            Node newName = Graphs.findOntologyNameNode(tmp).orElse(null);
+            Node prevName = Graphs.findOntologyNameNode(graph.getBaseGraph()).orElse(null);
+
+            Graph header = GraphMemFactory.createDefaultGraph();
+            Iterators.forEach(Graphs.listOntHeaderTriples(graph.getBaseGraph()), header::add);
+            Iterators.forEach(Graphs.listOntHeaderTriples(data), header::add);
+
+            Node newName = Graphs.findOntologyNameNode(header).orElse(null);
             if (newName == null) {
                 throw new OntJenaException.IllegalArgument("Cancel. Adding data will result in invalid ontology ID");
             }
-            Node prevName = Graphs.findOntologyNameNode(thisGraph.getBaseGraph()).orElse(null);
             if (!Objects.equals(newName, prevName)) {
-                OntUnionGraphRepository.checkIDCanBeChanged(thisGraph);
+                OntUnionGraphRepository.checkIDCanBeChanged(graph);
             }
         }
         if (OntModelEvent.isEventOfType(event, OntModelEvent.FINISH_ADD_DATA_GRAPH)) {
-            ontGraphRepository.remap(thisGraph);
+            ontGraphRepository.remap(graph);
             // put to process imports
-            ontGraphRepository.put(thisGraph);
+            ontGraphRepository.put(graph);
         }
-        if (OntModelEvent.isEventOfType(event, OntModelEvent.START_CHANGE_ID)) {
-            OntUnionGraphRepository.checkIDCanBeChanged(thisGraph);
+    }
+
+    private void handleDeleteDataGraphEvents(UnionGraph graph, Object event) {
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.START_DELETE_DATA_GRAPH)) {
+            Graph data = (Graph) ((OntModelEvent) event).getContent();
+            Graph header = GraphMemFactory.createDefaultGraph();
+            Iterators.forEach(Graphs.listOntHeaderTriples(graph.getBaseGraph()), header::add);
+            Iterators.forEach(Graphs.listOntHeaderTriples(data), header::delete);
+
+            Node newName = Graphs.findOntologyNameNode(header).orElse(null);
+            if (newName == null) {
+                throw new OntJenaException.IllegalArgument("Cancel. Deleting data will result in invalid ontology ID");
+            }
+            Node prevName = Graphs.findOntologyNameNode(graph.getBaseGraph()).orElse(null);
+            if (!Objects.equals(newName, prevName)) {
+                OntUnionGraphRepository.checkIDCanBeChanged(graph);
+            }
         }
-        if (OntModelEvent.isEventOfType(event, OntModelEvent.FINISH_CHANGE_ID)) {
-            ontGraphRepository.remap(thisGraph);
+        if (OntModelEvent.isEventOfType(event, OntModelEvent.FINISH_DELETE_DATA_GRAPH)) {
+            OntUnionGraphRepository.removeUnusedImportSubGraphs(graph);
+            ontGraphRepository.remap(graph);
         }
-        // TODO:
-        super.notifyEvent(source, event);
     }
 
     private boolean isNameTriple(Triple t) {

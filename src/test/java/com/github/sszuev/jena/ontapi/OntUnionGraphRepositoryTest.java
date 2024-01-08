@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.impl.repositories.DocumentGraphRepository;
 import com.github.sszuev.jena.ontapi.model.OntModel;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
@@ -11,9 +12,15 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.ModelGraphInterface;
 import org.apache.jena.reasoner.InfGraph;
+import org.apache.jena.riot.Lang;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +50,46 @@ public class OntUnionGraphRepositoryTest {
 
         Assertions.assertEquals(2, repository.count());
         Assertions.assertEquals(Set.of(uWine, uFood), repository.graphs().collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void testReadDataToModel(@TempDir Path dir) throws IOException {
+        String ns = "http://ex.com#";
+        Model m = ModelFactory.createDefaultModel();
+        m.createResource(ns + "A").addProperty(OWL.imports, m.createResource(ns + "B"));
+        m.createResource(ns + "A-C-2", OWL.Class);
+
+        Path dataFile = Files.createTempFile(dir, "testReadDataToModel-", ".ttl");
+        RDFIOTestUtils.save(m, dataFile, Lang.TURTLE);
+
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel(ns + "A", repository);
+        OntModel b = OntModelFactory.createModel(ns + "B", repository);
+        a.createOntClass(ns + "A-C-1");
+        b.createOntClass(ns + "B-C-1");
+
+        try (InputStream in = Files.newInputStream(dataFile)) {
+            a.read(in, null, "ttl");
+        }
+
+        Assertions.assertEquals(2, repository.count());
+        Assertions.assertEquals(3, a.classes().count());
+
+        // Can't change ontology ID <http://ex.com#B>: it is used by <http://ex.com#A>
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class, () -> {
+            try (InputStream in = Files.newInputStream(dataFile)) {
+                b.read(in, null, "ttl");
+            }
+        });
+
+        Assertions.assertEquals(
+                List.of(b.getGraph()),
+                ((UnionGraph) a.getGraph()).subGraphs().collect(Collectors.toList())
+        );
+        Assertions.assertEquals(
+                List.of(b.getGraph()),
+                a.imports().map(ModelGraphInterface::getGraph).collect(Collectors.toList())
+        );
     }
 
     @Test
@@ -367,7 +414,7 @@ public class OntUnionGraphRepositoryTest {
     }
 
     @Test
-    public void testAddGraphData1() {
+    public void testAddDataGraph1() {
         GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
         OntModel a = OntModelFactory.createModel("A", repository);
         OntModel b = OntModelFactory.createModel("B", repository);
@@ -411,7 +458,7 @@ public class OntUnionGraphRepositoryTest {
     }
 
     @Test
-    public void testAddGraphData2() {
+    public void testAddDataGraph2() {
         OntModel a = OntModelFactory.createModel().setID("A").getModel();
         OntModel b = OntModelFactory.createModel().setID("B").getModel();
         a.addImport(b);
@@ -435,6 +482,83 @@ public class OntUnionGraphRepositoryTest {
         Assertions.assertThrows(OntJenaException.IllegalArgument.class, () -> b.add(data2));
         Assertions.assertEquals(List.of("A", "B"), repository.ids().sorted().collect(Collectors.toList()));
         Assertions.assertEquals(3, A.size());
+    }
+
+    @Test
+    public void testDeleteDataGraph1() {
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel("A", repository);
+        OntModel b = OntModelFactory.createModel("B", repository);
+        a.addImport(b);
+        a.createOntClass("A-C-1");
+        a.createOntClass("A-C-2");
+        b.createOntClass("B-C-1");
+
+        Assertions.assertEquals(3, a.classes().count());
+
+        Model data = OntModelFactory.createDefaultModel();
+        data.createResource("A").addProperty(OWL.imports, data.createResource("B"));
+        data.createResource("A-C-2", OWL.Class);
+
+        a.remove(data);
+
+        Assertions.assertEquals(1, a.classes().count());
+        Assertions.assertEquals(0, a.imports().count());
+    }
+
+    @Test
+    public void testDeleteDataGraph2() {
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM, repository)
+                .setID("A")
+                .setVersionIRI("Av").getModel();
+        a.createOntClass("A-C-1");
+        a.createOntClass("A-C-2");
+
+        Assertions.assertEquals(2, a.classes().count());
+        Assertions.assertEquals(List.of("Av"), repository.ids().collect(Collectors.toList()));
+
+        Model data = OntModelFactory.createDefaultModel();
+        data.createResource("A").addProperty(OWL.versionIRI, data.createResource("Av"));
+        data.createResource("A-C-2", OWL.Class);
+
+        a.remove(data);
+
+        Assertions.assertEquals(1, a.classes().count());
+        Assertions.assertEquals(0, a.imports().count());
+        Assertions.assertEquals(List.of("A"), repository.ids().collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testDeleteDataGraph3() {
+        GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
+        OntModel a = OntModelFactory.createModel(OntSpecification.OWL2_DL_MEM, repository)
+                .setID("A")
+                .setVersionIRI("Av").getModel();
+        OntModel b = OntModelFactory.createModel("B", repository);
+        OntModel c = OntModelFactory.createModel("C", repository);
+        b.addImport(a.addImport(c));
+        a.createOntClass("A-C-1");
+        a.createOntClass("A-C-2");
+
+        Assertions.assertEquals(2, a.classes().count());
+        Assertions.assertEquals(1, a.imports().count());
+        Assertions.assertEquals(1, b.imports().count());
+        Assertions.assertEquals(0, c.imports().count());
+        Assertions.assertEquals(List.of("Av", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
+
+        Model data = OntModelFactory.createDefaultModel();
+        data.createResource("A").addProperty(OWL.versionIRI, data.createResource("Av"));
+        data.createResource("A-C-2", OWL.Class);
+
+        // Can't change ontology ID <Av>: it is used by <B>
+        Assertions.assertThrows(OntJenaException.IllegalArgument.class, () -> a.remove(data));
+
+        Assertions.assertEquals(2, a.classes().count());
+        Assertions.assertEquals(1, a.imports().count());
+        Assertions.assertEquals(1, b.imports().count());
+        Assertions.assertEquals(0, c.imports().count());
+        Assertions.assertEquals(List.of("Av", "B", "C"), repository.ids().sorted().collect(Collectors.toList()));
     }
 
     @Test
