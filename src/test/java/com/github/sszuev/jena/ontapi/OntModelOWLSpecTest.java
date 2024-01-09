@@ -1476,5 +1476,38 @@ public class OntModelOWLSpecTest {
         Stream.of(namedOwlClass, namedRdfsClass, namedRdfsDatatype, namedRdfsDomain, namedRdfsRange)
                 .forEach(x -> Assertions.assertTrue(x.inModel(m).canAs(OntClass.Named.class)));
     }
+
+    @Test
+    public void testClassHasKeyFeatureOWL1() {
+        OntModel m2 = OntModelFactory.createModel();
+        OntObjectProperty p2 = m2.createObjectProperty("p");
+        OntClass c2 = m2.createOntClass("a");
+        c2.addHasKey(p2);
+
+        OntModel m1 = OntModelFactory.createModel(m2.getGraph(), OntSpecification.OWL1_DL_MEM);
+        OntClass c1 = m1.getOntClass("a");
+        OntDataProperty d1 = m1.createDataProperty("d");
+        OntObjectProperty p1 = m1.getObjectProperty("p");
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.addHasKey(p1));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, c1::hasKeys);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.createHasKey(List.of(p1), List.of(d1)));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.removeHasKey(m1.createList()));
+    }
+
+    @Test
+    public void testClassDisjointUnionFeatureOWL1() {
+        OntModel m2 = OntModelFactory.createModel();
+        OntObjectProperty p2 = m2.createObjectProperty("p");
+        OntClass.Named c2 = m2.createOntClass("a");
+        c2.addDisjointUnion(m2.createOntClass("x"));
+
+        OntModel m1 = OntModelFactory.createModel(m2.getGraph(), OntSpecification.OWL1_DL_MEM);
+        OntClass.Named c1 = m1.getOntClass("a");
+        OntDataProperty d1 = m1.createDataProperty("d");
+        OntObjectProperty p1 = m1.getObjectProperty("p");
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.addDisjointUnion(m1.createOntClass("x")));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, c1::disjointUnions);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.removeDisjointUnion(m1.createList()));
+    }
 }
 

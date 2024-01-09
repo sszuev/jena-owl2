@@ -158,8 +158,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @param <O>  subtype of {@link OntObject}
      * @return an {@link ExtendedIterator Extended Iterator} of {@link OntObject}s
      */
-    public static <M extends EnhGraph & OntEnhGraph, O extends OntObject> ExtendedIterator<O> listOntObjects(M m,
-                                                                                                             Class<? extends O> type) {
+    public static <M extends EnhGraph & OntEnhGraph, O extends OntObject> ExtendedIterator<O> listOntObjects(
+            M m,
+            Class<? extends O> type) {
         OntPersonality p = m.getOntPersonality();
         if (p.supports(type)) {
             return p.getObjectFactory(type).iterator(m).mapWith(e -> m.getNodeAs(e.asNode(), type));
@@ -275,6 +276,15 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             characteristics = characteristics | Spliterator.SIZED;
         }
         return Iterators.asStream(it, size, characteristics);
+    }
+
+    public static void checkFeature(OntModel m, OntModelConfig setting, String featureName) {
+        if (!configValue(m, setting)) {
+            throw new OntJenaException.Unsupported(
+                    "Feature " + featureName + " is disabled. " +
+                            "Profile " + OntEnhGraph.asPersonalityModel(m).getOntPersonality().getName()
+            );
+        }
     }
 
     public static boolean configValue(OntModel m, OntModelConfig setting) {

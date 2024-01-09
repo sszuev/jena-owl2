@@ -157,25 +157,28 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
         Resource res = model.createResource(OntJenaException.notNull(uri, "Null uri"), source);
-        if (OntGraphModelImpl.configValue(model, OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)) {
+        if (OntGraphModelImpl.configValue(model, OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_FEATURE)) {
             res.addProperty(RDF.type, OWL.NamedIndividual);
         }
         return res.as(OntIndividual.Named.class);
     }
 
     public static OntList<OntRealProperty> createHasKey(OntGraphModelImpl m, OntClass clazz, Stream<? extends OntRealProperty> collection) {
+        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
         return m.createOntList(clazz, OWL.hasKey, OntRealProperty.class,
                 collection.distinct().map(OntRealProperty.class::cast).iterator());
     }
 
     public static Stream<OntList<OntRealProperty>> listHasKeys(OntGraphModelImpl m, OntClass clazz) {
+        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
         return OntListImpl.stream(m, clazz, OWL.hasKey, OntRealProperty.class);
     }
 
-    public static void removeHasKey(OntGraphModelImpl model,
+    public static void removeHasKey(OntGraphModelImpl m,
                                     OntClass clazz,
                                     RDFNode rdfList) throws OntJenaException.IllegalArgument {
-        model.deleteOntList(clazz, OWL.hasKey, clazz.findHasKey(rdfList).orElse(null));
+        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
+        m.deleteOntList(clazz, OWL.hasKey, clazz.findHasKey(rdfList).orElse(null));
     }
 
     public static Stream<OntProperty> declaredProperties(OntClass clazz, boolean direct) {

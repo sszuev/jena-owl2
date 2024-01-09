@@ -1,6 +1,7 @@
 package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntConfig;
+import com.github.sszuev.jena.ontapi.common.OntConfigs;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import org.apache.jena.reasoner.ReasonerFactory;
@@ -37,7 +38,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
-                    .setConfig(OntPersonalities.OWL2_CONFIG)
+                    .setConfig(OntConfigs.OWL2_CONFIG)
                     .build();
 
     private static final OntPersonality OWL2_DL_PERSONALITY =
@@ -45,7 +46,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
-                    .setConfig(OntPersonalities.OWL2_CONFIG)
+                    .setConfig(OntConfigs.OWL2_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_DL_PERSONALITY =
@@ -53,7 +54,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL1_FULL_BUILTINS)
                     .setReserved(OntPersonalities.OWL1_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
-                    .setConfig(OntPersonalities.OWL1_CONFIG)
+                    .setConfig(OntConfigs.OWL1_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_FULL_PERSONALITY =
@@ -61,7 +62,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL1_FULL_BUILTINS)
                     .setReserved(OntPersonalities.OWL1_RESERVED)
                     .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
-                    .setConfig(OntPersonalities.OWL1_CONFIG)
+                    .setConfig(OntConfigs.OWL1_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_LITE_PERSONALITY =
@@ -69,7 +70,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL1_LITE_BUILTINS)
                     .setReserved(OntPersonalities.OWL1_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
-                    .setConfig(OntPersonalities.OWL1_CONFIG)
+                    .setConfig(OntConfigs.OWL1_CONFIG)
                     .build();
 
     private static final OntPersonality RDFS_PERSONALITY =
@@ -77,7 +78,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.RDFS_BUILTINS)
                     .setReserved(OntPersonalities.RDFS_RESERVED)
                     .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
-                    .setConfig(OntPersonalities.RDFS_CONFIG)
+                    .setConfig(OntConfigs.RDFS_CONFIG)
                     .build();
 
     /*
@@ -100,7 +101,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
-                    .setConfig(OntPersonalities.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
+                    .setConfig(OntConfigs.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
                     .build(),
             null
     );

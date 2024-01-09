@@ -1,6 +1,8 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
@@ -142,17 +144,20 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
 
         @Override
         public OntList<OntClass> createDisjointUnion(Collection<OntClass> classes) {
+            OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
             return getModel().createOntList(this, OWL.disjointUnionOf, OntClass.class,
                     Objects.requireNonNull(classes).stream().distinct().iterator());
         }
 
         @Override
         public Stream<OntList<OntClass>> disjointUnions() {
+            OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
             return OntListImpl.stream(getModel(), this, OWL.disjointUnionOf, OntClass.class);
         }
 
         @Override
         public OntClass.Named removeDisjointUnion(Resource rdfList) throws OntJenaException.IllegalArgument {
+            OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
             getModel().deleteOntList(this, OWL.disjointUnionOf, findDisjointUnion(rdfList).orElse(null));
             return this;
         }

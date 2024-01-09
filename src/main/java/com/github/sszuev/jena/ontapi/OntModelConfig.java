@@ -22,14 +22,9 @@ public enum OntModelConfig {
      */
     USE_OWL_V1_VOCABULARY,
     /**
-     * If this key is set to {@code true},
-     * then {@code owl:NamedIndividual} declaration is required for named individuals.
-     */
-    USE_OWL2_NAMED_INDIVIDUAL_DECLARATION,
-    /**
-     * If this key is set to {@code true}, class expressions are allowed to be named (can have URI).
+     * If this key is set to {@code true}, all class expressions are allowed to be named (can have URI).
      * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
-     * In OWL2, class expression should be anonymous.
+     * In OWL2, complex class expression should be anonymous.
      */
     ALLOW_NAMED_CLASS_EXPRESSIONS,
     /**
@@ -61,4 +56,18 @@ public enum OntModelConfig {
      * For legacy Jena's casting rules see {@link org.apache.jena.ontology.Profile} impls.
      */
     USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY,
+    /**
+     * If this key is set to {@code true},
+     * then {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#NamedIndividual owl:NamedIndividual}
+     * declaration is used for creating individuals.
+     */
+    USE_OWL2_NAMED_INDIVIDUAL_FEATURE,
+    /**
+     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#hasKey owl:hasKey} functionality.
+     */
+    USE_OWL2_CLASS_HAS_KEY_FEATURE,
+    /**
+     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointUnionOf owl:disjointUnionOf} functionality.
+     */
+    USE_OWL2_CLASS_DISJOINT_UNION_FEATURE,
 }

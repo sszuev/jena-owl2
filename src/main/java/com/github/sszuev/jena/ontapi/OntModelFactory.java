@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi;
 
+import com.github.sszuev.jena.ontapi.common.OntConfigs;
 import com.github.sszuev.jena.ontapi.common.OntObjectPersonalityBuilder;
-import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
@@ -116,7 +116,7 @@ public class OntModelFactory {
      */
     public static OntModel createModel(Graph graph, OntPersonality personality) {
         OntPersonality withBuiltinHierarchySupport = OntObjectPersonalityBuilder.from(personality)
-                .setConfig(OntPersonalities.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
+                .setConfig(OntConfigs.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
                 .build();
         return createModel(graph, new OntSpecification(withBuiltinHierarchySupport, null)).setNsPrefixes(STANDARD);
     }

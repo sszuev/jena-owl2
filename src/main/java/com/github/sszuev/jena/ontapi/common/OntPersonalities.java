@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi.common;
 
-import com.github.sszuev.jena.ontapi.OntModelConfig;
 import com.github.sszuev.jena.ontapi.OntVocabulary;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL1ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL2ObjectFactories;
@@ -77,26 +76,6 @@ public class OntPersonalities {
     public static final OntPersonality.Punnings OWL_DL_WEAK_PUNNINGS = createPunningsVocabulary(PunningsMode.DL_WEAK);
     public static final OntPersonality.Punnings OWL_NO_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
     public static final OntPersonality.Punnings RDFS_NO_PUNNINGS = createPunningsVocabulary(PunningsMode.FULL);
-
-    public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
-            .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
-            .setFalse(OntModelConfig.USE_OWL_V1_VOCABULARY)
-            .setTrue(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
-            .setFalse(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
-            .setFalse(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
-            .setFalse(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
-    public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
-            .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
-            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setTrue(OntModelConfig.USE_OWL_V1_VOCABULARY)
-            .setFalse(OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION)
-            .setTrue(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS)
-            .setTrue(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS)
-            .setTrue(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
-    public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
-            .setFalse(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
-            .setTrue(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setTrue(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
 
     /**
      * Standard resources. Private access since this constant is mutable.
@@ -383,7 +362,7 @@ public class OntPersonalities {
                 .setBuiltins(OntPersonalities.RDFS_BUILTINS)
                 .setReserved(OntPersonalities.RDFS_RESERVED)
                 .setPunnings(OntPersonalities.RDFS_NO_PUNNINGS)
-                .setConfig(OntPersonalities.RDFS_CONFIG);
+                .setConfig(OntConfigs.RDFS_CONFIG);
     }
 
     /**
@@ -396,7 +375,7 @@ public class OntPersonalities {
                 .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
                 .setReserved(OntPersonalities.OWL2_RESERVED)
                 .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
-                .setConfig(OntPersonalities.OWL2_CONFIG);
+                .setConfig(OntConfigs.OWL2_CONFIG);
     }
 
     /**
@@ -408,7 +387,7 @@ public class OntPersonalities {
                 .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
                 .setReserved(OntPersonalities.OWL2_RESERVED)
                 .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
-                .setConfig(OntPersonalities.OWL1_CONFIG);
+                .setConfig(OntConfigs.OWL1_CONFIG);
     }
 
     /**
@@ -420,7 +399,7 @@ public class OntPersonalities {
                 .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
                 .setReserved(OntPersonalities.OWL2_RESERVED)
                 .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
-                .setConfig(OntPersonalities.OWL1_CONFIG);
+                .setConfig(OntConfigs.OWL1_CONFIG);
     }
 
     private static OntObjectPersonalityBuilder templatePersonalityBuilder() {
