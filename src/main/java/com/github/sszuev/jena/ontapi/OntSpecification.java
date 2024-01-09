@@ -16,8 +16,8 @@ import java.util.Objects;
  * Encapsulates a description of the components of an ontology model.
  * Contains OWL2, OWL1 and RDFS specifications:
  * <ul>
- *     <li>OWL2 (DL & FULL): full support last version of OWL</li>
- *     <li>OWL1 (DL & FULL): does not support some language construct from OWL2, such as {@code OntDataRange.UnionOf};
+ *     <li>OWL2 (DL &amp; FULL): full support last version of OWL</li>
+ *     <li>OWL1 (DL &amp; FULL): does not support some language construct from OWL2, such as {@code OntDataRange.UnionOf};
  *     supposed to be compatible with legacy Jena's OntModel</li>
  *     <li>OWL1 LITE: does not support some language construct from OWL2 and OWL1, such as {@code OntClass.UnionOf};
  *     supposed to be compatible with old Jena's OntModel</li>

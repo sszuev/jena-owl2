@@ -311,7 +311,7 @@ public interface OntVocabulary {
         }
 
         /**
-         * Access to the {@link OWL OWL2} (including RDFS & RDF & XSD) vocabulary.
+         * Access to the {@link OWL OWL2} (including RDFS &amp; RDF &amp; XSD) vocabulary.
          */
         @SuppressWarnings("WeakerAccess")
         protected static class OWL2Impl extends Impl {
@@ -370,7 +370,7 @@ public interface OntVocabulary {
         }
 
         /**
-         * Access to the {@link org.apache.jena.vocabulary.OWL OWL1} (including RDFS & RDF & XSD) vocabulary.
+         * Access to the {@link org.apache.jena.vocabulary.OWL OWL1} (including RDFS &amp; RDF &amp; XSD) vocabulary.
          */
         @SuppressWarnings("WeakerAccess")
         protected static class OWL1Impl extends Impl {

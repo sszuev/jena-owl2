@@ -23,6 +23,15 @@ public final class HierarchySupport {
 
     /**
      * Answers {@code true} if the specified {@code test} node is in the closure of the specified {@code root} nodes
+     *
+     * @param root                       the root of tree
+     * @param test                       object to test
+     * @param listChildren               a {@link Function} that provides {@code Stream} of child nodes for the given parent node
+     * @param direct                     if {@code true}, only return the direct (adjacent) values
+     * @param useBuiltinHierarchySupport if {@code true} collect a nodes' tree by traversing the graph,
+     *                                   this parameter is used when there is no reasoner attached to the graph
+     * @param <X>                        any subtype of {@link OntObject}
+     * @return boolean
      */
     public static <X extends OntObject> boolean contains(
             X root,
@@ -44,6 +53,7 @@ public final class HierarchySupport {
      * @param direct                     if {@code true}, only return the direct (adjacent) values
      * @param useBuiltinHierarchySupport if {@code true} collect a nodes' tree by traversing the graph,
      *                                   this parameter is used when there is no reasoner attached to the graph
+     * @param <X>                        any subtype of {@link OntObject}
      * @return a {@link Stream} of tree nodes
      */
     public static <X extends OntObject> Stream<X> treeNodes(
@@ -66,7 +76,7 @@ public final class HierarchySupport {
      *
      * @param root         {@link X}
      * @param listChildren a {@code Function} that returns {@code Iterator} for an object of type {@link X}
-     * @param <X>          subtype of {@link Resource}
+     * @param <X>          any subtype of {@link Resource}
      * @return {@code Set} of {@link X}, {@code root} is not included
      */
     static <X extends Resource> Stream<X> allTreeNodes(X root, Function<X, Stream<X>> listChildren) {
@@ -85,6 +95,7 @@ public final class HierarchySupport {
      *
      * @param listRoots    {@code Supplier<Stream<X>>} roots provider
      * @param listChildren {@code Function<X, Stream<X>>} called for each root
+     * @param <X>          any subtype of {@link Resource}
      * @return {@code Set} of {@code X} including roots
      */
     public static <X extends Resource> Set<X> allTreeNodesSetInclusive(

@@ -29,7 +29,8 @@ public enum PunningsMode {
      * For OWL1 DL.
      * OWL1 DL required a strict separation between the names of, e.g., classes and individuals.
      * The difference between this mode
-     * and {@code DL1} is that declarations {@code rdfs:Class} & {@code rdfs:Datatype} considered as OntClass declarations;
+     * and {@code DL1} is that declarations {@code rdfs:Class} &amp;
+     * {@code rdfs:Datatype} considered as OntClass declarations;
      * also, {@code owl:Restriction}
      * is considered as prohibited declaration for entities that aren't classes (properties, datarange, named individuals).
      * See {@link com.github.sszuev.jena.ontapi.OntModelConfig#USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY}

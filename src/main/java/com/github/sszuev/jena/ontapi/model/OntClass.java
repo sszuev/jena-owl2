@@ -309,7 +309,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     /**
      * Equivalent to {@code this.declaredProperties(false)}
      *
-     * @return a <b>distinct</b> {@code Stream} of (object, datatype & annotations properties), attached to this class
+     * @return a <b>distinct</b> {@code Stream} of (object, datatype &amp; annotation properties), attached to this class
      * @see #declaredProperties(boolean)
      */
     default Stream<OntProperty> declaredProperties() {

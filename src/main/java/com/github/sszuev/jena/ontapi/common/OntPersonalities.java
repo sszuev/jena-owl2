@@ -376,6 +376,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for RDFS Ontologies.
+     * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder RDFS_ONT_PERSONALITY() {
         return RDFS_OBJECT_FACTORIES.copy()
@@ -387,6 +388,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL2 Ontologies.
+     * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder OWL2_ONT_PERSONALITY() {
         return OWL2_OBJECT_FACTORIES
@@ -399,6 +401,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL1 Ontologies.
+     * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder OWL1_ONT_PERSONALITY() {
         return OWL1_OBJECT_FACTORIES.copy()
@@ -410,6 +413,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL1 LITE Ontologies.
+     * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder OWL1_LITE_ONT_PERSONALITY() {
         return OWL1_LITE_OBJECT_FACTORIES.copy()
@@ -430,6 +434,7 @@ public class OntPersonalities {
     }
 
     /**
+     * @param personality {@link OntPersonality}
      * @return {@code true} if the specified {@link OntPersonality} has name "RDFS"
      */
     public static boolean isRDFS(OntPersonality personality) {
@@ -437,6 +442,7 @@ public class OntPersonalities {
     }
 
     /**
+     * @param personality {@link OntPersonality}
      * @return {@code true} if the specified {@link OntPersonality} supports {@code owl:Thing}
      */
     public static boolean supportsOWLThing(OntPersonality personality) {

@@ -371,23 +371,32 @@ public interface OntModel extends Model,
 
     /**
      * Creates named class (owl-entity)
+     *
+     * @param uri IRI of class
+     * @return named class
      */
     default OntClass.Named createOntClass(String uri) {
-        return createOntEntity(OntClass.Named.class, uri);
+        return createOntEntity(OntClass.Named.class, Objects.requireNonNull(uri));
     }
 
     /**
      * Creates named datatype (owl-entity), only for OWL2
+     *
+     * @param uri IRI of datarange
+     * @return named datarange
      */
     default OntDataRange.Named createDatatype(String uri) {
-        return createOntEntity(OntDataRange.Named.class, uri);
+        return createOntEntity(OntDataRange.Named.class, Objects.requireNonNull(uri));
     }
 
     /**
      * Creates named individual (owl-entity), only for OWL2 if {@code owl:NamedIndividual} is enabled.
+     *
+     * @param uri IRI of individual
+     * @return named individual
      */
     default OntIndividual.Named createIndividual(String uri) {
-        return createOntEntity(OntIndividual.Named.class, uri);
+        return createOntEntity(OntIndividual.Named.class, Objects.requireNonNull(uri));
     }
 
     /**
@@ -402,23 +411,29 @@ public interface OntModel extends Model,
 
     /**
      * Creates annotation property (owl-entity).
+     * @param uri IRI of annotation property
+     * @return annotation property
      */
     default OntAnnotationProperty createAnnotationProperty(String uri) {
-        return createOntEntity(OntAnnotationProperty.class, uri);
+        return createOntEntity(OntAnnotationProperty.class, Objects.requireNonNull(uri));
     }
 
     /**
      * Creates datatype property (owl-entity).
+     * @param uri IRI of datatype property
+     * @return datatype property
      */
     default OntDataProperty createDataProperty(String uri) {
-        return createOntEntity(OntDataProperty.class, uri);
+        return createOntEntity(OntDataProperty.class, Objects.requireNonNull(uri));
     }
 
     /**
      * Creates named object property (owl-entity).
+     * @param uri IRI of object property
+     * @return named object property
      */
     default OntObjectProperty.Named createObjectProperty(String uri) {
-        return createOntEntity(OntObjectProperty.Named.class, uri);
+        return createOntEntity(OntObjectProperty.Named.class, Objects.requireNonNull(uri));
     }
 
     /**

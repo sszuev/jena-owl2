@@ -288,8 +288,10 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     }
 
     /**
-     * Returns {@link UnionGraph}.
+     * Returns {@code UnionGraph}.
      * This implementation requires that the underlying graph is union-graph or inf-graph.
+     *
+     * @return {@link UnionGraph}
      */
     public UnionGraph getUnionGraph() {
         Graph graph = super.getGraph();
@@ -1541,7 +1543,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     }
 
     /**
-     * Returns {@link InfGraph} or {@code null} if no-inf model
+     * Returns {@code InfGraph} or {@code null} if no-inf model
+     *
+     * @return {@link InfGraph}
      */
     public InfGraph getInfGraph() {
         return graph instanceof InfGraph ? (InfGraph) graph : null;

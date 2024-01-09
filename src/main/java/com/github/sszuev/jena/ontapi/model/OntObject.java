@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  * A base {@link OntResource Ontology Object RDF Resource}.
  * A common super-type for all the abstractions in the {@link OntModel Ontology RDF Model},
  * which support Jena Polymorphism,
- * can be annotated and have a structure that is strictly defined according to the OWL2 specification.
+ * can be annotated and have a structure strictly defined according to the OWL2 specification.
  * <p>
  * Created @ssz on 01.11.2016.
  */
@@ -55,7 +55,8 @@ public interface OntObject extends OntResource {
 
     /**
      * {@inheritDoc}
-     * For OWL Entities the returned stream will contain only single main statement (i.e. {@link #getMainStatement()}),
+     * For OWL Entities the returned stream will contain only a single main statement
+     * (i.e. {@link #getMainStatement()}),
      * or even will be empty for built-in entities and individuals.
      *
      * @return {@code Stream} of {@link OntStatement Ontology Statement}s
@@ -86,7 +87,7 @@ public interface OntObject extends OntResource {
 
     /**
      * Deletes the specific property-value pair from this object.
-     * All the corresponding statement's annotations is also deleted.
+     * All the corresponding statement's annotations are also deleted.
      * In case the given {@code object} is {@code null},
      * all statements with the {@code property}-predicate will be deleted.
      * No-op if no match found.
@@ -117,7 +118,7 @@ public interface OntObject extends OntResource {
 
     /**
      * Returns the <b>first</b> statement for the specified property and object.
-     * What exactly is the first triple is defined at the level of graph; in general it is unpredictable.
+     * What exactly is the first triple is defined at the level of graph; in general, it is unpredictable.
      * Also note, the common jena implementation of in-memory graph does not allow duplicated triples,
      * and hence there can be at most one operator for a given {@code property} and {@code value}.
      *
@@ -129,7 +130,7 @@ public interface OntObject extends OntResource {
 
     /**
      * Returns the <b>first</b> statement for the specified property.
-     * What is the first triple is defined at the level of graph; in general it is unpredictable.
+     * What is the first triple is defined at the level of graph; in general, it is unpredictable.
      *
      * @param property {@link Property}, can be {@code null}
      * @return {@link Optional} around {@link OntStatement}
@@ -173,7 +174,7 @@ public interface OntObject extends OntResource {
      * Lists all top-level annotations attached to the root statement of this object.
      * Each annotation can be plain (annotation property assertion) or bulk
      * (anonymous resource with the type {@code owl:Axiom} or {@code owl:Annotation}, possibly with sub-annotations).
-     * Sub-annotations are not included into the returned stream.
+     * Sub-annotations are not included in the returned stream.
      * For non-built-in ontology objects this is equivalent to the expression {@code getRoot().annotations()}.
      *
      * @return {@code Stream} of {@link OntStatement}s that have an {@link OntAnnotationProperty annotation property} as predicate

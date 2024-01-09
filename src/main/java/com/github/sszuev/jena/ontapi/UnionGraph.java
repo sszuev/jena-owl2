@@ -99,8 +99,9 @@ public interface UnionGraph extends Graph {
     }
 
     /**
-     * Answers {@code true} iff this {@code UnionGraph} contains the specified graph as a sub-graph.
+     * Answers {@code true} iff this {@code UnionGraph} contains the specified graph as a subgraph.
      *
+     * @param graph {@link Graph} to test
      * @return boolean
      */
     default boolean contains(Graph graph) {
@@ -132,8 +133,9 @@ public interface UnionGraph extends Graph {
         /**
          * Lists all encapsulated listeners for the given type.
          *
-         * @param type {@code Class}-type of {@link GraphListener}
+         * @param type {@link L}
          * @return Stream of {@link GraphListener}s
+         * @param <L> {@code Class}-type of {@link GraphListener}
          */
         @SuppressWarnings("unchecked")
         default <L extends GraphListener> Stream<L> listeners(Class<L> type) {
@@ -144,7 +146,7 @@ public interface UnionGraph extends Graph {
     interface Listener extends GraphListener {
 
         /**
-         * Called before {@link UnionGraph#add(Node, Node, Node)} & {@link UnionGraph#add(Triple)}.
+         * Called before {@link UnionGraph#add(Node, Node, Node)} &amp; {@link UnionGraph#add(Triple)}.
          *
          * @param graph  {@link UnionGraph}
          * @param triple {@link Triple}
@@ -153,12 +155,21 @@ public interface UnionGraph extends Graph {
 
         /**
          * Called before
-         * {@link UnionGraph#delete(Node, Node, Node)} & {@link UnionGraph#delete(Triple)} & {@link UnionGraph#remove(Node, Node, Node)}.
+         * {@link UnionGraph#delete(Node, Node, Node)}
+         * &amp; {@link UnionGraph#delete(Triple)}
+         * &amp; {@link UnionGraph#remove(Node, Node, Node)}.
          *
          * @param graph  {@link UnionGraph}
          * @param triple {@link Triple}
          */
         void onDeleteTriple(UnionGraph graph, Triple triple);
+
+        /**
+         * Called before {@link UnionGraph#clear()}.
+         *
+         * @param graph {@link UnionGraph}
+         */
+        void onClear(UnionGraph graph);
 
         /**
          * Called before {@link UnionGraph#addSubGraph(Graph)}.
@@ -167,11 +178,6 @@ public interface UnionGraph extends Graph {
          * @param subGraph {@link Graph}
          */
         void onAddSubGraph(UnionGraph graph, Graph subGraph);
-
-        /**
-         * Called before {@link UnionGraph#clear()}.
-         */
-        void onClear(UnionGraph graph);
 
         /**
          * Called before {@link UnionGraph#removeSubGraph(Graph)}.

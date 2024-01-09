@@ -78,8 +78,8 @@ public class DocumentGraphRepository implements GraphRepository {
     }
 
     /**
-     * Adds mapping Graph's ID <-> source document location,
-     * which can be a 3file path, class-resource path, or URI (ftp or http).
+     * Adds mapping Graph's ID &lt;-&gt; source document location,
+     * which can be a file path, class-resource path, or URI (ftp or http).
      * Note that class-resource path string should be without leading "/" symbol.
      *
      * @param id            Graph's id

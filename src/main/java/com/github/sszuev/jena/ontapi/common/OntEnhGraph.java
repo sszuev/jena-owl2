@@ -131,6 +131,9 @@ public interface OntEnhGraph {
 
     /**
      * Equivalent to {@code safeFindNodeAs(node, view) != null}.
+     * @param view {@link RDFNode} type
+     * @param node {@link Node}
+     * @return boolean
      */
     default boolean canNodeAs(Class<? extends RDFNode> view, Node node) {
         return safeFindNodeAs(node, view) != null;
@@ -138,6 +141,8 @@ public interface OntEnhGraph {
 
     /**
      * @throws OntJenaException.Unsupported if the {@code type} is not supported by the configuration
+     * @param type {@link X}
+     * @param <X> any {@link OntObject} type
      */
     default <X extends OntObject> void checkType(Class<X> type) {
         if (!getOntPersonality().supports(type)) {

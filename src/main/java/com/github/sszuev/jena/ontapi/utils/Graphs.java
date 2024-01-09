@@ -352,7 +352,7 @@ public class Graphs {
 
     /**
      * Checks whether the specified graph is ontological, that is,
-     * has a hierarchy synchronized with the {@code owl:imports} & {@code owl:Ontology} relationships.
+     * has a hierarchy synchronized with the {@code owl:imports} &amp; {@code owl:Ontology} relationships.
      *
      * @param graph {@link UnionGraph}
      * @return boolean

@@ -61,7 +61,7 @@ public interface OntStatement extends Statement {
     /**
      * Lists all annotations related to this statement.
      * The returned stream consists of annotation assertions listed from the top-level bulk annotations
-     * plus plain annotation assertions in the special case of main statement.
+     * plus plain annotation assertions in the special case of the main statement.
      *
      * @return Stream (unordered) of {@link OntStatement annotation assertion statement}s
      * with {@link OntAnnotationProperty annotation property} as predicates, can be empty
@@ -73,7 +73,7 @@ public interface OntStatement extends Statement {
      * Deletes the child annotation if present.
      * Does nothing if no assertion found.
      * Throws an exception if specified annotation has it its own annotations.
-     * If this statement is not root and the corresponding {@link OntAnnotation} resource has no assertions anymore,
+     * If this statement is not root and the corresponding {@link OntAnnotation} resource has no assertions any more,
      * it deletes the whole OntAnnotation resource also.
      *
      * @param property {@link OntAnnotationProperty} named annotation property, not {@code null}
@@ -117,7 +117,7 @@ public interface OntStatement extends Statement {
      * Answers {@code true} iff this statement is in the base graph.
      * The method is equivalent to the expression {@code this.getModel().getBaseGraph().contains(this.asTriple())}.
      *
-     * @return {@code true} if it is local statement
+     * @return {@code true} if it is a local statement
      * @see OntResource#isLocal()
      */
     default boolean isLocal() {
@@ -137,7 +137,7 @@ public interface OntStatement extends Statement {
 
     /**
      * Returns the primary annotation object (resource) which is related to this statement.
-     * It is assumed that this method always returns the same result if no changes in graph is made,
+     * It is assumed that this method always returns the same result if no changes in graph are made,
      * even after graph reloading.
      *
      * @return {@code Optional} around of {@link OntAnnotation}, can be empty
@@ -295,7 +295,7 @@ public interface OntStatement extends Statement {
 
     /**
      * Annotates the statement with the given predicate and value.
-     * The method differs from {@link #addAnnotation(OntAnnotationProperty, RDFNode)} only in return object.
+     * The method differs from {@link #addAnnotation(OntAnnotationProperty, RDFNode)} only in a return object.
      *
      * @param property {@link OntAnnotationProperty} named annotation property, not {@code null}
      * @param value    {@link RDFNode} uri-resource, literal or anonymous individual, not {@code null}

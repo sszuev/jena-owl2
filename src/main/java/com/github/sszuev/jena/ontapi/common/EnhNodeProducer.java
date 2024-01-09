@@ -43,11 +43,15 @@ public interface EnhNodeProducer {
 
     /**
      * Answers {@code true} if the given {@code node} can be created in graph
+     * @param node {@link Node} ti test
+     * @param eg {@link EnhGraph}
+     * @return boolean
      */
     boolean canInsert(Node node, EnhGraph eg);
 
     /**
      * Returns a view string representation.
+     * @return the name (type) of {@link EnhNode} object
      */
     String targetName();
 

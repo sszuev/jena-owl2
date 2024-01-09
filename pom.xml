@@ -6,16 +6,108 @@
 
     <groupId>com.github.sszuev</groupId>
     <artifactId>jena-owl2</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!--https://mvnrepository.com/artifact/org.apache.jena/jena-arq-->
         <version.jena>4.10.0</version.jena>
+        <!--https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-->
         <version.junit>5.10.1</version.junit>
+
+        <!--https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-gpg-plugin-->
+        <version.maven-gpg-plugin>3.1.0</version.maven-gpg-plugin>
+        <!--https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-source-plugin-->
+        <version.maven-source-plugin>3.3.0</version.maven-source-plugin>
+        <!--https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin-->
+        <version.maven-javadoc-plugin>3.6.2</version.maven-javadoc-plugin>
+        <!--https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin-->
+        <version.maven-jar-plugin>3.3.0</version.maven-jar-plugin>
+        <!--https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin-->
+        <version.maven-compiler-plugin>3.11.0</version.maven-compiler-plugin>
+        <!--https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin-->
+        <version.maven-surefire-plugin>3.2.2</version.maven-surefire-plugin>
     </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>ssz</name>
+        <url>https://github.com/sszuev</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>ssz</name>
+            <email>sss.zuev@gmail.com</email>
+            <id>sszuev</id>
+        </developer>
+    </developers>
+
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/sszuev/jena-owl2/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:git://github.com/sszuev/jena-owl2.git</connection>
+        <developerConnection>scm:git:ssh://github.com/sszuev/jena-owl2.git</developerConnection>
+        <url>https://github.com/sszuev/jena-owl2</url>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version.maven-gpg-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -36,4 +128,63 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${version.maven-source-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${version.maven-javadoc-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${version.maven-jar-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>attache-tests</id>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.maven-compiler-plugin}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${version.maven-surefire-plugin}</version>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

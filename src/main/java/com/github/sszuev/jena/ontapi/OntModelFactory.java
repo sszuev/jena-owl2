@@ -104,7 +104,7 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(Graph graph) {
-        return createModel(graph, OntSpecification.OWL2_DL_MEM_BUILTIN_INF);
+        return createModel(graph, OntSpecification.OWL2_DL_MEM_BUILTIN_INF).setNsPrefixes(STANDARD);
     }
 
     /**
@@ -118,7 +118,7 @@ public class OntModelFactory {
         OntPersonality withBuiltinHierarchySupport = OntObjectPersonalityBuilder.from(personality)
                 .setConfig(OntPersonalities.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
                 .build();
-        return createModel(graph, new OntSpecification(withBuiltinHierarchySupport, null));
+        return createModel(graph, new OntSpecification(withBuiltinHierarchySupport, null)).setNsPrefixes(STANDARD);
     }
 
     /**
@@ -128,7 +128,7 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(OntSpecification spec) {
-        return createModel(createDefaultGraph(), spec);
+        return createModel(createDefaultGraph(), spec).setNsPrefixes(STANDARD);
     }
 
     /**
@@ -184,7 +184,7 @@ public class OntModelFactory {
                 createDefaultModel().createResource(uri, OWL.Ontology).getModel().getGraph(),
                 OntSpecification.OWL2_DL_MEM_BUILTIN_INF,
                 repository
-        );
+        ).setNsPrefixes(STANDARD);
     }
 
     /**
@@ -197,7 +197,7 @@ public class OntModelFactory {
      * @return {@link OntModel}
      */
     public static OntModel createModel(OntSpecification spec, GraphRepository repository) {
-        return createModel(createDefaultGraph(), spec, repository);
+        return createModel(createDefaultGraph(), spec, repository).setNsPrefixes(STANDARD);
     }
 
     /**

@@ -12,7 +12,7 @@ public enum OntModelConfig {
      * are to be inferred by the naked model itself using builtin algorithms.
      * Should not be used in conjunction with Reasoner.
      *
-     * @see com.github.sszuev.jena.ontapi.impl.HierarchySupport
+     * @see OntSpecification#OWL2_DL_MEM_BUILTIN_INF
      */
     USE_BUILTIN_HIERARCHY_SUPPORT,
     /**
@@ -45,7 +45,7 @@ public enum OntModelConfig {
     /**
      * Used while {@link com.github.sszuev.jena.ontapi.model.OntModel#individuals()}.
      * If {@code true}, the class type is checked only by declaration
-     * ({@code owl:Class} & {@code owl:Restriction} for OWL profile, {@code rdfs:Class} for RDFS profile).
+     * ({@code owl:Class} &amp; {@code owl:Restriction} for OWL profile, {@code rdfs:Class} for RDFS profile).
      * Otherwise, a full checking is performed.
      */
     USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS,
@@ -53,7 +53,7 @@ public enum OntModelConfig {
      * If {@code true},
      * named class testing is compatible with the legacy {@link org.apache.jena.ontology.OntModel Jena OntModel},
      * otherwise, a strict check against the specification for the class declaration is performed
-     * ({@code owl:Class} for OWL & {@code rdfs:Class} for RDFS types are required).
+     * ({@code owl:Class} for OWL &amp; {@code rdfs:Class} for RDFS types are required).
      * Note that this only applies to
      * {@link org.apache.jena.enhanced.EnhNode#canAs EnhNode#canAs} and {@link org.apache.jena.enhanced.EnhNode#as EnhNode#as} methods;
      * iteration (e.g. methods {@code OntModel.ontObjects(OntClass.class)})

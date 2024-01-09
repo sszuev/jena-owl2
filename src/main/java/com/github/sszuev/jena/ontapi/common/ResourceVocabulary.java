@@ -28,6 +28,9 @@ public interface ResourceVocabulary<T extends Resource> {
 
     /**
      * Answers {@code true} if the given type is supported by the vocabulary.
+     *
+     * @param type {@link Class}, any subtype of {@link T}
+     * @return boolean
      */
     boolean supports(Class<? extends T> type);
 

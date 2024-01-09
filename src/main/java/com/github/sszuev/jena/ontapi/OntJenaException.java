@@ -4,11 +4,9 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import org.apache.jena.shared.JenaException;
 
 /**
- * A base jena exception that is used inside ONT RDF Model subsystem (i.e. inside package {@link com.github.sszuev.jena.ontapi}).
- * <p>
- * Created by @ssz on 24.11.2016.
+ * A base ONT-API jena exception.
+ * The class also contains some exception-related utilities.
  */
-@SuppressWarnings({"unused"})
 public class OntJenaException extends JenaException {
 
     public OntJenaException() {
@@ -39,12 +37,19 @@ public class OntJenaException extends JenaException {
 
     /**
      * Stub for TO-DO.
+     *
+     * @param message error description
+     * @param <X>     any
+     * @return {@link X}
      */
     public static <X> X TODO(String message) {
         throw new RuntimeException(message);
     }
 
     /**
+     * @param object any
+     * @param <X>    any
+     * @return the specified {@code object}
      * @throws IllegalStateException if {@link X} is {@code null}
      * @see java.util.Objects#requireNonNull(Object)
      */
@@ -56,6 +61,10 @@ public class OntJenaException extends JenaException {
     }
 
     /**
+     * @param object  any
+     * @param message error description
+     * @param <X>     any
+     * @return the specified {@code object}
      * @throws IllegalStateException if {@link X} is {@code null}
      * @see java.util.Objects#requireNonNull(Object)
      */
@@ -65,6 +74,8 @@ public class OntJenaException extends JenaException {
     }
 
     /**
+     * @param mustBeFalse condition, if {@code true} and exception is expected
+     * @param message     error description
      * @throws IllegalStateException if parameter condition is {@code true}
      */
     public static void checkFalse(Boolean mustBeFalse, String message) {
@@ -74,6 +85,8 @@ public class OntJenaException extends JenaException {
     }
 
     /**
+     * @param mustBeTrue condition, if {@code false} and exception is expected
+     * @param message    error description
      * @throws IllegalStateException if parameter condition is {@code false}
      */
     public static void checkTrue(Boolean mustBeTrue, String message) {

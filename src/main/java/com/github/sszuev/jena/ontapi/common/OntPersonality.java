@@ -263,6 +263,7 @@ public interface OntPersonality {
 
         /**
          * Resources + Properties
+         * @return Set of IRI-{@link Node node}s
          */
         default Set<Node> getAllResources() {
             return Stream.of(getResources(), getProperties()).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
