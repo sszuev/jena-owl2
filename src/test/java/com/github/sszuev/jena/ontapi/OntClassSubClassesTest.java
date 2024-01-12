@@ -564,7 +564,6 @@ public class OntClassSubClassesTest {
             "OWL1_LITE_MEM",
             "OWL1_LITE_MEM_RDFS_INF",
             "OWL1_LITE_MEM_TRANS_INF",
-            "RDFS_MEM", // TODO: equivalent-class should not be allowed for RDFS
     })
     public void testListSubClasses5b(TestSpec spec) {
         //     A

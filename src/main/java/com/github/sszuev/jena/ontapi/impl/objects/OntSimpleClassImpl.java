@@ -113,6 +113,30 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
         return OntClassImpl.isDisjoint(this, candidate);
     }
 
+    @Override
+    public Stream<OntClass> disjointClasses() {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        return objects(OWL.disjointWith, OntClass.class);
+    }
+
+    @Override
+    public OntStatement addDisjointWithStatement(OntClass other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        return addStatement(OWL.disjointWith, other);
+    }
+
+    @Override
+    public Stream<OntClass> equivalentClasses() {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        return objects(OWL.equivalentClass, OntClass.class);
+    }
+
+    @Override
+    public OntStatement addEquivalentClassStatement(OntClass other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        return addStatement(OWL.equivalentClass, other);
+    }
+
     /**
      * Primary (named) class ({@code <uri> a owl:Class}).
      * This is also {@link com.github.sszuev.jena.ontapi.model.OntEntity}.

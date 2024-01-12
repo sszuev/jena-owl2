@@ -70,7 +70,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL1_LITE_BUILTINS)
                     .setReserved(OntPersonalities.OWL1_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL1_PUNNINGS)
-                    .setConfig(OntConfigs.OWL1_CONFIG)
+                    .setConfig(OntConfigs.OWL1_LITE_CONFIG)
                     .build();
 
     private static final OntPersonality RDFS_PERSONALITY =

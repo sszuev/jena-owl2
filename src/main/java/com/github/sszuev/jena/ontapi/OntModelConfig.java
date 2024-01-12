@@ -70,4 +70,12 @@ public enum OntModelConfig {
      * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointUnionOf owl:disjointUnionOf} functionality.
      */
     USE_OWL2_CLASS_DISJOINT_UNION_FEATURE,
+    /**
+     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointWith owl:disjointUnionOf} functionality.
+     */
+    USE_OWL_DISJOINT_WITH_FEATURE,
+    /**
+     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#equivalentClass owl:equivalentClass} functionality.
+     */
+    USE_OWL_EQUIVALENT_CLASS_FEATURE,
 }

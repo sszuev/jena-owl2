@@ -390,6 +390,30 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     @Override
+    public Stream<OntClass> disjointClasses() {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        return objects(OWL.disjointWith, OntClass.class);
+    }
+
+    @Override
+    public OntStatement addDisjointWithStatement(OntClass other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        return addStatement(OWL.disjointWith, other);
+    }
+
+    @Override
+    public Stream<OntClass> equivalentClasses() {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        return objects(OWL.equivalentClass, OntClass.class);
+    }
+
+    @Override
+    public OntStatement addEquivalentClassStatement(OntClass other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        return addStatement(OWL.equivalentClass, other);
+    }
+
+    @Override
     public Stream<OntClass> superClasses(boolean direct) {
         return superClasses(this, direct);
     }

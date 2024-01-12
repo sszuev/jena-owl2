@@ -19,6 +19,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -190,5 +191,36 @@ public class OntModelRDFSSpecTest {
                 );
         Stream.of(namedRdfsClass, namedRdfsDatatype, namedRdfsDomain, namedRdfsRange)
                 .forEach(it -> Assertions.assertTrue(it.inModel(m).canAs(OntClass.Named.class)));
+    }
+
+    @Test
+    public void testDisabledFeatures() {
+        OntModel d = OntModelFactory.createModel();
+        d.createOntClass("X")
+                .addHasKey(d.createObjectProperty("p"))
+                .addDisjointUnion(d.createOntClass("Q"));
+        d.createOntClass("Q").addDisjointClass(d.createOntClass("W"));
+        d.createOntClass("Q").addEquivalentClass(d.createOntClass("F"));
+        d.createResource("X", RDFS.Class);
+        d.createResource("Q", RDFS.Class);
+        d.createResource("W", RDFS.Class);
+        d.createResource("F", RDFS.Class);
+
+        OntModel m = OntModelFactory.createModel(d.getGraph(), OntSpecification.RDFS_MEM);
+        OntClass.Named x = m.getOntClass("X");
+        OntClass.Named q = m.getOntClass("Q");
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, x::hasKeys);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeHasKey(m.createList()));
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointUnion(m.createOntClass("Q")));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, x::disjointUnions);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeDisjointUnion(m.createList()));
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointClass(q));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, x::disjointClasses);
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addEquivalentClass(q));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, x::equivalentClasses);
     }
 }
