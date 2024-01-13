@@ -14,7 +14,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
@@ -29,7 +28,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * To test {@link ModelUtils} and {@link OntModels} utilities.
@@ -94,32 +92,10 @@ public class ModelUtilsTest {
                 .addVersionInfo("lab5");
 
         Property p = OWL.versionInfo;
-        Assertions.assertEquals(2, ModelUtils.langValues(id, p, null).count());
-        Assertions.assertEquals(3, ModelUtils.langValues(id, p, "e2").count());
-        Assertions.assertEquals(1, ModelUtils.langValues(id, p, "language3").count());
+        Assertions.assertEquals(2, ModelTestUtils.langValues(id, p, null).count());
+        Assertions.assertEquals(3, ModelTestUtils.langValues(id, p, "e2").count());
+        Assertions.assertEquals(1, ModelTestUtils.langValues(id, p, "language3").count());
         Assertions.assertEquals(7, m.listObjectsOfProperty(id, p).toSet().size());
-    }
-
-    @Test
-    public void testInsertModel() {
-        OntModel a1 = OntModelFactory.createModel().setID("http://a").getModel();
-        OntModel a2 = OntModelFactory.createModel().setID("http://a").getModel();
-        OntClass c1 = a1.createOntClass("http://a#Class-a1");
-        OntClass c2 = a2.createOntClass("http://a#Class-a2");
-
-        // collection depending on a1
-        OntModel m1 = OntModelFactory.createModel().setID("http://m1").getModel().addImport(a1);
-        OntModel m2 = OntModelFactory.createModel().setID("http://m2").getModel().addImport(a1);
-        Assertions.assertTrue(ModelFactory.createModelForGraph(m1.getGraph()).containsResource(c1));
-        Assertions.assertFalse(ModelFactory.createModelForGraph(m1.getGraph()).containsResource(c2));
-        Assertions.assertTrue(ModelFactory.createModelForGraph(m2.getGraph()).containsResource(c1));
-        Assertions.assertFalse(ModelFactory.createModelForGraph(m2.getGraph()).containsResource(c2));
-
-        OntModels.insert(() -> Stream.of(m1, m2), a2, true);
-        Assertions.assertTrue(ModelFactory.createModelForGraph(m1.getGraph()).containsResource(c2));
-        Assertions.assertFalse(ModelFactory.createModelForGraph(m1.getGraph()).containsResource(c1));
-        Assertions.assertTrue(ModelFactory.createModelForGraph(m2.getGraph()).containsResource(c2));
-        Assertions.assertFalse(ModelFactory.createModelForGraph(m2.getGraph()).containsResource(c1));
     }
 
     @Test
@@ -140,7 +116,7 @@ public class ModelUtilsTest {
         Assertions.assertEquals(6, Iterators.peek(ModelTestUtils.listDescendingStatements(list),
                 s -> Assertions.assertTrue(RDF.type.equals(s.getPredicate()) || ModelUtils.isInList(s))).toList().size());
 
-        Assertions.assertEquals(2, ModelUtils.subjects(t).count());
+        Assertions.assertEquals(2, ModelTestUtils.subjects(t).count());
         Assertions.assertEquals(2, ModelTestUtils.listAscendingStatements(RDF.nil.inModel(m)).toList().size());
     }
 

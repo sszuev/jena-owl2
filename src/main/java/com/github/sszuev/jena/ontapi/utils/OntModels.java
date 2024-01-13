@@ -1,7 +1,6 @@
 package com.github.sszuev.jena.ontapi.utils;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
@@ -13,7 +12,6 @@ import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntDisjoint;
 import com.github.sszuev.jena.ontapi.model.OntEntity;
-import com.github.sszuev.jena.ontapi.model.OntID;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntList;
 import com.github.sszuev.jena.ontapi.model.OntModel;
@@ -31,8 +29,6 @@ import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
-import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -75,42 +71,6 @@ public class OntModels {
      */
     public static OntIndividual.Anonymous asAnonymousIndividual(RDFNode inModel) {
         return OntIndividualImpl.createAnonymousIndividual(inModel);
-    }
-
-    /**
-     * Inserts the given ontology in the dependencies of each ontology from the specified collection,
-     * provided as {@code Supplier} (the {@code manager} parameter).
-     * Can be used to fix missed graph links or
-     * to replace existing dependency with the new one in case {@code replace} is {@code true}.
-     *
-     * @param manager the collection of other ontologies in form of {@link Supplier} that answers a {@code Stream}
-     * @param ont     {@link OntModel} the ontology to insert, must be named
-     * @param replace if {@code true} then any existing graph,
-     *                that is linked through the {@code owl:import} declaration,
-     *                will be replaced with the given graph,
-     *                otherwise the graph will be inserted only if
-     *                there is a declaration {@code owl:import} without any graph associated
-     * @see OntID#getImportsIRI()
-     */
-    public static void insert(Supplier<Stream<OntModel>> manager, OntModel ont, boolean replace) {
-        String uri = Objects.requireNonNull(ont.getID().getImportsIRI(), "Must be named ontology");
-        manager.get()
-                .filter(m -> {
-                    // select only those, that have the uri in owl:imports:
-                    try (Stream<String> uris = m.getID().imports()) {
-                        return uris.anyMatch(uri::equals);
-                    }
-                })
-                .peek(m -> {
-                    if (!replace) return;
-                    // remove a first found previously associated graph:
-                    m.imports()
-                            .filter(i -> uri.equals(i.getID().getImportsIRI()))
-                            .findFirst()
-                            .ifPresent(i -> ((UnionGraph) m.getGraph()).removeSubGraph(i.getGraph()));
-                })
-                .filter(m -> m.imports().map(OntModel::getID).map(OntID::getImportsIRI).noneMatch(uri::equals))
-                .forEach(m -> m.addImport(ont));
     }
 
     /**
@@ -240,52 +200,6 @@ public class OntModels {
             return ((OntObjectImpl) o).listAnnotations();
         }
         return Iterators.create(o.annotations().iterator());
-    }
-
-    /**
-     * Returns an {@code ExtendedIterator} over all {@link OntStatement Ontology Statement}s,
-     * which are obtained from splitting the given statement into several equivalent ones but with disjoint annotations.
-     * Each of the returned statements is equal to the given, the difference is only in the related annotations.
-     * <p>
-     * This method can be used in case there are several typed b-nodes for each annotation assertions instead of a single one.
-     * Such situation is not a canonical way and should not be widely used, since it is redundant.
-     * So usually the result stream contains only a single element: the same {@code OntStatement} instance as the input.
-     * <p>
-     * The following code demonstrates that non-canonical way of writing annotations with two or more b-nodes:
-     * <pre>{@code
-     * s A t .
-     * _:b0  a                     owl:Axiom .
-     * _:b0  A1                    t1 .
-     * _:b0  owl:annotatedSource   s .
-     * _:b0  owl:annotatedProperty A .
-     * _:b0  owl:annotatedTarget   t .
-     * _:b1  a                     owl:Axiom .
-     * _:b1  A2                    t2 .
-     * _:b1  owl:annotatedSource   s .
-     * _:b1  owl:annotatedProperty A .
-     * _:b1  owl:annotatedTarget   t .
-     * }</pre>
-     * Here the statement {@code s A t} has two annotations,
-     * but they are spread over different resources (statements {@code _:b0 A1 t1} and {@code _:b1 A2 t2}).
-     * For this example, the method returns stream of two {@code OntStatement}s, and each of them has only one annotation.
-     * For generality, below is an example of the correct and equivalent way to write these annotations,
-     * which is the preferred since it is more compact:
-     * <pre>{@code
-     * s A t .
-     * [ a                      owl:Axiom ;
-     * A1                     t1 ;
-     * A2                     t2 ;
-     * owl:annotatedProperty  A ;
-     * owl:annotatedSource    s ;
-     * owl:annotatedTarget    t
-     * ]  .
-     * }</pre>
-     *
-     * @param statement {@link OntStatement}, not {@code null}
-     * @return {@link ExtendedIterator} of {@link OntStatement}s
-     */
-    public static ExtendedIterator<OntStatement> listSplitStatements(OntStatement statement) {
-        return ((OntStatementImpl) statement).listSplitStatements();
     }
 
     /**

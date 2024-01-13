@@ -8,9 +8,13 @@ import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -23,6 +27,7 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -301,5 +306,56 @@ public class ModelTestUtils {
                 }
             });
         }
+    }
+
+    /**
+     * Lists all literal string values (lexical forms) with the given language tag
+     * for the specified subject and predicate.
+     *
+     * @param subject   {@link Resource}, not {@code null}
+     * @param predicate {@link Property}, can be {@code null}
+     * @param lang      String lang, maybe {@code null} or empty
+     * @return {@code Stream} of {@code String}s
+     */
+    public static Stream<String> langValues(Resource subject, Property predicate, String lang) {
+        return Iterators.asStream(subject.listProperties(predicate)
+                .mapWith(s -> {
+                    if (!s.getObject().isLiteral())
+                        return null;
+                    if (!filterByLangTag(s.getLiteral(), lang))
+                        return null;
+                    return s.getString();
+                })
+                .filterDrop(Objects::isNull));
+    }
+
+    /**
+     * Answers {@code true} if the literal has the given language tag.
+     * The comparison is case-insensitive and ignores trailing spaces,
+     * so two tags {@code  en } and {@code En} are considered as equaled.
+     *
+     * @param literal {@link Literal}, not {@code null}
+     * @param tag     String, possible {@code null}
+     * @return {@code true} if the given literal has the given tag
+     */
+    public static boolean filterByLangTag(Literal literal, String tag) {
+        String other = literal.getLanguage();
+        if (StringUtils.isEmpty(tag))
+            return StringUtils.isEmpty(other);
+        return tag.trim().equalsIgnoreCase(other);
+    }
+
+    /**
+     * Lists all direct subjects for the given object.
+     *
+     * @param object {@link RDFNode}, not {@code null}
+     * @return <b>distinct</b> {@code Stream} of {@link Resource}s
+     * @see Model#listResourcesWithProperty(Property, RDFNode)
+     * @see org.apache.jena.graph.GraphUtil#listSubjects(Graph, Node, Node)
+     */
+    public static Stream<Resource> subjects(RDFNode object) {
+        Model m = Objects.requireNonNull(object.getModel(), "No model for a resource " + object);
+        return Iterators.fromSet(() -> m.getGraph().find(Node.ANY, Node.ANY, object.asNode())
+                .mapWith(t -> m.wrapAsResource(t.getSubject())).toSet());
     }
 }

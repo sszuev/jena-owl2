@@ -29,8 +29,6 @@ import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 /**
  * To test annotated statements ({@link OntStatement}) and annotations within ont objects ({@link OntObject}).
  * Created by @ssz on 28.07.2018.
@@ -467,79 +465,6 @@ public class OntAnnotationsTest {
 
         Assertions.assertEquals(2, model.statements(null, RDF.type, OWL.Axiom).count());
         Assertions.assertEquals(1, model.statements(null, RDF.type, OWL.Annotation).count());
-    }
-
-    @Test
-    public void testAnnotationSplitting() {
-        OntModel m = OntModelFactory.createModel().setNsPrefixes(OntModelFactory.STANDARD);
-        OntClass clazz = m.createOntClass("A");
-        OntStatement subClassOf = clazz.addSubClassOfStatement(m.getOWLThing());
-
-        Assertions.assertEquals(0, subClassOf.annotations().count());
-        subClassOf.addAnnotation(m.getRDFSLabel(), "label1").addAnnotation(m.getRDFSComment(), "comment1");
-        OntStatement sub = subClassOf.addAnnotation(m.getRDFSLabel(), "label2")
-                .addAnnotation(m.getRDFSComment(), "comment2");
-        sub.addAnnotation(m.getRDFSLabel(), "label3");
-        sub.addAnnotation(m.getRDFSLabel(), "label4");
-
-        Assertions.assertEquals(2, subClassOf.annotations().count());
-        Assertions.assertEquals(1, OntModels.listSplitStatements(subClassOf).toList().size());
-        Assertions.assertEquals(6, OntModels.annotations(subClassOf).count());
-        Assertions.assertEquals(2, OntModels.annotations(sub).count());
-
-        sub.deleteAnnotation(m.getRDFSLabel(), m.createLiteral("label4"));
-
-        Assertions.assertEquals(5, OntModels.annotations(subClassOf).count());
-
-        Resource annotation = m.createResource(null, OWL.Axiom);
-        Assertions.assertEquals(1, OntModels.listSplitStatements(subClassOf).toList().size());
-        annotation.addProperty(OWL.annotatedSource, clazz)
-                .addProperty(OWL.annotatedProperty, RDFS.subClassOf)
-                .addProperty(OWL.annotatedTarget, OWL.Thing);
-
-        List<OntStatement> split1 = OntModels.listSplitStatements(subClassOf).toList();
-        Assertions.assertEquals(2, split1.size());
-        Assertions.assertEquals(2, split1.get(0).annotations().count());
-        Assertions.assertEquals(0, split1.get(1).annotations().count());
-        annotation.addProperty(m.getRDFSComment(), "comment3");
-
-
-        Assertions.assertEquals(3, subClassOf.annotations().count());
-        Assertions.assertEquals(2, split1.get(0).annotations().count());
-        Assertions.assertEquals(1, split1.get(1).annotations().count());
-        Assertions.assertEquals(split1.get(0), split1.get(1));
-        Assertions.assertEquals(subClassOf, split1.get(1));
-        Assertions.assertEquals(5, OntModels.annotations(split1.get(0)).count());
-        Assertions.assertEquals(1, OntModels.annotations(split1.get(1)).count());
-
-        OntStatement foundSubClassOf = m.statements(clazz, RDFS.subClassOf, OWL.Thing)
-                .findFirst().orElseThrow(AssertionError::new);
-        Assertions.assertEquals(3, foundSubClassOf.annotations().count());
-        Assertions.assertEquals(6, OntModels.annotations(foundSubClassOf).count());
-
-        OntStatement declaration = clazz.getMainStatement();
-        declaration.addAnnotation(m.getRDFSLabel(), "comment4").addAnnotation(m.getRDFSLabel(), "label5");
-        declaration.addAnnotation(m.getRDFSComment(), "comment5");
-
-        Assertions.assertEquals(3, OntModels.annotations(declaration).count());
-        Assertions.assertEquals(1, OntModels.listSplitStatements(declaration).toList().size());
-        m.createResource(null, OWL.Axiom)
-                .addProperty(OWL.annotatedSource, clazz)
-                .addProperty(OWL.annotatedProperty, RDF.type)
-                .addProperty(OWL.annotatedTarget, OWL.Class)
-                .addProperty(m.getRDFSComment(), "comment6");
-        m.createResource(null, OWL.Axiom)
-                .addProperty(OWL.annotatedSource, clazz)
-                .addProperty(OWL.annotatedProperty, RDF.type)
-                .addProperty(OWL.annotatedTarget, OWL.Class)
-                .addProperty(m.getRDFSComment(), "comment7");
-
-
-        Assertions.assertEquals(5, OntModels.annotations(declaration).count());
-        List<OntStatement> split2 = OntModels.listSplitStatements(declaration).toList();
-        Assertions.assertEquals(2, split2.size());
-        Assertions.assertEquals(3, split2.get(0).annotations().count());
-        Assertions.assertEquals(1, split2.get(1).annotations().count());
     }
 
     @Test
