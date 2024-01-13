@@ -109,6 +109,7 @@ public class OntPersonalities {
             .add(OntIndividual.Anonymous.class, RDFSObjectFactories.ANONYMOUS_INDIVIDUAL)
             .add(OntIndividual.class, RDFSObjectFactories.ANY_INDIVIDUAL)
             .add(OntProperty.class, RDFSObjectFactories.PROPERTY)
+            .add(OntAnnotationProperty.class, RDFSObjectFactories.ANNOTATION_PROPERTY)
             .add(OntClass.class, RDFSObjectFactories.ANY_CLASS)
             .add(OntClass.Named.class, RDFSObjectFactories.NAMED_CLASS);
 

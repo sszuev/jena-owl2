@@ -10,7 +10,7 @@ import java.util.stream.Stream;
  * Interface encapsulating a {named} Annotation Property.
  * This is an extension to the standard jena {@link Property},
  * the {@link OntEntity OWL Entity} and the {@link OntProperty abstract property expression} interfaces.
- * In OWL2 an Annotation Property cannot be anonymous.
+ * In OWL2, an Annotation Property cannot be anonymous.
  * <p>
  * Created @ssz on 01.11.2016.
  *
@@ -79,7 +79,7 @@ public interface OntAnnotationProperty extends OntProperty, OntNamedProperty<Ont
     /**
      * Adds a statement with the {@link RDFS#range} as predicate and the specified {@code uri} as an object.
      *
-     * @param uri an URI-{@link Resource}, not {@code null}
+     * @param uri a URI-{@link Resource}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
      * @see #addRangeStatement(Resource)
      */
@@ -91,7 +91,7 @@ public interface OntAnnotationProperty extends OntProperty, OntNamedProperty<Ont
     /**
      * Adds a statement with the {@link RDFS#domain} as predicate and the specified {@code uri} as an object.
      *
-     * @param uri an URI-{@link Resource}, not {@code null}
+     * @param uri a URI-{@link Resource}, not {@code null}
      * @return <b>this</b> instance to allow cascading calls
      * @see #addDomainStatement(Resource)
      */

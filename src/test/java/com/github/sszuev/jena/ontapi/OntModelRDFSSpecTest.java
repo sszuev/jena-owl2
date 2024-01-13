@@ -8,10 +8,13 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
+import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.UnsupportedPolymorphismException;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
@@ -224,5 +227,32 @@ public class OntModelRDFSSpecTest {
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addEquivalentClass(q));
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeEquivalentClass(q));
         Assertions.assertEquals(0, x.equivalentClasses().count());
+    }
+
+    @Test
+    public void testAnnotationProperties() {
+        OntModel m = OntModelFactory.createModel(OntSpecification.RDFS_MEM);
+
+        OntClass.Named x = m.createOntClass("X");
+        OntClass.Named q = m.createOntClass("Q");
+
+        x.addComment("XXX").addLabel("RRR", "ua");
+        OntStatement s1 = x.addAnnotation(m.getRDFSSeeAlso(), m.createResource("http://ex.com#"));
+        OntStatement s2 = q.addAnnotation(m.getRDFSIsDefinedBy(), m.createLiteral("http://ex.com#"));
+
+        Assertions.assertEquals(
+                Triple.create(x.asNode(), RDFS.seeAlso.asNode(), NodeFactory.createURI("http://ex.com#")), s1.asTriple()
+        );
+        Assertions.assertEquals(
+                Triple.create(q.asNode(), RDFS.isDefinedBy.asNode(), NodeFactory.createLiteral("http://ex.com#")), s2.asTriple()
+        );
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () ->
+                s2.addAnnotation(m.getRDFSComment(), m.createTypedLiteral(42))
+        );
+
+        Assertions.assertEquals(0, m.annotationProperties().count());
+
+        Assertions.assertEquals(6, m.size());
     }
 }

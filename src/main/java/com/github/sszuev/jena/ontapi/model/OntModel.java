@@ -659,6 +659,14 @@ public interface OntModel extends Model,
         return getAnnotationProperty(RDFS.label);
     }
 
+    default OntAnnotationProperty getRDFSSeeAlso() {
+        return getAnnotationProperty(RDFS.seeAlso);
+    }
+
+    default OntAnnotationProperty getRDFSIsDefinedBy() {
+        return getAnnotationProperty(RDFS.isDefinedBy);
+    }
+
     default OntClass.Named getOWLThing() {
         return getOntClass(OWL.Thing);
     }

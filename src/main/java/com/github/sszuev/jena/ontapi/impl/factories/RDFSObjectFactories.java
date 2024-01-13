@@ -8,10 +8,12 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
+import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleClassImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntSimplePropertyImpl;
+import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntObject;
@@ -79,6 +81,13 @@ public final class RDFSObjectFactories {
             RDF.Property,
             OntSimplePropertyImpl::new,
             RDFSObjectFactories::isAnyProperty
+    );
+
+    public static EnhNodeFactory ANNOTATION_PROPERTY = OntEnhNodeFactories.createCommon(OntAnnotationProperty.class,
+            new EnhNodeProducer.Default(OntAnnotationPropertyImpl.class, OntAnnotationPropertyImpl::new),
+            EnhNodeFinder.NOTHING,
+            (n, g) -> n.isURI() &&
+                    OntEnhGraph.asPersonalityModel(g).getOntPersonality().getBuiltins().getAnnotationProperties().contains(n)
     );
 
     public static Function<OntConfig, EnhNodeFactory> ANY_CLASS = config -> createFactory(
