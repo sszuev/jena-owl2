@@ -9,11 +9,11 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
  * <p>
  * Created by @ssz on 09.05.2019.
  *
- * @param <P> - any subtype of {@link OntRealProperty} in general case, but in the current model it can only be {@link OntDataProperty}
+ * @param <P> - any subtype of {@link OntRelationalProperty} in general case, but in the current model it can only be {@link OntDataProperty}
  * @param <R> - return type, a subtype of {@link OntClass.NaryRestriction}
  * @see HasProperties
  */
-interface SetProperties<P extends OntRealProperty, R extends OntClass.NaryRestriction<?, ?>>
+interface SetProperties<P extends OntRelationalProperty, R extends OntClass.NaryRestriction<?, ?>>
         extends SetComponents<P, R>, SetProperty<P, R> {
 
     /**

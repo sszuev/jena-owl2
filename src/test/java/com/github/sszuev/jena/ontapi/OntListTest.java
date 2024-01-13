@@ -10,7 +10,7 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
@@ -477,15 +477,15 @@ public class OntListTest {
         Assertions.assertEquals(3, clazz.hasKeys().count());
         Assertions.assertEquals(3, m.classes().flatMap(OntClass::hasKeys).count());
 
-        OntList<OntRealProperty> h23 = clazz.hasKeys()
+        OntList<OntRelationalProperty> h23 = clazz.hasKeys()
                 .filter(c -> c.first().filter(p2::equals).isPresent())
                 .findFirst()
                 .orElseThrow(AssertionError::new);
-        OntList<OntRealProperty> h34 = clazz.hasKeys()
+        OntList<OntRelationalProperty> h34 = clazz.hasKeys()
                 .filter(c -> c.last().filter(p4::equals).isPresent())
                 .findFirst()
                 .orElseThrow(AssertionError::new);
-        OntList<OntRealProperty> h451 = clazz.hasKeys()
+        OntList<OntRelationalProperty> h451 = clazz.hasKeys()
                 .filter(c -> c.last().filter(p1::equals).isPresent())
                 .findFirst()
                 .orElseThrow(AssertionError::new);

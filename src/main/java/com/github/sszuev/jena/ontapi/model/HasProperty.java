@@ -8,10 +8,10 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
  * <p>
  * Created by @ssz on 09.05.2019.
  *
- * @param <P> - {@link OntRealProperty Data or Object} property expression
+ * @param <P> - {@link OntRelationalProperty Data or Object} property expression
  * @see SetProperty
  */
-interface HasProperty<P extends OntRealProperty> {
+interface HasProperty<P extends OntRelationalProperty> {
     /**
      * Gets the property,
      * that this {@link OntClass.UnaryRestriction} has inside its RDF structure

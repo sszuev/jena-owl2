@@ -16,9 +16,9 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)
             .setTrue(OntModelControls.USE_OWL2_NAMED_INDIVIDUAL_FEATURE)
             .setTrue(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
-            .setTrue(OntModelControls.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE);
+            .setTrue(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
 
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -29,9 +29,9 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)
             .setFalse(OntModelControls.USE_OWL2_NAMED_INDIVIDUAL_FEATURE)
             .setFalse(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
-            .setFalse(OntModelControls.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE);
+            .setFalse(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
 
     public static final OntConfig OWL1_LITE_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -42,9 +42,9 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)
             .setFalse(OntModelControls.USE_OWL2_NAMED_INDIVIDUAL_FEATURE)
             .setFalse(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
-            .setFalse(OntModelControls.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE)
-            .setFalse(OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE);
+            .setFalse(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
 
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -55,7 +55,7 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)
             .setFalse(OntModelControls.USE_OWL2_NAMED_INDIVIDUAL_FEATURE)
             .setFalse(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
-            .setFalse(OntModelControls.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE)
-            .setFalse(OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE)
-            .setFalse(OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE);
+            .setFalse(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
 }

@@ -17,7 +17,7 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
@@ -163,19 +163,19 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         return res.as(OntIndividual.Named.class);
     }
 
-    public static OntList<OntRealProperty> createHasKey(OntGraphModelImpl m,
-                                                        OntClass clazz,
-                                                        Stream<? extends OntRealProperty> collection) {
+    public static OntList<OntRelationalProperty> createHasKey(OntGraphModelImpl m,
+                                                              OntClass clazz,
+                                                              Stream<? extends OntRelationalProperty> collection) {
         OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
-        return m.createOntList(clazz, OWL.hasKey, OntRealProperty.class,
-                collection.distinct().map(OntRealProperty.class::cast).iterator());
+        return m.createOntList(clazz, OWL.hasKey, OntRelationalProperty.class,
+                collection.distinct().map(OntRelationalProperty.class::cast).iterator());
     }
 
-    public static Stream<OntList<OntRealProperty>> listHasKeys(OntGraphModelImpl m, OntClass clazz) {
+    public static Stream<OntList<OntRelationalProperty>> listHasKeys(OntGraphModelImpl m, OntClass clazz) {
         if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)) {
             return Stream.empty();
         }
-        return OntListImpl.stream(m, clazz, OWL.hasKey, OntRealProperty.class);
+        return OntListImpl.stream(m, clazz, OWL.hasKey, OntRelationalProperty.class);
     }
 
     public static void removeHasKey(OntGraphModelImpl m,
@@ -186,36 +186,36 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static Stream<OntClass> disjointClasses(OntGraphModelImpl m, OntClass clazz) {
-        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE)) {
+        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)) {
             return Stream.empty();
         }
         return clazz.objects(OWL.disjointWith, OntClass.class);
     }
 
     public static OntStatement addDisjointWith(OntGraphModelImpl m, OntClass clazz, OntClass other) {
-        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE, "owl:disjointWith");
         return clazz.addStatement(OWL.disjointWith, other);
     }
 
     public static void removeDisjointWith(OntGraphModelImpl m, OntClass clazz, Resource other) {
-        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE, "owl:disjointWith");
         clazz.remove(OWL.disjointWith, other);
     }
 
     public static Stream<OntClass> equivalentClasses(OntGraphModelImpl m, OntClass clazz) {
-        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE)) {
+        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE)) {
             return Stream.empty();
         }
         return clazz.objects(OWL.equivalentClass, OntClass.class);
     }
 
     public static OntStatement addEquivalentClass(OntGraphModelImpl m, OntClass clazz, OntClass other) {
-        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         return clazz.addStatement(OWL.equivalentClass, other);
     }
 
     public static void removeEquivalentClass(OntGraphModelImpl m, OntClass clazz, Resource other) {
-        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         clazz.remove(OWL.equivalentClass, other);
     }
 
@@ -402,17 +402,17 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     @Override
-    public OntList<OntRealProperty> createHasKey(Collection<OntObjectProperty> ope, Collection<OntDataProperty> dpe) {
+    public OntList<OntRelationalProperty> createHasKey(Collection<OntObjectProperty> ope, Collection<OntDataProperty> dpe) {
         return createHasKey(getModel(), this, Stream.of(ope, dpe).flatMap(Collection::stream));
     }
 
     @Override
-    public OntStatement addHasKeyStatement(OntRealProperty... properties) {
+    public OntStatement addHasKeyStatement(OntRelationalProperty... properties) {
         return createHasKey(getModel(), this, Arrays.stream(properties)).getMainStatement();
     }
 
     @Override
-    public Stream<OntList<OntRealProperty>> hasKeys() {
+    public Stream<OntList<OntRelationalProperty>> hasKeys() {
         return listHasKeys(getModel(), this);
     }
 
@@ -445,13 +445,13 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     @Override
     public Stream<OntClass> equivalentClasses() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         return objects(OWL.equivalentClass, OntClass.class);
     }
 
     @Override
     public OntStatement addEquivalentClassStatement(OntClass other) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         return addStatement(OWL.equivalentClass, other);
     }
 
@@ -844,17 +844,17 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
      * Abstract implementation for any restriction with {@code owl:onProperty} predicate.
      * Can be used instantiate directly if config settings allow.
      *
-     * @param <P> a subtype of {@link OntRealProperty Data or Object Property Expression}
+     * @param <P> a subtype of {@link OntRelationalProperty Data or Object Property Expression}
      * @param <R> return type for {@link OWL#onProperty} setter
      */
-    public static class OnPropertyRestrictionImpl<P extends OntRealProperty, R extends OntClassImpl>
+    public static class OnPropertyRestrictionImpl<P extends OntRelationalProperty, R extends OntClassImpl>
             extends RestrictionImpl implements UnaryRestriction<P> {
         protected final Class<P> propertyView;
 
         /**
          * @param n            {@link Node}
          * @param m            {@link EnhGraph}
-         * @param propertyType Class-type for {@link OntRealProperty}
+         * @param propertyType Class-type for {@link OntRelationalProperty}
          */
         public OnPropertyRestrictionImpl(Node n, EnhGraph m, Class<P> propertyType) {
             super(n, m);
@@ -890,11 +890,11 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
      * (with predicate owl:dataRange, owl:onClass, owl:someValuesFrom, owl:allValuesFrom)
      *
      * @param <O> a class-type of {@link RDFNode rdf-node}
-     * @param <P> a class-type of {@link OntRealProperty data or object property-expression}
+     * @param <P> a class-type of {@link OntRelationalProperty data or object property-expression}
      * @param <R> a subtype of {@link ComponentRestrictionImpl}
      */
     public static abstract class ComponentRestrictionImpl<O extends RDFNode,
-            P extends OntRealProperty,
+            P extends OntRelationalProperty,
             R extends ComponentRestrictionImpl<?, ?, ?>>
             extends OnPropertyRestrictionImpl<P, R> implements ComponentRestriction<O, P> {
         protected final Property predicate;
@@ -948,7 +948,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
      * @param <R> subtype of {@link CardinalityRestrictionImpl}
      */
     public static abstract class CardinalityRestrictionImpl<O extends OntObject,
-            P extends OntRealProperty,
+            P extends OntRelationalProperty,
             R extends CardinalityRestrictionImpl<?, ?, ?>>
             extends ComponentRestrictionImpl<O, P, R> implements CardinalityRestriction<O, P> {
         protected final CardinalityType cardinalityType;
@@ -1036,7 +1036,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static abstract class NaryRestrictionImpl<O extends OntObject,
-            P extends OntRealProperty, R extends NaryRestrictionImpl<?, ?, ?>>
+            P extends OntRelationalProperty, R extends NaryRestrictionImpl<?, ?, ?>>
             extends OntClassImpl implements NaryRestriction<O, P> {
         protected final Property predicate;
         protected final Class<O> objectType; // always OntDR

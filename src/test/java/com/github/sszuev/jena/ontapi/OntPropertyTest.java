@@ -8,7 +8,7 @@ import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntNamedProperty;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * {@link OntObjectProperty},
  * {@link OntObjectProperty.Named},
  * {@link OntDataProperty},
- * {@link OntRealProperty},
+ * {@link OntRelationalProperty},
  * {@link OntAnnotationProperty}.
  * <p>
  * Created by @ssz on 08.05.2019.
@@ -54,7 +54,7 @@ public class OntPropertyTest {
         OntModelOWLSpecTest.simplePropertiesValidation(m);
         Assertions.assertEquals(9, m.ontObjects(OntNamedProperty.class).count());
         Assertions.assertEquals(11, m.ontObjects(OntProperty.class).count());
-        Assertions.assertEquals(9, m.ontObjects(OntRealProperty.class).count());
+        Assertions.assertEquals(9, m.ontObjects(OntRelationalProperty.class).count());
     }
 
     @Test

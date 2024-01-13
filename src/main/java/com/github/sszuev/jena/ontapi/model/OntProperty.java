@@ -121,7 +121,7 @@ public interface OntProperty extends OntObject {
      *
      * @return {@code Stream} of {@link Resource}s
      * @see OntAnnotationProperty#ranges()
-     * @see OntRealProperty#ranges()
+     * @see OntRelationalProperty#ranges()
      */
     Stream<? extends Resource> ranges();
 
@@ -151,7 +151,7 @@ public interface OntProperty extends OntObject {
      * @return {@code Stream} of {@link OntProperty ont-properties}
      * @see #superProperties(boolean)
      * @see OntAnnotationProperty#superProperties()
-     * @see OntRealProperty#superProperties()
+     * @see OntRelationalProperty#superProperties()
      */
     default Stream<? extends OntProperty> subProperties() {
         return subProperties(false);
@@ -167,7 +167,7 @@ public interface OntProperty extends OntObject {
      * @return {@code Stream} of {@link OntProperty ont-properties}
      * @see #superProperties(boolean)
      * @see OntAnnotationProperty#superProperties()
-     * @see OntRealProperty#superProperties()
+     * @see OntRelationalProperty#superProperties()
      */
     default Stream<? extends OntProperty> superProperties() {
         return superProperties(false);

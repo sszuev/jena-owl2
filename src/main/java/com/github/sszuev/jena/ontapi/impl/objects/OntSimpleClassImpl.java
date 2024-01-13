@@ -9,7 +9,7 @@ import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntList;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.EnhGraph;
@@ -88,17 +88,17 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
     }
 
     @Override
-    public OntList<OntRealProperty> createHasKey(Collection<OntObjectProperty> ope, Collection<OntDataProperty> dpe) {
+    public OntList<OntRelationalProperty> createHasKey(Collection<OntObjectProperty> ope, Collection<OntDataProperty> dpe) {
         return OntClassImpl.createHasKey(getModel(), this, Stream.of(ope, dpe).flatMap(Collection::stream));
     }
 
     @Override
-    public OntStatement addHasKeyStatement(OntRealProperty... properties) {
+    public OntStatement addHasKeyStatement(OntRelationalProperty... properties) {
         return OntClassImpl.createHasKey(getModel(), this, Arrays.stream(properties)).getMainStatement();
     }
 
     @Override
-    public Stream<OntList<OntRealProperty>> hasKeys() {
+    public Stream<OntList<OntRelationalProperty>> hasKeys() {
         return OntClassImpl.listHasKeys(getModel(), this);
     }
 
@@ -175,7 +175,7 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
 
         @Override
         public Stream<OntList<OntClass>> disjointUnions() {
-            if (!OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE)) {
+            if (!OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)) {
                 return Stream.empty();
             }
             return OntListImpl.stream(getModel(), this, OWL.disjointUnionOf, OntClass.class);
@@ -183,14 +183,14 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
 
         @Override
         public OntList<OntClass> createDisjointUnion(Collection<OntClass> classes) {
-            OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
+            OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
             return getModel().createOntList(this, OWL.disjointUnionOf, OntClass.class,
                     Objects.requireNonNull(classes).stream().distinct().iterator());
         }
 
         @Override
         public OntClass.Named removeDisjointUnion(Resource rdfList) throws OntJenaException.IllegalArgument {
-            OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
+            OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
             getModel().deleteOntList(this, OWL.disjointUnionOf, findDisjointUnion(rdfList).orElse(null));
             return this;
         }

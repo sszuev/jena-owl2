@@ -15,7 +15,7 @@ import com.github.sszuev.jena.ontapi.model.OntNegativeAssertion;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
@@ -112,7 +112,7 @@ public class OntModelOWLSpecTest {
         List<OntNamedProperty> actualNamed = ont.ontObjects(OntNamedProperty.class).collect(Collectors.toList());
         Assertions.assertEquals(expectedNamed.size(), actualNamed.size());
 
-        List<OntProperty> actualDOs = ont.ontObjects(OntRealProperty.class).collect(Collectors.toList());
+        List<OntProperty> actualDOs = ont.ontObjects(OntRelationalProperty.class).collect(Collectors.toList());
         Set<Resource> expectedDOs = toSet(datatypeProperties, namedObjectProperties, inverseObjectProperties);
         Assertions.assertEquals(expectedDOs.size(), actualDOs.size());
 
@@ -823,7 +823,7 @@ public class OntModelOWLSpecTest {
         assertOntObjectsCount(m, OntDataProperty.class, 9);
 
         assertOntObjectsCount(m, OntObjectProperty.class, 80);
-        assertOntObjectsCount(m, OntRealProperty.class, 89);
+        assertOntObjectsCount(m, OntRelationalProperty.class, 89);
         assertOntObjectsCount(m, OntProperty.class, 90);
 
         assertOntObjectsCount(m, OntDataRange.class, 0);
@@ -905,7 +905,7 @@ public class OntModelOWLSpecTest {
         assertOntObjectsCount(m, OntDataProperty.class, 9);
 
         assertOntObjectsCount(m, OntObjectProperty.class, 80);
-        assertOntObjectsCount(m, OntRealProperty.class, 89);
+        assertOntObjectsCount(m, OntRelationalProperty.class, 89);
         assertOntObjectsCount(m, OntProperty.class, 90);
 
         assertOntObjectsCount(m, OntDataRange.class, 0);
@@ -987,7 +987,7 @@ public class OntModelOWLSpecTest {
         assertOntObjectsCount(m, OntDataProperty.class, 9);
 
         assertOntObjectsCount(m, OntObjectProperty.class, 80);
-        assertOntObjectsCount(m, OntRealProperty.class, 89);
+        assertOntObjectsCount(m, OntRelationalProperty.class, 89);
         assertOntObjectsCount(m, OntProperty.class, 90);
 
         assertOntObjectsCount(m, OntDataRange.class, 0);

@@ -6,7 +6,7 @@ import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
@@ -114,8 +114,8 @@ public class OntExpressionTest {
         Assertions.assertSame(r3, r3.setProperty(op1));
         Assertions.assertEquals(op1, r3.getProperty());
 
-        Set<OntRealProperty> actual = new HashSet<>(Arrays.asList(dp2, op2, op1));
-        Set<OntRealProperty> expected = m.ontObjects(OntClass.UnaryRestriction.class)
+        Set<OntRelationalProperty> actual = new HashSet<>(Arrays.asList(dp2, op2, op1));
+        Set<OntRelationalProperty> expected = m.ontObjects(OntClass.UnaryRestriction.class)
                 .map(x -> x.getProperty()).collect(Collectors.toSet());
         Assertions.assertEquals(expected, actual);
     }

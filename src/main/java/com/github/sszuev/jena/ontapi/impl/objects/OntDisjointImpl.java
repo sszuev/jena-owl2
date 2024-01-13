@@ -10,7 +10,7 @@ import com.github.sszuev.jena.ontapi.model.OntDisjoint;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -215,7 +215,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         }
     }
 
-    public abstract static class PropertiesImpl<P extends OntRealProperty>
+    public abstract static class PropertiesImpl<P extends OntRelationalProperty>
             extends OntDisjointImpl<P> implements Properties<P> {
 
         public PropertiesImpl(Node n, EnhGraph m) {

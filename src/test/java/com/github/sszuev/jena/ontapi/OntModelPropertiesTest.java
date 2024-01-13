@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.model.OntModel;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
@@ -32,7 +32,7 @@ public class OntModelPropertiesTest {
         m.createResource("X", OWL.DatatypeProperty);
         Assertions.assertEquals(0, m.objectProperties().count());
         Assertions.assertEquals(0, m.dataProperties().count());
-        Assertions.assertEquals(0, m.ontObjects(OntRealProperty.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntRelationalProperty.class).count());
     }
 
     @ParameterizedTest

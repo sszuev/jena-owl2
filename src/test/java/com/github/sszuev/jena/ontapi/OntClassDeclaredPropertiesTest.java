@@ -7,7 +7,7 @@ import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
@@ -252,9 +252,9 @@ public class OntClassDeclaredPropertiesTest {
         OntClass C = m.createOntClass(NS + "C");
         C.addSuperClass(A);
 
-        OntRealProperty p = m.createDataProperty(NS + "p");
-        OntRealProperty q = m.createDataProperty(NS + "q");
-        OntRealProperty s = m.createDataProperty(NS + "s");
+        OntRelationalProperty p = m.createDataProperty(NS + "p");
+        OntRelationalProperty q = m.createDataProperty(NS + "q");
+        OntRelationalProperty s = m.createDataProperty(NS + "s");
 
         p.addDomain(A);
         q.addDomain(A);

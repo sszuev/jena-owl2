@@ -7,7 +7,7 @@ import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
@@ -92,7 +92,7 @@ public class OntModelRDFSSpecTest {
         Assertions.assertFalse(p3.canAs(OntProperty.class));
         Assertions.assertFalse(p4.canAs(OntProperty.class));
 
-        Stream.of(OntClass.class, OntRealProperty.class, OntDataProperty.class)
+        Stream.of(OntClass.class, OntRelationalProperty.class, OntDataProperty.class)
                 .forEach(it -> Assertions.assertFalse(p1.canAs(it)));
     }
 

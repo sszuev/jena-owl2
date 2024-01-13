@@ -21,7 +21,7 @@ import com.github.sszuev.jena.ontapi.model.OntNegativeAssertion;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -143,7 +143,7 @@ public class OntPersonalities {
             // property expressions:
             .add(OntObjectProperty.Inverse.class, OWL2ObjectFactories.INVERSE_OBJECT_PROPERTY)
             .add(OntObjectProperty.class, OWL2ObjectFactories.OBJECT_PROPERTY)
-            .add(OntRealProperty.class, OWL2ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntRelationalProperty.class, OWL2ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
             .add(OntNamedProperty.class, OWL2ObjectFactories.ANY_NAMED_PROPERTY)
             .add(OntProperty.class, OWL2ObjectFactories.ANY_PROPERTY)
 
@@ -258,7 +258,7 @@ public class OntPersonalities {
 
             // properties:
             .add(OntObjectProperty.class, OWL1ObjectFactories.OBJECT_PROPERTY)
-            .add(OntRealProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntRelationalProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
             .add(OntNamedProperty.class, OWL1ObjectFactories.ANY_NAMED_PROPERTY)
             .add(OntProperty.class, OWL1ObjectFactories.ANY_PROPERTY)
 
@@ -325,7 +325,7 @@ public class OntPersonalities {
 
             // properties:
             .add(OntObjectProperty.class, OWL1ObjectFactories.OBJECT_PROPERTY)
-            .add(OntRealProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntRelationalProperty.class, OWL1ObjectFactories.ANY_DATA_OR_OBJECT_PROPERTY)
             .add(OntNamedProperty.class, OWL1ObjectFactories.ANY_NAMED_PROPERTY)
             .add(OntProperty.class, OWL1ObjectFactories.ANY_PROPERTY)
 

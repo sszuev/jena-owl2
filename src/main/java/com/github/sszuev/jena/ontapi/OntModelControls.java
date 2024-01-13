@@ -2,7 +2,7 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.model.OntClass;
-import com.github.sszuev.jena.ontapi.model.OntRealProperty;
+import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 
 /**
  * Default settings for {@link OntConfig}.
@@ -69,7 +69,7 @@ public enum OntModelControls {
      * If disabled,
      * {@link com.github.sszuev.jena.ontapi.model.OntClass#hasKeys() OntClass#hasKeys()} will return empty {@code Stream},
      * modification operations, such as
-     * {@link com.github.sszuev.jena.ontapi.model.OntClass#addHasKey(OntRealProperty...) OntClass#addHasKey(OntRealProperty...)},
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass#addHasKey(OntRelationalProperty...) OntClass#addHasKey(OntRelationalProperty...)},
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL2_CLASS_HAS_KEY_FEATURE,
@@ -81,7 +81,7 @@ public enum OntModelControls {
      * {@link com.github.sszuev.jena.ontapi.model.OntClass.Named#addDisjointUnion(OntClass...) OntClass.Named#addDisjointUnion(OntClass...)},
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
-    USE_OWL2_CLASS_DISJOINT_UNION_FEATURE,
+    USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE,
     /**
      * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointWith owl:disjointWith} functionality.
      * If disabled,
@@ -90,7 +90,7 @@ public enum OntModelControls {
      * {@link com.github.sszuev.jena.ontapi.model.OntClass#addDisjointClass(OntClass) OntClass#addDisjointClass(OntClass)},
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
-    USE_OWL_DISJOINT_WITH_FEATURE,
+    USE_OWL_CLASS_DISJOINT_WITH_FEATURE,
     /**
      * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#equivalentClass owl:equivalentClass} functionality.
      * If disabled,
@@ -99,5 +99,5 @@ public enum OntModelControls {
      * {@link com.github.sszuev.jena.ontapi.model.OntClass#addEquivalentClass(OntClass) OntClass#addEquivalentClass(OntClass)},
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
-    USE_OWL_EQUIVALENT_CLASS_FEATURE,
+    USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE,
 }
