@@ -6,7 +6,7 @@
 This is enhanced [Apache Jena](https://github.com/apache/jena) Inference [RDF](https://www.w3.org/TR/rdf11-concepts/) Model with [OWL2](https://www.w3.org/TR/owl2-syntax/) support.
 The original code is taken from [ONT-API](https://github.com/owlcs/ont-api).
 
-### Motivation:
+### Motivation
 
 [com.github.owlcs.ontapi.jena.model.OntModel](https://github.com/owlcs/ont-api/blob/3.x.x/jena-impl/src/main/java/com/github/owlcs/ontapi/jena/model/OntModel.java)
 covers OWL2 syntax but not inference and OWL profiles.     
@@ -34,7 +34,7 @@ This project closes this gap by providing a fully functional ontology RDF model 
 - OWL1 Lite: NO_INF, RULES_INF, RDFS_INF, TRANS_INF
 - RDFS: NO_INF, RDFS_INF, TRANS_INF
 
-### Examples
+### Example
 
 ```java
 GraphRepository repository = GraphRepository.createGraphDocumentRepositoryMem();
@@ -54,6 +54,25 @@ m.ontObjects(OntClass.class).forEach(System.out::println);
 m.ontObjects(OntIndividual.class).forEach(System.out::println);
 
 m.write(System.out, "ttl");
+```
+
+### Available via [jitpack](https://jitpack.io/#sszuev/jena-owl2/)
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>com.github.sszuev</groupId>
+        <artifactId>jena-owl2</artifactId>
+        <version>{{latest-version}}</version>
+    </dependency>
+</dependencies>
 ```
 
 ### Apache License Version 2.0
