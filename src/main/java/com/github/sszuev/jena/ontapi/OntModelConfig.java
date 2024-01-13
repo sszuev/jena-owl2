@@ -1,6 +1,8 @@
 package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntConfig;
+import com.github.sszuev.jena.ontapi.model.OntClass;
+import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 
 /**
  * Default settings for {@link OntConfig}.
@@ -51,7 +53,7 @@ public enum OntModelConfig {
      * ({@code owl:Class} for OWL &amp; {@code rdfs:Class} for RDFS types are required).
      * Note that this only applies to
      * {@link org.apache.jena.enhanced.EnhNode#canAs EnhNode#canAs} and {@link org.apache.jena.enhanced.EnhNode#as EnhNode#as} methods;
-     * iteration (e.g. methods {@code OntModel.ontObjects(OntClass.class)})
+     * iteration (e.g., methods {@code OntModel.ontObjects(OntClass.class)})
      * still does not take into account classes with incorrect or missing declarations.
      * For legacy Jena's casting rules see {@link org.apache.jena.ontology.Profile} impls.
      */
@@ -63,19 +65,39 @@ public enum OntModelConfig {
      */
     USE_OWL2_NAMED_INDIVIDUAL_FEATURE,
     /**
-     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#hasKey owl:hasKey} functionality.
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#hasKey owl:hasKey} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass#hasKeys() OntClass#hasKeys()} will return empty {@code Stream},
+     * modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass#addHasKey(OntRealProperty...) OntClass#addHasKey(OntRealProperty...)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL2_CLASS_HAS_KEY_FEATURE,
     /**
-     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointUnionOf owl:disjointUnionOf} functionality.
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointUnionOf owl:disjointUnionOf} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass.Named#disjointUnions() OntClass.Named#disjointUnions()}
+     * will return empty {@code Stream}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass.Named#addDisjointUnion(OntClass...) OntClass.Named#addDisjointUnion(OntClass...)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL2_CLASS_DISJOINT_UNION_FEATURE,
     /**
-     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointWith owl:disjointUnionOf} functionality.
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#disjointWith owl:disjointWith} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass#disjoints() OntClass#disjoints()}
+     * will return empty {@code Stream}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass#addDisjointClass(OntClass) OntClass#addDisjointClass(OntClass)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL_DISJOINT_WITH_FEATURE,
     /**
-     * Control {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#equivalentClass owl:equivalentClass} functionality.
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#equivalentClass owl:equivalentClass} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass#equivalentClasses() OntClass#equivalentClasses()}
+     * will return empty {@code Stream}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntClass#addEquivalentClass(OntClass) OntClass#addEquivalentClass(OntClass)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL_EQUIVALENT_CLASS_FEATURE,
 }

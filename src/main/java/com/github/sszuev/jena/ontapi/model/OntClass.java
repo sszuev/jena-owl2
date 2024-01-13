@@ -458,7 +458,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #addHasKey(OntRealProperty...)
      * @see <a href='https://www.w3.org/TR/owl2-mapping-to-rdf/#Translation_of_Annotations'>2.3.1 Axioms that Generate a Main Triple</a>
      */
-    default OntStatement addHasKeyStatement(Collection<OntObjectProperty> objectProperties, Collection<OntDataProperty> dataProperties) {
+    default OntStatement addHasKeyStatement(Collection<OntObjectProperty> objectProperties,
+                                            Collection<OntDataProperty> dataProperties) {
         return createHasKey(objectProperties, dataProperties).getMainStatement();
     }
 
@@ -897,7 +898,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          */
         @Override
         default Named addSuperClass(OntClass other) {
-            addSubClassOfStatement(other);
+            OntClass.super.addSuperClass(other);
             return this;
         }
 
@@ -906,7 +907,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          */
         @Override
         default Named addDisjointClass(OntClass other) {
-            addDisjointWithStatement(other);
+            OntClass.super.addDisjointClass(other);
             return this;
         }
 
@@ -915,7 +916,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          */
         @Override
         default Named addEquivalentClass(OntClass other) {
-            addEquivalentClassStatement(other);
+            OntClass.super.addEquivalentClass(other);
             return this;
         }
 

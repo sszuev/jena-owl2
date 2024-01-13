@@ -115,35 +115,42 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
 
     @Override
     public Stream<OntClass> disjointClasses() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
-        return objects(OWL.disjointWith, OntClass.class);
-    }
-
-    @Override
-    public OntStatement addDisjointWithStatement(OntClass other) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
-        return addStatement(OWL.disjointWith, other);
+        return OntClassImpl.disjointClasses(getModel(), this);
     }
 
     @Override
     public Stream<OntClass> equivalentClasses() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
-        return objects(OWL.equivalentClass, OntClass.class);
+        return OntClassImpl.equivalentClasses(getModel(), this);
+    }
+
+    @Override
+    public OntStatement addDisjointWithStatement(OntClass other) {
+        return OntClassImpl.addDisjointWith(getModel(), this, other);
+    }
+
+    @Override
+    public OntClass removeDisjointClass(Resource other) {
+        OntClassImpl.removeDisjointWith(getModel(), this, other);
+        return this;
     }
 
     @Override
     public OntStatement addEquivalentClassStatement(OntClass other) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
-        return addStatement(OWL.equivalentClass, other);
+        return OntClassImpl.addEquivalentClass(getModel(), this, other);
+    }
+
+    @Override
+    public OntClass removeEquivalentClass(Resource other) {
+        OntClassImpl.removeEquivalentClass(getModel(), this, other);
+        return this;
     }
 
     /**
      * Primary (named) class ({@code <uri> a owl:Class}).
      * This is also {@link com.github.sszuev.jena.ontapi.model.OntEntity}.
      * Note:
-     * In jena OWL1, class expressions, such as {@link OntClass.ComplementOf},
-     * can also be named,
-     * but in this case specialized implementation is used (i.e., {@link OntClassImpl.ComplementOfImpl}).
+     * In jena OWL1, class expressions, such as {@link OntClass.ComplementOf}
+     * can also be named.
      */
     public static class NamedImpl extends OntSimpleClassImpl implements OntClass.Named {
 
@@ -167,6 +174,14 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
+        public Stream<OntList<OntClass>> disjointUnions() {
+            if (!OntGraphModelImpl.configValue(getModel(), OntModelConfig.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE)) {
+                return Stream.empty();
+            }
+            return OntListImpl.stream(getModel(), this, OWL.disjointUnionOf, OntClass.class);
+        }
+
+        @Override
         public OntList<OntClass> createDisjointUnion(Collection<OntClass> classes) {
             OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
             return getModel().createOntList(this, OWL.disjointUnionOf, OntClass.class,
@@ -174,15 +189,21 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
         }
 
         @Override
-        public Stream<OntList<OntClass>> disjointUnions() {
-            OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
-            return OntListImpl.stream(getModel(), this, OWL.disjointUnionOf, OntClass.class);
-        }
-
-        @Override
         public OntClass.Named removeDisjointUnion(Resource rdfList) throws OntJenaException.IllegalArgument {
             OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL2_CLASS_DISJOINT_UNION_FEATURE, "owl:disjointUnionOf");
             getModel().deleteOntList(this, OWL.disjointUnionOf, findDisjointUnion(rdfList).orElse(null));
+            return this;
+        }
+
+        @Override
+        public OntClass.Named removeDisjointClass(Resource other) {
+            OntClassImpl.removeDisjointWith(getModel(), this, other);
+            return this;
+        }
+
+        @Override
+        public OntClass.Named removeEquivalentClass(Resource other) {
+            OntClassImpl.removeEquivalentClass(getModel(), this, other);
             return this;
         }
     }

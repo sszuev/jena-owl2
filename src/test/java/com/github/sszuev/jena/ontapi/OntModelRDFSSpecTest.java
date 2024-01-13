@@ -210,17 +210,19 @@ public class OntModelRDFSSpecTest {
         OntClass.Named x = m.getOntClass("X");
         OntClass.Named q = m.getOntClass("Q");
 
-        Assertions.assertThrows(OntJenaException.Unsupported.class, x::hasKeys);
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeHasKey(m.createList()));
+        Assertions.assertEquals(0, x.hasKeys().count());
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointUnion(m.createOntClass("Q")));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, x::disjointUnions);
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeDisjointUnion(m.createList()));
+        Assertions.assertEquals(0, x.disjointUnions().count());
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointClass(q));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, x::disjointClasses);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeDisjointClass(q));
+        Assertions.assertEquals(0, x.disjoints().count());
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addEquivalentClass(q));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, x::equivalentClasses);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeEquivalentClass(q));
+        Assertions.assertEquals(0, x.equivalentClasses().count());
     }
 }

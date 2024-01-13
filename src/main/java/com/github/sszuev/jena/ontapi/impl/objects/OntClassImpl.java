@@ -163,14 +163,18 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         return res.as(OntIndividual.Named.class);
     }
 
-    public static OntList<OntRealProperty> createHasKey(OntGraphModelImpl m, OntClass clazz, Stream<? extends OntRealProperty> collection) {
+    public static OntList<OntRealProperty> createHasKey(OntGraphModelImpl m,
+                                                        OntClass clazz,
+                                                        Stream<? extends OntRealProperty> collection) {
         OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
         return m.createOntList(clazz, OWL.hasKey, OntRealProperty.class,
                 collection.distinct().map(OntRealProperty.class::cast).iterator());
     }
 
     public static Stream<OntList<OntRealProperty>> listHasKeys(OntGraphModelImpl m, OntClass clazz) {
-        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
+        if (!OntGraphModelImpl.configValue(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE)) {
+            return Stream.empty();
+        }
         return OntListImpl.stream(m, clazz, OWL.hasKey, OntRealProperty.class);
     }
 
@@ -179,6 +183,40 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                                     RDFNode rdfList) throws OntJenaException.IllegalArgument {
         OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
         m.deleteOntList(clazz, OWL.hasKey, clazz.findHasKey(rdfList).orElse(null));
+    }
+
+    public static Stream<OntClass> disjointClasses(OntGraphModelImpl m, OntClass clazz) {
+        if (!OntGraphModelImpl.configValue(m, OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE)) {
+            return Stream.empty();
+        }
+        return clazz.objects(OWL.disjointWith, OntClass.class);
+    }
+
+    public static OntStatement addDisjointWith(OntGraphModelImpl m, OntClass clazz, OntClass other) {
+        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        return clazz.addStatement(OWL.disjointWith, other);
+    }
+
+    public static void removeDisjointWith(OntGraphModelImpl m, OntClass clazz, Resource other) {
+        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        clazz.remove(OWL.disjointWith, other);
+    }
+
+    public static Stream<OntClass> equivalentClasses(OntGraphModelImpl m, OntClass clazz) {
+        if (!OntGraphModelImpl.configValue(m, OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE)) {
+            return Stream.empty();
+        }
+        return clazz.objects(OWL.equivalentClass, OntClass.class);
+    }
+
+    public static OntStatement addEquivalentClass(OntGraphModelImpl m, OntClass clazz, OntClass other) {
+        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        return clazz.addStatement(OWL.equivalentClass, other);
+    }
+
+    public static void removeEquivalentClass(OntGraphModelImpl m, OntClass clazz, Resource other) {
+        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        clazz.remove(OWL.equivalentClass, other);
     }
 
     public static Stream<OntProperty> declaredProperties(OntClass clazz, boolean direct) {
@@ -391,14 +429,18 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     @Override
     public Stream<OntClass> disjointClasses() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
-        return objects(OWL.disjointWith, OntClass.class);
+        return disjointClasses(getModel(), this);
     }
 
     @Override
     public OntStatement addDisjointWithStatement(OntClass other) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
-        return addStatement(OWL.disjointWith, other);
+        return addDisjointWith(getModel(), this, other);
+    }
+
+    @Override
+    public OntClass removeDisjointClass(Resource other) {
+        removeDisjointWith(getModel(), this, other);
+        return this;
     }
 
     @Override
@@ -411,6 +453,12 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     public OntStatement addEquivalentClassStatement(OntClass other) {
         OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         return addStatement(OWL.equivalentClass, other);
+    }
+
+    @Override
+    public OntClass removeEquivalentClass(Resource other) {
+        OntClassImpl.removeEquivalentClass(getModel(), this, other);
+        return this;
     }
 
     @Override

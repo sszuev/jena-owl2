@@ -1477,35 +1477,33 @@ public class OntModelOWLSpecTest {
                 .forEach(x -> Assertions.assertTrue(x.inModel(m).canAs(OntClass.Named.class)));
     }
 
-    @Test
-    public void testClassHasKeyFeatureOWL1() {
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL1_MEM",
+            "OWL1_LITE_MEM",
+    })
+    public void testDisabledFeaturesOWL1(TestSpec spec) {
         OntModel d = OntModelFactory.createModel();
         d.createOntClass("X").addHasKey(d.createObjectProperty("p"));
-
-        OntModel m = OntModelFactory.createModel(d.getGraph(), OntSpecification.OWL1_DL_MEM);
-        OntClass x = m.getOntClass("X");
-        OntDataProperty dp = m.createDataProperty("d");
-        OntObjectProperty op = m.getObjectProperty("p");
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addHasKey(op));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, x::hasKeys);
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.createHasKey(List.of(op), List.of(dp)));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeHasKey(m.createList()));
-    }
-
-    @Test
-    public void testClassDisjointUnionFeatureOWL1() {
-        OntModel d = OntModelFactory.createModel();
         d.createOntClass("X").addDisjointUnion(d.createOntClass("Q"));
 
         OntModel m = OntModelFactory.createModel(d.getGraph(), OntSpecification.OWL1_DL_MEM);
         OntClass.Named x = m.getOntClass("X");
+        OntDataProperty dp = m.createDataProperty("d");
+        OntObjectProperty op = m.getObjectProperty("p");
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addHasKey(op));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.createHasKey(List.of(op), List.of(dp)));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeHasKey(m.createList()));
+        Assertions.assertEquals(0, x.hasKeys().count());
+
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointUnion(m.createOntClass("Q")));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, x::disjointUnions);
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeDisjointUnion(m.createList()));
+        Assertions.assertEquals(0, x.disjointUnions().count());
     }
 
     @Test
-    public void testClassDisjointWithFeatureOWL1Lite() {
+    public void testDisabledFeaturesOWL1Lite() {
         Model d = OntModelFactory.createDefaultModel();
         d.createResource("X", OWL.Class).addProperty(OWL.disjointWith, d.createResource("Q", OWL.Class));
 
@@ -1513,7 +1511,9 @@ public class OntModelOWLSpecTest {
         OntClass.Named x = m.getOntClass("X");
         OntClass.Named q = m.getOntClass("Q");
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointClass(q));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, x::disjointClasses);
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeDisjointClass(q));
+        Assertions.assertEquals(0, x.disjoints().count());
     }
+
 }
 
