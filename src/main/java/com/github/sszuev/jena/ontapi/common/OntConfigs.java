@@ -18,7 +18,18 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
             .setTrue(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
             .setTrue(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
+            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE)
+            .setTrue(OntModelControls.USE_OWL2_PROPERTY_DISJOINT_WITH_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_EQUIVALENT_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_FUNCTIONAL_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_SYMMETRIC_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_ASYMMETRIC_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_TRANSITIVE_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
 
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -31,7 +42,18 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
             .setFalse(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
             .setTrue(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
+            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE)
+            .setFalse(OntModelControls.USE_OWL2_PROPERTY_DISJOINT_WITH_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_EQUIVALENT_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_FUNCTIONAL_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_SYMMETRIC_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_ASYMMETRIC_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_TRANSITIVE_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
 
     public static final OntConfig OWL1_LITE_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -44,7 +66,18 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
             .setFalse(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
             .setFalse(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
+            .setTrue(OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE)
+            .setFalse(OntModelControls.USE_OWL2_PROPERTY_DISJOINT_WITH_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_EQUIVALENT_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_FUNCTIONAL_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_SYMMETRIC_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_ASYMMETRIC_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_TRANSITIVE_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
 
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -57,5 +90,16 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)
             .setFalse(OntModelControls.USE_OWL2_NAMED_CLASS_DISJOINT_UNION_FEATURE)
             .setFalse(OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)
-            .setFalse(OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE);
+            .setFalse(OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE)
+            .setFalse(OntModelControls.USE_OWL2_PROPERTY_DISJOINT_WITH_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_EQUIVALENT_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_INVERSE_FUNCTIONAL_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_SYMMETRIC_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_ASYMMETRIC_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_TRANSITIVE_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
 }

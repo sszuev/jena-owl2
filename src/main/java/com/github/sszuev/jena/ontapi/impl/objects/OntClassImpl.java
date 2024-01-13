@@ -203,19 +203,19 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static Stream<OntClass> equivalentClasses(OntGraphModelImpl m, OntClass clazz) {
-        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE)) {
+        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE)) {
             return Stream.empty();
         }
         return clazz.objects(OWL.equivalentClass, OntClass.class);
     }
 
     public static OntStatement addEquivalentClass(OntGraphModelImpl m, OntClass clazz, OntClass other) {
-        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE, "owl:equivalentClass");
         return clazz.addStatement(OWL.equivalentClass, other);
     }
 
     public static void removeEquivalentClass(OntGraphModelImpl m, OntClass clazz, Resource other) {
-        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE, "owl:equivalentClass");
         clazz.remove(OWL.equivalentClass, other);
     }
 
@@ -341,7 +341,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         return subjects(RDF.type, clazz, OntIndividual.class).filter(i -> i.hasOntClass(clazz, direct));
     }
 
-    static Stream<OntClass> subClasses(OntClass clazz, boolean direct) {
+    public static Stream<OntClass> subClasses(OntClass clazz, boolean direct) {
         if (direct) {
             Property reasonerProperty = reasonerProperty(clazz.getModel(), RDFS.subClassOf);
             if (reasonerProperty != null) {
@@ -356,7 +356,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         );
     }
 
-    static Stream<OntClass> superClasses(OntClass clazz, boolean direct) {
+    public static Stream<OntClass> superClasses(OntClass clazz, boolean direct) {
         if (direct) {
             Property reasonerProperty = reasonerProperty(clazz.getModel(), RDFS.subClassOf);
             if (reasonerProperty != null) {
@@ -445,13 +445,13 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     @Override
     public Stream<OntClass> equivalentClasses() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE, "owl:equivalentClass");
         return objects(OWL.equivalentClass, OntClass.class);
     }
 
     @Override
     public OntStatement addEquivalentClassStatement(OntClass other) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE, "owl:equivalentClass");
         return addStatement(OWL.equivalentClass, other);
     }
 

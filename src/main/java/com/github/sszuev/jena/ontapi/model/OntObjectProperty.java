@@ -97,7 +97,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
      *
      * @param list {@link Resource} can be {@link OntList} or {@link RDFList}
      * @return <b>this</b> instance to allow cascading calls
-     * @throws OntJenaException if in the whole graph there is no property chain with the specified []-list
+     * @throws OntJenaException if in the whole graph, there is no property chain with the specified []-list
      * @see #clearPropertyChains()
      * @see #createPropertyChain(Collection)
      */
@@ -613,7 +613,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
      * Here {@code _:x} is an anonymous object property expression (i.e. {@link Inverse Inverse Object Property}),
      * {@code PN} is a {@link Named named object property}
      * and {@code P1}, {@code P2} are any object property expressions.
-     * What exactly is the first statement is defined at the level of model; in general it is unpredictable.
+     * What exactly is the first statement is defined at the level of model; in general, it is unpredictable.
      *
      * @return {@code Optional} of {@link OntObjectProperty}
      * @see #inverseProperties()

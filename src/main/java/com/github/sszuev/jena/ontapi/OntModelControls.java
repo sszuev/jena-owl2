@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.model.OntClass;
+import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 
 /**
@@ -99,5 +100,104 @@ public enum OntModelControls {
      * {@link com.github.sszuev.jena.ontapi.model.OntClass#addEquivalentClass(OntClass) OntClass#addEquivalentClass(OntClass)},
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
-    USE_OWL_CLASS_EQUIVALENT_CLASS_FEATURE,
+    USE_OWL_CLASS_EQUIVALENT_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#propertyDisjointWith owl:propertyDisjointWith} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntRelationalProperty#disjointProperties() OntRelationalProperty#disjointProperties()}
+     * will return empty {@code Stream}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#addDisjointProperty(OntObjectProperty)} OntObjectProperty#addDisjointProperty(OntObjectProperty)}},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL2_PROPERTY_DISJOINT_WITH_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#equivalentProperty owl:equivalentProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntRelationalProperty#equivalentProperties() OntRelationalProperty#equivalentProperties()}
+     * will return empty {@code Stream}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#addEquivalentProperty(OntObjectProperty) OntObjectProperty#addEquivalentProperty(OntObjectProperty)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_EQUIVALENT_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#FunctionalProperty owl:FunctionalProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isFunctional() OntObjectProperty#isFunctional()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setFunctional(boolean) OntObjectProperty#setFunctional(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_FUNCTIONAL_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#InverseFunctionalProperty owl:InverseFunctionalProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isInverseFunctional() OntObjectProperty#isInverseFunctional()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setInverseFunctional(boolean) OntObjectProperty#setInverseFunctional(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_INVERSE_FUNCTIONAL_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#SymmetricProperty owl:SymmetricProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isSymmetric() OntObjectProperty#isSymmetric()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setSymmetric(boolean) OntObjectProperty#setSymmetric(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_SYMMETRIC_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#AsymmetricProperty owl:AsymmetricProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isAsymmetric() OntObjectProperty#isAsymmetric()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setAsymmetric(boolean) OntObjectProperty#setAsymmetric(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_ASYMMETRIC_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#TransitiveProperty owl:TransitiveProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isTransitive() OntObjectProperty#isTransitive()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setTransitive(boolean) OntObjectProperty#setTransitive(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_TRANSITIVE_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#ReflexiveProperty owl:ReflexiveProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isReflexive() OntObjectProperty#isReflexive()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setReflexive(boolean) OntObjectProperty#setReflexive(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_REFLEXIVE_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#IrreflexiveProperty owl:IrreflexiveProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isIrreflexive() OntObjectProperty#isIrreflexive()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setIrreflexive(boolean) OntObjectProperty#setIrreflexive(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#inverseOf owl:inverseOf} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#inverseProperties() OntObjectProperty#inverseProperties()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#addInverseProperty(OntObjectProperty) OntObjectProperty#addInverseProperty(OntObjectProperty)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_INVERSE_OF_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#propertyChainAxiom owl:propertyChainAxiom} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#propertyChains() OntObjectProperty#propertyChains()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#addPropertyChain(OntObjectProperty...) OntObjectProperty#addPropertyChain(OntObjectProperty...)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE,
 }

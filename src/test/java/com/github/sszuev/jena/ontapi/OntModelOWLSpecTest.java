@@ -1486,20 +1486,48 @@ public class OntModelOWLSpecTest {
         OntModel d = OntModelFactory.createModel();
         d.createOntClass("X").addHasKey(d.createObjectProperty("p"));
         d.createOntClass("X").addDisjointUnion(d.createOntClass("Q"));
+        d.createObjectProperty("op1")
+                .setReflexive(true).setAsymmetric(true)
+                .addDisjointProperty(
+                        d.createObjectProperty("op2")
+                                .setIrreflexive(true)
+                                .addPropertyChain(List.of(d.createObjectProperty("op1")))
+                );
+        d.createDataProperty("dp1").addEquivalentProperty(d.createDataProperty("dp2"));
 
         OntModel m = OntModelFactory.createModel(d.getGraph(), OntSpecification.OWL1_DL_MEM);
         OntClass.Named x = m.getOntClass("X");
-        OntDataProperty dp = m.createDataProperty("d");
-        OntObjectProperty op = m.getObjectProperty("p");
+        OntClass.Named q = m.createOntClass("Q");
+        OntDataProperty dp1 = m.createDataProperty("dp1");
+        OntObjectProperty op1 = m.getObjectProperty("op1");
+        OntDataProperty dp2 = m.createDataProperty("dp2");
+        OntObjectProperty op2 = m.getObjectProperty("op2");
 
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addHasKey(op));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.createHasKey(List.of(op), List.of(dp)));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addHasKey(op1));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.createHasKey(List.of(op1), List.of(dp1)));
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeHasKey(m.createList()));
         Assertions.assertEquals(0, x.hasKeys().count());
 
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointUnion(m.createOntClass("Q")));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointUnion(q));
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeDisjointUnion(m.createList()));
         Assertions.assertEquals(0, x.disjointUnions().count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> dp1.addDisjointProperty(dp2));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> op1.removeDisjointProperty(op2));
+        Assertions.assertEquals(0, dp1.disjointProperties().count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, op1::addReflexiveDeclaration);
+        Assertions.assertFalse(op1.isReflexive());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, op1::addIrreflexiveDeclaration);
+        Assertions.assertFalse(op2.isIrreflexive());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> op1.setAsymmetric(false));
+        Assertions.assertFalse(op1.isAsymmetric());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> op1.createPropertyChain(List.of(op2)));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> op2.removePropertyChain(op1));
+        Assertions.assertEquals(0, op2.propertyChains().count());
     }
 
     @Test
