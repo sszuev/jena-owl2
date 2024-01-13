@@ -29,7 +29,9 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
             .setTrue(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
             .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
-            .setTrue(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
+            .setTrue(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE);
 
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -53,7 +55,9 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
             .setFalse(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
             .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
-            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE);
 
     public static final OntConfig OWL1_LITE_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -77,7 +81,9 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
             .setFalse(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
             .setTrue(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
-            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
+            .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE);
 
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
@@ -101,5 +107,7 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)
             .setFalse(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)
             .setFalse(OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE)
-            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE);
+            .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
+            .setFalse(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE);
 }

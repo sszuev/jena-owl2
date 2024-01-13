@@ -445,19 +445,17 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     @Override
     public Stream<OntClass> equivalentClasses() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE, "owl:equivalentClass");
-        return objects(OWL.equivalentClass, OntClass.class);
+        return equivalentClasses(getModel(), this);
     }
 
     @Override
     public OntStatement addEquivalentClassStatement(OntClass other) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE, "owl:equivalentClass");
-        return addStatement(OWL.equivalentClass, other);
+        return addEquivalentClass(getModel(), this, other);
     }
 
     @Override
     public OntClass removeEquivalentClass(Resource other) {
-        OntClassImpl.removeEquivalentClass(getModel(), this, other);
+        removeEquivalentClass(getModel(), this, other);
         return this;
     }
 

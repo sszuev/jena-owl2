@@ -2,8 +2,10 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.model.OntClass;
+import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
+import org.apache.jena.rdf.model.Resource;
 
 /**
  * Default settings for {@link OntConfig}.
@@ -106,7 +108,7 @@ public enum OntModelControls {
      * If disabled,
      * {@link com.github.sszuev.jena.ontapi.model.OntRelationalProperty#disjointProperties() OntRelationalProperty#disjointProperties()}
      * will return empty {@code Stream}, modification operations, such as
-     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#addDisjointProperty(OntObjectProperty)} OntObjectProperty#addDisjointProperty(OntObjectProperty)}},
+     * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#addDisjointProperty(OntObjectProperty) OntObjectProperty#addDisjointProperty(OntObjectProperty)},
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL2_PROPERTY_DISJOINT_WITH_FEATURE,
@@ -200,4 +202,22 @@ public enum OntModelControls {
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#sameAs owl:sameAs} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntIndividual#sameIndividuals() OntIndividual#sameIndividuals()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntIndividual#addSameIndividual(OntIndividual) OntIndividual#addSameIndividual(OntIndividual)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_INDIVIDUAL_SAME_AS_FEATURE,
+    /**
+     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#differentFrom owl:differentFrom} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntIndividual#differentIndividuals() OntIndividual#differentIndividuals()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntIndividual#removeDifferentIndividual(Resource) OntIndividual#removeDifferentIndividual(Resource)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE,
 }

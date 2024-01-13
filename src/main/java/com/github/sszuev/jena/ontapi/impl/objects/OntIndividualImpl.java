@@ -78,6 +78,48 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         );
     }
 
+    @Override
+    public Stream<OntIndividual> sameIndividuals() {
+        if (!OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)) {
+            return Stream.empty();
+        }
+        return objects(OWL.sameAs, OntIndividual.class);
+    }
+
+    @Override
+    public OntStatement addSameAsStatement(OntIndividual other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE, "owl:sameAs");
+        return addStatement(OWL.sameAs, other);
+    }
+
+    @Override
+    public OntIndividual removeSameIndividual(Resource other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE, "owl:sameAs");
+        remove(OWL.sameAs, other);
+        return this;
+    }
+
+    @Override
+    public Stream<OntIndividual> differentIndividuals() {
+        if (!OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE)) {
+            return Stream.empty();
+        }
+        return objects(OWL.differentFrom, OntIndividual.class);
+    }
+
+    @Override
+    public OntStatement addDifferentFromStatement(OntIndividual other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE, "owl:differentFrom");
+        return addStatement(OWL.differentFrom, other);
+    }
+
+    @Override
+    public OntIndividual removeDifferentIndividual(Resource other) {
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE, "owl:differentFrom");
+        remove(OWL.differentFrom, other);
+        return this;
+    }
+
     /**
      * Lists all right parts from class assertion statements where this individual is at subject position.
      *

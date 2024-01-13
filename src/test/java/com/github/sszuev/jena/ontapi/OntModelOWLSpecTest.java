@@ -1534,13 +1534,22 @@ public class OntModelOWLSpecTest {
     public void testDisabledFeaturesOWL1Lite() {
         Model d = OntModelFactory.createDefaultModel();
         d.createResource("X", OWL.Class).addProperty(OWL.disjointWith, d.createResource("Q", OWL.Class));
+        d.createResource("iW", d.createResource("W", OWL.Class))
+                .addProperty(OWL.sameAs, d.createResource("iQ", d.getResource("Q")));
 
         OntModel m = OntModelFactory.createModel(d.getGraph(), OntSpecification.OWL1_LITE_MEM);
         OntClass.Named x = m.getOntClass("X");
         OntClass.Named q = m.getOntClass("Q");
+        OntIndividual iW = m.getIndividual("iW");
+        OntIndividual iQ = m.getIndividual("iQ");
+
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.addDisjointClass(q));
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> x.removeDisjointClass(q));
         Assertions.assertEquals(0, x.disjoints().count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> iW.addSameIndividual(iQ));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> iQ.removeSameIndividual(iW));
+        Assertions.assertEquals(0, iW.sameIndividuals().count());
     }
 
 }
