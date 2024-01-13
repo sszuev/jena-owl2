@@ -7,7 +7,7 @@ import com.github.sszuev.jena.ontapi.model.OntRealProperty;
 /**
  * Default settings for {@link OntConfig}.
  */
-public enum OntModelConfig {
+public enum OntModelControls {
     /**
      * If this key is set to {@code true}, then the class/property hierarchies
      * (e.g., see {@link com.github.sszuev.jena.ontapi.model.OntClass#subClasses()})

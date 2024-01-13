@@ -101,7 +101,7 @@ public class OntSpecification {
                     .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
-                    .setConfig(OntConfigs.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
+                    .setConfig(OntConfigs.OWL2_CONFIG.setTrue(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT))
                     .build(),
             null
     );

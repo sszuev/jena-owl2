@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.impl.HierarchySupport;
 import com.github.sszuev.jena.ontapi.impl.OntGraphModelImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -74,7 +74,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
                 (OntObject) clazz,
                 it -> (Stream<OntObject>) ((Stream<?>) listClassesFor(it, isIndividual)),
                 direct,
-                OntGraphModelImpl.configValue(getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 
@@ -99,7 +99,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         Stream<?> res = HierarchySupport.treeNodes(individual,
                 it -> (Stream<OntObject>) ((Stream<?>) listClassesFor(it, isIndividual)),
                 direct,
-                OntGraphModelImpl.configValue(individual.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(individual.getModel(), OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
         return (Stream<OntClass>) res;
     }

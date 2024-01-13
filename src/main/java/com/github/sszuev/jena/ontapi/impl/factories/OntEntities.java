@@ -1,6 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
-import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
@@ -122,7 +122,7 @@ final class OntEntities {
         return config -> {
             Function<OntPersonality.Punnings, Set<Node>> punnings = OntPersonality.Punnings::getNamedClasses;
             Function<OntPersonality.Builtins, Set<Node>> builtins = OntPersonality.Builtins::getNamedClasses;
-            boolean useLegacyClassTesting = config.getBoolean(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
+            boolean useLegacyClassTesting = config.getBoolean(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
             EnhNodeFinder finder = new EnhNodeFinder.ByType(OWL.Class);
             EnhNodeFilter filter = (n, g) -> OntClasses.canBeNamedClass(n, g, useLegacyClassTesting);
             EnhNodeProducer maker =

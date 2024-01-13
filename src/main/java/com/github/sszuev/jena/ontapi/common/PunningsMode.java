@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi.common;
 
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
@@ -33,7 +34,7 @@ public enum PunningsMode {
      * {@code rdfs:Datatype} considered as OntClass declarations;
      * also, {@code owl:Restriction}
      * is considered as prohibited declaration for entities that aren't classes (properties, datarange, named individuals).
-     * See {@link com.github.sszuev.jena.ontapi.OntModelConfig#USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY}
+     * See {@link OntModelControls#USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY}
      */
     DL1_COMPATIBLE,
     /**

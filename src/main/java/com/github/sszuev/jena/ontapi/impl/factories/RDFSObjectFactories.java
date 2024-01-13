@@ -1,6 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
-import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
@@ -108,7 +108,7 @@ public final class RDFSObjectFactories {
             return true;
         }
         Graph g = eg.asGraph();
-        if (!config.getBoolean(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)) {
+        if (!config.getBoolean(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY)) {
             return g.contains(n, RDF.type.asNode(), RDFS.Class.asNode());
         }
         return Graphs.hasOneOfType(n, g, CLASS_TYPES) ||

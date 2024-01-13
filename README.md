@@ -22,7 +22,8 @@ This project closes this gap by providing a fully functional ontology RDF model 
 - [GraphRepository](src/main/java/com/github/sszuev/jena/ontapi/GraphRepository.java) - graph store accessor
 - [OntSpecification](src/main/java/com/github/sszuev/jena/ontapi/OntSpecification.java) - encapsulates `ReasonerFactory`, `OntConfig`, `OntPersonality`
 - [UnionGraph](src/main/java/com/github/sszuev/jena/ontapi/UnionGraph.java) - a Graph implementation with support hierarchy
-- [OntModelConfig](src/main/java/com/github/sszuev/jena/ontapi/OntModelConfig.java) - model configuration, defines what a model can do and what it cannot do
+- [OntModelConfig](src/main/java/com/github/sszuev/jena/ontapi/OntModelControls.java) - model configuration, defines
+  what a model can do and what it cannot do
 - [OntPersonality](src/main/java/com/github/sszuev/jena/ontapi/common/OntPersonality.java) - a configuration class
   to conduct Jena's polymorphism for `OntObject`s
 

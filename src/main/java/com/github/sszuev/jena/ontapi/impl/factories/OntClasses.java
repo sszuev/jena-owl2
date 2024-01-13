@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
@@ -97,15 +97,15 @@ final class OntClasses {
                                                               boolean baseClass,
                                                               Type... filters) {
         // namedClassFactory should be specified only for the super type OntClass.
-        boolean useLegacyClassTest = config.getBoolean(OntModelConfig.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
+        boolean useLegacyClassTest = config.getBoolean(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
         BiPredicate<Node, EnhGraph> namedClassFilter = baseClass ?
                 (node, graph) -> canBeNamedClass(node, graph, useLegacyClassTest) : null;
-        BiPredicate<Node, EnhGraph> genericClassFilter = baseClass && config.getBoolean(OntModelConfig.ALLOW_GENERIC_CLASS_EXPRESSIONS) ?
+        BiPredicate<Node, EnhGraph> genericClassFilter = baseClass && config.getBoolean(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS) ?
                 (node, graph) -> canBeClass(node, graph.asGraph()) : null;
         return new Factory(
                 /*namedClassFactory*/ namedClassFilter,
                 /*genericClassFilter*/ genericClassFilter,
-                /*allowNamedClassExpressions*/ config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS),
+                /*allowNamedClassExpressions*/ config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ true,
                 /*filter types*/ Arrays.asList(filters)
         );
@@ -118,7 +118,7 @@ final class OntClasses {
             Class<? extends RDFNode> view,
             OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Class);
-        EnhNodeFilter primary = config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
                 .and((n, g) -> {
                     ExtendedIterator<Triple> res = g.asGraph().find(n, predicate.asNode(), Node.ANY);
@@ -143,7 +143,7 @@ final class OntClasses {
             OntClassImpl.CardinalityType cardinalityType,
             OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
-        EnhNodeFilter primary = config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
                 .and(getCardinalityFilter(cardinalityType, objectType.view()))
                 .and(restrictionType.getFilter());
@@ -157,7 +157,7 @@ final class OntClasses {
             Property predicate,
             OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
-        EnhNodeFilter primary = config.getBoolean(OntModelConfig.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
                 .and(propertyType.getFilter())
                 .and(objectType.getFilter(predicate));

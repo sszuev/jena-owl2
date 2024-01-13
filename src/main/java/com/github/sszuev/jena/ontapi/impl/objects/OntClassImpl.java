@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl.objects;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
@@ -157,7 +157,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
         Resource res = model.createResource(OntJenaException.notNull(uri, "Null uri"), source);
-        if (OntGraphModelImpl.configValue(model, OntModelConfig.USE_OWL2_NAMED_INDIVIDUAL_FEATURE)) {
+        if (OntGraphModelImpl.configValue(model, OntModelControls.USE_OWL2_NAMED_INDIVIDUAL_FEATURE)) {
             res.addProperty(RDF.type, OWL.NamedIndividual);
         }
         return res.as(OntIndividual.Named.class);
@@ -166,13 +166,13 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     public static OntList<OntRealProperty> createHasKey(OntGraphModelImpl m,
                                                         OntClass clazz,
                                                         Stream<? extends OntRealProperty> collection) {
-        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
         return m.createOntList(clazz, OWL.hasKey, OntRealProperty.class,
                 collection.distinct().map(OntRealProperty.class::cast).iterator());
     }
 
     public static Stream<OntList<OntRealProperty>> listHasKeys(OntGraphModelImpl m, OntClass clazz) {
-        if (!OntGraphModelImpl.configValue(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE)) {
+        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE)) {
             return Stream.empty();
         }
         return OntListImpl.stream(m, clazz, OWL.hasKey, OntRealProperty.class);
@@ -181,41 +181,41 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     public static void removeHasKey(OntGraphModelImpl m,
                                     OntClass clazz,
                                     RDFNode rdfList) throws OntJenaException.IllegalArgument {
-        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL2_CLASS_HAS_KEY_FEATURE, "owl:hasKey");
         m.deleteOntList(clazz, OWL.hasKey, clazz.findHasKey(rdfList).orElse(null));
     }
 
     public static Stream<OntClass> disjointClasses(OntGraphModelImpl m, OntClass clazz) {
-        if (!OntGraphModelImpl.configValue(m, OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE)) {
+        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE)) {
             return Stream.empty();
         }
         return clazz.objects(OWL.disjointWith, OntClass.class);
     }
 
     public static OntStatement addDisjointWith(OntGraphModelImpl m, OntClass clazz, OntClass other) {
-        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
         return clazz.addStatement(OWL.disjointWith, other);
     }
 
     public static void removeDisjointWith(OntGraphModelImpl m, OntClass clazz, Resource other) {
-        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_DISJOINT_WITH_FEATURE, "owl:disjointWith");
         clazz.remove(OWL.disjointWith, other);
     }
 
     public static Stream<OntClass> equivalentClasses(OntGraphModelImpl m, OntClass clazz) {
-        if (!OntGraphModelImpl.configValue(m, OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE)) {
+        if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE)) {
             return Stream.empty();
         }
         return clazz.objects(OWL.equivalentClass, OntClass.class);
     }
 
     public static OntStatement addEquivalentClass(OntGraphModelImpl m, OntClass clazz, OntClass other) {
-        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         return clazz.addStatement(OWL.equivalentClass, other);
     }
 
     public static void removeEquivalentClass(OntGraphModelImpl m, OntClass clazz, Resource other) {
-        OntGraphModelImpl.checkFeature(m, OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         clazz.remove(OWL.equivalentClass, other);
     }
 
@@ -334,7 +334,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
-        if (OntGraphModelImpl.configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)) {
+        if (OntGraphModelImpl.configValue(clazz.getModel(), OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)) {
             // TODO: optimize
             return clazz.getModel().individuals().filter(i -> i.hasOntClass(clazz, direct));
         }
@@ -352,7 +352,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                 clazz,
                 it -> explicitSubClasses(RDFS.subClassOf, it),
                 direct,
-                OntGraphModelImpl.configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(clazz.getModel(), OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 
@@ -367,7 +367,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                 clazz,
                 it -> explicitSuperClasses(RDFS.subClassOf, it),
                 direct,
-                OntGraphModelImpl.configValue(clazz.getModel(), OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT)
+                OntGraphModelImpl.configValue(clazz.getModel(), OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
         );
     }
 
@@ -445,13 +445,13 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     @Override
     public Stream<OntClass> equivalentClasses() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         return objects(OWL.equivalentClass, OntClass.class);
     }
 
     @Override
     public OntStatement addEquivalentClassStatement(OntClass other) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelConfig.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_EQUIVALENT_CLASS_FEATURE, "owl:equivalentClass");
         return addStatement(OWL.equivalentClass, other);
     }
 

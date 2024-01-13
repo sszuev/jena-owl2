@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi.impl;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.OntModelConfig;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.UnionGraph;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.OntConfig;
@@ -185,7 +185,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                                                                                                      ExtendedIterator<Triple> assertions) {
         Set<Triple> seen = new HashSet<>();
         boolean useSimplifiedClassChecking = model.getOntPersonality()
-                .getConfig().getBoolean(OntModelConfig.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
+                .getConfig().getBoolean(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS);
         boolean isRDFS = OntPersonalities.isRDFS(model.getOntPersonality());
 
         return assertions
@@ -278,7 +278,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         return Iterators.asStream(it, size, characteristics);
     }
 
-    public static void checkFeature(OntModel m, OntModelConfig setting, String featureName) {
+    public static void checkFeature(OntModel m, OntModelControls setting, String featureName) {
         if (!configValue(m, setting)) {
             throw new OntJenaException.Unsupported(
                     "Feature " + featureName + " is disabled. " +
@@ -287,7 +287,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         }
     }
 
-    public static boolean configValue(OntModel m, OntModelConfig setting) {
+    public static boolean configValue(OntModel m, OntModelControls setting) {
         OntConfig config = OntModels.config(m);
         return config != null && config.getBoolean(setting);
     }

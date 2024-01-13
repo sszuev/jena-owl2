@@ -116,7 +116,7 @@ public class OntModelFactory {
      */
     public static OntModel createModel(Graph graph, OntPersonality personality) {
         OntPersonality withBuiltinHierarchySupport = OntObjectPersonalityBuilder.from(personality)
-                .setConfig(OntConfigs.OWL2_CONFIG.setTrue(OntModelConfig.USE_BUILTIN_HIERARCHY_SUPPORT))
+                .setConfig(OntConfigs.OWL2_CONFIG.setTrue(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT))
                 .build();
         return createModel(graph, new OntSpecification(withBuiltinHierarchySupport, null)).setNsPrefixes(STANDARD);
     }
