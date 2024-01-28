@@ -233,4 +233,12 @@ public enum OntModelControls {
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE,
+    /**
+     * If this key is set to {@code true},
+     * then {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#qualifiedCardinality owl:qualifiedCardinality},
+     * {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#maxQualifiedCardinality owl:maxQualifiedCardinality},
+     * {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#minQualifiedCardinality owl:minQualifiedCardinality}
+     * predicates are allowed for Cardinality restrictions.
+     */
+    USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE,
 }

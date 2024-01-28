@@ -62,7 +62,9 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static boolean isQualified(OntObject c) {
-        return c != null && !(OWL.Thing.equals(c) || RDFS.Literal.equals(c));
+        return c != null &&
+                OntGraphModelImpl.configValue(c.getModel(), OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE)
+                && !(OWL.Thing.equals(c) || RDFS.Literal.equals(c));
     }
 
     protected static CardinalityType getCardinalityType(Class<? extends CardinalityRestriction<?, ?>> view) {
@@ -516,7 +518,9 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
 
         public boolean isQualified(Node s, EnhGraph g, Class<? extends RDFNode> objectType) {
-            if (!hasCardinality(s, qualifiedPredicate, g)) return false;
+            if (!hasCardinality(s, qualifiedPredicate, g)) {
+                return false;
+            }
             Node p;
             if (objectType == OntClass.class) {
                 p = CLASS_REFERENCE;

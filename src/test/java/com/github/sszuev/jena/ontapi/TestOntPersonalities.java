@@ -1,6 +1,6 @@
 package com.github.sszuev.jena.ontapi;
 
-import com.github.sszuev.jena.ontapi.common.OntConfig;
+import com.github.sszuev.jena.ontapi.common.OntConfigs;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.common.PunningsMode;
@@ -23,7 +23,7 @@ class TestOntPersonalities {
             .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
             .setReserved(OntPersonalities.OWL2_RESERVED)
             .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
-            .setConfig(OntConfig.DEFAULT)
+            .setConfig(OntConfigs.OWL2_CONFIG)
             .build();
     /**
      * OWL2 Personality.
@@ -41,7 +41,7 @@ class TestOntPersonalities {
             .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
             .setReserved(OntPersonalities.OWL2_RESERVED)
             .setPunnings(OntPersonalities.OWL_DL_WEAK_PUNNINGS)
-            .setConfig(OntConfig.DEFAULT)
+            .setConfig(OntConfigs.OWL2_CONFIG)
             .build();
     /**
      * OWL2 Personality.
@@ -65,6 +65,6 @@ class TestOntPersonalities {
             .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
             .setReserved(OntPersonalities.OWL2_RESERVED)
             .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
-            .setConfig(OntConfig.DEFAULT)
+            .setConfig(OntConfigs.OWL2_CONFIG)
             .build();
 }

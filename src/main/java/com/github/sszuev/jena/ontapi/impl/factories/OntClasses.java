@@ -106,7 +106,7 @@ final class OntClasses {
                 /*namedClassFactory*/ namedClassFilter,
                 /*genericClassFilter*/ genericClassFilter,
                 /*allowNamedClassExpressions*/ config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS),
-                /*allowQualifiedCardinalityRestrictions*/ true,
+                /*allowQualifiedCardinalityRestrictions*/ config.getBoolean(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE),
                 /*filter types*/ Arrays.asList(filters)
         );
     }
@@ -145,7 +145,9 @@ final class OntClasses {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
-                .and(getCardinalityFilter(cardinalityType, objectType.view()))
+                .and(getCardinalityFilter(cardinalityType,
+                        objectType.view(),
+                        config.getBoolean(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE)))
                 .and(restrictionType.getFilter());
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
@@ -176,8 +178,9 @@ final class OntClasses {
 
     private static EnhNodeFilter getCardinalityFilter(
             OntClassImpl.CardinalityType type,
-            Class<? extends RDFNode> objectType) {
-        return (n, g) -> type.isNonQualified(n, g) || type.isQualified(n, g, objectType);
+            Class<? extends RDFNode> objectType,
+            boolean qualifiedCardinalityAllowed) {
+        return (n, g) -> type.isNonQualified(n, g) || (qualifiedCardinalityAllowed && type.isQualified(n, g, objectType));
     }
 
     public enum ObjectRestrictionType implements PredicateFilterProvider {
@@ -404,15 +407,15 @@ final class OntClasses {
                             if (namedClassFilter != null && n.isURI()) {
                                 return namedClassFilter.test(n, eg) ? NAMED_CLASS_PRODUCER.apply(n, eg) : null;
                             }
+                            if (genericClassFilter != null) {
+                                return GENERIC_CLASS_PRODUCER.apply(n, eg);
+                            }
                             BiFunction<Node, EnhGraph, EnhNode> res = null;
                             if ((!n.isURI() || allowNamedClassExpressions) && filterLogicalExpressions()) {
                                 res = logicalExpressionFactory(n, eg);
                             }
                             if (res != null) {
                                 return res.apply(n, eg);
-                            }
-                            if (genericClassFilter != null) {
-                                return GENERIC_CLASS_PRODUCER.apply(n, eg);
                             }
                             return null;
                         })
@@ -425,6 +428,9 @@ final class OntClasses {
                             Node n = t.getSubject();
                             if (n.isURI() && !allowNamedClassExpressions) {
                                 return null;
+                            }
+                            if (genericClassFilter != null) {
+                                return GENERIC_RESTRICTION_PRODUCER.apply(n, eg);
                             }
                             BiFunction<Node, EnhGraph, EnhNode> res = restrictionFactory(n, eg);
                             if (res != null) {
