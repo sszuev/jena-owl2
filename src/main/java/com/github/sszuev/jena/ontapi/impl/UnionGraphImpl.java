@@ -270,6 +270,11 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         return this;
     }
 
+    @Override
+    public UnionGraph withBase(Graph base) {
+        return new UnionGraphImpl(base, getSubGraphs(), getEventManager(), isDistinct());
+    }
+
     protected void removeUnion(Graph graph) {
         if (!(graph instanceof UnionGraphImpl)) {
             return;

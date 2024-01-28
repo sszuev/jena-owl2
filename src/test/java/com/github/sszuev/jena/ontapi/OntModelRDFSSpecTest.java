@@ -9,7 +9,7 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.UnsupportedPolymorphismException;
@@ -184,7 +184,7 @@ public class OntModelRDFSSpecTest {
         } else {
             Assertions.assertEquals(
                     List.of(anonRdfsClass, namedRdfsClass),
-                    m.ontObjects(OntClass.class).sorted(ModelUtils.RDF_NODE_COMPARATOR).collect(Collectors.toList())
+                    m.ontObjects(OntClass.class).sorted(StdModels.RDF_NODE_COMPARATOR).collect(Collectors.toList())
             );
         }
         Stream.of(namedOwlClass, anonOwlClass).forEach(it -> Assertions.assertFalse(it.inModel(m).canAs(OntClass.class)));

@@ -86,6 +86,15 @@ public interface UnionGraph extends Graph {
     UnionGraph removeSubGraph(Graph graph);
 
     /**
+     * Creates a copy of this graph with replacement the base.
+     * Changing hierarchy of the new graph will change hierarchy of this graph and vice versa.
+     * This can be useful for building graph's manager.
+     * @param base {@code Graph}, new base, not {@code null}
+     * @return {@link UnionGraph} a new instance with new {@code base} but with the hierarchy inheriting from this graph
+     */
+    UnionGraph withBase(Graph base);
+
+    /**
      * Adds the specified graph to the underlying graph collection if it is absent.
      *
      * @param graph {@link Graph}, not {@code null}

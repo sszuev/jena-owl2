@@ -35,8 +35,8 @@ import com.github.sszuev.jena.ontapi.model.OntSWRL;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.utils.OntModels;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.datatypes.BaseDatatype;
@@ -522,7 +522,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             return this;
         }
         OntPersonality personality = getOntPersonality();
-        return new OntGraphModelImpl(getBaseGraph(), personality);
+        return new OntGraphModelImpl(new UnionGraphImpl(getBaseGraph(), false), personality);
     }
 
     /**
@@ -733,12 +733,12 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
 
     @Override
     public Stream<OntStatement> statements(Resource s, Property p, RDFNode o) {
-        return asStream(getGraph(), listOntStatements(s, p, o), ModelUtils.isANY(s, p, o));
+        return asStream(getGraph(), listOntStatements(s, p, o), StdModels.isANY(s, p, o));
     }
 
     @Override
     public Stream<OntStatement> localStatements(Resource s, Property p, RDFNode o) {
-        return asStream(getBaseGraph(), listLocalStatements(s, p, o), ModelUtils.isANY(s, p, o));
+        return asStream(getBaseGraph(), listLocalStatements(s, p, o), StdModels.isANY(s, p, o));
     }
 
     /**
@@ -751,7 +751,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      */
     @Override
     public StmtIterator listStatements(Resource s, Property p, RDFNode o) {
-        return ModelUtils.createStmtIterator(getGraph().find(asNode(s), asNode(p), asNode(o)), this::asStatement);
+        return StdModels.createStmtIterator(getGraph().find(asNode(s), asNode(p), asNode(o)), this::asStatement);
     }
 
     /**

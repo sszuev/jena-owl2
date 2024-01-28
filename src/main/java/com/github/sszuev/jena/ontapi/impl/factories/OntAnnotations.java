@@ -3,7 +3,7 @@ package com.github.sszuev.jena.ontapi.impl.factories;
 import com.github.sszuev.jena.ontapi.impl.objects.OntAnnotationImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotation;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
@@ -15,10 +15,10 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import java.util.Set;
 
 final class OntAnnotations {
-    public static final Set<Node> REQUIRED_PROPERTY_NODES = ModelUtils.asUnmodifiableNodeSet(OntAnnotationImpl.REQUIRED_PROPERTIES);
+    public static final Set<Node> REQUIRED_PROPERTY_NODES = StdModels.asUnmodifiableNodeSet(OntAnnotationImpl.REQUIRED_PROPERTIES);
     public static final Node AXIOM = OWL.Axiom.asNode();
     public static final Node ANNOTATION = OWL.Annotation.asNode();
-    public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = ModelUtils.asUnmodifiableNodeSet(OntAnnotationImpl.EXTRA_ROOT_TYPES);
+    public static final Set<Node> EXTRA_ROOT_TYPES_AS_NODES = StdModels.asUnmodifiableNodeSet(OntAnnotationImpl.EXTRA_ROOT_TYPES);
 
     /**
      * Lists all root {@link Node}s of top-level {@link OntAnnotation}s in the given model.

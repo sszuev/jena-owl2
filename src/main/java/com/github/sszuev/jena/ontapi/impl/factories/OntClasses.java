@@ -22,7 +22,7 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
@@ -263,7 +263,7 @@ final class OntClasses {
     public static class HasSelfFilter implements EnhNodeFilter {
         @Override
         public boolean test(Node n, EnhGraph g) {
-            return g.asGraph().contains(n, OWL.hasSelf.asNode(), ModelUtils.TRUE.asNode());
+            return g.asGraph().contains(n, OWL.hasSelf.asNode(), StdModels.TRUE.asNode());
         }
     }
 
@@ -275,7 +275,7 @@ final class OntClasses {
         @Override
         public void doInsert(Node node, EnhGraph eg) {
             super.doInsert(node, eg);
-            eg.asGraph().add(Triple.create(node, OWL.hasSelf.asNode(), ModelUtils.TRUE.asNode()));
+            eg.asGraph().add(Triple.create(node, OWL.hasSelf.asNode(), StdModels.TRUE.asNode()));
         }
     }
 

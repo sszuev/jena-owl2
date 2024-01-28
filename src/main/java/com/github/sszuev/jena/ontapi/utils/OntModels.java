@@ -29,10 +29,14 @@ import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * A collection of utilitarian methods to work with {@link OntModel OWL Model} and all its related stuff:
+ * A collection of utilities for working with {@link OntModel OWL Model} and all related objects:
  * {@link OntObject Ontology Object},
  * {@link OntEntity Ontology Entity},
  * {@link RDFNodeList Node List},
@@ -208,18 +212,27 @@ public class OntModels {
      *
      * @param statement {@link OntStatement}, not {@code null}
      * @return a {@code Stream} of {@link OntStatement}s, each of them is annotation property assertion
-     * @see #listAllAnnotations(OntStatement)
+     * @see #getAllAnnotations(OntStatement)
      */
     public static Stream<OntStatement> annotations(OntStatement statement) {
-        if (statement instanceof OntStatementImpl) {
-            return Iterators.asStream(listAllAnnotations(statement));
-        }
-        return statement.annotations().flatMap(s -> Stream.concat(Stream.of(s), annotations(s)));
+        return Iterators.fromSet(() -> getAllAnnotations(statement));
     }
 
     /**
      * For the specified {@link OntStatement Statement}
      * lists all its annotation assertions recursively including their sub-annotations.
+     *
+     * @param statement {@link OntStatement}, not {@code null}
+     * @return an {@link ExtendedIterator} of {@link OntStatement}s
+     * @see #getAllAnnotations(OntStatement)
+     */
+    public static ExtendedIterator<OntStatement> listAllAnnotations(OntStatement statement) {
+        return Iterators.create(() -> Iterators.create(getAllAnnotations(statement)));
+    }
+
+    /**
+     * For the specified {@link OntStatement Statement}
+     * gets all its annotation assertions recursively including their sub-annotations.
      * <p>
      * For example, for the following snippet
      * <pre>{@code
@@ -243,10 +256,67 @@ public class OntModels {
      * {@code _:b2 rdfs:label "label2"}.
      *
      * @param statement {@link OntStatement}, not {@code null}
-     * @return an {@link ExtendedIterator} of {@link OntStatement}s
+     * @return an {@link Set} of {@link OntStatement}s
      */
-    public static ExtendedIterator<OntStatement> listAllAnnotations(OntStatement statement) {
-        return Iterators.flatMap(listAnnotations(statement), s -> Iterators.concat(Iterators.of(s), listAllAnnotations(s)));
+    public static Set<OntStatement> getAllAnnotations(OntStatement statement) {
+        Deque<OntStatement> queue = new ArrayDeque<>();
+        Set<OntStatement> res = new LinkedHashSet<>();
+        queue.add(statement);
+        while (!queue.isEmpty()) {
+            OntStatement s = queue.removeFirst();
+            if (!res.add(s)) {
+                continue;
+            }
+            listAnnotations(s).forEach(queue::add);
+        }
+        res.remove(statement);
+        return res;
+    }
+
+    /**
+     * Returns an {@code ExtendedIterator} over all {@link OntStatement Ontology Statement}s,
+     * which are obtained from splitting the given statement into several equivalent ones but with disjoint annotations.
+     * Each of the returned statements is equal to the given, the difference is only in the related annotations.
+     * <p>
+     * This method can be used in case there are several typed b-nodes for each annotation assertions instead of a single one.
+     * Such situation is not a canonical way and should not be widely used, since it is redundant.
+     * So usually the result stream contains only a single element: the same {@code OntStatement} instance as the input.
+     * <p>
+     * The following code demonstrates that non-canonical way of writing annotations with two or more b-nodes:
+     * <pre>{@code
+     * s A t .
+     * _:b0  a                     owl:Axiom .
+     * _:b0  A1                    t1 .
+     * _:b0  owl:annotatedSource   s .
+     * _:b0  owl:annotatedProperty A .
+     * _:b0  owl:annotatedTarget   t .
+     * _:b1  a                     owl:Axiom .
+     * _:b1  A2                    t2 .
+     * _:b1  owl:annotatedSource   s .
+     * _:b1  owl:annotatedProperty A .
+     * _:b1  owl:annotatedTarget   t .
+     * }</pre>
+     * Here the statement {@code s A t} has two annotations,
+     * but they are spread over different resources (statements {@code _:b0 A1 t1} and {@code _:b1 A2 t2}).
+     * For this example, the method returns stream of two {@code OntStatement}s, and each of them has only one annotation.
+     * For generality, below is an example of the correct and equivalent way to write these annotations,
+     * which is the preferred since it is more compact:
+     * <pre>{@code
+     * s A t .
+     * [ a                      owl:Axiom ;
+     * A1                     t1 ;
+     * A2                     t2 ;
+     * owl:annotatedProperty  A ;
+     * owl:annotatedSource    s ;
+     * owl:annotatedTarget    t
+     * ]  .
+     * }</pre>
+     *
+     * @param statement {@link OntStatement}, not {@code null}
+     * @return {@link ExtendedIterator} of {@link OntStatement}s
+     */
+    public static ExtendedIterator<OntStatement> listSplitStatements(OntStatement statement) {
+        return ((OntStatementImpl) statement).listSplitStatements();
     }
 
     /**

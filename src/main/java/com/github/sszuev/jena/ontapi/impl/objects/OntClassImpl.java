@@ -20,7 +20,7 @@ import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.datatypes.RDFDatatype;
@@ -141,7 +141,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static HasSelf createHasSelf(OntGraphModelImpl model, OntObjectProperty onProperty) {
-        Resource res = createOnPropertyRestriction(model, onProperty).addProperty(OWL.hasSelf, ModelUtils.TRUE);
+        Resource res = createOnPropertyRestriction(model, onProperty).addProperty(OWL.hasSelf, StdModels.TRUE);
         return model.getNodeAs(res.asNode(), HasSelf.class);
     }
 

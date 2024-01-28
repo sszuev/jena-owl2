@@ -394,9 +394,7 @@ public class Graphs {
      * According to the OWL specification,
      * each non-composite ontology graph must contain one and only one ontology header.
      * If a well-formed header already exists, the method returns it unchanged.
-     * If there are multiple other headers,
-     * the graph is considered misconfigured, and
-     * any extra headers will be removed,
+     * If there are multiple other headers, any extra headers will be removed,
      * and the content will be moved to a new generated anonymous header.
      *
      * @param graph {@link Graph}
@@ -415,12 +413,23 @@ public class Graphs {
                 return header;
             }
         }
+        return makeOntologyHeaderNode(graph, createNode(uri));
+    }
+
+    /**
+     * Creates a new ontology header ({@code node rdf:type owl:Ontology}) for the specified node,
+     * removing existing ontology headers (if any) and moving their contents to the new header.
+     *
+     * @param graph {@link Graph}
+     * @param newOntology  {@link Node} the new ontology header (iri or blank)
+     * @return {@code newOntology}
+     */
+    public static Node makeOntologyHeaderNode(Graph graph, Node newOntology) {
         List<Triple> prev = Iterators.addAll(Iterators.flatMap(
                 graph.find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
                 it -> graph.find(it.getSubject(), Node.ANY, Node.ANY)), new ArrayList<>());
 
         prev.forEach(graph::delete);
-        Node newOntology = createNode(uri);
         graph.add(newOntology, RDF.type.asNode(), OWL.Ontology.asNode());
         prev.forEach(triple -> graph.add(newOntology, triple.getPredicate(), triple.getObject()));
         return newOntology;

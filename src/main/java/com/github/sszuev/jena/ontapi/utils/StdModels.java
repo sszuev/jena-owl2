@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * Created @ssz on 20.10.2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class ModelUtils {
+public class StdModels {
     public static final Comparator<RDFNode> RDF_NODE_COMPARATOR = (r1, r2) -> NodeCmp.compareRDFTerms(r1.asNode(), r2.asNode());
     public static final Comparator<Statement> STATEMENT_COMPARATOR = Comparator
             .comparing(Statement::getSubject, RDF_NODE_COMPARATOR)

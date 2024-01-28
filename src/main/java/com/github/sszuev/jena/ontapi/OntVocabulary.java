@@ -164,6 +164,7 @@ public interface OntVocabulary {
      */
     class Factory {
 
+        public static final OntVocabulary EMPTY_VOCABULARY = new Impl(Map.of());
         public static final OntVocabulary RDFS_VOCABULARY = new RDFSImpl();
         public static final OntVocabulary OWL2_VOCABULARY = new OWL2Impl();
         public static final OntVocabulary OWL1_VOCABULARY = new OWL1Impl(true);
@@ -172,7 +173,6 @@ public interface OntVocabulary {
         public static final OntVocabulary SKOS_VOCABULARY = new SKOSImpl();
         public static final OntVocabulary SWRL_VOCABULARY = new SWRLImpl();
         public static final OntVocabulary OWL2_DC_SKOS_SWRL_VOCABULARY = create(OWL2_VOCABULARY, DC_VOCABULARY, SKOS_VOCABULARY, SWRL_VOCABULARY);
-
 
         /**
          * Creates a fresh union vocabulary that combines the given ones.

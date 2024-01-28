@@ -7,8 +7,8 @@ import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
 import com.github.sszuev.jena.ontapi.utils.OntModels;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.graph.Node;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * To test {@link ModelUtils} and {@link OntModels} utilities.
+ * To test {@link StdModels} and {@link OntModels} utilities.
  * <p>
  * Created by @ssz on 25.04.2018.
  */
@@ -104,17 +104,17 @@ public class ModelUtilsTest {
         OntClass a = m.createOntClass("A");
         OntClass b = m.createOntClass("B");
         Resource t = m.getResource("type");
-        RDFList list = ModelUtils.createTypedList(m, t, Arrays.asList(a, b));
+        RDFList list = StdModels.createTypedList(m, t, Arrays.asList(a, b));
         Assertions.assertNotNull(list);
 
         Assertions.assertEquals(8, m.size());
         Assertions.assertEquals(2, m.listStatements(null, RDF.type, t).toList().size());
 
-        Assertions.assertTrue(ModelUtils.isInList(m, a));
-        Assertions.assertTrue(ModelUtils.isInList(m, b));
+        Assertions.assertTrue(StdModels.isInList(m, a));
+        Assertions.assertTrue(StdModels.isInList(m, b));
 
         Assertions.assertEquals(6, Iterators.peek(ModelTestUtils.listDescendingStatements(list),
-                s -> Assertions.assertTrue(RDF.type.equals(s.getPredicate()) || ModelUtils.isInList(s))).toList().size());
+                s -> Assertions.assertTrue(RDF.type.equals(s.getPredicate()) || StdModels.isInList(s))).toList().size());
 
         Assertions.assertEquals(2, ModelTestUtils.subjects(t).count());
         Assertions.assertEquals(2, ModelTestUtils.listAscendingStatements(RDF.nil.inModel(m)).toList().size());
@@ -127,7 +127,7 @@ public class ModelUtilsTest {
         OntClass b = m.createOntClass("B");
         m.createObjectSomeValuesFrom(m.createObjectProperty("P"), m.createObjectComplementOf(m.createObjectUnionOf(a, b)));
 
-        testStatementsComparator(m, ModelUtils.STATEMENT_COMPARATOR);
+        testStatementsComparator(m, StdModels.STATEMENT_COMPARATOR);
     }
 
     @Test

@@ -298,4 +298,24 @@ public class UnionGraphTest {
         Assertions.assertEquals(Set.of(d, e), e.superGraphs().collect(Collectors.toSet()));
     }
 
+    @Test
+    public void testWithBase() {
+        Graph g1 = GraphMemFactory.createDefaultGraph();
+        Graph g2 = GraphMemFactory.createDefaultGraph();
+        Graph g3 = GraphMemFactory.createDefaultGraph();
+        Graph g4 = GraphMemFactory.createDefaultGraph();
+
+        UnionGraph u1 = new UnionGraphImpl(g1);
+        u1.addSubGraph(g2);
+
+        UnionGraph u2 = u1.withBase(g3);
+
+        Assertions.assertNotSame(u1.getBaseGraph(), u2.getBaseGraph());
+        Assertions.assertSame(u1.subGraphs().findFirst().orElseThrow(), u2.subGraphs().findFirst().orElseThrow());
+
+        u1.addSubGraph(g4);
+
+        Assertions.assertEquals(2, u2.subGraphs().count());
+        Assertions.assertEquals(u1.subGraphs().collect(Collectors.toSet()), u2.subGraphs().collect(Collectors.toSet()));
+    }
 }

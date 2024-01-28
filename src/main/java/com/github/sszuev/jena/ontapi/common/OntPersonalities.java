@@ -23,7 +23,7 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntSWRL;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.Personality;
 import org.apache.jena.graph.Node;
@@ -439,12 +439,12 @@ public class OntPersonalities {
     public static OntPersonality.Builtins createBuiltinsVocabulary(OntVocabulary voc) {
         Objects.requireNonNull(voc);
         Map<Class<? extends OntObject>, Set<Node>> res = new HashMap<>();
-        res.put(OntAnnotationProperty.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinAnnotationProperties()));
-        res.put(OntDataProperty.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinDatatypeProperties()));
-        res.put(OntObjectProperty.Named.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinObjectProperties()));
-        res.put(OntDataRange.Named.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinDatatypes()));
-        res.put(OntClass.Named.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinClasses()));
-        res.put(OntSWRL.Builtin.class, ModelUtils.asUnmodifiableNodeSet(voc.getBuiltinSWRLs()));
+        res.put(OntAnnotationProperty.class, StdModels.asUnmodifiableNodeSet(voc.getBuiltinAnnotationProperties()));
+        res.put(OntDataProperty.class, StdModels.asUnmodifiableNodeSet(voc.getBuiltinDatatypeProperties()));
+        res.put(OntObjectProperty.Named.class, StdModels.asUnmodifiableNodeSet(voc.getBuiltinObjectProperties()));
+        res.put(OntDataRange.Named.class, StdModels.asUnmodifiableNodeSet(voc.getBuiltinDatatypes()));
+        res.put(OntClass.Named.class, StdModels.asUnmodifiableNodeSet(voc.getBuiltinClasses()));
+        res.put(OntSWRL.Builtin.class, StdModels.asUnmodifiableNodeSet(voc.getBuiltinSWRLs()));
         res.put(OntIndividual.Named.class, Collections.emptySet());
         Set<Property> ontProperties = new HashSet<>();
         ontProperties.addAll(voc.getBuiltinAnnotationProperties());
@@ -454,8 +454,8 @@ public class OntPersonalities {
         ontEntities.addAll(ontProperties);
         ontEntities.addAll(voc.getBuiltinClasses());
         ontEntities.addAll(voc.getBuiltinDatatypes());
-        res.put(OntProperty.class, ModelUtils.asUnmodifiableNodeSet(ontProperties));
-        res.put(OntEntity.class, ModelUtils.asUnmodifiableNodeSet(ontEntities));
+        res.put(OntProperty.class, StdModels.asUnmodifiableNodeSet(ontProperties));
+        res.put(OntEntity.class, StdModels.asUnmodifiableNodeSet(ontEntities));
         return new ResourceVocabularyImpl.BuiltinsImpl(res);
     }
 
@@ -469,8 +469,8 @@ public class OntPersonalities {
     public static OntPersonality.Reserved createReservedVocabulary(OntVocabulary voc) {
         Objects.requireNonNull(voc);
         Map<Class<? extends Resource>, Set<Node>> res = new HashMap<>();
-        res.put(Resource.class, ModelUtils.asUnmodifiableNodeSet(voc.getSystemResources()));
-        res.put(Property.class, ModelUtils.asUnmodifiableNodeSet(voc.getSystemProperties()));
+        res.put(Resource.class, StdModels.asUnmodifiableNodeSet(voc.getSystemResources()));
+        res.put(Property.class, StdModels.asUnmodifiableNodeSet(voc.getSystemProperties()));
         return new ResourceVocabularyImpl.ReservedIml(Map.copyOf(res));
     }
 

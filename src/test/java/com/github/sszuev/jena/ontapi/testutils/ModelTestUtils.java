@@ -5,7 +5,7 @@ import com.github.sszuev.jena.ontapi.model.OntID;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.commons.lang3.StringUtils;
@@ -78,7 +78,7 @@ public class ModelTestUtils {
         if (root.canAs(RDFList.class)) {
             RDFList list = root.as(RDFList.class);
             if (list.isEmpty()) return;
-            ModelUtils.getListStatements(list).forEach(statement -> {
+            StdModels.getListStatements(list).forEach(statement -> {
                 res.add(statement);
                 if (!RDF.first.equals(statement.getPredicate())) return;
                 RDFNode obj = statement.getObject();

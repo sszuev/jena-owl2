@@ -1,7 +1,7 @@
 package com.github.sszuev.jena.ontapi.model;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.utils.ModelUtils;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -132,7 +132,7 @@ public interface OntStatement extends Statement {
      * @see #annotationResources()
      */
     default List<OntAnnotation> getAnnotationList() {
-        return annotationResources().sorted(ModelUtils.RDF_NODE_COMPARATOR).collect(Collectors.toList());
+        return annotationResources().sorted(StdModels.RDF_NODE_COMPARATOR).collect(Collectors.toList());
     }
 
     /**
