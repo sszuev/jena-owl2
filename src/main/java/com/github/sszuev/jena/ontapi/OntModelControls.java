@@ -12,6 +12,19 @@ import org.apache.jena.rdf.model.Resource;
  */
 public enum OntModelControls {
     /**
+     * If {@code true}, {@link com.github.sszuev.jena.ontapi.model.OntID}
+     * will be generated automatically if it is absent (as a b-node).
+     * A valid OWL ontology must have a single ontology ID.
+     */
+    USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY,
+    /**
+     * If {@code true}, a multiple ontology header is allowed.
+     * Since a valid OWL ontology can have only a single ontology ID, the most suitable will be chosen.
+     * Note that if there are several anonymous headers with similar contents,
+     * then there is no guarantee that the same node will always be selected after restarting JVM.
+     */
+    USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY,
+    /**
      * If this key is set to {@code true}, then the class/property hierarchies
      * (e.g., see {@link com.github.sszuev.jena.ontapi.model.OntClass#subClasses()})
      * are to be inferred by the naked model itself using builtin algorithms.

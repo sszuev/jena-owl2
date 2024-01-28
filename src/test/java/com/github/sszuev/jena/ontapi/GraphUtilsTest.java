@@ -62,7 +62,7 @@ public class GraphUtilsTest {
     public void testIsSized() {
         Assertions.assertTrue(Graphs.isSized(new GraphMem()));
         Assertions.assertTrue(Graphs.isSized(new UnionGraphImpl(new GraphMem())));
-        Assertions.assertTrue(Graphs.isSized(new UnionGraphImpl(new GraphWrapper(new GraphMem()))));
+        Assertions.assertFalse(Graphs.isSized(new UnionGraphImpl(new GraphWrapper(new GraphMem()))));
 
         UnionGraph u1 = new UnionGraphImpl(new GraphMem());
         u1.addSubGraph(u1);
@@ -103,7 +103,7 @@ public class GraphUtilsTest {
         Graph g = Factory.createGraphMem();
         Assertions.assertTrue(Graphs.isSameBase(g, g));
 
-        Graph a = new UnionGraphImpl(new GraphWrapper(new GraphWrapper(g)));
+        Graph a = new UnionGraphImpl(g);
         Assertions.assertTrue(Graphs.isSameBase(a, g));
 
         MultiUnion b = new MultiUnion();
@@ -111,8 +111,11 @@ public class GraphUtilsTest {
         b.addGraph(new GraphMem());
         Assertions.assertTrue(Graphs.isSameBase(a, b));
 
-        UnionGraph c = new UnionGraphImpl(new GraphWrapper(g));
-        Assertions.assertTrue(Graphs.isSameBase(a, c));
+        UnionGraph c1 = new UnionGraphImpl(new GraphWrapper(g));
+        Assertions.assertFalse(Graphs.isSameBase(a, c1));
+
+        UnionGraph c2 = new UnionGraphImpl(new WrappedGraph(g));
+        Assertions.assertFalse(Graphs.isSameBase(a, c2));
 
         Assertions.assertFalse(Graphs.isSameBase(g, new GraphMem()));
 
@@ -263,13 +266,13 @@ public class GraphUtilsTest {
                 .addSubGraph(new UnionGraphImpl(mC.getGraph())
                         .addSubGraph(new UnionGraphImpl(mD.getGraph())));
 
-        Assertions.assertTrue(Graphs.isOntUnionGraph(u));
+        Assertions.assertTrue(Graphs.isOntUnionGraph(u, false));
 
         u.addSubGraph(new UnionGraphImpl(mE.getGraph()));
-        Assertions.assertFalse(Graphs.isOntUnionGraph(u));
+        Assertions.assertFalse(Graphs.isOntUnionGraph(u, false));
 
         mE.createResource(E, OWL.Ontology);
-        Assertions.assertTrue(Graphs.isOntUnionGraph(u));
+        Assertions.assertTrue(Graphs.isOntUnionGraph(u,false));
     }
 
     @Test

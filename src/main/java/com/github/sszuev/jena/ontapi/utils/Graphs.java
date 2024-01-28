@@ -13,7 +13,6 @@ import org.apache.jena.graph.compose.Polyadic;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.shared.PrefixMapping;
-import org.apache.jena.sparql.graph.GraphWrapper;
 import org.apache.jena.sparql.util.graph.GraphUtils;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
@@ -22,6 +21,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -80,14 +80,15 @@ public class Graphs {
      * Extracts the base (primary) base graph from a composite or wrapper graph if it is possible
      * otherwise returns the same graph.
      * If the specified graph is {@link Dyadic}, the left part is considered as base graph.
-     * Note: the {@link org.apache.jena.graph.impl.WrappedGraph} is intentionally not included in the consideration:
+     * Note: wrappers ({@link org.apache.jena.graph.impl.WrappedGraph} and {@link org.apache.jena.sparql.graph.GraphWrapper})
+     * are intentionally not included in the consideration:
      * any sub-instances of that class are considered as indivisible.
      *
      * @param graph {@link Graph}
      * @return {@link Graph}
      * @see Graphs#directSubGraphs(Graph)
-     * @see GraphWrapper
      * @see UnionGraph
+     * @see org.apache.jena.graph.compose.MultiUnion
      * @see Polyadic
      * @see Dyadic
      * @see InfGraph
@@ -102,10 +103,6 @@ public class Graphs {
         while (!candidates.isEmpty()) {
             Graph g = candidates.removeFirst();
             if (!seen.add(g)) {
-                continue;
-            }
-            if (g instanceof GraphWrapper) {
-                candidates.add(((GraphWrapper) g).get());
                 continue;
             }
             if (g instanceof UnionGraph) {
@@ -354,11 +351,12 @@ public class Graphs {
      * Checks whether the specified graph is ontological, that is,
      * has a hierarchy synchronized with the {@code owl:imports} &amp; {@code owl:Ontology} relationships.
      *
-     * @param graph {@link UnionGraph}
+     * @param graph                        {@link UnionGraph}
+     * @param allowMultipleOntologyHeaders {@code boolean}, see {@link #ontologyNode(Graph, boolean)} for explanation
      * @return boolean
      */
-    public static boolean isOntUnionGraph(UnionGraph graph) {
-        Node id = findOntologyNameNode(graph.getBaseGraph()).orElse(null);
+    public static boolean isOntUnionGraph(UnionGraph graph, boolean allowMultipleOntologyHeaders) {
+        Node id = findOntologyNameNode(graph.getBaseGraph(), allowMultipleOntologyHeaders).orElse(null);
         if (id == null) {
             return false;
         }
@@ -372,14 +370,14 @@ public class Graphs {
             if (!seen.add(nextId)) {
                 continue;
             }
-            Set<String> nextImports = getImports(nextGraph.getBaseGraph());
+            Set<String> nextImports = getImports(nextGraph.getBaseGraph(), allowMultipleOntologyHeaders);
             Iterator<UnionGraph> children = nextGraph.subGraphs()
                     .filter(it -> it instanceof UnionGraph)
                     .map(it -> (UnionGraph) it)
                     .iterator();
             while (children.hasNext()) {
                 UnionGraph g = children.next();
-                Node gid = findOntologyNameNode(g.getBaseGraph()).orElse(null);
+                Node gid = findOntologyNameNode(g.getBaseGraph(), allowMultipleOntologyHeaders).orElse(null);
                 if (gid == null || !gid.isURI() || !nextImports.contains(gid.getURI())) {
                     return false;
                 }
@@ -397,31 +395,31 @@ public class Graphs {
      * If there are multiple other headers, any extra headers will be removed,
      * and the content will be moved to a new generated anonymous header.
      *
-     * @param graph {@link Graph}
-     * @param uri   ontology header IRI,
-     *              if {@code null} then the method returns either existing anonymous header
-     *              or generates new anonymous (blank) header
+     * @param graph     {@link Graph}
+     * @param uriOrNull ontology header IRI,
+     *                  if {@code null} then the method returns either existing anonymous header
+     *                  or generates new anonymous (blank) header
      * @return existing or new header
      */
-    public static Node createOntologyHeaderNode(Graph graph, String uri) {
+    public static Node createOntologyHeaderNode(Graph graph, String uriOrNull) {
         Node header = ontologyNode(graph).orElse(null);
         if (header != null) {
-            if (uri != null && header.isURI() && header.getURI().equals(uri)) {
+            if (uriOrNull != null && header.isURI() && header.getURI().equals(uriOrNull)) {
                 return header;
             }
-            if (uri == null && header.isBlank()) {
+            if (uriOrNull == null && header.isBlank()) {
                 return header;
             }
         }
-        return makeOntologyHeaderNode(graph, createNode(uri));
+        return makeOntologyHeaderNode(graph, createNode(uriOrNull));
     }
 
     /**
      * Creates a new ontology header ({@code node rdf:type owl:Ontology}) for the specified node,
      * removing existing ontology headers (if any) and moving their contents to the new header.
      *
-     * @param graph {@link Graph}
-     * @param newOntology  {@link Node} the new ontology header (iri or blank)
+     * @param graph       {@link Graph}
+     * @param newOntology {@link Node} the new ontology header (iri or blank)
      * @return {@code newOntology}
      */
     public static Node makeOntologyHeaderNode(Graph graph, Node newOntology) {
@@ -445,28 +443,83 @@ public class Graphs {
      * @see <a href='https://www.w3.org/TR/owl2-syntax/#Ontology_Documents'>3.2 Ontology Documents</a>
      */
     public static Optional<Node> findOntologyNameNode(Graph graph) {
+        return findOntologyNameNode(graph, false);
+    }
+
+    /**
+     * Returns OWL Ontology ID
+     * (either object in {@code any owl:versionIRI <uri>} statement or subject in {@code <uri> rdf:type owl:Ontology} statement).
+     *
+     * @param graph                        {@link Graph}
+     * @param allowMultipleOntologyHeaders {@code boolean}, see {@link #ontologyNode(Graph, boolean)} for explanation
+     * @return {@code Optional} with {@link Node} blank or URI,
+     * or {@code Optional#empty} if the ontology Node cannot be uniquely defined or absent in the {@code graph}
+     * @see <a href='https://www.w3.org/TR/owl2-syntax/#Ontology_Documents'>3.2 Ontology Documents</a>
+     */
+    public static Optional<Node> findOntologyNameNode(Graph graph, boolean allowMultipleOntologyHeaders) {
         if (graph.isClosed()) {
             throw new IllegalArgumentException("Graph is closed");
         }
-        Node ontologyIri = ontologyNode(graph).orElse(null);
+        Node ontologyIri = ontologyNode(graph, allowMultipleOntologyHeaders).orElse(null);
         if (ontologyIri == null) {
             return Optional.empty();
         }
-        Set<Node> versionNodes = Iterators.takeAsSet(
-                graph.find(ontologyIri, OWL.versionIRI.asNode(), Node.ANY)
-                        .mapWith(Triple::getObject)
-                        .filterKeep(Node::isURI), 2);
-        if (versionNodes.size() == 1) {
-            return Optional.of(versionNodes.iterator().next());
+        Optional<Node> versionIri = findVersionIRI(graph, ontologyIri);
+        if (versionIri.isPresent()) {
+            return versionIri;
         }
         return Optional.of(ontologyIri);
     }
 
     /**
+     * @param graph  {@link Graph}
+     * @param header {@link Node} subject from {@code header rdf:type owl:Ontology} statement
+     * @return {@code Optional} with URI {@link Node}
+     */
+    public static Optional<Node> findVersionIRI(Graph graph, Node header) {
+        Set<Node> versionNodes = Iterators.takeAsSet(
+                graph.find(header, OWL.versionIRI.asNode(), Node.ANY)
+                        .mapWith(Triple::getObject)
+                        .filterKeep(Node::isURI), 2);
+        if (versionNodes.size() == 1) {
+            return Optional.of(versionNodes.iterator().next());
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Returns the primary Ontology Node (the subject in the {@code _:x rdf:type owl:Ontology} statement)
      * within the given graph if it can be uniquely determined.
-     * Note: it works with any graph, not necessarily with the base;
-     * for a valid composite ontology graph a lot of ontological nodes are expected.
+     * Note: it works with any graph, not necessarily with the base.
+     * A valid composite ontology graph a lot of ontological nodes are expected.
+     * If {@code allowMultipleOntologyHeaders = true}, the most suitable ontology header will be chosen:
+     * if there are both uri and blank ontological nodes together in the graph, then it prefers uri;
+     * if there are several ontological nodes of the same kind, he chooses the most cumbersome one.
+     *
+     * @param graph                        {@link Graph}
+     * @param allowMultipleOntologyHeaders {@code boolean}
+     * @return {@link Optional} around the {@link Node} which could be uri or blank
+     */
+    public static Optional<Node> ontologyNode(Graph graph, boolean allowMultipleOntologyHeaders) {
+        if (allowMultipleOntologyHeaders) {
+            List<Node> res = Iterators.addAll(Graphs.listOntologyNodes(graph), new ArrayList<>());
+            if (res.isEmpty()) {
+                return Optional.empty();
+            }
+            if (res.size() == 1) {
+                return Optional.of(res.get(0));
+            }
+            res.sort(rootNodeComparator(graph));
+            return Optional.of(res.get(0));
+        }
+        return ontologyNode(graph);
+    }
+
+    /**
+     * Returns the primary Ontology Node (the subject in the {@code _:x rdf:type owl:Ontology} statement)
+     * within the given graph if it can be uniquely determined.
+     * Note: it works with any graph, not necessarily with the base.
+     * A valid composite ontology graph a lot of ontological nodes are expected.
      *
      * @param graph {@link Graph}
      * @return {@link Optional} around the {@link Node} which could be uri or blank
@@ -478,6 +531,24 @@ public class Graphs {
             return Optional.empty();
         }
         return Optional.of(ontologyNodesSet.iterator().next());
+    }
+
+    /**
+     * Returns a comparator for root nodes.
+     * Tricky logic:
+     * first compares roots as standalone nodes and any uri-node is considered less than any blank-node,
+     * then compares roots as part of the graph using the rule 'the fewer children -&gt; the greater weight'.
+     *
+     * @param graph {@link Graph}
+     * @return {@link Comparator}
+     */
+    public static Comparator<Node> rootNodeComparator(Graph graph) {
+        return Comparator.comparing(Node::isURI).reversed()
+                .thenComparing(
+                        Comparator.comparingLong((Node x) ->
+                                Iterators.count(graph.find(x, Node.ANY, Node.ANY))
+                        ).reversed()
+                ).thenComparing(o -> o.toString(graph.getPrefixMapping(), false));
     }
 
     /**
@@ -502,7 +573,19 @@ public class Graphs {
      * @return unordered Set of uris from the whole graph (it may be composite)
      */
     public static Set<String> getImports(Graph graph) {
-        return Set.copyOf(Iterators.addAll(listImports(graph), new HashSet<>()));
+        return getImports(graph, false);
+    }
+
+    /**
+     * Returns all uri-objects from the {@code _:x owl:imports _:uri} statements.
+     * In the case of composite graph, imports are listed transitively.
+     *
+     * @param graph                        {@link Graph}, not {@code null}
+     * @param allowMultipleOntologyHeaders {@code boolean}, see {@link #ontologyNode(Graph, boolean)} for explanation
+     * @return unordered Set of uris from the whole graph (it may be composite)
+     */
+    public static Set<String> getImports(Graph graph, boolean allowMultipleOntologyHeaders) {
+        return Set.copyOf(Iterators.addAll(listImports(graph, allowMultipleOntologyHeaders), new HashSet<>()));
     }
 
     /**
@@ -514,18 +597,19 @@ public class Graphs {
      */
     public static boolean hasImports(Graph graph, String uri) {
         Objects.requireNonNull(uri);
-        return Iterators.findFirst(listImports(graph).filterKeep(uri::equals)).isPresent();
+        return Iterators.findFirst(listImports(graph, false).filterKeep(uri::equals)).isPresent();
     }
 
     /**
      * Returns an {@code ExtendedIterator} over all URIs from the {@code _:x owl:imports _:uri} statements.
      * In the case of composite graph, imports are listed transitively.
      *
-     * @param graph {@link Graph}, not {@code null}
+     * @param graph                        {@link Graph}, not {@code null}
+     * @param allowMultipleOntologyHeaders {@code boolean}, see {@link #ontologyNode(Graph, boolean)} for explanation
      * @return {@link ExtendedIterator} of {@code String}-URIs
      */
-    public static ExtendedIterator<String> listImports(Graph graph) {
-        Node ontology = ontologyNode(Objects.requireNonNull(graph)).orElse(null);
+    public static ExtendedIterator<String> listImports(Graph graph, boolean allowMultipleOntologyHeaders) {
+        Node ontology = ontologyNode(Objects.requireNonNull(graph), allowMultipleOntologyHeaders).orElse(null);
         if (ontology == null) {
             return NullIterator.instance();
         }

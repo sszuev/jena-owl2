@@ -335,13 +335,19 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntID getID() {
         checkType(OntID.class);
-        return id().orElseGet(() -> setID(null));
+        Optional<OntID> id = id();
+        if (id.isEmpty() && !configValue(this, OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)) {
+            throw new OntJenaException.IllegalState("No ontology header found, use OntModel#setID method instead");
+        }
+        return id.orElseGet(() -> setID(null));
     }
 
     @Override
     public Optional<OntID> id() {
         checkType(OntID.class);
-        return Graphs.ontologyNode(getBaseGraph()).map(x -> getNodeAs(x, OntID.class));
+        return Graphs.ontologyNode(
+                getBaseGraph(), configValue(this, OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
+        ).map(x -> getNodeAs(x, OntID.class));
     }
 
     @Override
@@ -350,7 +356,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         UnionGraph ug = getUnionGraph();
         UnionGraph.EventManager em = ug.getEventManager();
         em.notifyEvent(ug, OntModelEvent.startChangeIDEvent());
-        OntID res = getNodeAs(Graphs.createOntologyHeaderNode(getBaseGraph(), uri), OntID.class);
+        Node id = Graphs.createOntologyHeaderNode(getBaseGraph(), uri);
+        OntID res = getNodeAs(id, OntID.class);
         em.notifyEvent(ug, OntModelEvent.finishChangeIDEvent());
         return res;
     }
@@ -373,7 +380,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         if (g instanceof InfGraph) {
             g = ((InfGraph) g).getRawGraph();
         }
-        if (g instanceof UnionGraph && !Graphs.isOntUnionGraph((UnionGraph) g)) {
+        if (g instanceof UnionGraph && !Graphs.isOntUnionGraph((UnionGraph) g,
+                configValue(this, OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY))) {
             throw new OntJenaException.IllegalArgument("Ontology <" + importsURI + "> has wrong structure.");
         }
         addImportModel(g, importsURI);
@@ -497,11 +505,13 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         } else {
             subGraphs = WrappedIterator.create(u.subGraphs().iterator());
         }
-        Set<String> imports = Graphs.getImports(u.getBaseGraph());
+        Set<String> imports = Graphs.getImports(u.getBaseGraph(),
+                configValue(this, OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY));
         return subGraphs
                 .filterKeep(x -> x instanceof UnionGraph)
                 .mapWith(x -> (UnionGraph) x)
-                .filterKeep(it -> Graphs.findOntologyNameNode(it.getBaseGraph())
+                .filterKeep(it -> Graphs.findOntologyNameNode(it.getBaseGraph(),
+                        configValue(this, OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY))
                         .filter(Node::isURI)
                         .map(Node::getURI)
                         .filter(imports::contains)

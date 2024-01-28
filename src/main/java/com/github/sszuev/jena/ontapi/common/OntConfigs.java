@@ -8,6 +8,8 @@ import com.github.sszuev.jena.ontapi.OntModelControls;
 public class OntConfigs {
 
     public static final OntConfig OWL2_CONFIG = OntConfig.DEFAULT
+            .setTrue(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
+            .setTrue(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setFalse(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
             .setFalse(OntModelControls.USE_OWL_V1_VOCABULARY)
@@ -34,6 +36,8 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE);
 
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
+            .setTrue(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
+            .setTrue(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
             .setTrue(OntModelControls.USE_OWL_V1_VOCABULARY)
@@ -60,6 +64,8 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE);
 
     public static final OntConfig OWL1_LITE_CONFIG = OntConfig.DEFAULT
+            .setTrue(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
+            .setTrue(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
             .setTrue(OntModelControls.USE_OWL_V1_VOCABULARY)
@@ -86,6 +92,8 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE);
 
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
+            .setFalse(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
+            .setFalse(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
             .setFalse(OntModelControls.USE_OWL_V1_VOCABULARY)

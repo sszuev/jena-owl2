@@ -17,6 +17,7 @@ import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.model.OntRelationalProperty;
 import com.github.sszuev.jena.ontapi.model.OntStatement;
+import com.github.sszuev.jena.ontapi.testutils.MiscUtils;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.utils.StdModels;
@@ -64,11 +65,6 @@ import java.util.stream.Stream;
  */
 public class OntModelOWLSpecTest {
 
-    @SafeVarargs
-    private static <X> Set<X> toSet(Collection<? extends X>... lists) {
-        return Arrays.stream(lists).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
-    }
-
     private static void assertOntObjectsCount(OntModel m, Class<? extends OntObject> type, long expected) {
         Assertions.assertEquals(expected, m.ontObjects(type).count());
     }
@@ -105,19 +101,38 @@ public class OntModelOWLSpecTest {
 
         List<OntProperty> actualPEs = ont.ontObjects(OntProperty.class).collect(Collectors.toList());
 
-        Set<Resource> expectedNamed = toSet(annotationProperties, datatypeProperties, namedObjectProperties);
-        Set<Resource> expectedPEs = toSet(expectedNamed, inverseObjectProperties);
+        Set<Resource> expectedNamed = MiscUtils.toFlatSet(annotationProperties, datatypeProperties, namedObjectProperties);
+        Set<Resource> expectedPEs = MiscUtils.toFlatSet(expectedNamed, inverseObjectProperties);
         Assertions.assertEquals(expectedPEs.size(), actualPEs.size());
 
         List<OntNamedProperty> actualNamed = ont.ontObjects(OntNamedProperty.class).collect(Collectors.toList());
         Assertions.assertEquals(expectedNamed.size(), actualNamed.size());
 
         List<OntProperty> actualDOs = ont.ontObjects(OntRelationalProperty.class).collect(Collectors.toList());
-        Set<Resource> expectedDOs = toSet(datatypeProperties, namedObjectProperties, inverseObjectProperties);
+        Set<Resource> expectedDOs = MiscUtils.toFlatSet(datatypeProperties, namedObjectProperties, inverseObjectProperties);
         Assertions.assertEquals(expectedDOs.size(), actualDOs.size());
 
         Assertions.assertEquals(inverseStatements.size(), ont.objectProperties()
                 .flatMap(OntObjectProperty::inverseProperties).count());
+    }
+
+    @Test
+    public void testGetOntologyID() {
+        Model data = OntModelFactory.createDefaultModel();
+
+        data.createResource().addProperty(RDF.type, OWL.Ontology);
+        data.createResource("X").addProperty(RDF.type, OWL.Ontology);
+
+        OntModel m = OntModelFactory.createModel(data.getGraph());
+
+        Assertions.assertEquals("X", m.getID().getURI());
+        Assertions.assertEquals("X", m.getID().getImportsIRI());
+
+        data.createResource("Q").addProperty(RDF.type, OWL.Ontology)
+                .addProperty(OWL.versionIRI, data.createResource("W"));
+
+        Assertions.assertEquals("Q", m.getID().getURI());
+        Assertions.assertEquals("W", m.getID().getImportsIRI());
     }
 
     @ParameterizedTest

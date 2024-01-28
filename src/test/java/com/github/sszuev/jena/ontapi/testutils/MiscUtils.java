@@ -12,9 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MiscUtils {
     @SafeVarargs
@@ -37,5 +39,10 @@ public class MiscUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @SafeVarargs
+    public static <X> Set<X> toFlatSet(Collection<? extends X>... lists) {
+        return Arrays.stream(lists).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
     }
 }
