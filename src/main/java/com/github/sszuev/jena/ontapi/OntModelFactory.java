@@ -85,7 +85,18 @@ public class OntModelFactory {
      * @see org.apache.jena.rdf.model.ModelFactory#createDefaultModel()
      */
     public static Model createDefaultModel() {
-        return new ModelCom(createDefaultGraph());
+        return createDefaultModel(createDefaultGraph());
+    }
+
+    /**
+     * Creates default RDF Model implementation wrapping the given graph.
+     *
+     * @param graph {@link Graph}, not {@code null}
+     * @return {@link Model}
+     * @see org.apache.jena.rdf.model.ModelFactory#createDefaultModel()
+     */
+    public static Model createDefaultModel(Graph graph) {
+        return new ModelCom(Objects.requireNonNull(graph));
     }
 
     /**
@@ -245,7 +256,7 @@ public class OntModelFactory {
         UnionGraph union;
         if (graph instanceof UnionGraph) {
             union = (UnionGraph) graph;
-            Graphs.flatTree((UnionGraph) graph).forEach(it -> {
+            Graphs.flatHierarchy((UnionGraph) graph).forEach(it -> {
                 Graphs.findOntologyNameNode(it.getBaseGraph()).orElseGet(() -> Graphs.createOntologyHeaderNode(it, null));
                 ontUnionGraphRepository.put(it);
             });
@@ -256,7 +267,7 @@ public class OntModelFactory {
                         .toString();
                 repository.put(name, it);
             });
-            union = ontUnionGraphRepository.put(Graphs.getBase(graph));
+            union = ontUnionGraphRepository.put(Graphs.getPrimary(graph));
         }
         ReasonerFactory reasonerFactory = spec.getReasonerFactory();
         if (reasonerFactory == null) {

@@ -39,7 +39,7 @@ public class GraphUtilsTest {
 
     private static Stream<Graph> flat(Graph graph) {
         if (graph == null) return Stream.empty();
-        return Stream.concat(Stream.of(Graphs.getBase(graph)), Graphs.directSubGraphs(graph).flatMap(GraphUtilsTest::flat));
+        return Stream.concat(Stream.of(Graphs.unwrap(graph)), Graphs.directSubGraphs(graph).flatMap(GraphUtilsTest::flat));
     }
 
     @Test
@@ -112,15 +112,15 @@ public class GraphUtilsTest {
         Assertions.assertTrue(Graphs.isSameBase(a, b));
 
         UnionGraph c1 = new UnionGraphImpl(new GraphWrapper(g));
-        Assertions.assertFalse(Graphs.isSameBase(a, c1));
+        Assertions.assertTrue(Graphs.isSameBase(a, c1));
 
         UnionGraph c2 = new UnionGraphImpl(new WrappedGraph(g));
-        Assertions.assertFalse(Graphs.isSameBase(a, c2));
+        Assertions.assertTrue(Graphs.isSameBase(a, c2));
 
         Assertions.assertFalse(Graphs.isSameBase(g, new GraphMem()));
 
         Graph d = new UnionGraphImpl(new WrappedGraph(new WrappedGraph(g)));
-        Assertions.assertFalse(Graphs.isSameBase(a, d));
+        Assertions.assertTrue(Graphs.isSameBase(a, d));
 
         Assertions.assertFalse(Graphs.isSameBase(new UnionGraphImpl(g), new UnionGraphImpl(new GraphMem())));
 
@@ -303,7 +303,7 @@ public class GraphUtilsTest {
         f.addSubGraph(c);
 
         Stream.of(a, b, c, d, e, f).forEach(graph -> {
-            List<UnionGraph> actual = Graphs.flatTree(a)
+            List<UnionGraph> actual = Graphs.flatHierarchy(a)
                     .sorted(Comparator.comparing(it -> it.getBaseGraph().toString()))
                     .collect(Collectors.toList());
             Assertions.assertEquals(List.of(a, b, c, d, e, f), actual);

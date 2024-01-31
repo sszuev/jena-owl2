@@ -10,9 +10,11 @@ import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.Dyadic;
 import org.apache.jena.graph.compose.Polyadic;
+import org.apache.jena.graph.impl.WrappedGraph;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.graph.GraphWrapper;
 import org.apache.jena.sparql.util.graph.GraphUtils;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
@@ -58,7 +60,7 @@ public class Graphs {
      *
      * @param graph {@link Graph}
      * @return {@code Stream} of {@link Graph}s
-     * @see Graphs#getBase(Graph)
+     * @see Graphs#getPrimary(Graph)
      * @see UnionGraph
      * @see Polyadic
      * @see Dyadic
@@ -77,12 +79,9 @@ public class Graphs {
     }
 
     /**
-     * Extracts the base (primary) base graph from a composite or wrapper graph if it is possible
+     * Gets the base (primary) base graph from a composite or wrapper graph if it is possible
      * otherwise returns the same graph.
      * If the specified graph is {@link Dyadic}, the left part is considered as base graph.
-     * Note: wrappers ({@link org.apache.jena.graph.impl.WrappedGraph} and {@link org.apache.jena.sparql.graph.GraphWrapper})
-     * are intentionally not included in the consideration:
-     * any sub-instances of that class are considered as indivisible.
      *
      * @param graph {@link Graph}
      * @return {@link Graph}
@@ -91,9 +90,37 @@ public class Graphs {
      * @see org.apache.jena.graph.compose.MultiUnion
      * @see Polyadic
      * @see Dyadic
-     * @see InfGraph
      */
-    public static Graph getBase(Graph graph) {
+    public static Graph getPrimary(Graph graph) {
+        if (graph instanceof UnionGraph) {
+            return ((UnionGraph) graph).getBaseGraph();
+        }
+        if (graph instanceof Polyadic) {
+            return ((Polyadic) graph).getBaseGraph();
+        }
+        if (graph instanceof Dyadic) {
+            return ((Dyadic) graph).getL();
+        }
+        return graph;
+    }
+
+    /**
+     * Unwraps the base (primary) base graph from a composite or wrapper graph if it is possible
+     * otherwise returns the same graph.
+     * If the specified graph is {@link Dyadic}, the left part is considered as base graph.
+     *
+     * @param graph {@link Graph}
+     * @return {@link Graph}
+     * @see #isWrapper(Graph)
+     * @see UnionGraph
+     * @see org.apache.jena.graph.compose.MultiUnion
+     * @see Polyadic
+     * @see Dyadic
+     * @see InfGraph
+     * @see GraphWrapper
+     * @see WrappedGraph
+     */
+    public static Graph unwrap(Graph graph) {
         if (isGraphMem(graph)) {
             return graph;
         }
@@ -103,6 +130,14 @@ public class Graphs {
         while (!candidates.isEmpty()) {
             Graph g = candidates.removeFirst();
             if (!seen.add(g)) {
+                continue;
+            }
+            if (g instanceof GraphWrapper) {
+                candidates.add(((GraphWrapper) g).get());
+                continue;
+            }
+            if (g instanceof WrappedGraph) {
+                candidates.add(((WrappedGraph) g).getWrapped());
                 continue;
             }
             if (g instanceof UnionGraph) {
@@ -123,6 +158,22 @@ public class Graphs {
             return g;
         }
         return graph;
+    }
+
+    /**
+     * Answers {@code true} if the given graph can be unwrapped.
+     *
+     * @param g {@link Graph}
+     * @return boolean
+     * @see #unwrap(Graph)
+     */
+    public static boolean isWrapper(Graph g) {
+        return g instanceof GraphWrapper ||
+                g instanceof WrappedGraph ||
+                g instanceof UnionGraph ||
+                g instanceof Polyadic ||
+                g instanceof Dyadic ||
+                g instanceof InfGraph;
     }
 
     /**
@@ -154,6 +205,20 @@ public class Graphs {
      * @return {@code Stream} of {@link Graph}s
      */
     public static Stream<Graph> dataGraphs(Graph graph) {
+        return flatTree(graph, Graphs::unwrap, Graphs::directSubGraphs);
+    }
+
+    /**
+     * Lists all indivisible data graphs extracted from the composite or wrapper graph;
+     *
+     * @param graph         {@link Graph}
+     * @param getBase       a {@link Function} to extract primary graph
+     * @param listSubGraphs a {@link Function} to extract subgraphs
+     * @return {@code Stream} of {@link Graph}s
+     */
+    public static Stream<Graph> flatTree(Graph graph,
+                                         Function<Graph, Graph> getBase,
+                                         Function<Graph, Stream<Graph>> listSubGraphs) {
         if (graph == null) {
             return Stream.empty();
         }
@@ -169,9 +234,9 @@ public class Graphs {
             if (!seen.add(g)) {
                 continue;
             }
-            Graph bg = getBase(g);
+            Graph bg = getBase.apply(g);
             res.add(bg);
-            directSubGraphs(g).forEach(queue::add);
+            listSubGraphs.apply(g).forEach(queue::add);
         }
         return res.stream();
     }
@@ -184,7 +249,7 @@ public class Graphs {
      * @return {@code boolean}
      */
     public static boolean isSameBase(Graph left, Graph right) {
-        return Objects.equals(getBase(left), getBase(right));
+        return Objects.equals(unwrap(left), unwrap(right));
     }
 
     /**
@@ -203,7 +268,7 @@ public class Graphs {
         }
         if (graph instanceof UnionGraph) {
             UnionGraph u = (UnionGraph) graph;
-            return u.isDistinct() || !u.hasSubGraph() && isDistinct(getBase(u));
+            return u.isDistinct() || !u.hasSubGraph() && isDistinct(getPrimary(u));
         }
         return false;
     }
@@ -226,7 +291,7 @@ public class Graphs {
         if (directSubGraphs(graph).findFirst().isPresent()) {
             return false;
         }
-        return isGraphMem(getBase(graph));
+        return isGraphMem(getPrimary(graph));
     }
 
     /**
@@ -243,7 +308,7 @@ public class Graphs {
         if (directSubGraphs(graph).findFirst().isPresent()) {
             return Iterators.count(graph.find());
         }
-        return getBase(graph).size();
+        return getPrimary(graph).size();
     }
 
     /**
@@ -262,7 +327,7 @@ public class Graphs {
         if (isGraphMem(graph)) {
             return wrapAsUnion.apply(graph);
         }
-        return makeOntUnion(getBase(graph), dataGraphs(graph).collect(Collectors.toSet()), wrapAsUnion);
+        return makeOntUnion(getPrimary(graph), dataGraphs(graph).collect(Collectors.toSet()), wrapAsUnion);
     }
 
     /**
@@ -314,14 +379,14 @@ public class Graphs {
     }
 
     /**
-     * Lists all graphs in the tree which is specified as {@code UnionGraph}.
+     * Lists all graphs in the tree that is specified as {@code UnionGraph}.
      *
      * @param graph {@link UnionGraph}
      * @return {@code Stream} of {@link UnionGraph}s
      * @see UnionGraph#superGraphs()
      * @see UnionGraph#subGraphs()
      */
-    public static Stream<UnionGraph> flatTree(UnionGraph graph) {
+    public static Stream<UnionGraph> flatHierarchy(UnionGraph graph) {
         Objects.requireNonNull(graph);
         Set<UnionGraph> res = new LinkedHashSet<>();
         Deque<UnionGraph> queue = new ArrayDeque<>();
@@ -415,21 +480,40 @@ public class Graphs {
     }
 
     /**
-     * Creates a new ontology header ({@code node rdf:type owl:Ontology}) for the specified node,
+     * Creates (if absents) a new ontology header ({@code node rdf:type owl:Ontology}) for the specified node,
      * removing existing ontology headers (if any) and moving their contents to the new header.
+     * Note that a valid ontology must have a single header,
+     * but there could be multiple headers in imports closure.
      *
      * @param graph       {@link Graph}
      * @param newOntology {@link Node} the new ontology header (iri or blank)
      * @return {@code newOntology}
      */
     public static Node makeOntologyHeaderNode(Graph graph, Node newOntology) {
-        List<Triple> prev = Iterators.addAll(Iterators.flatMap(
+        Objects.requireNonNull(graph, "graph is null");
+        Objects.requireNonNull(newOntology, "ontology node is null");
+        Set<Triple> prev = Iterators.addAll(Iterators.flatMap(
                 graph.find(Node.ANY, RDF.type.asNode(), OWL.Ontology.asNode()),
-                it -> graph.find(it.getSubject(), Node.ANY, Node.ANY)), new ArrayList<>());
-
-        prev.forEach(graph::delete);
-        graph.add(newOntology, RDF.type.asNode(), OWL.Ontology.asNode());
-        prev.forEach(triple -> graph.add(newOntology, triple.getPredicate(), triple.getObject()));
+                it -> graph.find(it.getSubject(), Node.ANY, Node.ANY)), new HashSet<>());
+        Set<Node> subjects = prev.stream().map(Triple::getSubject).collect(Collectors.toSet());
+        if (subjects.contains(newOntology)) {
+            if (subjects.size() == 1) {
+                // nothing to do
+                return newOntology;
+            }
+        } else {
+            graph.add(newOntology, RDF.type.asNode(), OWL.Ontology.asNode());
+        }
+        prev.forEach(t -> {
+            if (!newOntology.equals(t.getSubject())) {
+                graph.delete(t);
+            }
+        });
+        prev.forEach(t -> {
+            if (!newOntology.equals(t.getSubject())) {
+                graph.add(newOntology, t.getPredicate(), t.getObject());
+            }
+        });
         return newOntology;
     }
 
@@ -713,7 +797,7 @@ public class Graphs {
     }
 
     /**
-     * Answers {@code true} if all parts of the given RDF triple are URIs (i.e. not blank nodes or literals).
+     * Answers {@code true} if all parts of the given RDF triple are URIs (i.e., not blank nodes or literals).
      *
      * @param triple a regular graph {@link Triple}, not {@code null}
      * @return {@code boolean}

@@ -203,7 +203,7 @@ public class ModelTestUtils {
                                                  String step,
                                                  Set<Graph> seen) {
         StringBuilder res = new StringBuilder();
-        Graph base = Graphs.getBase(graph);
+        Graph base = Graphs.getPrimary(graph);
         String name = getName.apply(base);
         try {
             if (!seen.add(graph)) {
@@ -238,7 +238,7 @@ public class ModelTestUtils {
         if (graph.isClosed()) {
             return "(closed)";
         }
-        Optional<Node> id = Graphs.ontologyNode(Graphs.getBase(graph));
+        Optional<Node> id = Graphs.ontologyNode(Graphs.getPrimary(graph));
         if (id.isEmpty()) {
             return ANONYMOUS_ONTOLOGY_IDENTIFIER;
         }
@@ -256,7 +256,7 @@ public class ModelTestUtils {
     }
 
     public static String getOntologyGraphIri(Graph graph) {
-        return Graphs.findOntologyNameNode(Graphs.getBase(graph)).map(Node::toString).orElse(null);
+        return Graphs.findOntologyNameNode(Graphs.getPrimary(graph)).map(Node::toString).orElse(null);
     }
 
     /**
@@ -288,7 +288,7 @@ public class ModelTestUtils {
         Set<Node> seen = new HashSet<>();
         while (!queue.isEmpty()) {
             Graph next = queue.removeFirst();
-            Graph base = Graphs.getBase(next);
+            Graph base = Graphs.getPrimary(next);
             Node id = Graphs.findOntologyNameNode(base).orElse(null);
             if (id == null || !seen.add(id)) {
                 continue;
@@ -299,7 +299,7 @@ public class ModelTestUtils {
                 continue;
             }
             ((UnionGraph) next).subGraphs().forEach(it -> {
-                Node uri = Graphs.findOntologyNameNode(Graphs.getBase(it)).filter(Node::isURI).orElse(null);
+                Node uri = Graphs.findOntologyNameNode(Graphs.getPrimary(it)).filter(Node::isURI).orElse(null);
                 if (uri != null) {
                     next.add(ont, OWL.imports.asNode(), uri);
                     queue.add(it);

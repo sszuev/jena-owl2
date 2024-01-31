@@ -206,7 +206,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         Triple t = Triple.createMatch(s, p, o);
         UnionGraph.EventManager em = getEventManager();
         em.onDeleteTriple(this, t);
-        base.remove(s, p, o);
+        super.remove(s, p, o);
         em.notifyEvent(this, GraphEvents.remove(s, p, o));
     }
 
@@ -268,11 +268,6 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         resetGraphsCache();
         eventManager.notifySubGraphRemoved(this, graph);
         return this;
-    }
-
-    @Override
-    public UnionGraph withBase(Graph base) {
-        return new UnionGraphImpl(base, getSubGraphs(), getEventManager(), isDistinct());
     }
 
     protected void removeUnion(Graph graph) {
@@ -619,12 +614,12 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
 
         @Override
         public void onRemoveSubGraph(UnionGraph graph, Graph subGraph) {
-            listeners(Listener.class).forEach(it -> it.onRemoveSubGraph(graph, graph));
+            listeners(Listener.class).forEach(it -> it.onRemoveSubGraph(graph, subGraph));
         }
 
         @Override
         public void notifySubGraphRemoved(UnionGraph graph, Graph subGraph) {
-            listeners(Listener.class).forEach(it -> it.notifySubGraphRemoved(graph, graph));
+            listeners(Listener.class).forEach(it -> it.notifySubGraphRemoved(graph, subGraph));
         }
 
         @Override

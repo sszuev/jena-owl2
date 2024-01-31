@@ -62,8 +62,8 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
 
     @Override
     public void onAddSubGraph(UnionGraph graph, Graph subGraph) {
-        if (Graphs.isOntGraph(Graphs.getBase(subGraph))) {
-            Node ontology = Graphs.findOntologyNameNode(Graphs.getBase(subGraph))
+        if (Graphs.isOntGraph(Graphs.getPrimary(subGraph))) {
+            Node ontology = Graphs.findOntologyNameNode(Graphs.getPrimary(subGraph))
                     .orElseThrow(() -> new OntJenaException.IllegalArgument("Unnamed or misconfigured graph is specified"));
             if (!ontology.isURI()) {
                 throw new OntJenaException.IllegalArgument("Anonymous graph specified");
@@ -80,7 +80,7 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
 
     @Override
     public void notifySubGraphAdded(UnionGraph thisGraph, Graph subGraph) {
-        if (Graphs.isOntGraph(Graphs.getBase(subGraph))) {
+        if (Graphs.isOntGraph(Graphs.getPrimary(subGraph))) {
             Graph ontSubGraphBase = OntUnionGraphRepository.getBase(subGraph);
             Node ontSubGraphIri = Graphs.findOntologyNameNode(ontSubGraphBase)
                     .filter(Node::isURI)

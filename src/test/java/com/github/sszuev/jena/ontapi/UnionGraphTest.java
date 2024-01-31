@@ -12,10 +12,12 @@ import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.mem.GraphMem;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shared.AddDeniedException;
 import org.apache.jena.shared.ClosedException;
 import org.apache.jena.shared.DeleteDeniedException;
 import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.sparql.graph.GraphWrapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -299,23 +301,109 @@ public class UnionGraphTest {
     }
 
     @Test
-    public void testWithBase() {
-        Graph g1 = GraphMemFactory.createDefaultGraph();
-        Graph g2 = GraphMemFactory.createDefaultGraph();
-        Graph g3 = GraphMemFactory.createDefaultGraph();
-        Graph g4 = GraphMemFactory.createDefaultGraph();
+    public void testGraphCycleImportsWithConnector() {
+        Model mA = OntModelFactory.createDefaultModel(createNamedGraph("a"));
+        Model mB = OntModelFactory.createDefaultModel(createNamedGraph("b"));
+        Model mC = OntModelFactory.createDefaultModel(createNamedGraph("c"));
+        Model mD = OntModelFactory.createDefaultModel(createNamedGraph("d"));
+        Model mE = OntModelFactory.createDefaultModel(createNamedGraph("e"));
 
-        UnionGraph u1 = new UnionGraphImpl(g1);
-        u1.addSubGraph(g2);
+        UnionGraph a = new UnionGraphImpl(mA.getGraph());
+        UnionGraph b = new UnionGraphImpl(mB.getGraph());
+        UnionGraph c = new UnionGraphImpl(mC.getGraph());
+        UnionGraph d = new UnionGraphImpl(mD.getGraph());
+        UnionGraph e = new UnionGraphImpl(mE.getGraph());
 
-        UnionGraph u2 = u1.withBase(g3);
+        UnionGraph wA = new UnionGraphImpl(new GraphWrapper(mA.getGraph()));
+        UnionGraph wB = new UnionGraphImpl(new GraphWrapper(mB.getGraph()));
+        UnionGraph wC = new UnionGraphImpl(new GraphWrapper(mC.getGraph()));
 
-        Assertions.assertNotSame(u1.getBaseGraph(), u2.getBaseGraph());
-        Assertions.assertSame(u1.subGraphs().findFirst().orElseThrow(), u2.subGraphs().findFirst().orElseThrow());
+        UnionGraphConnector.connect(a, wA);
+        UnionGraphConnector.connect(b, wB);
+        UnionGraphConnector.connect(c, wC);
 
-        u1.addSubGraph(g4);
+        a.addSubGraph(b);
+        b.addSubGraph(a);
+        b.addSubGraph(c);
+        Assertions.assertEquals(1, a.subGraphs().count());
+        Assertions.assertEquals(2, b.subGraphs().count());
+        Assertions.assertEquals(0, c.subGraphs().count());
 
-        Assertions.assertEquals(2, u2.subGraphs().count());
-        Assertions.assertEquals(u1.subGraphs().collect(Collectors.toSet()), u2.subGraphs().collect(Collectors.toSet()));
+        mA.createResource("A", OWL.Class);
+        Assertions.assertEquals(4, a.stream().count());
+        Assertions.assertEquals(4, b.stream().count());
+        Assertions.assertEquals(1, c.stream().count());
+
+        mB.createResource("B", OWL.Class);
+        Assertions.assertEquals(5, a.stream().count());
+        Assertions.assertEquals(5, b.stream().count());
+        Assertions.assertEquals(1, c.stream().count());
+
+        mC.createResource("C", OWL.Class);
+        Assertions.assertEquals(6, a.stream().count());
+        Assertions.assertEquals(6, b.stream().count());
+        Assertions.assertEquals(2, c.stream().count());
+
+        Assertions.assertEquals(6, wA.stream().count());
+        Assertions.assertEquals(6, wB.stream().count());
+        Assertions.assertEquals(2, wC.stream().count());
+
+        a.addSubGraph(d);
+        Assertions.assertEquals(7, a.stream().count());
+        Assertions.assertEquals(7, b.stream().count());
+        Assertions.assertEquals(2, c.stream().count());
+        Assertions.assertEquals(7, wA.stream().count());
+        Assertions.assertEquals(7, wB.stream().count());
+        Assertions.assertEquals(2, wC.stream().count());
+
+        wB.addSubGraph(e);
+        Assertions.assertEquals(8, a.stream().count());
+        Assertions.assertEquals(8, b.stream().count());
+        Assertions.assertEquals(2, c.stream().count());
+        Assertions.assertEquals(8, wA.stream().count());
+        Assertions.assertEquals(8, wB.stream().count());
+        Assertions.assertEquals(2, wC.stream().count());
+
+        wB.removeSubGraph(e);
+        Assertions.assertEquals(7, a.stream().count());
+        Assertions.assertEquals(7, b.stream().count());
+        Assertions.assertEquals(2, c.stream().count());
+        Assertions.assertEquals(7, wA.stream().count());
+        Assertions.assertEquals(7, wB.stream().count());
+        Assertions.assertEquals(2, wC.stream().count());
+    }
+
+    static class UnionGraphConnector extends UnionGraphImpl.EventManagerImpl {
+
+        private final UnionGraph connection;
+
+        UnionGraphConnector(UnionGraph connection) {
+            this.connection = connection;
+        }
+
+        public static void connect(UnionGraph a, UnionGraph b) {
+            if (a.getEventManager().listeners(UnionGraphConnector.class).noneMatch(it -> b.equals(it.connection))) {
+                a.getEventManager().register(new UnionGraphConnector(b));
+            }
+            if (b.getEventManager().listeners(UnionGraphConnector.class).noneMatch(it -> a.equals(it.connection))) {
+                b.getEventManager().register(new UnionGraphConnector(a));
+            }
+        }
+
+        @Override
+        public void notifySubGraphAdded(UnionGraph graph, Graph subGraph) {
+            if (connection.subGraphs().noneMatch(subGraph::equals)) {
+                connection.addSubGraph(subGraph);
+            }
+            super.notifySubGraphAdded(graph, subGraph);
+        }
+
+        @Override
+        public void notifySubGraphRemoved(UnionGraph graph, Graph subGraph) {
+            if (connection.subGraphs().anyMatch(subGraph::equals)) {
+                connection.removeSubGraph(subGraph);
+            }
+            super.notifySubGraphRemoved(graph, subGraph);
+        }
     }
 }
