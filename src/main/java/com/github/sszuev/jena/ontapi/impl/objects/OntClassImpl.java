@@ -40,12 +40,14 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -226,10 +228,28 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         Stream<OntProperty> properties = OntPersonalities.isRDFS(OntEnhGraph.asPersonalityModel(m).getOntPersonality())
                 ? m.ontObjects(OntProperty.class)
                 : Stream.of(m.objectProperties(), m.dataProperties(), m.annotationProperties()).flatMap(it -> it);
-        return properties.filter(p -> p != null && testDomain(clazz, p, direct)).distinct();
+        Map<OntClass, Set<OntClass>> indirectSuperclasses = new HashMap<>();
+        Function<OntClass, Set<OntClass>> getIndirectSuperclasses = it ->
+                indirectSuperclasses.computeIfAbsent(it, x -> x.superClasses(false).collect(Collectors.toSet()));
+        return properties.distinct().filter(p -> p != null && testDomain(clazz, p, direct, getIndirectSuperclasses));
     }
 
+    /**
+     * Answers {@code true} if the {@code clazz} is a domain of {@code property}.
+     *
+     * @param clazz    {@link OntClass}
+     * @param property {@link OntProperty}
+     * @param direct   {@code boolean}
+     * @return {@code boolean}
+     */
     public static boolean testDomain(OntClass clazz, OntProperty property, boolean direct) {
+        return testDomain(clazz, property, direct, x -> x.superClasses(false).collect(Collectors.toSet()));
+    }
+
+    protected static boolean testDomain(OntClass clazz,
+                                        OntProperty property,
+                                        boolean direct,
+                                        Function<OntClass, Set<OntClass>> getIndirectSuperClasses) {
         if (isReservedOrBuiltin(property)) {
             return false;
         }
@@ -248,7 +268,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                     seenDirect.set(true);
                 } else {
                     // there is a class in the domain of p that is not a superclass of this class
-                    return canProveSuperClass(clazz, domain);
+                    return canProveSuperClass(clazz, domain, getIndirectSuperClasses);
                 }
                 return true;
             })) {
@@ -272,11 +292,14 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
      * If this model has a reasoner, this is equivalent to asking if the subclass relation holds.
      * Otherwise, we simulate basic reasoning by searching upwards through the class hierarchy.
      *
-     * @param clazz     potential subclass
-     * @param candidate for superclass of {@code clazz}
+     * @param clazz                   potential subclass
+     * @param candidate               for superclass of {@code clazz}
+     * @param getIndirectSuperClasses a function to get indirect superclasses
      * @return {@code true} if we can show that {@code candidate} is a superclass of {@code clazz}
      */
-    protected static boolean canProveSuperClass(OntClass clazz, Resource candidate) {
+    protected static boolean canProveSuperClass(OntClass clazz,
+                                                Resource candidate,
+                                                Function<OntClass, Set<OntClass>> getIndirectSuperClasses) {
         Set<OntClass> seen = new HashSet<>();
         Deque<OntClass> queue = new ArrayDeque<>();
         queue.add(clazz);
@@ -289,15 +312,11 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
             if (current.equals(candidate)) {
                 return true;
             }
-            try (Stream<OntClass> classStream = current.superClasses(false)) {
-                Iterator<OntClass> classIterator = classStream.iterator();
-                while (classIterator.hasNext()) {
-                    OntClass next = classIterator.next();
-                    if (next.equals(candidate)) {
-                        return true;
-                    }
-                    queue.add(next);
+            for (OntClass next : getIndirectSuperClasses.apply(current)) {
+                if (next.equals(candidate)) {
+                    return true;
                 }
+                queue.add(next);
             }
         }
         return false;
