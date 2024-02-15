@@ -163,7 +163,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             Class<? extends O> type) {
         OntPersonality p = m.getOntPersonality();
         if (p.supports(type)) {
-            return p.getObjectFactory(type).iterator(m).mapWith(e -> m.getNodeAs(e.asNode(), type));
+            ExtendedIterator<?> res = p.getObjectFactory(type).iterator(m);
+            //noinspection unchecked
+            return (ExtendedIterator<O>) res;
         } else {
             return NullIterator.instance();
         }
