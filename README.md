@@ -30,6 +30,7 @@ This project closes this gap by providing a fully functional ontology RDF model 
 ### Supported specifications
 
 - OWL2 DL & Full: NO_INF, RULES_INF, RDFS_INF, TRANS_INF + BUILTIN_INF (default)
+- OWL2 EL: NO_INF, RULES_INF, RDFS_INF, TRANS_INF
 - OWL1 DL & Full: NO_INF, RULES_INF, RDFS_INF, TRANS_INF, MICRO_RULES, MINI_RULES
 - OWL1 Lite: NO_INF, RULES_INF, RDFS_INF, TRANS_INF
 - RDFS: NO_INF, RDFS_INF, TRANS_INF

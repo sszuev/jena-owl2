@@ -79,7 +79,7 @@ public enum OntModelControls {
      * then {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#NamedIndividual owl:NamedIndividual}
      * declaration is used for creating individuals.
      */
-    USE_OWL2_NAMED_INDIVIDUAL_FEATURE,
+    USE_OWL2_NAMED_INDIVIDUAL_DECLARATION_FEATURE,
     /**
      * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#hasKey owl:hasKey} functionality.
      * If disabled,

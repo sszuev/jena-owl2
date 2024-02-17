@@ -278,6 +278,8 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
 
         @Override
         public Inverse createInverse() {
+            OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE, "owl:inverseOf");
+            OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_INVERSE_OBJECT_PROPERTY_FEATURE, "owl:inverseOf");
             OntGraphModelImpl m = getModel();
             m.checkType(OntObjectProperty.Inverse.class);
             List<Node> nodes = m.localStatements(null, OWL.inverseOf, this)

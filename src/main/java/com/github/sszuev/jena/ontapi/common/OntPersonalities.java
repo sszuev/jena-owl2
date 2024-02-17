@@ -262,7 +262,6 @@ public class OntPersonalities {
             .add(OntIndividual.class, OWL2ObjectFactories.ANY_INDIVIDUAL)
 
             // property expressions:
-            .add(OntObjectProperty.Inverse.class, OWL2ObjectFactories.INVERSE_OBJECT_PROPERTY)
             .add(OntObjectProperty.class, OWL2ObjectFactories.EL_OBJECT_PROPERTY)
             .add(OntRelationalProperty.class, OWL2ObjectFactories.EL_ANY_DATA_OR_OBJECT_PROPERTY)
             .add(OntNamedProperty.class, OWL2ObjectFactories.ANY_NAMED_PROPERTY)
@@ -445,6 +444,19 @@ public class OntPersonalities {
                 .setReserved(OntPersonalities.OWL2_RESERVED)
                 .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
                 .setConfig(OntConfigs.OWL2_CONFIG);
+    }
+
+    /**
+     * Mutable {@link OntObjectPersonalityBuilder} for OWL2 EL Ontologies.
+     * @return {@link OntObjectPersonalityBuilder}
+     */
+    public static OntObjectPersonalityBuilder OWL2_EL_ONT_PERSONALITY() {
+        return OWL2_EL_OBJECT_FACTORIES
+                .copy()
+                .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                .setReserved(OntPersonalities.OWL2_RESERVED)
+                .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
+                .setConfig(OntConfigs.OWL2_EL_CONFIG);
     }
 
     /**

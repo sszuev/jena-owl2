@@ -18,6 +18,7 @@ import java.util.Objects;
  * Contains OWL2, OWL1 and RDFS specifications:
  * <ul>
  *     <li>OWL2 (DL &amp; FULL): full support last version of OWL</li>
+ *     <li>OWL2 (EL): OWL2 EL subset</li>
  *     <li>OWL1 (DL &amp; FULL): does not support some language construct from OWL2, such as {@code OntDataRange.UnionOf};
  *     supposed to be compatible with legacy Jena's OntModel</li>
  *     <li>OWL1 LITE: does not support some language construct from OWL2 and OWL1, such as {@code OntClass.UnionOf};
@@ -48,6 +49,14 @@ public class OntSpecification {
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
                     .setConfig(OntConfigs.OWL2_CONFIG)
+                    .build();
+
+    private static final OntPersonality OWL2_EL_PERSONALITY =
+            OntPersonalities.OWL2_EL_ONT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL2_RESERVED)
+                    .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
+                    .setConfig(OntConfigs.OWL2_EL_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_DL_PERSONALITY =
@@ -209,6 +218,51 @@ public class OntSpecification {
      */
     public static final OntSpecification OWL2_FULL_MEM_MINI_RULES_INF = new OntSpecification(
             OWL2_FULL_PERSONALITY, OWLMiniReasonerFactory.theInstance()
+    );
+
+    /*
+     * *****************************************************************************************************************
+     * OWL 2 EL
+     * *****************************************************************************************************************
+     */
+
+    /**
+     * A specification for OWL2 EL Ontology models that are stored in memory and do no additional entailment reasoning.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
+     */
+    public static final OntSpecification OWL2_EL_MEM = new OntSpecification(
+            OWL2_EL_PERSONALITY, null
+    );
+
+    /**
+     * A specification for OWL2 EL models that are stored in memory
+     * and use the RDFS inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RDFS_INF
+     */
+    public static final OntSpecification OWL2_EL_MEM_RDFS_INF = new OntSpecification(
+            OWL2_EL_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL2 EL models that are stored in memory
+     * and use the transitive inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_TRANS_INF
+     */
+    public static final OntSpecification OWL2_EL_MEM_TRANS_INF = new OntSpecification(
+            OWL2_EL_PERSONALITY, TransitiveReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL2 EL ontology models
+     * that are stored in memory and use the OWL rules inference engine for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RULE_INF
+     */
+    public static final OntSpecification OWL2_EL_MEM_RULES_INF = new OntSpecification(
+            OWL2_EL_PERSONALITY, OWLFBRuleReasonerFactory.theInstance()
     );
 
     /*
