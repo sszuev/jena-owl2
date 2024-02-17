@@ -26,9 +26,10 @@ import java.util.Objects;
  * </ul>
  *
  * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
+ * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_EL">OWL 2 EL</a>
  * @see <a href="https://www.w3.org/TR/2008/WD-owl11-syntax-20080108/">OWL v1.1</a>
  * @see <a href="https://www.w3.org/TR/owl-guide/">OWL v1</a>
- * @see <a href="https://www.w3.org/TR/owl-features/">OWL1 Lite</a>
+ * @see <a href="https://www.w3.org/TR/2004/REC-owl-features-20040210/#s3">OWL1 Lite</a>
  * @see org.apache.jena.ontology.OntModelSpec OntModelSpec - legacy Jena's OWL1 specifications
  */
 public class OntSpecification {

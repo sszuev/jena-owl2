@@ -116,19 +116,19 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
 
     @Override
     public boolean isFunctional() {
-        return OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE) &&
+        return OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL_OBJECT_PROPERTY_FUNCTIONAL_FEATURE) &&
                 hasType(OWL.FunctionalProperty);
     }
 
     @Override
     public OntObjectPropertyImpl setFunctional(boolean functional) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_OBJECT_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
         return changeRDFType(OWL.FunctionalProperty, functional);
     }
 
     @Override
     public OntStatement addFunctionalDeclaration() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_OBJECT_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
         return addStatement(RDF.type, OWL.FunctionalProperty);
     }
 
@@ -251,6 +251,9 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
     @Override
     public OntStatement addInverseOfStatement(OntObjectProperty other) {
         OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_PROPERTY_INVERSE_OF_FEATURE, "owl:inverseOf");
+        if (this.isURIResource() && other.isAnon()) {
+            OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_INVERSE_OBJECT_PROPERTY_FEATURE, "owl:inverseOf");
+        }
         return addStatement(OWL.inverseOf, other);
     }
 

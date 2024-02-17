@@ -19,9 +19,11 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDFS;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 final class OntDataRanges {
     public static final EnhNodeFinder DR_FINDER_OWL1 = new EnhNodeFinder.ByType(OWL.DataRange);
@@ -46,6 +48,28 @@ final class OntDataRanges {
         );
     }
 
+    public static EnhNodeFactory createDataRangeFactory(Type ... types) {
+        Set<EnhNodeFactory> factories = new LinkedHashSet<>();
+        for (Type t : types) {
+            if (t == Type.COMPLEMENT_OF) {
+                factories.add(Factory.COMPLEMENT_OF_FACTORY);
+            }
+            if (t == Type.RESTRICTION) {
+                factories.add(Factory.RESTRICTION_FACTORY);
+            }
+            if (t == Type.ONE_OF) {
+                factories.add(Factory.ONE_OF_FACTORY);
+            }
+            if (t == Type.INTERSECTION_OF) {
+                factories.add(Factory.INTERSECTION_OF_FACTORY);
+            }
+            if (t == Type.UNION_OF) {
+                factories.add(Factory.UNION_OF_FACTORY);
+            }
+        }
+        return new Factory(factories.stream().collect(Collectors.toUnmodifiableList()));
+    }
+
     /**
      * A factory to produce {@link OntDataRange}s.
      * <p>
@@ -56,7 +80,7 @@ final class OntDataRanges {
      * <p>
      * Created by @ssz on 02.02.2019.
      */
-    public static class DataRangeFactory extends BaseEnhNodeFactoryImpl {
+    public static class Factory extends BaseEnhNodeFactoryImpl {
         private static final Node TYPE = RDF.Nodes.type;
         private static final Node ANY = Node.ANY;
         private static final Node PRIMARY_DATATYPE_TYPE = RDFS.Datatype.asNode();
@@ -69,12 +93,10 @@ final class OntDataRanges {
         private static final EnhNodeFactory UNION_OF_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.UnionOf.class);
         private static final EnhNodeFactory INTERSECTION_OF_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.IntersectionOf.class);
         private static final EnhNodeFactory RESTRICTION_FACTORY = WrappedEnhNodeFactory.of(OntDataRange.Restriction.class);
-        private static final List<EnhNodeFactory> ANONYMOUS_DATARANGE_FACTORIES = List.of(
-                COMPLEMENT_OF_FACTORY, RESTRICTION_FACTORY, ONE_OF_FACTORY, UNION_OF_FACTORY, INTERSECTION_OF_FACTORY
-        );
+        private final List<EnhNodeFactory> anonymousDatarangeFactories;
 
-        public static EnhNodeFactory createFactory() {
-            return new DataRangeFactory();
+        private Factory(List<EnhNodeFactory> anonymousDatarangeFactories) {
+            this.anonymousDatarangeFactories = Objects.requireNonNull(anonymousDatarangeFactories);
         }
 
         @Override
@@ -82,7 +104,7 @@ final class OntDataRanges {
             return eg.asGraph().find(ANY, TYPE, PRIMARY_DATATYPE_TYPE)
                     .mapWith(t -> t.getSubject().isURI() ?
                             safeWrap(t.getSubject(), eg, NAMED_FACTORY) :
-                            safeWrap(t.getSubject(), eg, ANONYMOUS_DATARANGE_FACTORIES))
+                            safeWrap(t.getSubject(), eg, anonymousDatarangeFactories))
                     .andThen(
                             eg.asGraph().find(ANY, TYPE, SECONDARY_DATATYPE_TYPE)
                                     .mapWith(t -> t.getSubject().isURI() ? null : safeWrap(t.getSubject(), eg, ONE_OF_FACTORY))
@@ -102,7 +124,7 @@ final class OntDataRanges {
                     && !eg.asGraph().contains(node, TYPE, SECONDARY_DATATYPE_TYPE)) {
                 return null;
             }
-            return safeWrap(node, eg, ANONYMOUS_DATARANGE_FACTORIES);
+            return safeWrap(node, eg, anonymousDatarangeFactories);
         }
 
         @Override
@@ -114,7 +136,7 @@ final class OntDataRanges {
                 return false;
             }
             if (eg.asGraph().contains(node, TYPE, PRIMARY_DATATYPE_TYPE)) {
-                return canWrap(node, eg, ANONYMOUS_DATARANGE_FACTORIES);
+                return canWrap(node, eg, anonymousDatarangeFactories);
             }
             return canWrap(node, eg, ONE_OF_FACTORY);
         }
@@ -133,7 +155,15 @@ final class OntDataRanges {
                     && !eg.asGraph().contains(node, TYPE, SECONDARY_DATATYPE_TYPE)) {
                 throw ex;
             }
-            return wrap(node, eg, ex, ANONYMOUS_DATARANGE_FACTORIES);
+            return wrap(node, eg, ex, anonymousDatarangeFactories);
         }
+    }
+
+    public enum Type {
+        ONE_OF,
+        UNION_OF,
+        INTERSECTION_OF,
+        COMPLEMENT_OF,
+        RESTRICTION,
     }
 }

@@ -1,10 +1,12 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.WrappedEnhNodeFactory;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectPropertyImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntSimplePropertyImpl;
@@ -19,10 +21,10 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.WrappedIterator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 final class OntProperties {
     public static final EnhNodeFinder NEGATIVE_PROPERTY_ASSERTION_FINDER = new EnhNodeFinder.ByType(OWL.NegativePropertyAssertion);
@@ -31,6 +33,40 @@ final class OntProperties {
             .and(new EnhNodeFilter.HasPredicate(OWL.assertionProperty));
     private static final EnhNodeFactory NAMED_OBJECT_PROPERTY_FACTORY_REFERENCE = WrappedEnhNodeFactory.of(OntObjectProperty.Named.class);
     private static final EnhNodeFactory ANONYMOUS_OBJECT_PROPERTY_FACTORY_REFERENCE = WrappedEnhNodeFactory.of(OntObjectProperty.Inverse.class);
+
+    public static Factory createFactory(OntConfig config) {
+        List<Node> objectPropertyTypes = new ArrayList<>();
+        List<Node> allPropertyTypes = new ArrayList<>();
+        objectPropertyTypes.add(OWL.ObjectProperty.asNode());
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_INVERSE_FUNCTIONAL_FEATURE)) {
+            objectPropertyTypes.add(OWL.InverseFunctionalProperty.asNode());
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)) {
+            objectPropertyTypes.add(OWL.ReflexiveProperty.asNode());
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)) {
+            objectPropertyTypes.add(OWL.IrreflexiveProperty.asNode());
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_SYMMETRIC_FEATURE)) {
+            objectPropertyTypes.add(OWL.SymmetricProperty.asNode());
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_ASYMMETRIC_FEATURE)) {
+            objectPropertyTypes.add(OWL.AsymmetricProperty.asNode());
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_TRANSITIVE_FEATURE)) {
+            objectPropertyTypes.add(OWL.TransitiveProperty.asNode());
+        }
+        allPropertyTypes.add(RDF.Property.asNode());
+        allPropertyTypes.add(OWL.AnnotationProperty.asNode());
+        allPropertyTypes.add(OWL.DatatypeProperty.asNode());
+        allPropertyTypes.add(OWL.FunctionalProperty.asNode());
+        allPropertyTypes.addAll(objectPropertyTypes);
+        return new Factory(
+                allPropertyTypes.stream().collect(Collectors.toUnmodifiableList()),
+                objectPropertyTypes.stream().collect(Collectors.toUnmodifiableList()),
+                config.getBoolean(OntModelControls.USE_OWL_INVERSE_OBJECT_PROPERTY_FEATURE)
+        );
+    }
 
     public static class ObjectPropertyExpressionFactory extends BaseEnhNodeFactoryImpl {
         @Override
@@ -98,54 +134,27 @@ final class OntProperties {
      * Generic factory for any OntProperty including {@code rdf:Property}.
      * It does not care about punnings.
      */
-    public static class AnyOntPropertyFactory extends BaseEnhNodeFactoryImpl {
+    public static class Factory extends BaseEnhNodeFactoryImpl {
 
-        private static final List<Node> OWL2_OBJECT_PROPERTY_TYPES = List.of(
-                OWL.ObjectProperty.asNode(),
-                OWL.InverseFunctionalProperty.asNode(),
-                OWL.ReflexiveProperty.asNode(),
-                OWL.IrreflexiveProperty.asNode(),
-                OWL.SymmetricProperty.asNode(),
-                OWL.AsymmetricProperty.asNode(),
-                OWL.TransitiveProperty.asNode()
-        );
+        private final List<Node> propertyTypes;
+        private final List<Node> objectPropertyTypes;
+        private final boolean allowInverseObjectProperty;
 
-        private static final List<Node> OWL1_OBJECT_PROPERTY_TYPES = List.of(
-                OWL.ObjectProperty.asNode(),
-                OWL.InverseFunctionalProperty.asNode(),
-                OWL.SymmetricProperty.asNode(),
-                OWL.TransitiveProperty.asNode()
-        );
-
-        private static final List<Node> OWL2_PROPERTY_TYPES = Stream.concat(Stream.of(
-                RDF.Property.asNode(),
-                OWL.DatatypeProperty.asNode(),
-                OWL.AnnotationProperty.asNode(),
-                OWL.FunctionalProperty.asNode()
-        ), OWL2_OBJECT_PROPERTY_TYPES.stream()).collect(Collectors.toUnmodifiableList());
-
-        private static final List<Node> OWL1_PROPERTY_TYPES = Stream.concat(Stream.of(
-                RDF.Property.asNode(),
-                OWL.DatatypeProperty.asNode(),
-                OWL.AnnotationProperty.asNode(),
-                OWL.FunctionalProperty.asNode()
-        ), OWL1_OBJECT_PROPERTY_TYPES.stream()).collect(Collectors.toUnmodifiableList());
-
-        private final boolean forOWL2;
-
-        public AnyOntPropertyFactory(boolean forOWL2) {
-            this.forOWL2 = forOWL2;
+        private Factory(List<Node> propertyTypes, List<Node> objectPropertyTypes, boolean allowInverseObjectProperty) {
+            this.propertyTypes = Objects.requireNonNull(propertyTypes);
+            this.objectPropertyTypes = Objects.requireNonNull(objectPropertyTypes);
+            this.allowInverseObjectProperty = allowInverseObjectProperty;
         }
 
         @Override
         public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {
             ExtendedIterator<Node> named = Iterators.distinct(
                     Iterators.flatMap(
-                            WrappedIterator.create((forOWL2 ? OWL2_PROPERTY_TYPES : OWL1_PROPERTY_TYPES).iterator()),
+                            WrappedIterator.create(propertyTypes.iterator()),
                             type -> eg.asGraph().find(Node.ANY, RDF.type.asNode(), type)
                     ).mapWith(Triple::getSubject).filterKeep(Node::isURI)
             );
-            if (!forOWL2) {
+            if (!allowInverseObjectProperty) {
                 return named.mapWith(it -> createInstance(it, eg));
             }
             ExtendedIterator<Node> anonymous = Iterators.distinct(
@@ -170,13 +179,13 @@ final class OntProperties {
         @Override
         public boolean canWrap(Node node, EnhGraph eg) {
             if (node.isURI()) {
-                for (Node type : (forOWL2 ? OWL2_PROPERTY_TYPES : OWL1_PROPERTY_TYPES)) {
+                for (Node type : propertyTypes) {
                     if (eg.asGraph().contains(node, RDF.type.asNode(), type)) {
                         return true;
                     }
                 }
             }
-            if (forOWL2 && node.isBlank()) {
+            if (allowInverseObjectProperty && node.isBlank()) {
                 // "_:x owl:inverseOf PN":
                 return isInverseObjectProperty(node, eg);
             }
@@ -195,7 +204,7 @@ final class OntProperties {
             if (!node.isURI()) {
                 return false;
             }
-            for (Node type : (forOWL2 ? OWL2_PROPERTY_TYPES : OWL1_PROPERTY_TYPES)) {
+            for (Node type : objectPropertyTypes) {
                 if (eg.asGraph().contains(node, RDF.type.asNode(), type)) {
                     return true;
                 }
@@ -203,4 +212,5 @@ final class OntProperties {
             return false;
         }
     }
+
 }

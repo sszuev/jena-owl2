@@ -55,12 +55,17 @@ public final class OWL2ObjectFactories {
     public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createOWL2NamedDataRangeFactory();
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
-    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createOWL2ObjectPropertyFactory();
+    public static final Function<OntConfig, EnhNodeFactory> NAMED_OBJECT_PROPERTY = OntEntities::createNamedObjectPropertyFactory;
     public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEntities.createNamedIndividualFactory();
 
-    public static final EnhNodeFactory ANY_ENTITY = OntEnhNodeFactories.createFrom(
+    public static final Function<OntConfig, EnhNodeFactory> ANY_ENTITY = config -> OntEnhNodeFactories.createFrom(
             EnhNodeFinder.ANY_TYPED,
-            NAMED_CLASS, NAMED_DATARANGE, NAMED_INDIVIDUAL, ANNOTATION_PROPERTY, DATATYPE_PROPERTY, NAMED_OBJECT_PROPERTY
+            NAMED_CLASS,
+            NAMED_DATARANGE,
+            NAMED_INDIVIDUAL,
+            ANNOTATION_PROPERTY,
+            DATATYPE_PROPERTY,
+            NAMED_OBJECT_PROPERTY.apply(config)
     );
 
     public static final EnhNodeFactory ANONYMOUS_INDIVIDUAL = OntEnhNodeFactories.createCommon(
@@ -76,18 +81,24 @@ public final class OWL2ObjectFactories {
 
     public static final EnhNodeFactory INVERSE_OBJECT_PROPERTY = new OntProperties.AnonymousObjectPropertyFactory();
 
-    public static final EnhNodeFactory ANY_NAMED_PROPERTY = OntEnhNodeFactories.createFrom(
-            NAMED_OBJECT_PROPERTY,
+    public static final Function<OntConfig, EnhNodeFactory> ANY_NAMED_PROPERTY = config -> OntEnhNodeFactories.createFrom(
+            NAMED_OBJECT_PROPERTY.apply(config),
             DATATYPE_PROPERTY,
             ANNOTATION_PROPERTY
     );
-    public static final EnhNodeFactory OBJECT_PROPERTY = new OntProperties.ObjectPropertyExpressionFactory();
+    public static final EnhNodeFactory DL_OBJECT_PROPERTY = new OntProperties.ObjectPropertyExpressionFactory();
+    public static final Function<OntConfig, EnhNodeFactory> EL_OBJECT_PROPERTY = NAMED_OBJECT_PROPERTY;
 
-    public static final EnhNodeFactory ANY_DATA_OR_OBJECT_PROPERTY = OntEnhNodeFactories.createFrom(
+    public static final EnhNodeFactory DL_ANY_DATA_OR_OBJECT_PROPERTY = OntEnhNodeFactories.createFrom(
             DATATYPE_PROPERTY,
-            OBJECT_PROPERTY
+            DL_OBJECT_PROPERTY
     );
-    public static final EnhNodeFactory ANY_PROPERTY = new OntProperties.AnyOntPropertyFactory(true);
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_DATA_OR_OBJECT_PROPERTY = config ->
+            OntEnhNodeFactories.createFrom(
+                    DATATYPE_PROPERTY,
+                    EL_OBJECT_PROPERTY.apply(config)
+            );
+    public static final Function<OntConfig, EnhNodeFactory> ANY_PROPERTY = OntProperties::createFactory;
 
     // Class Expressions
     public static final Function<OntConfig, EnhNodeFactory> UNION_OF_CLASS =
@@ -212,15 +223,21 @@ public final class OWL2ObjectFactories {
             OWL.someValuesFrom
     );
     // Boolean Connectives and Enumeration of Individuals (with except of ComplementOf):
-    public static final Function<OntConfig, EnhNodeFactory> ANY_COLLECTION_OF_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_COLLECTION_OF_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
                     OntClasses.Type.UNION_OF,
                     OntClasses.Type.INTERSECTION_OF,
                     OntClasses.Type.ONE_OF
             );
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_COLLECTION_OF_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    OntClasses.Type.INTERSECTION_OF,
+                    OntClasses.Type.ONE_OF
+            );
     // Boolean Connectives and Enumeration of Individuals + ComplementOf):
-    public static final Function<OntConfig, EnhNodeFactory> ANY_LOGICAL_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_LOGICAL_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
                     OntClasses.Type.UNION_OF,
@@ -228,8 +245,14 @@ public final class OWL2ObjectFactories {
                     OntClasses.Type.ONE_OF,
                     OntClasses.Type.COMPLEMENT_OF
             );
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_LOGICAL_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    OntClasses.Type.INTERSECTION_OF,
+                    OntClasses.Type.ONE_OF
+            );
     // Value Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_VALUE_RESTRICTION_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_VALUE_RESTRICTION_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
                     OntClasses.Type.OBJECT_SOME_VALUES_FROM,
@@ -237,6 +260,14 @@ public final class OWL2ObjectFactories {
                     OntClasses.Type.OBJECT_HAS_VALUE,
                     OntClasses.Type.DATA_SOME_VALUES_FROM,
                     OntClasses.Type.DATA_ALL_VALUES_FROM,
+                    OntClasses.Type.DATA_HAS_VALUE
+            );
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_VALUE_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Type.DATA_SOME_VALUES_FROM,
                     OntClasses.Type.DATA_HAS_VALUE
             );
     // Cardinality Restrictions:
@@ -251,7 +282,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.Type.DATA_EXACT_CARDINALITY
             );
     // Cardinality + Existential/Universal Restrictions + Value Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENT_RESTRICTION_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_COMPONENT_RESTRICTION_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
                     OntClasses.Type.OBJECT_SOME_VALUES_FROM,
@@ -267,9 +298,18 @@ public final class OWL2ObjectFactories {
                     OntClasses.Type.DATA_EXACT_CARDINALITY,
                     OntClasses.Type.DATA_HAS_VALUE
             );
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_COMPONENT_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Type.DATA_HAS_VALUE
+            );
+
     // Cardinality + Existential/Universal Restrictions + Local reflexivity (hasSelf) + Value Restrictions
     // (all them have owl:onProperty):
-    public static final Function<OntConfig, EnhNodeFactory> ANY_UNARY_RESTRICTION_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_UNARY_RESTRICTION_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
                     OntClasses.Type.OBJECT_SOME_VALUES_FROM,
@@ -286,9 +326,19 @@ public final class OWL2ObjectFactories {
                     OntClasses.Type.DATA_EXACT_CARDINALITY,
                     OntClasses.Type.DATA_HAS_VALUE
             );
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_UNARY_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Type.OBJECT_HAS_SELF,
+                    OntClasses.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Type.DATA_HAS_VALUE
+            );
+
     // Cardinality + Existential/Universal Restrictions + N-ary existential/universal +
     // Local reflexivity (hasSelf) + Value Restrictions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_RESTRICTION_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_RESTRICTION_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
                     OntClasses.Type.OBJECT_SOME_VALUES_FROM,
@@ -307,8 +357,18 @@ public final class OWL2ObjectFactories {
                     OntClasses.Type.DATA_NARY_SOME_VALUES_FROM,
                     OntClasses.Type.DATA_NARY_ALL_VALUES_FROM
             );
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_RESTRICTION_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Type.OBJECT_HAS_SELF,
+                    OntClasses.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Type.DATA_HAS_VALUE
+            );
+
     // All Class Expressions:
-    public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
                     true,
@@ -331,6 +391,20 @@ public final class OWL2ObjectFactories {
                     OntClasses.Type.INTERSECTION_OF,
                     OntClasses.Type.ONE_OF,
                     OntClasses.Type.COMPLEMENT_OF
+            );
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    true,
+                    OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                    OntClasses.Type.OBJECT_HAS_VALUE,
+                    OntClasses.Type.OBJECT_HAS_SELF,
+                    OntClasses.Type.DATA_SOME_VALUES_FROM,
+                    OntClasses.Type.DATA_HAS_VALUE,
+                    OntClasses.Type.DATA_NARY_SOME_VALUES_FROM,
+                    OntClasses.Type.DATA_NARY_ALL_VALUES_FROM,
+                    OntClasses.Type.INTERSECTION_OF,
+                    OntClasses.Type.ONE_OF
             );
 
     // Data Range Expressions
@@ -361,14 +435,29 @@ public final class OWL2ObjectFactories {
             OntDataRanges.DR_FINDER_OWL2,
             OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf))
     );
-    public static final EnhNodeFactory ANY_COMPONENTS_DATARANGE = OntEnhNodeFactories.createFrom(
+    public static final EnhNodeFactory DL_ANY_COMPONENTS_DATARANGE = OntEnhNodeFactories.createFrom(
             OntDataRanges.DR_FULL_FINDER_OWL2,
             OntDataRange.OneOf.class,
             OntDataRange.Restriction.class,
             OntDataRange.UnionOf.class,
             OntDataRange.IntersectionOf.class
     );
-    public static final EnhNodeFactory ANY_DATARANGE = OntDataRanges.DataRangeFactory.createFactory();
+    public static final EnhNodeFactory EL_ANY_COMPONENTS_DATARANGE = OntEnhNodeFactories.createFrom(
+            OntDataRanges.DR_FULL_FINDER_OWL2,
+            OntDataRange.OneOf.class,
+            OntDataRange.IntersectionOf.class
+    );
+    public static final EnhNodeFactory EL_ANY_DATARANGE = OntDataRanges.createDataRangeFactory(
+            OntDataRanges.Type.ONE_OF,
+            OntDataRanges.Type.INTERSECTION_OF
+    );
+    public static final EnhNodeFactory DL_ANY_DATARANGE = OntDataRanges.createDataRangeFactory(
+            OntDataRanges.Type.RESTRICTION,
+            OntDataRanges.Type.COMPLEMENT_OF,
+            OntDataRanges.Type.ONE_OF,
+            OntDataRanges.Type.UNION_OF,
+            OntDataRanges.Type.INTERSECTION_OF
+    );
 
     public static final EnhNodeFactory LENGTH_FACET_RESTRICTION = OntEnhNodeFactories.createCommon(
             OntFacetRestrictionImpl.LengthImpl.class,
@@ -478,7 +567,12 @@ public final class OWL2ObjectFactories {
             OntDisjoint.ObjectProperties.class,
             OntDisjoint.DataProperties.class
     );
-    public static final EnhNodeFactory ANY_DISJOINT = OntEnhNodeFactories.createFrom(
+    public static final EnhNodeFactory ANY_DISJOINT_EL = OntEnhNodeFactories.createFrom(
+            OntDisjoints.DISJOINT_FINDER,
+            OntDisjoint.Classes.class,
+            OntDisjoint.Individuals.class
+    );
+    public static final EnhNodeFactory ANY_DISJOINT_DL = OntEnhNodeFactories.createFrom(
             OntDisjoints.DISJOINT_FINDER,
             OntDisjoint.ObjectProperties.class,
             OntDisjoint.DataProperties.class,

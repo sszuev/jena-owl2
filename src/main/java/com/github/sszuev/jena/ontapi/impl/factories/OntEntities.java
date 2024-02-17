@@ -36,6 +36,7 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -52,7 +53,27 @@ import java.util.stream.Stream;
  */
 final class OntEntities {
 
-    public static EnhNodeFactory createOWL2ObjectPropertyFactory() {
+    public static EnhNodeFactory createNamedObjectPropertyFactory(OntConfig config) {
+        Set<Resource> objectPropertyTypes = new LinkedHashSet<>();
+        objectPropertyTypes.add(OWL.ObjectProperty);
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_INVERSE_FUNCTIONAL_FEATURE)) {
+            objectPropertyTypes.add(OWL.InverseFunctionalProperty);
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_REFLEXIVE_FEATURE)) {
+            objectPropertyTypes.add(OWL.ReflexiveProperty);
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_IRREFLEXIVE_FEATURE)) {
+            objectPropertyTypes.add(OWL.IrreflexiveProperty);
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_SYMMETRIC_FEATURE)) {
+            objectPropertyTypes.add(OWL.SymmetricProperty);
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_ASYMMETRIC_FEATURE)) {
+            objectPropertyTypes.add(OWL.AsymmetricProperty);
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL_PROPERTY_TRANSITIVE_FEATURE)) {
+            objectPropertyTypes.add(OWL.TransitiveProperty);
+        }
         return createOntEntityFactory(
                 OntObjectProperty.Named.class,
                 OntObjectPropertyImpl.NamedImpl.class,
@@ -60,26 +81,7 @@ final class OntEntities {
                 OntPersonality.Builtins::getObjectProperties,
                 OntPersonality.Punnings::getObjectProperties,
                 OWL.ObjectProperty,
-                OWL.InverseFunctionalProperty,
-                OWL.ReflexiveProperty,
-                OWL.IrreflexiveProperty,
-                OWL.SymmetricProperty,
-                OWL.AsymmetricProperty,
-                OWL.TransitiveProperty
-        );
-    }
-
-    public static EnhNodeFactory createOWL1ObjectPropertyFactory() {
-        return createOntEntityFactory(
-                OntObjectProperty.Named.class,
-                OntObjectPropertyImpl.NamedImpl.class,
-                OntObjectPropertyImpl.NamedImpl::new,
-                OntPersonality.Builtins::getObjectProperties,
-                OntPersonality.Punnings::getObjectProperties,
-                OWL.ObjectProperty,
-                OWL.InverseFunctionalProperty,
-                OWL.SymmetricProperty,
-                OWL.TransitiveProperty
+                objectPropertyTypes.toArray(new Resource[0])
         );
     }
 

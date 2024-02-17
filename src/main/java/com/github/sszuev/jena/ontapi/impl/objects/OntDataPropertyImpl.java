@@ -89,20 +89,20 @@ public class OntDataPropertyImpl extends OntPropertyImpl implements OntDataPrope
 
     @Override
     public boolean isFunctional() {
-        return OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE) &&
+        return OntGraphModelImpl.configValue(getModel(), OntModelControls.USE_OWL_DATA_PROPERTY_FUNCTIONAL_FEATURE) &&
                 hasType(OWL.FunctionalProperty);
     }
 
     @Override
     public OntDataPropertyImpl setFunctional(boolean functional) {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_DATA_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
         changeRDFType(OWL.FunctionalProperty, functional);
         return this;
     }
 
     @Override
     public OntStatement addFunctionalDeclaration() {
-        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
+        OntGraphModelImpl.checkFeature(getModel(), OntModelControls.USE_OWL_DATA_PROPERTY_FUNCTIONAL_FEATURE, "owl:FunctionalProperty");
         return addStatement(RDF.type, OWL.FunctionalProperty);
     }
 

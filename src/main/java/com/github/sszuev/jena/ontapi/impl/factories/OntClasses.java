@@ -680,7 +680,7 @@ final class OntClasses {
         }
     }
 
-    enum Type implements BiFunction<Node, EnhGraph, EnhNode> {
+    public enum Type implements BiFunction<Node, EnhGraph, EnhNode> {
         OBJECT_SOME_VALUES_FROM(OntClass.ObjectSomeValuesFrom.class),
         OBJECT_ALL_VALUES_FROM(OntClass.ObjectAllValuesFrom.class),
         OBJECT_MIN_CARDINALITY(OntClass.ObjectMinCardinality.class),

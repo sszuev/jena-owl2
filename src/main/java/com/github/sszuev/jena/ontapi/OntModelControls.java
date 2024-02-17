@@ -135,14 +135,23 @@ public enum OntModelControls {
      */
     USE_OWL_PROPERTY_EQUIVALENT_FEATURE,
     /**
-     * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#FunctionalProperty owl:FunctionalProperty} functionality.
+     * Controls data {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#FunctionalProperty owl:FunctionalProperty} functionality.
+     * If disabled,
+     * {@link com.github.sszuev.jena.ontapi.model.OntDataProperty#isFunctional() OntDataProperty#isFunctional()}
+     * will return {@code false}, modification operations, such as
+     * {@link com.github.sszuev.jena.ontapi.model.OntDataProperty#setFunctional(boolean) OntDataProperty#setFunctional(boolean)},
+     * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
+     */
+    USE_OWL_DATA_PROPERTY_FUNCTIONAL_FEATURE,
+    /**
+     * Controls object {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#FunctionalProperty owl:FunctionalProperty} functionality.
      * If disabled,
      * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#isFunctional() OntObjectProperty#isFunctional()}
      * will return {@code false}, modification operations, such as
      * {@link com.github.sszuev.jena.ontapi.model.OntObjectProperty#setFunctional(boolean) OntObjectProperty#setFunctional(boolean)},
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
-    USE_OWL_PROPERTY_FUNCTIONAL_FEATURE,
+    USE_OWL_OBJECT_PROPERTY_FUNCTIONAL_FEATURE,
     /**
      * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#InverseFunctionalProperty owl:InverseFunctionalProperty} functionality.
      * If disabled,
@@ -206,6 +215,11 @@ public enum OntModelControls {
      * will throw {@link com.github.sszuev.jena.ontapi.OntJenaException.Unsupported OntJenaException.Unsupported} exception.
      */
     USE_OWL_PROPERTY_INVERSE_OF_FEATURE,
+    /**
+     * If this key is set to {@code true}, an anonymous inverse object property type is enabled (OWL2 feature).
+     * That is {@code _:x owl:inverseOf PN}, where {@code _:x} is a b-node and {@code PN} is a named object property.
+     */
+    USE_OWL_INVERSE_OBJECT_PROPERTY_FEATURE,
     /**
      * Controls {@link com.github.sszuev.jena.ontapi.vocabulary.OWL#propertyChainAxiom owl:propertyChainAxiom} functionality.
      * If disabled,

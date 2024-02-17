@@ -42,7 +42,7 @@ public class OWL1ObjectFactories {
     public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createOWL1NamedDataRangeFactory();
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
-    public static final EnhNodeFactory NAMED_OBJECT_PROPERTY = OntEntities.createOWL1ObjectPropertyFactory();
+    public static final Function<OntConfig, EnhNodeFactory> NAMED_OBJECT_PROPERTY = OntEntities::createNamedObjectPropertyFactory;
     public static final EnhNodeFactory NAMED_INDIVIDUAL = OntEnhNodeFactories.createCommon(
             OntIndividualImpl.NamedImpl.class,
             OntIndividualImpl.NamedImpl::new,
@@ -58,7 +58,12 @@ public class OWL1ObjectFactories {
 
     public static final Function<OntConfig, EnhNodeFactory> ANY_ENTITY = config -> OntEnhNodeFactories.createFrom(
             EnhNodeFinder.ANY_TYPED,
-            NAMED_CLASS.apply(config), NAMED_DATARANGE, NAMED_INDIVIDUAL, ANNOTATION_PROPERTY, DATATYPE_PROPERTY, NAMED_OBJECT_PROPERTY
+            NAMED_CLASS.apply(config),
+            NAMED_DATARANGE,
+            NAMED_INDIVIDUAL,
+            ANNOTATION_PROPERTY,
+            DATATYPE_PROPERTY,
+            NAMED_OBJECT_PROPERTY.apply(config)
     );
 
     public static final EnhNodeFactory ANY_INDIVIDUAL = OntEnhNodeFactories.createFrom(
@@ -67,17 +72,17 @@ public class OWL1ObjectFactories {
             OntIndividual.Anonymous.class
     );
 
-    public static final EnhNodeFactory ANY_NAMED_PROPERTY = OntEnhNodeFactories.createFrom(
-            NAMED_OBJECT_PROPERTY,
+    public static final Function<OntConfig, EnhNodeFactory> ANY_NAMED_PROPERTY = config -> OntEnhNodeFactories.createFrom(
+            NAMED_OBJECT_PROPERTY.apply(config),
             DATATYPE_PROPERTY,
             ANNOTATION_PROPERTY
     );
-    public static final EnhNodeFactory OBJECT_PROPERTY = NAMED_OBJECT_PROPERTY;
-    public static final EnhNodeFactory ANY_DATA_OR_OBJECT_PROPERTY = OntEnhNodeFactories.createFrom(
-            NAMED_OBJECT_PROPERTY,
+    public static final Function<OntConfig, EnhNodeFactory> OBJECT_PROPERTY = NAMED_OBJECT_PROPERTY;
+    public static final Function<OntConfig, EnhNodeFactory> ANY_DATA_OR_OBJECT_PROPERTY = config -> OntEnhNodeFactories.createFrom(
+            NAMED_OBJECT_PROPERTY.apply(config),
             DATATYPE_PROPERTY
     );
-    public static final EnhNodeFactory ANY_PROPERTY = new OntProperties.AnyOntPropertyFactory(false);
+    public static final Function<OntConfig, EnhNodeFactory> ANY_PROPERTY = OntProperties::createFactory;
 
     // Class Expressions (Boolean Connectives and Enumeration of Individuals):
     public static final Function<OntConfig, EnhNodeFactory> UNION_OF_CLASS =
