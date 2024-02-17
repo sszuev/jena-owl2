@@ -156,6 +156,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static OntIndividual.Anonymous createAnonymousIndividual(OntGraphModelImpl model, OntClass source) {
+        OntGraphModelImpl.checkFeature(model, OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS, "anonymous-individuals");
         return model.getNodeAs(model.createResource(source).asNode(), OntIndividual.Anonymous.class);
     }
 

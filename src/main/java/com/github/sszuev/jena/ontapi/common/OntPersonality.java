@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -221,27 +220,6 @@ public interface OntPersonality {
      * Each node obtained from this class must be IRI (i.e. {@code node.isURI() = true}).
      */
     interface Reserved extends ResourceVocabulary<Resource> {
-
-        /**
-         * Gets a {@code Set} of reserved nodes by a {@code String} key, using a {@code loader} to calculate the result
-         * if it absences in the vocabulary.
-         * <p>
-         * Important note:
-         * the given {@code loader} must not use external (e.g. the model) resources to infer the result.
-         * It is allowed to use only {@link OntPersonality} resources
-         * (from this or {@link Punnings} and {@link Builtins} vocabularies).
-         * The {@link Reserved} vocabulary, as anything in {@link OntPersonality configuration},
-         * must be unmodifiable, and this method is just a back door,
-         * i.e. a possibility to lazily assembly a constant, which can be used by various models,
-         * and, therefore, should <b>never</b> be changed.
-         *
-         * @param key    String, not {@code null}
-         * @param loader {@code Supplier} to construct a Set of {@link Node}s for a given {@code key}
-         * @return Set of IRI-{@link Node node}s
-         */
-        @Deprecated
-        // must not be modifiable
-        Set<Node> get(String key, Supplier<Set<Node>> loader);
 
         /**
          * Gets all reserved IRIs, which are most likely used as an object in SPO of some schema graph.

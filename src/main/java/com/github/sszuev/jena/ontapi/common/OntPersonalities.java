@@ -139,7 +139,7 @@ public class OntPersonalities {
 
             // individuals:
             .add(OntIndividual.Anonymous.class, OWL2ObjectFactories.ANONYMOUS_INDIVIDUAL)
-            .add(OntIndividual.class, OWL2ObjectFactories.ANY_INDIVIDUAL)
+            .add(OntIndividual.class, OWL2ObjectFactories.DL_ANY_INDIVIDUAL)
 
             // property expressions:
             .add(OntObjectProperty.Inverse.class, OWL2ObjectFactories.INVERSE_OBJECT_PROPERTY)
@@ -258,8 +258,7 @@ public class OntPersonalities {
             .add(OntEntity.class, OWL2ObjectFactories.ANY_ENTITY)
 
             // individuals:
-            .add(OntIndividual.Anonymous.class, OWL2ObjectFactories.ANONYMOUS_INDIVIDUAL)
-            .add(OntIndividual.class, OWL2ObjectFactories.ANY_INDIVIDUAL)
+            .add(OntIndividual.class, OWL2ObjectFactories.EL_ANY_INDIVIDUAL)
 
             // property expressions:
             .add(OntObjectProperty.class, OWL2ObjectFactories.EL_OBJECT_PROPERTY)

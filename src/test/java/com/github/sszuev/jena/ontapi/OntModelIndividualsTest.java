@@ -318,11 +318,21 @@ public class OntModelIndividualsTest {
 
         OntClass clazz = m.createOntClass("Q");
         clazz.createIndividual("q");
-        clazz.createIndividual();
+        clazz.createIndividual("w");
+        if (!spec.isOWL2EL()) {
+            clazz.createIndividual();
+        }
 
         List<OntIndividual> individuals = m.individuals().collect(Collectors.toList());
 
-        int expectedNumOfIndividuals = spec == TestSpec.RDFS_MEM_RDFS_INF ? 4 : 2;
+        int expectedNumOfIndividuals;
+        if (spec == TestSpec.RDFS_MEM_RDFS_INF) {
+            expectedNumOfIndividuals = 5;
+        } else if (spec.isOWL2EL()) {
+            expectedNumOfIndividuals = 2;
+        } else {
+            expectedNumOfIndividuals = 3;
+        }
         Assertions.assertEquals(expectedNumOfIndividuals, individuals.size());
     }
 }

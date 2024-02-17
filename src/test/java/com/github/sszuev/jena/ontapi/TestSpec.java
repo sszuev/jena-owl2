@@ -92,6 +92,10 @@ public enum TestSpec {
         return name().startsWith("OWL2");
     }
 
+    boolean isOWL2EL() {
+        return name().startsWith("OWL2_EL");
+    }
+
     boolean isRules() {
         return name().endsWith("_RULES_INF");
     }

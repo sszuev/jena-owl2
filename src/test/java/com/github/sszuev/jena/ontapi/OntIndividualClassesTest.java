@@ -106,7 +106,12 @@ public class OntIndividualClassesTest {
     }
 
     @ParameterizedTest
-    @EnumSource
+    @EnumSource(names = {
+            "OWL2_EL_MEM",
+            "OWL2_EL_MEM_RDFS_INF",
+            "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_EL_MEM_RULES_INF"
+    }, mode = EnumSource.Mode.EXCLUDE)
     public void testListOntClasses2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
         OntClass A = m.createOntClass(NS + "A");

@@ -73,11 +73,12 @@ public final class OWL2ObjectFactories {
             EnhNodeFinder.ANY_SUBJECT_AND_OBJECT,
             OntIndividuals::testAnonymousIndividual
     );
-    public static final EnhNodeFactory ANY_INDIVIDUAL = OntEnhNodeFactories.createFrom(
+    public static final EnhNodeFactory DL_ANY_INDIVIDUAL = OntEnhNodeFactories.createFrom(
             EnhNodeFinder.ANY_SUBJECT_AND_OBJECT,
             OntIndividual.Named.class,
             OntIndividual.Anonymous.class
     );
+    public static final EnhNodeFactory EL_ANY_INDIVIDUAL = NAMED_INDIVIDUAL;
 
     public static final EnhNodeFactory INVERSE_OBJECT_PROPERTY = new OntProperties.AnonymousObjectPropertyFactory();
 

@@ -56,6 +56,11 @@ public enum OntModelControls {
      */
     ALLOW_GENERIC_CLASS_EXPRESSIONS,
     /**
+     * Controls anonymous individuals.
+     * Some specifications (e.g., OWL2 EL) do not allow anonymous individuals.
+     */
+    ALLOW_ANONYMOUS_INDIVIDUALS,
+    /**
      * Used while {@link com.github.sszuev.jena.ontapi.model.OntModel#individuals()}.
      * If {@code true}, the class type is checked only by declaration
      * ({@code owl:Class} &amp; {@code owl:Restriction} for OWL profile, {@code rdfs:Class} for RDFS profile).

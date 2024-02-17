@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
+import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
@@ -133,6 +134,7 @@ public class OntModelOWL2ELSpecTest {
         OntClass.Named c1 = m.createOntClass("c-1");
         OntClass.Named c2 = m.createOntClass("c-2");
         OntDataProperty d = m.createDataProperty("dp");
+        Resource i = m.createResource().addProperty(RDF.type, c1);
 
         Assertions.assertThrows(OntJenaException.Unsupported.class,
                 () -> m.createDataAllValuesFrom(d, m.getDatatype(XSD.xstring.getURI()))
@@ -162,5 +164,16 @@ public class OntModelOWL2ELSpecTest {
         Assertions.assertThrows(OntJenaException.Unsupported.class,
                 () -> m.createDataRestriction(m.createDatatype("dr"))
         );
+
+        Assertions.assertFalse(i.canAs(OntIndividual.class));
+        Assertions.assertFalse(i.canAs(OntIndividual.Anonymous.class));
+        Assertions.assertThrows(OntJenaException.Unsupported.class,
+                () -> m.createIndividual(null, c2)
+        );
+        Assertions.assertThrows(OntJenaException.Unsupported.class,
+                c1::createIndividual
+        );
+        c1.createIndividual("i");
+        Assertions.assertEquals(1, m.individuals().count());
     }
 }

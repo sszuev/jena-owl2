@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -126,11 +125,6 @@ abstract class ResourceVocabularyImpl<T extends Resource> implements ResourceVoc
             this.resources = get(Resource.class);
             this.allResources = Stream.of(properties, resources)
                     .flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
-        }
-
-        @Override
-        public Set<Node> get(String key, Supplier<Set<Node>> loader) {
-            return nodes.computeIfAbsent(key, k -> loader.get());
         }
 
         @Override

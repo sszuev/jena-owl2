@@ -108,7 +108,11 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     private final ThreadLocal<Set<Node>> visited = ThreadLocal.withInitial(HashSet::new);
     // Cached deductions model
     private Model deductionsModel = null;
+    // collection of entity types, used when list entities
     private final Set<Class<? extends OntEntity>> supportedEntityTypes;
+    // a cache with values of arbitrary nature, which can be used for various purposes,
+    // e.g., as a storage of reserved nodes when construct OntObjects
+    public final Map<String, Object> propertyStore = new HashMap<>();
 
     public OntGraphModelImpl(UnionGraph graph, OntPersonality personality) {
         this((Graph) graph, personality);
@@ -342,6 +346,14 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             throw new OntJenaException.IllegalState("No ontology header found, use OntModel#setID method instead");
         }
         return id.orElseGet(() -> setID(null));
+    }
+
+    @Override
+    public OntIndividual createIndividual(String uri, OntClass type) {
+        if (uri == null) {
+            checkFeature(this, OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS, "anonymous-individuals");
+        }
+        return OntModel.super.createIndividual(uri, type);
     }
 
     @Override
