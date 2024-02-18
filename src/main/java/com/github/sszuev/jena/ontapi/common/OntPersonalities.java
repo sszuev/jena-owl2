@@ -41,7 +41,6 @@ import org.apache.jena.rdf.model.impl.AltImpl;
 import org.apache.jena.rdf.model.impl.BagImpl;
 import org.apache.jena.rdf.model.impl.LiteralImpl;
 import org.apache.jena.rdf.model.impl.PropertyImpl;
-import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.rdf.model.impl.ReifiedStatementImpl;
 import org.apache.jena.rdf.model.impl.ResourceImpl;
 import org.apache.jena.rdf.model.impl.SeqImpl;
@@ -92,7 +91,7 @@ public class OntPersonalities {
             .add(Bag.class, BagImpl.factory)
             .add(Seq.class, SeqImpl.factory)
             .add(ReifiedStatement.class, ReifiedStatementImpl.reifiedStatementFactory)
-            .add(RDFList.class, RDFListImpl.factory)
+            .add(RDFList.class, RDFSObjectFactories.RDF_LIST)
             .add(RDFNode.class, ResourceImpl.rdfNodeFactory);
 
     /**
@@ -112,6 +111,28 @@ public class OntPersonalities {
             .add(OntAnnotationProperty.class, RDFSObjectFactories.ANNOTATION_PROPERTY)
             .add(OntClass.class, RDFSObjectFactories.ANY_CLASS)
             .add(OntClass.Named.class, RDFSObjectFactories.NAMED_CLASS);
+
+    /**
+     * Default personality builder for SWRL. Private access since this constant is mutable.
+     */
+    private static final OntObjectPersonalityBuilder SWRL_OBJECT_FACTORIES = templatePersonalityBuilder()
+            .add(OntSWRL.Variable.class, SWRLObjectFactories.VARIABLE_SWRL)
+            .add(OntSWRL.Builtin.class, SWRLObjectFactories.BUILTIN_SWRL)
+            .add(OntSWRL.IArg.class, SWRLObjectFactories.IARG_SWRL)
+            .add(OntSWRL.DArg.class, SWRLObjectFactories.DARG_SWRL)
+            .add(OntSWRL.Arg.class, SWRLObjectFactories.ANY_ARG_SWRL)
+            .add(OntSWRL.Atom.WithBuiltin.class, SWRLObjectFactories.BUILT_IN_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithClass.class, SWRLObjectFactories.CLASS_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithDataRange.class, SWRLObjectFactories.DATA_RANGE_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithObjectProperty.class, SWRLObjectFactories.INDIVIDUAL_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithDataProperty.class, SWRLObjectFactories.DATA_VALUED_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithDifferentIndividuals.class, SWRLObjectFactories.DIFFERENT_INDIVIDUALS_ATOM_SWRL)
+            .add(OntSWRL.Atom.WithSameIndividuals.class, SWRLObjectFactories.SAME_INDIVIDUALS_ATOM_SWRL)
+            .add(OntSWRL.Atom.Unary.class, SWRLObjectFactories.ANY_UNARY_ATOM_SWRL)
+            .add(OntSWRL.Atom.Binary.class, SWRLObjectFactories.ANY_BINARY_ATOM_SWRL)
+            .add(OntSWRL.Atom.class, SWRLObjectFactories.ANY_ATOM_SWRL)
+            .add(OntSWRL.Imp.class, SWRLObjectFactories.IMPL_SWRL)
+            .add(OntSWRL.class, SWRLObjectFactories.ANY_OBJECT_SWRL);
 
     /**
      * Default personality builder for OWL2 (FULL + DL) and SWRL. Private access since this constant is mutable.
@@ -214,26 +235,11 @@ public class OntPersonalities {
             .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT_DL)
 
             // SWRL objects:
-            .add(OntSWRL.Variable.class, SWRLObjectFactories.VARIABLE_SWRL)
-            .add(OntSWRL.Builtin.class, SWRLObjectFactories.BUILTIN_SWRL)
-            .add(OntSWRL.IArg.class, SWRLObjectFactories.IARG_SWRL)
-            .add(OntSWRL.DArg.class, SWRLObjectFactories.DARG_SWRL)
-            .add(OntSWRL.Arg.class, SWRLObjectFactories.ANY_ARG_SWRL)
-            .add(OntSWRL.Atom.WithBuiltin.class, SWRLObjectFactories.BUILT_IN_ATOM_SWRL)
-            .add(OntSWRL.Atom.WithClass.class, SWRLObjectFactories.CLASS_ATOM_SWRL)
-            .add(OntSWRL.Atom.WithDataRange.class, SWRLObjectFactories.DATA_RANGE_ATOM_SWRL)
-            .add(OntSWRL.Atom.WithObjectProperty.class, SWRLObjectFactories.INDIVIDUAL_ATOM_SWRL)
-            .add(OntSWRL.Atom.WithDataProperty.class, SWRLObjectFactories.DATA_VALUED_ATOM_SWRL)
-            .add(OntSWRL.Atom.WithDifferentIndividuals.class, SWRLObjectFactories.DIFFERENT_INDIVIDUALS_ATOM_SWRL)
-            .add(OntSWRL.Atom.WithSameIndividuals.class, SWRLObjectFactories.SAME_INDIVIDUALS_ATOM_SWRL)
-            .add(OntSWRL.Atom.Unary.class, SWRLObjectFactories.ANY_UNARY_ATOM_SWRL)
-            .add(OntSWRL.Atom.Binary.class, SWRLObjectFactories.ANY_BINARY_ATOM_SWRL)
-            .add(OntSWRL.Atom.class, SWRLObjectFactories.ANY_ATOM_SWRL)
-            .add(OntSWRL.Imp.class, SWRLObjectFactories.IMPL_SWRL)
-            .add(OntSWRL.class, SWRLObjectFactories.ANY_OBJECT_SWRL);
+            .add(SWRL_OBJECT_FACTORIES);
 
     /**
      * Default personality builder for OWL2 EL. Private access since this constant is mutable.
+     *
      * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_EL">OWL 2 EL</a>
      */
     private static final OntObjectPersonalityBuilder OWL2_EL_OBJECT_FACTORIES = templatePersonalityBuilder()
@@ -422,6 +428,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for RDFS Ontologies.
+     *
      * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder RDFS_ONT_PERSONALITY() {
@@ -434,6 +441,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL2 Ontologies.
+     *
      * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder OWL2_ONT_PERSONALITY() {
@@ -447,6 +455,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL2 EL Ontologies.
+     *
      * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder OWL2_EL_ONT_PERSONALITY() {
@@ -460,6 +469,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL1 Ontologies.
+     *
      * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder OWL1_ONT_PERSONALITY() {
@@ -472,6 +482,7 @@ public class OntPersonalities {
 
     /**
      * Mutable {@link OntObjectPersonalityBuilder} for OWL1 LITE Ontologies.
+     *
      * @return {@link OntObjectPersonalityBuilder}
      */
     public static OntObjectPersonalityBuilder OWL1_LITE_ONT_PERSONALITY() {

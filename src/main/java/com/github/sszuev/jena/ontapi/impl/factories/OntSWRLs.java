@@ -18,7 +18,6 @@ import org.apache.jena.enhanced.EnhNode;
 import org.apache.jena.enhanced.Implementation;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 final class OntSWRLs {
@@ -44,7 +43,7 @@ final class OntSWRLs {
         private static final Node HEAD = SWRL.head.asNode();
         private static final Node LIST = SWRL.AtomList.asNode();
 
-        private static final Implementation LIST_FACTORY = RDFListImpl.factory;
+        private static final Implementation LIST_FACTORY = RDFSObjectFactories.RDF_LIST;
 
         @Override
         public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {

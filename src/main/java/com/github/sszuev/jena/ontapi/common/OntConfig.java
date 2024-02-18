@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi.common;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Configuration to control {@link com.github.sszuev.jena.ontapi.model.OntModel} and {@link OntPersonality} behavior.
@@ -12,11 +13,11 @@ public class OntConfig {
     private final Map<String, Object> settings;
 
     public OntConfig() {
-        this(new HashMap<>());
+        this(Map.of());
     }
 
     protected OntConfig(Map<String, Object> settings) {
-        this.settings = settings;
+        this.settings = Map.copyOf(Objects.requireNonNull(settings));
     }
 
     public boolean getBoolean(Enum<?> key) {

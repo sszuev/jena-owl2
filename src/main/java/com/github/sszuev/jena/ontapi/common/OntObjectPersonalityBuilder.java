@@ -85,6 +85,17 @@ public class OntObjectPersonalityBuilder {
     }
 
     /**
+     * Adds all factories from the specified builder.
+     * @param other {@link OntObjectPersonalityBuilder}
+     * @return this builder
+     */
+    public OntObjectPersonalityBuilder add(OntObjectPersonalityBuilder other) {
+        extFactories.putAll(other.extFactories);
+        stdFactories.putAll(other.stdFactories);
+        return this;
+    }
+
+    /**
      * Associates the specified {@link EnhNodeFactory factory} with the specified {@link OntObject object} type.
      * If the builder previously contained a mapping for the object type,
      * the old factory is replaced by the specified factory.

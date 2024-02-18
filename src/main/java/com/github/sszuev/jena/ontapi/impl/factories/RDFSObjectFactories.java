@@ -1,5 +1,6 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
+import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
@@ -23,11 +24,13 @@ import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.EnhNode;
+import org.apache.jena.enhanced.Implementation;
 import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDFS;
 
@@ -46,6 +49,26 @@ public final class RDFSObjectFactories {
     private static final Set<Node> CLASS_TYPES = Stream.of(RDFS.Class, RDFS.Datatype)
             .map(FrontsNode::asNode)
             .collect(Collectors.toUnmodifiableSet());
+
+    public static final Implementation RDF_LIST = new Implementation() {
+        @Override
+        public EnhNode wrap(Node n, EnhGraph eg) {
+            if (canWrap(n, eg)) {
+                return new RDFListImpl(n, eg);
+            } else {
+                throw new OntJenaException.Conversion(String.format("Cannot convert node %s to RDFList", n));
+            }
+        }
+
+        @Override
+        public boolean canWrap(Node node, EnhGraph eg) {
+            Graph g = eg.asGraph();
+            return RDF.nil.asNode().equals(node) ||
+                    g.contains(node, RDF.first.asNode(), Node.ANY) ||
+                    g.contains(node, RDF.rest.asNode(), Node.ANY) ||
+                    g.contains(node, RDF.type.asNode(), RDF.List.asNode());
+        }
+    };
 
     public static final EnhNodeFactory ANY_OBJECT = OntEnhNodeFactories.createCommon(
             OntObjectImpl.class,

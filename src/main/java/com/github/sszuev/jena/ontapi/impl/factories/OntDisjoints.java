@@ -18,7 +18,6 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.function.BiFunction;
@@ -76,9 +75,11 @@ final class OntDisjoints {
     }
 
     private static boolean testList(Node node, EnhGraph graph, Class<? extends RDFNode> view, boolean allowEmptyList) {
-        if (!RDFListImpl.factory.canWrap(node, graph)) return false;
+        if (!RDFSObjectFactories.RDF_LIST.canWrap(node, graph)){
+            return false;
+        }
         if (view == null) return true;
-        RDFList list = RDFListImpl.factory.wrap(node, graph).as(RDFList.class);
+        RDFList list = (RDFList) RDFSObjectFactories.RDF_LIST.wrap(node, graph);
         return (list.isEmpty() && allowEmptyList) ||
                 Iterators.anyMatch(list.iterator().mapWith(RDFNode::asNode), n -> OntEnhGraph.canAs(view, n, graph));
     }

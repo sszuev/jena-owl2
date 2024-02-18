@@ -38,7 +38,6 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.util.iterator.NullIterator;
 import org.apache.jena.vocabulary.RDFS;
@@ -290,7 +289,7 @@ final class OntClasses {
     @SuppressWarnings("WeakerAccess")
     static class Factory extends BaseEnhNodeFactoryImpl {
 
-        protected static final Implementation LIST_FACTORY = RDFListImpl.factory;
+        private static final Implementation LIST_FACTORY = RDFSObjectFactories.RDF_LIST;
         private static final Node ANY = Node.ANY;
         private static final Node TYPE = RDF.Nodes.type;
         private static final Node CLASS = OWL.Class.asNode();
