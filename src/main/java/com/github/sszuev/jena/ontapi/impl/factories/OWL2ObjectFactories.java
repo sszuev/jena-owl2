@@ -111,14 +111,10 @@ public final class OWL2ObjectFactories {
     public static final Function<OntConfig, EnhNodeFactory> INTERSECTION_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
                     OntClassImpl.IntersectionOfImpl.class,
-                    OWL.intersectionOf, RDFList.class,
-                    config);
-    public static final Function<OntConfig, EnhNodeFactory> ONE_OF_CLASS =
-            config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
-                    OntClassImpl.OneOfImpl.class,
-                    OWL.oneOf,
+                    OWL.intersectionOf,
                     RDFList.class,
                     config);
+    public static final Function<OntConfig, EnhNodeFactory> ONE_OF_CLASS = OntClasses::createOWL2OneOfEnumerationFactory;
     public static final Function<OntConfig, EnhNodeFactory> COMPLEMENT_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
                     OntClassImpl.ComplementOfImpl.class,
@@ -409,42 +405,38 @@ public final class OWL2ObjectFactories {
             );
 
     // Data Range Expressions
-    public static final EnhNodeFactory ONE_OF_DATARANGE = OntEnhNodeFactories.createCommon(
-            OntDataRangeImpl.OneOfImpl.class,
-            OntDataRanges.DR_FULL_FINDER_OWL2,
-            OntDataRanges.DR_FULL_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
-    );
-    public static final EnhNodeFactory RESTRICTION_DATARANGE = OntEnhNodeFactories.createCommon(
+    public static final Function<OntConfig, EnhNodeFactory> ONE_OF_DATARANGE = OntDataRanges::createOWL2OneOfEnumerationFactory;
+    public static final Function<OntConfig, EnhNodeFactory> RESTRICTION_DATARANGE = config -> OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.RestrictionImpl.class,
-            OntDataRanges.DR_FINDER_OWL2,
-            OntDataRanges.DR_FILTER_OWL2
+            OntDataRanges.makeOWLFinder(config),
+            OntDataRanges.makeOWLFilter(config)
                     .and(new EnhNodeFilter.HasPredicate(OWL.onDatatype))
                     .and(new EnhNodeFilter.HasPredicate(OWL.withRestrictions))
     );
-    public static final EnhNodeFactory COMPLEMENT_OF_DATARANGE = OntEnhNodeFactories.createCommon(
+    public static final Function<OntConfig, EnhNodeFactory> COMPLEMENT_OF_DATARANGE = config -> OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.ComplementOfImpl.class,
-            OntDataRanges.DR_FINDER_OWL2,
-            OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.datatypeComplementOf))
+            OntDataRanges.makeOWLFinder(config),
+            OntDataRanges.makeOWLFilter(config).and(new EnhNodeFilter.HasPredicate(OWL.datatypeComplementOf))
     );
-    public static final EnhNodeFactory UNION_OF_DATARANGE = OntEnhNodeFactories.createCommon(
+    public static final Function<OntConfig, EnhNodeFactory> UNION_OF_DATARANGE = config -> OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.UnionOfImpl.class,
-            OntDataRanges.DR_FINDER_OWL2,
-            OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.unionOf))
+            OntDataRanges.makeOWLFinder(config),
+            OntDataRanges.makeOWLFilter(config).and(new EnhNodeFilter.HasPredicate(OWL.unionOf))
     );
-    public static final EnhNodeFactory INTERSECTION_OF_DATARANGE = OntEnhNodeFactories.createCommon(
+    public static final Function<OntConfig, EnhNodeFactory> INTERSECTION_OF_DATARANGE = config -> OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.IntersectionOfImpl.class,
-            OntDataRanges.DR_FINDER_OWL2,
-            OntDataRanges.DR_FILTER_OWL2.and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf))
+            OntDataRanges.makeOWLFinder(config),
+            OntDataRanges.makeOWLFilter(config).and(new EnhNodeFilter.HasPredicate(OWL.intersectionOf))
     );
-    public static final EnhNodeFactory DL_ANY_COMPONENTS_DATARANGE = OntEnhNodeFactories.createFrom(
-            OntDataRanges.DR_FULL_FINDER_OWL2,
+    public static final Function<OntConfig, EnhNodeFactory> DL_ANY_COMPONENTS_DATARANGE = config -> OntEnhNodeFactories.createFrom(
+            OntDataRanges.makeOWLFinder(config),
             OntDataRange.OneOf.class,
             OntDataRange.Restriction.class,
             OntDataRange.UnionOf.class,
             OntDataRange.IntersectionOf.class
     );
-    public static final EnhNodeFactory EL_ANY_COMPONENTS_DATARANGE = OntEnhNodeFactories.createFrom(
-            OntDataRanges.DR_FULL_FINDER_OWL2,
+    public static final Function<OntConfig, EnhNodeFactory> EL_ANY_COMPONENTS_DATARANGE = config -> OntEnhNodeFactories.createFrom(
+            OntDataRanges.makeOWLFinder(config),
             OntDataRange.OneOf.class,
             OntDataRange.IntersectionOf.class
     );
@@ -538,15 +530,8 @@ public final class OWL2ObjectFactories {
             true,
             OWL.members
     );
-    public static final EnhNodeFactory DIFFERENT_INDIVIDUALS_DISJOINT = OntDisjoints.createFactory(
-            OntDisjointImpl.IndividualsImpl.class,
-            (n, g) -> new OntDisjointImpl.IndividualsImpl(n, g, true),
-            OWL.AllDifferent,
-            OntIndividual.class,
-            true,
-            OWL.members,
-            OWL.distinctMembers
-    );
+    public static final Function<OntConfig, EnhNodeFactory> DIFFERENT_INDIVIDUALS_DISJOINT =
+            OntDisjoints::createDifferentIndividualsFactory;
     public static final EnhNodeFactory OBJECT_PROPERTIES_DISJOINT = OntDisjoints.createFactory(
             OntDisjointImpl.ObjectPropertiesImpl.class,
             OntDisjointImpl.ObjectPropertiesImpl::new,

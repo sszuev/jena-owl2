@@ -34,11 +34,23 @@ public enum OntModelControls {
      */
     USE_BUILTIN_HIERARCHY_SUPPORT,
     /**
-     * If this key is set to {@code true}, then OWL1.1 vocabulary should be used in certain cases,
-     * i.e. {@code owl:distinctMembers} instead of {@code owl:members},
-     * {@code rdfs:Datatype} instead of {@code owl:DataRange}.
+     * If this key is set to {@code true},
+     * then {@code owl:DataRange} and {@code owl:distinctMembers} will also be considered,
+     * although in OWL2 they are deprecated.
+     * Applicable only for OWL2.
      */
-    USE_OWL_V1_VOCABULARY,
+    USE_OWL2_DEPRECATED_VOCABULARY_FEATURE,
+    /**
+     * If this key is set to {@code true},
+     * then {@code owl:DataRange} (OWL1) instead of {@code rdfs:Datatype} (OWL2).
+     */
+    USE_OWL1_DATARANGE_DECLARATION_FEATURE,
+    /**
+     * If this key is set to {@code true},
+     * then {@code owl:distinctMembers} (OWL1) is used instead of {@code owl:members} (OWL2).
+     * E.g. {@code _:x rdf:type owl:AllDifferent . _:x owl:distinctMembers (a1...an). }
+     */
+    USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE,
     /**
      * If this key is set to {@code true}, all class expressions are allowed to be named (can have URI).
      * This option is for compatibility with {@link org.apache.jena.ontology.OntModel}.
@@ -260,4 +272,16 @@ public enum OntModelControls {
      * predicates are allowed for Cardinality restrictions.
      */
     USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE,
+    /**
+     * If this key is set to {@code true},
+     * DataOneOf enumeration is restricted to a single literal.
+     * This is required by some OWL-profiles (e.g., EL).
+     */
+    USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION,
+    /**
+     * If this key is set to {@code true},
+     * ObjectOneOf enumeration is restricted to a single individual.
+     * This is required by some OWL-profiles (e.g., EL).
+     */
+    USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION,
 }

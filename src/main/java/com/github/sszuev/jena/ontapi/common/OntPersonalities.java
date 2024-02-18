@@ -4,6 +4,7 @@ import com.github.sszuev.jena.ontapi.OntVocabulary;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL1ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL2ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.RDFSObjectFactories;
+import com.github.sszuev.jena.ontapi.impl.factories.STDObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.SWRLObjectFactories;
 import com.github.sszuev.jena.ontapi.model.OntAnnotation;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
@@ -37,13 +38,6 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.ReifiedStatement;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Seq;
-import org.apache.jena.rdf.model.impl.AltImpl;
-import org.apache.jena.rdf.model.impl.BagImpl;
-import org.apache.jena.rdf.model.impl.LiteralImpl;
-import org.apache.jena.rdf.model.impl.PropertyImpl;
-import org.apache.jena.rdf.model.impl.ReifiedStatementImpl;
-import org.apache.jena.rdf.model.impl.ResourceImpl;
-import org.apache.jena.rdf.model.impl.SeqImpl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,16 +77,16 @@ public class OntPersonalities {
      */
     @SuppressWarnings("deprecation : ReifiedStatement")
     public static final Personality<RDFNode> STANDARD_PERSONALITY = new Personality<RDFNode>()
-            .add(Resource.class, ResourceImpl.factory)
-            .add(Property.class, PropertyImpl.factory)
-            .add(Literal.class, LiteralImpl.factory)
-            .add(Container.class, ResourceImpl.factory)
-            .add(Alt.class, AltImpl.factory)
-            .add(Bag.class, BagImpl.factory)
-            .add(Seq.class, SeqImpl.factory)
-            .add(ReifiedStatement.class, ReifiedStatementImpl.reifiedStatementFactory)
-            .add(RDFList.class, RDFSObjectFactories.RDF_LIST)
-            .add(RDFNode.class, ResourceImpl.rdfNodeFactory);
+            .add(RDFNode.class, STDObjectFactories.NODE)
+            .add(Resource.class, STDObjectFactories.RESOURCE)
+            .add(Property.class, STDObjectFactories.PROPERTY)
+            .add(Literal.class, STDObjectFactories.LITERAL)
+            .add(Container.class, STDObjectFactories.RESOURCE)
+            .add(Alt.class, STDObjectFactories.ALT)
+            .add(Bag.class, STDObjectFactories.BAG)
+            .add(Seq.class, STDObjectFactories.SEQ)
+            .add(ReifiedStatement.class, STDObjectFactories.REIFIED_STATEMENT)
+            .add(RDFList.class, STDObjectFactories.RDF_LIST);
 
     /**
      * For RDFS Ontologies, limited functionality.

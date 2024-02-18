@@ -1,12 +1,15 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
 import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
+import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import org.apache.jena.enhanced.EnhGraph;
@@ -26,6 +29,27 @@ final class OntDisjoints {
     public static final EnhNodeFinder PROPERTIES_FINDER = new EnhNodeFinder.ByType(OWL.AllDisjointProperties);
     public static final EnhNodeFinder DISJOINT_FINDER = OntEnhNodeFactories.createFinder(OWL.AllDisjointClasses,
             OWL.AllDifferent, OWL.AllDisjointProperties);
+
+    public static EnhNodeFactory createDifferentIndividualsFactory(OntConfig config) {
+        boolean useDistinctMembers = config.getBoolean(OntModelControls.USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE);
+        boolean compatible = config.getBoolean(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE);
+        Property[] predicates;
+        if (useDistinctMembers) {
+            predicates = new Property[]{OWL.distinctMembers};
+        } else if (compatible) {
+            predicates = new Property[]{OWL.members, OWL.distinctMembers};
+        } else {
+            predicates = new Property[]{OWL.members};
+        }
+        return createFactory(
+                OntDisjointImpl.IndividualsImpl.class,
+                (n, g) -> new OntDisjointImpl.IndividualsImpl(n, g, !compatible, useDistinctMembers),
+                OWL.AllDifferent,
+                OntIndividual.class,
+                true,
+                predicates
+        );
+    }
 
     public static EnhNodeFactory createFactory(
             Class<? extends OntDisjointImpl<?>> impl,
@@ -75,11 +99,11 @@ final class OntDisjoints {
     }
 
     private static boolean testList(Node node, EnhGraph graph, Class<? extends RDFNode> view, boolean allowEmptyList) {
-        if (!RDFSObjectFactories.RDF_LIST.canWrap(node, graph)){
+        if (!STDObjectFactories.RDF_LIST.canWrap(node, graph)) {
             return false;
         }
         if (view == null) return true;
-        RDFList list = (RDFList) RDFSObjectFactories.RDF_LIST.wrap(node, graph);
+        RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(node, graph);
         return (list.isEmpty() && allowEmptyList) ||
                 Iterators.anyMatch(list.iterator().mapWith(RDFNode::asNode), n -> OntEnhGraph.canAs(view, n, graph));
     }

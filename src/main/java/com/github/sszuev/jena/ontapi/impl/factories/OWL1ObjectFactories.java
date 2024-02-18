@@ -8,7 +8,6 @@ import com.github.sszuev.jena.ontapi.common.OntEnhGraph;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.impl.objects.OntClassImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
-import com.github.sszuev.jena.ontapi.impl.objects.OntDisjointImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
@@ -94,7 +93,8 @@ public class OWL1ObjectFactories {
     public static final Function<OntConfig, EnhNodeFactory> INTERSECTION_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
                     OntClassImpl.IntersectionOfImpl.class,
-                    OWL.intersectionOf, RDFList.class,
+                    OWL.intersectionOf,
+                    RDFList.class,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> ONE_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
@@ -323,26 +323,20 @@ public class OWL1ObjectFactories {
             );
 
     // Data Range Expressions
-    public static final EnhNodeFactory ONE_OF_DATARANGE = OntEnhNodeFactories.createCommon(
+    public static final Function<OntConfig, EnhNodeFactory> ONE_OF_DATARANGE = config -> OntEnhNodeFactories.createCommon(
             OntDataRangeImpl.OneOfImpl.class,
-            OntDataRanges.DR_FINDER_OWL1,
-            OntDataRanges.DR_FILTER_OWL1.and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
+            OntDataRanges.makeOWLFinder(config),
+            OntDataRanges.makeOWLFilter(config).and(new EnhNodeFilter.HasPredicate(OWL.oneOf))
     );
-    public static final EnhNodeFactory ANY_COMPONENTS_DATARANGE = ONE_OF_DATARANGE;
-    public static final EnhNodeFactory ANY_DATARANGE = OntEnhNodeFactories.createFrom(
-            ONE_OF_DATARANGE,
+    public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENTS_DATARANGE = ONE_OF_DATARANGE;
+    public static final Function<OntConfig, EnhNodeFactory> ANY_DATARANGE = config -> OntEnhNodeFactories.createFrom(
+            ONE_OF_DATARANGE.apply(config),
             NAMED_DATARANGE
     );
 
-    public static final EnhNodeFactory DIFFERENT_INDIVIDUALS_DISJOINT = OntDisjoints.createFactory(
-            OntDisjointImpl.IndividualsImpl.class,
-            (n, g) -> new OntDisjointImpl.IndividualsImpl(n, g, true),
-            OWL.AllDifferent,
-            OntIndividual.class,
-            true,
-            OWL.distinctMembers
-    );
-    public static final EnhNodeFactory ANY_DISJOINT = DIFFERENT_INDIVIDUALS_DISJOINT;
+    public static final Function<OntConfig, EnhNodeFactory> DIFFERENT_INDIVIDUALS_DISJOINT =
+            OntDisjoints::createDifferentIndividualsFactory;
+    public static final Function<OntConfig, EnhNodeFactory> ANY_DISJOINT = DIFFERENT_INDIVIDUALS_DISJOINT;
 
     private static boolean isNamedIndividual(Node n, EnhGraph eg) {
         return n.isURI() && isIndividual(n, eg);

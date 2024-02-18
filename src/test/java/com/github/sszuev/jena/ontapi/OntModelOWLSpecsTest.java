@@ -1071,7 +1071,11 @@ public class OntModelOWLSpecsTest {
         Assertions.assertEquals(0, m.datatypes().count());
 
         OntDataRange.OneOf d1 = m.createDataOneOf(m.createTypedLiteral(42));
-        OntDataRange.OneOf d2 = m.createDataOneOf(m.createTypedLiteral("A"), m.createLiteral("B"));
+        OntDataRange.OneOf d2 = m.createDataOneOf(
+                spec.isOWL2EL() ?
+                        List.of(m.createTypedLiteral("A")) :
+                        List.of(m.createTypedLiteral("A"), m.createTypedLiteral("B"))
+        );
         OntDataRange.OneOf d3 = m.createResource(null, OWL.DataRange)
                 .addProperty(OWL.oneOf, m.createList(m.createLiteral("C")))
                 .as(OntDataRange.OneOf.class);
@@ -1082,7 +1086,7 @@ public class OntModelOWLSpecsTest {
                 d1.getList().members().map(Literal::getInt).collect(Collectors.toList())
         );
         Assertions.assertEquals(
-                List.of("A", "B"),
+                spec.isOWL2EL() ? List.of("A") : List.of("A", "B"),
                 d2.getList().members().map(Literal::getString).sorted().collect(Collectors.toList())
         );
         Assertions.assertEquals(

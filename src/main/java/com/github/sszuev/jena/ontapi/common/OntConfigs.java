@@ -12,7 +12,9 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setFalse(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setFalse(OntModelControls.USE_OWL_V1_VOCABULARY)
+            .setTrue(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)
+            .setFalse(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)
+            .setFalse(OntModelControls.USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE)
             .setFalse(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setFalse(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setTrue(OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS)
@@ -37,14 +39,18 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE)
-            .setTrue(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE);
+            .setTrue(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE)
+            .setFalse(OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION)
+            .setFalse(OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION);
 
     public static final OntConfig OWL2_EL_CONFIG = OntConfig.DEFAULT
             .setTrue(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
             .setTrue(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setFalse(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setFalse(OntModelControls.USE_OWL_V1_VOCABULARY)
+            .setTrue(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)
+            .setFalse(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)
+            .setFalse(OntModelControls.USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE)
             .setFalse(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setFalse(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setFalse(OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS)
@@ -69,14 +75,18 @@ public class OntConfigs {
             .setTrue(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE)
-            .setTrue(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE);
+            .setTrue(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE)
+            .setTrue(OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION)
+            .setTrue(OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION);
 
     public static final OntConfig OWL1_CONFIG = OntConfig.DEFAULT
             .setTrue(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
             .setTrue(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setTrue(OntModelControls.USE_OWL_V1_VOCABULARY)
+            .setTrue(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)
+            .setTrue(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)
+            .setTrue(OntModelControls.USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE)
             .setTrue(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setTrue(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setTrue(OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS)
@@ -101,14 +111,20 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE)
-            .setFalse(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE);
+            .setFalse(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE)
+            .setFalse(OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION)
+            .setFalse(OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION);
 
     public static final OntConfig OWL1_LITE_CONFIG = OntConfig.DEFAULT
             .setTrue(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
             .setTrue(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setTrue(OntModelControls.USE_OWL_V1_VOCABULARY)
+            .setTrue(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)
+            .setTrue(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)
+            .setTrue(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)
+            .setTrue(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)
+            .setTrue(OntModelControls.USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE)
             .setTrue(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setTrue(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setTrue(OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS)
@@ -133,14 +149,18 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
             .setFalse(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
             .setTrue(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE)
-            .setFalse(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE);
+            .setFalse(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE)
+            .setFalse(OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION)
+            .setFalse(OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION);
 
     public static final OntConfig RDFS_CONFIG = OntConfig.DEFAULT
             .setFalse(OntModelControls.USE_GENERATE_ONTOLOGY_HEADER_IF_ABSENT_STRATEGY)
             .setFalse(OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY)
             .setFalse(OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)
             .setTrue(OntModelControls.USE_SIMPLIFIED_TYPE_CHECKING_WHILE_LIST_INDIVIDUALS)
-            .setFalse(OntModelControls.USE_OWL_V1_VOCABULARY)
+            .setFalse(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)
+            .setFalse(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)
+            .setFalse(OntModelControls.USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE)
             .setFalse(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS)
             .setFalse(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS)
             .setTrue(OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS)
@@ -165,5 +185,7 @@ public class OntConfigs {
             .setFalse(OntModelControls.USE_OWL_PROPERTY_CHAIN_AXIOM_FEATURE)
             .setFalse(OntModelControls.USE_OWL_INDIVIDUAL_SAME_AS_FEATURE)
             .setFalse(OntModelControls.USE_OWL_INDIVIDUAL_DIFFERENT_FROM_FEATURE)
-            .setFalse(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE);
+            .setFalse(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE)
+            .setFalse(OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION)
+            .setFalse(OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION);
 }

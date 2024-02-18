@@ -54,7 +54,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
      * @see <a href='https://www.w3.org/TR/owl2-quick-reference/#Additional_Vocabulary_in_OWL_2_RDF_Syntax'>4.2 Additional Vocabulary in OWL 2 RDF Syntax</a>
      */
     public static Individuals createDifferentIndividuals(OntGraphModelImpl model, Stream<OntIndividual> individuals) {
-        Property membersPredicate = OntGraphModelImpl.configValue(model, OntModelControls.USE_OWL_V1_VOCABULARY) ?
+        Property membersPredicate = OntGraphModelImpl.configValue(model, OntModelControls.USE_OWL1_DISTINCT_MEMBERS_PREDICATE_FEATURE) ?
                 OWL.distinctMembers :
                 OWL.members;
         return create(model, OWL.AllDifferent, Individuals.class, OntIndividual.class, individuals, membersPredicate);
@@ -140,11 +140,13 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
     }
 
     public static class IndividualsImpl extends OntDisjointImpl<OntIndividual> implements Individuals {
-        private final boolean forOWL2;
+        private final boolean useMembers;
+        private final boolean useDistinctMembers;
 
-        public IndividualsImpl(Node n, EnhGraph m, boolean forOWL2) {
+        public IndividualsImpl(Node n, EnhGraph m, boolean useMembers, boolean useDistinctMembers) {
             super(n, m);
-            this.forOWL2 = forOWL2;
+            this.useMembers = useMembers;
+            this.useDistinctMembers = useDistinctMembers;
         }
 
         @Override
@@ -158,10 +160,13 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
         }
 
         public ExtendedIterator<Property> listPredicates() {
-            if (forOWL2) {
-                return Iterators.of(getPredicate(), getAlternativePredicate());
-            } else {
+            if (useDistinctMembers) {
                 return Iterators.of(getAlternativePredicate());
+            }
+            if (useMembers) {
+                return Iterators.of(getPredicate());
+            } else {
+                return Iterators.of(getPredicate(), getAlternativePredicate());
             }
         }
 
@@ -174,11 +179,18 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
 
         @Override
         public OntListImpl<OntIndividual> getList() {
-            Optional<OntListImpl<OntIndividual>> p = forOWL2 ? findList(getPredicate()) : Optional.empty();
+            if (useDistinctMembers) {
+                return findList(getAlternativePredicate())
+                        .orElseThrow(() -> new OntJenaException.IllegalState("Can't find owl:distinctMembers"));
+            }
+            if (useMembers) {
+                return findList(getPredicate())
+                        .orElseThrow(() -> new OntJenaException.IllegalState("Can't find owl:members"));
+            }
+            Optional<OntListImpl<OntIndividual>> p = findList(getPredicate());
             Optional<OntListImpl<OntIndividual>> a = findList(getAlternativePredicate());
             if (p.isPresent() && a.isPresent()) {
-                if (p.get().size() > a.get().size()) return p.get();
-                if (p.get().size() < a.get().size()) return a.get();
+                return p.get();
             }
             if (p.isPresent()) {
                 return p.get();
@@ -186,7 +198,7 @@ public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl
             if (a.isPresent()) {
                 return a.get();
             }
-            throw new OntJenaException.IllegalState("Neither owl:members or owl:distinctMembers could be found");
+            throw new OntJenaException.IllegalState("Can't find owl:members or owl:distinctMembers");
         }
 
         public Optional<OntListImpl<OntIndividual>> findList(Property predicate) {

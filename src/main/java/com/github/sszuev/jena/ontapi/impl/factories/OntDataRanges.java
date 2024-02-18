@@ -1,22 +1,28 @@
 package com.github.sszuev.jena.ontapi.impl.factories;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
+import com.github.sszuev.jena.ontapi.OntModelControls;
 import com.github.sszuev.jena.ontapi.common.BaseEnhNodeFactoryImpl;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFactory;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFilter;
 import com.github.sszuev.jena.ontapi.common.EnhNodeFinder;
+import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
+import com.github.sszuev.jena.ontapi.common.OntConfig;
 import com.github.sszuev.jena.ontapi.common.OntEnhNodeFactories;
 import com.github.sszuev.jena.ontapi.common.WrappedEnhNodeFactory;
+import com.github.sszuev.jena.ontapi.impl.objects.OntDataRangeImpl;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
+import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.EnhNode;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFList;
+import org.apache.jena.rdf.model.impl.RDFListImpl;
 import org.apache.jena.util.iterator.ExtendedIterator;
-import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDFS;
 
 import java.util.LinkedHashSet;
@@ -26,16 +32,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 final class OntDataRanges {
-    public static final EnhNodeFinder DR_FINDER_OWL1 = new EnhNodeFinder.ByType(OWL.DataRange);
-    public static final EnhNodeFilter DR_FILTER_OWL1 = new EnhNodeFilter.HasType(OWL.DataRange);
+    private static final EnhNodeFinder DR_FINDER_OWL1 = new EnhNodeFinder.ByType(OWL.DataRange);
+    private static final EnhNodeFilter DR_FILTER_OWL1 = new EnhNodeFilter.HasType(OWL.DataRange);
 
-    public static final EnhNodeFinder DR_FINDER_OWL2 = new EnhNodeFinder.ByType(RDFS.Datatype);
-    public static final EnhNodeFilter DR_FILTER_OWL2 = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(RDFS.Datatype));
-    // owl:DataRange is deprecated in OWL 2, replaced by rdfs:Datatype, but for compatibility needs to handle it
-    public static final EnhNodeFinder DR_FULL_FINDER_OWL2 = new EnhNodeFinder.ByTypes(Set.of(RDFS.Datatype, OWL.DataRange));
-    public static final EnhNodeFilter DR_FULL_FILTER_OWL2 = EnhNodeFilter.ANON.and(
-            new EnhNodeFilter.HasOneOfType(Set.of(RDFS.Datatype, OWL.DataRange))
-    );
+    private static final EnhNodeFinder DR_FINDER_OWL2 = new EnhNodeFinder.ByType(RDFS.Datatype);
+    private static final EnhNodeFilter DR_FILTER_OWL2 = EnhNodeFilter.ANON.and(new EnhNodeFilter.HasType(RDFS.Datatype));
+
+    private static final EnhNodeFinder DR_FINDER_OWL2_COMPATIBLE = new EnhNodeFinder.ByTypes(Set.of(RDFS.Datatype, OWL.DataRange));
+    private static final EnhNodeFilter DR_FILTER_OWL2_COMPATIBLE = DR_FILTER_OWL2.or(DR_FILTER_OWL1);
 
     public static EnhNodeFinder makeFacetRestrictionFinder(Property predicate) {
         return new EnhNodeFinder.ByPredicate(predicate);
@@ -48,7 +52,50 @@ final class OntDataRanges {
         );
     }
 
-    public static EnhNodeFactory createDataRangeFactory(Type ... types) {
+    public static EnhNodeFilter makeOWLFilter(OntConfig config) {
+        if (config.getBoolean(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)) {
+            return DR_FILTER_OWL1;
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)) {
+            return DR_FILTER_OWL2_COMPATIBLE;
+        } else {
+            return DR_FILTER_OWL2;
+        }
+    }
+
+    public static EnhNodeFinder makeOWLFinder(OntConfig config) {
+        if (config.getBoolean(OntModelControls.USE_OWL1_DATARANGE_DECLARATION_FEATURE)) {
+            return DR_FINDER_OWL1;
+        }
+        if (config.getBoolean(OntModelControls.USE_OWL2_DEPRECATED_VOCABULARY_FEATURE)) {
+            return DR_FINDER_OWL2_COMPATIBLE;
+        } else {
+            return DR_FINDER_OWL2;
+        }
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    public static EnhNodeFactory createOWL2OneOfEnumerationFactory(OntConfig config) {
+        boolean restrictOneOfToSingleLiteral =
+                config.getBoolean(OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION);
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(
+                OntDataRangeImpl.OneOfImpl.class, RDFS.Datatype, OntDataRangeImpl.OneOfImpl::new
+        );
+        EnhNodeFilter filter = makeOWLFilter(config)
+                .and((n, g) -> {
+                    RDFList list = Iterators.findFirst(g.asGraph().find(n, OWL.oneOf.asNode(), Node.ANY).filterKeep(
+                            it -> STDObjectFactories.RDF_LIST.canWrap(it.getObject(), g)
+                    ).mapWith(it -> new RDFListImpl(it.getObject(), g))).orElse(null);
+                    if (list == null) {
+                        return false;
+                    }
+                    return !restrictOneOfToSingleLiteral || Iterators.takeAsSet(list.iterator(), 2).size() == 1;
+                });
+        EnhNodeFinder finder = makeOWLFinder(config);
+        return OntEnhNodeFactories.createCommon(maker, finder, filter);
+    }
+
+    public static EnhNodeFactory createDataRangeFactory(Type... types) {
         Set<EnhNodeFactory> factories = new LinkedHashSet<>();
         for (Type t : types) {
             if (t == Type.COMPLEMENT_OF) {
@@ -73,7 +120,8 @@ final class OntDataRanges {
     /**
      * A factory to produce {@link OntDataRange}s.
      * <p>
-     * Although it would be easy to produce this factory using {@link OntEnhNodeFactories#createFrom(EnhNodeFinder, Class, Class[])},
+     * Although it would be straightforward to produce this factory
+     * using {@link OntEnhNodeFactories#createFrom(EnhNodeFinder, Class, Class[])},
      * this variant with explicit methods must be a little faster,
      * since there is a reduction of number of some possible repetition calls.
      * Also, everything here is under control.

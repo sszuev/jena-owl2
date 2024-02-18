@@ -525,7 +525,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                 .filterKeep(x -> x instanceof UnionGraph)
                 .mapWith(x -> (UnionGraph) x)
                 .filterKeep(it -> Graphs.findOntologyNameNode(it.getBaseGraph(),
-                        configValue(this, OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY))
+                                configValue(this, OntModelControls.USE_CHOOSE_MOST_SUITABLE_ONTOLOGY_HEADER_STRATEGY))
                         .filter(Node::isURI)
                         .map(Node::getURI)
                         .filter(imports::contains)
@@ -986,6 +986,13 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntDataRange.OneOf createDataOneOf(Collection<Literal> values) {
         checkType(OntDataRange.OneOf.class);
+        if (configValue(this, OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION)) {
+            if (values.size() != 1) {
+                throw new OntJenaException.Unsupported(
+                        "Profile " + getOntPersonality().getName() + " requires single owl:oneOf literal"
+                );
+            }
+        }
         return OntDataRangeImpl.createOneOf(this, values.stream());
     }
 
@@ -1111,6 +1118,13 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.OneOf createObjectOneOf(Collection<OntIndividual> individuals) {
         checkType(OntClass.OneOf.class);
+        if (configValue(this, OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION)) {
+            if (individuals.size() != 1) {
+                throw new OntJenaException.Unsupported(
+                        "Profile " + getOntPersonality().getName() + " requires single owl:oneOf individual"
+                );
+            }
+        }
         return OntClassImpl.createComponentsCE(this,
                 OntClass.OneOf.class, OntIndividual.class, OWL.oneOf, individuals.stream());
     }

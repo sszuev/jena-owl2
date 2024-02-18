@@ -43,7 +43,7 @@ final class OntSWRLs {
         private static final Node HEAD = SWRL.head.asNode();
         private static final Node LIST = SWRL.AtomList.asNode();
 
-        private static final Implementation LIST_FACTORY = RDFSObjectFactories.RDF_LIST;
+        private static final Implementation LIST_FACTORY = STDObjectFactories.RDF_LIST;
 
         @Override
         public ExtendedIterator<EnhNode> iterator(EnhGraph eg) {

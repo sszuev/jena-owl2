@@ -71,9 +71,7 @@ public interface OntEnhGraph {
 
     /**
      * Checks if the given {@link Node node} can be viewed as the given type.
-     * This method caches the enhanced node at the model level, if it is possible,
-     * and, opposite to the method {@link OntEnhGraph#findNodeAs(Node, Class)},
-     * takes care about possible graph recursions.
+     * Opposite to the method {@link OntEnhGraph#findNodeAs(Node, Class)}, this method handles possible graph recursions.
      *
      * @param view  Class-type
      * @param node  {@link Node}

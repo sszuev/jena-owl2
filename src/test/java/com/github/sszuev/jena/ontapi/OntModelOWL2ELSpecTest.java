@@ -3,6 +3,7 @@ package com.github.sszuev.jena.ontapi;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
+import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
@@ -11,10 +12,14 @@ import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +28,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,19 +61,19 @@ public class OntModelOWL2ELSpecTest {
         expected.put(OntClass.DataCardinality.class, 0);
         expected.put(OntClass.HasSelf.class, 0);
         expected.put(OntClass.UnionOf.class, 0);
-        expected.put(OntClass.OneOf.class, 1);
+        expected.put(OntClass.OneOf.class, 0);
         expected.put(OntClass.IntersectionOf.class, 15);
         expected.put(OntClass.ComplementOf.class, 0);
         expected.put(OntClass.NaryDataAllValuesFrom.class, 0);
         expected.put(OntClass.NaryDataSomeValuesFrom.class, 0);
-        expected.put(OntClass.LogicalExpression.class, 16);
-        expected.put(OntClass.CollectionOf.class, 16);
+        expected.put(OntClass.LogicalExpression.class, 15);
+        expected.put(OntClass.CollectionOf.class, 15);
         expected.put(OntClass.ValueRestriction.class, 161);
         expected.put(OntClass.CardinalityRestriction.class, 0);
         expected.put(OntClass.ComponentRestriction.class, 161);
         expected.put(OntClass.UnaryRestriction.class, 161);
         expected.put(OntClass.Restriction.class, 161);
-        expected.put(OntClass.class, 277);
+        expected.put(OntClass.class, 276);
 
         testListObjects(m, expected);
 
@@ -175,5 +181,62 @@ public class OntModelOWL2ELSpecTest {
         );
         c1.createIndividual("i");
         Assertions.assertEquals(1, m.individuals().count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_EL_MEM",
+            "OWL2_EL_MEM_RDFS_INF",
+            "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_EL_MEM_RULES_INF",
+    })
+    public void testObjectOneOf(TestSpec spec) {
+        Model m = ModelFactory.createDefaultModel();
+        Resource c0 = m.createResource("C", OWL.Class);
+        Resource i1 = m.createResource("i1", c0);
+        Resource i2 = m.createResource("i2", c0);
+        Resource c1 = m.createResource().addProperty(RDF.type, OWL.Class).addProperty(OWL.oneOf, m.createList());
+        Resource c2 = m.createResource().addProperty(RDF.type, OWL.Class).addProperty(OWL.oneOf, m.createList(i1));
+        Resource c3 = m.createResource().addProperty(RDF.type, OWL.Class).addProperty(OWL.oneOf, m.createList(i1, i2));
+
+        OntModel om = OntModelFactory.createModel(m.getGraph(), spec.inst);
+        OntIndividual oi1 = Objects.requireNonNull(om.getIndividual("i1"));
+        OntIndividual oi2 = Objects.requireNonNull(om.getIndividual("i2"));
+        OntClass.OneOf oc2 = om.ontObjects(OntClass.OneOf.class).findFirst().orElseThrow(AssertionError::new);
+        Assertions.assertEquals(List.of(i1), oc2.getList().members().collect(Collectors.toList()));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> om.createObjectOneOf(oi1, oi2));
+
+        Assertions.assertEquals(spec == TestSpec.OWL2_EL_MEM_RULES_INF ? 14 : 2, om.ontObjects(OntClass.class).count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_EL_MEM",
+            "OWL2_EL_MEM_RDFS_INF",
+            "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_EL_MEM_RULES_INF",
+    })
+    public void testDataOneOf(TestSpec spec) {
+        Model m = ModelFactory.createDefaultModel();
+        Literal v1 = m.createTypedLiteral(42);
+        Literal v2 = m.createTypedLiteral("42");
+        Resource c1 = m.createResource().addProperty(RDF.type, RDFS.Datatype).addProperty(OWL.oneOf, m.createList());
+        Resource c2 = m.createResource().addProperty(RDF.type, RDFS.Datatype).addProperty(OWL.oneOf, m.createList(v1));
+        Resource c3 = m.createResource().addProperty(RDF.type, RDFS.Datatype).addProperty(OWL.oneOf, m.createList(v1, v2));
+
+        OntModel om = OntModelFactory.createModel(m.getGraph(), spec.inst);
+        OntDataRange.OneOf oc2 = om.ontObjects(OntDataRange.OneOf.class).findFirst().orElseThrow(AssertionError::new);
+        Assertions.assertEquals(List.of(v1), oc2.getList().members().collect(Collectors.toList()));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> om.createDataOneOf(v1, v2));
+
+        int expected;
+        if (spec == TestSpec.OWL2_EL_MEM_RDFS_INF) {
+            expected = 2;
+        } else if (spec == TestSpec.OWL2_EL_MEM_RULES_INF) {
+            expected = 32;
+        } else {
+            expected = 1;
+        }
+        Assertions.assertEquals(expected, om.ontObjects(OntDataRange.class).count());
     }
 }
