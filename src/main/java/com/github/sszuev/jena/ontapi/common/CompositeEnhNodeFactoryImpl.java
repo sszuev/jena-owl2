@@ -49,7 +49,9 @@ public class CompositeEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
     public EnhNode wrap(Node node, EnhGraph eg) {
         EnhNode res = createInstance(node, eg);
         if (res != null) return res;
-        throw new OntJenaException.Conversion("Can't wrap node " + node + ". Use direct factory.");
+        throw new OntJenaException.Conversion(String.format(
+                "Can't wrap node %s. Use direct factory.", OntEnhNodeFactories.toPrintString(node, eg))
+        );
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi.common;
 
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
+import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.EnhNode;
@@ -9,7 +10,11 @@ import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.reasoner.InfGraph;
+import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.Arrays;
@@ -115,5 +120,25 @@ public class OntEnhNodeFactories {
      */
     public static String viewAsString(Class<?> type) {
         return type.getName().replace(OntObject.class.getPackage().getName() + ".", "");
+    }
+
+    static String toPrintString(Node node, EnhGraph graph) {
+        if (!(graph instanceof Model)) {
+            return node.toString(PrefixMapping.Standard);
+        }
+        Model m = ((Model) graph);
+        if (m.getGraph() instanceof InfGraph) {
+            return node.toString(PrefixMapping.Standard);
+        }
+        RDFNode rdfNode = m.asRDFNode(node);
+        if (!rdfNode.isResource()) {
+            return node.toString(PrefixMapping.Standard);
+        }
+        PrefixMapping pm = PrefixMapping.Factory.create()
+                .setNsPrefixes((PrefixMapping) graph)
+                .setNsPrefixes(PrefixMapping.Standard);
+        StringBuilder sb = new StringBuilder("\n");
+        rdfNode.asResource().listProperties().forEach(s -> sb.append(StdModels.toString(s, pm)).append("\n"));
+        return sb.toString();
     }
 }

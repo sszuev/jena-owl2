@@ -53,7 +53,7 @@ public class OntSpecification {
 
     private static final OntPersonality OWL2_EL_PERSONALITY =
             OntPersonalities.OWL2_EL_ONT_PERSONALITY()
-                    .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                    .setBuiltins(OntPersonalities.OWL2_EL_BUILTINS)
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
                     .setConfig(OntConfigs.OWL2_EL_CONFIG)

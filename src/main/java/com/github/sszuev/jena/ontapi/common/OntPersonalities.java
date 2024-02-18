@@ -57,6 +57,7 @@ public class OntPersonalities {
 
     public static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
     public static final OntPersonality.Builtins OWL2_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL2_DC_SKOS_SWRL_VOCABULARY);
+    public static final OntPersonality.Builtins OWL2_EL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL2_EL_VOCABULARY);
     public static final OntPersonality.Builtins OWL1_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL1_VOCABULARY);
     public static final OntPersonality.Builtins OWL1_LITE_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL1_LITE_VOCABULARY);
 

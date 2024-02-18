@@ -166,7 +166,8 @@ public interface OntVocabulary {
 
         public static final OntVocabulary EMPTY_VOCABULARY = new Impl(Map.of());
         public static final OntVocabulary RDFS_VOCABULARY = new RDFSImpl();
-        public static final OntVocabulary OWL2_VOCABULARY = new OWL2Impl();
+        public static final OntVocabulary OWL2_VOCABULARY = new OWL2Impl(false);
+        public static final OntVocabulary OWL2_EL_VOCABULARY = new OWL2Impl(true);
         public static final OntVocabulary OWL1_VOCABULARY = new OWL1Impl(true);
         public static final OntVocabulary OWL1_LITE_VOCABULARY = new OWL1Impl(false);
         public static final OntVocabulary DC_VOCABULARY = new DCImpl();
@@ -320,7 +321,7 @@ public interface OntVocabulary {
              * (see <a href="https://www.w3.org/TR/owl2-quick-reference/">Quick References, 3.1 Built-in Datatypes</a>).
              * It seems it is not full:
              */
-            public static final Set<Resource> OWL2_DATATYPES =
+            public static final Set<Resource> OWL2_FULL_DATATYPES =
                     Set.of(OWL.real, OWL.rational,
                             RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
                             RDFS.Literal, XSD.xstring, XSD.normalizedString,
@@ -332,7 +333,20 @@ public interface OntVocabulary {
                             XSD.hexBinary, XSD.base64Binary,
                             XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
                     );
-            public static final Set<Resource> ALL_KNOWN_DATATYPES = initOWL2BuiltInRDFDatatypes(TypeMapper.getInstance())
+            /**
+             * @see <a href="https://www.w3.org/TR/owl2-profiles/#Entities">EL: Entities</a>
+             * @see <a href="https://www.w3.org/TR/owl2-profiles/#Entities_2">QL: Entities</a>
+             */
+            public static final Set<Resource> OWL2_EL_QL_DATATYPES =
+                    Set.of(OWL.real, OWL.rational,
+                            RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
+                            RDFS.Literal, XSD.xstring, XSD.normalizedString,
+                            XSD.token, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
+                            XSD.nonNegativeInteger,
+                            XSD.hexBinary, XSD.base64Binary,
+                            XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
+                    );
+            public static final Set<Resource> OWL2_ALL_KNOWN_DATATYPES = initOWL2BuiltInRDFDatatypes(TypeMapper.getInstance())
                     .stream()
                     .map(RDFDatatype::getURI)
                     .map(ResourceFactory::createResource)
@@ -347,13 +361,13 @@ public interface OntVocabulary {
             public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
-            protected OWL2Impl() {
+            protected OWL2Impl(boolean forEL) {
                 super(
                         OWL2_BUILTIN_ANNOTATION_PROPERTIES,
                         OWL2_BUILTIN_DATA_PROPERTIES,
                         OWL2_BUILTIN_OBJECT_PROPERTIES,
                         OWL2_BUILTIN_CLASSES,
-                        ALL_KNOWN_DATATYPES,
+                        forEL? OWL2_EL_QL_DATATYPES : OWL2_ALL_KNOWN_DATATYPES,
                         /*SWRL*/ null,
                         PROPERTIES,
                         RESOURCES
@@ -362,7 +376,7 @@ public interface OntVocabulary {
 
             private static Set<RDFDatatype> initOWL2BuiltInRDFDatatypes(TypeMapper types) {
                 Stream.of(OWL.real, OWL.rational).forEach(d -> types.registerDatatype(new BaseDatatype(d.getURI())));
-                OWL2_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
+                OWL2_FULL_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
                 Set<RDFDatatype> res = new HashSet<>();
                 types.listTypes().forEachRemaining(res::add);
                 return Collections.unmodifiableSet(res);
@@ -422,7 +436,7 @@ public interface OntVocabulary {
 
             private static Set<RDFDatatype> initOWL1BuiltInRDFDatatypes(TypeMapper types) {
                 OWL1_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
-                Set<String> exclude = OWL2Impl.OWL2_DATATYPES.stream()
+                Set<String> exclude = OWL2Impl.OWL2_FULL_DATATYPES.stream()
                         .filter(it -> !OWL1_DATATYPES.contains(it))
                         .map(Resource::getURI)
                         .collect(Collectors.toUnmodifiableSet());

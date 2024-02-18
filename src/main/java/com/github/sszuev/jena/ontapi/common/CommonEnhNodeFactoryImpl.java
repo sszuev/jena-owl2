@@ -1,14 +1,9 @@
 package com.github.sszuev.jena.ontapi.common;
 
 import com.github.sszuev.jena.ontapi.OntJenaException;
-import com.github.sszuev.jena.ontapi.utils.StdModels;
 import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.enhanced.EnhNode;
 import org.apache.jena.graph.Node;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.reasoner.InfGraph;
-import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.Objects;
@@ -35,26 +30,6 @@ public class CommonEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
         this.filter = Objects.requireNonNull(filter, "Null filter.");
     }
 
-    private static String toPrintString(Node node, EnhGraph graph) {
-        if (!(graph instanceof Model)) {
-            return node.toString(PrefixMapping.Standard);
-        }
-        Model m = ((Model) graph);
-        if (m.getGraph() instanceof InfGraph) {
-            return node.toString(PrefixMapping.Standard);
-        }
-        RDFNode rdfNode = m.asRDFNode(node);
-        if (!rdfNode.isResource()) {
-            return node.toString(PrefixMapping.Standard);
-        }
-        PrefixMapping pm = PrefixMapping.Factory.create()
-                .setNsPrefixes((PrefixMapping) graph)
-                .setNsPrefixes(PrefixMapping.Standard);
-        StringBuilder sb = new StringBuilder("\n");
-        rdfNode.asResource().listProperties().forEach(s -> sb.append(StdModels.toString(s, pm)).append("\n"));
-        return sb.toString();
-    }
-
     public EnhNodeProducer getMaker() {
         return maker;
     }
@@ -71,7 +46,7 @@ public class CommonEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
     public EnhNode wrap(Node node, EnhGraph eg) {
         if (!canWrap(node, eg)) {
             throw new OntJenaException.Conversion(
-                    String.format("Can't wrap node to impl %s. Node: %s", maker.targetName(), toPrintString(node, eg))
+                    String.format("Can't wrap node to impl %s. Node: %s", maker.targetName(), OntEnhNodeFactories.toPrintString(node, eg))
             );
         }
         return createInstance(node, eg);
@@ -86,7 +61,7 @@ public class CommonEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
     public EnhNode createInGraph(Node node, EnhGraph eg) {
         if (!canCreateInGraph(node, eg)) {
             throw new OntJenaException.Creation(
-                    String.format("Can't modify graph for impl %s. Node: %s", maker.targetName(), toPrintString(node, eg))
+                    String.format("Can't modify graph for impl %s. Node: %s", maker.targetName(), OntEnhNodeFactories.toPrintString(node, eg))
             );
         }
         maker.doInsert(node, eg);

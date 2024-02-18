@@ -4,6 +4,7 @@ import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
+import com.github.sszuev.jena.ontapi.model.OntEntity;
 import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
@@ -12,6 +13,7 @@ import com.github.sszuev.jena.ontapi.model.OntProperty;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import com.github.sszuev.jena.ontapi.vocabulary.XSD;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -20,7 +22,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDFS;
-import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -233,10 +234,31 @@ public class OntModelOWL2ELSpecTest {
         if (spec == TestSpec.OWL2_EL_MEM_RDFS_INF) {
             expected = 2;
         } else if (spec == TestSpec.OWL2_EL_MEM_RULES_INF) {
-            expected = 32;
+            expected = 18;
         } else {
             expected = 1;
         }
         Assertions.assertEquals(expected, om.ontObjects(OntDataRange.class).count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_EL_MEM",
+            "OWL2_EL_MEM_RDFS_INF",
+            "OWL2_EL_MEM_TRANS_INF",
+    })
+    public void testBuiltins(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OWL.real.inModel(m).as(OntEntity.class);
+        OWL.rational.inModel(m).as(OntEntity.class);
+        XSD.xstring.inModel(m).as(OntEntity.class);
+        Stream.of(XSD.xdouble, XSD.xfloat, XSD.nonPositiveInteger, XSD.positiveInteger, XSD.negativeInteger,
+                        XSD.xlong, XSD.xint, XSD.xshort, XSD.unsignedLong, XSD.unsignedInt, XSD.unsignedShort,
+                        XSD.unsignedByte, XSD.language, XSD.xboolean)
+                .forEach(it -> Assertions.assertThrows(
+                        OntJenaException.class,
+                        () -> it.inModel(m).as(OntEntity.class),
+                        "wrong result for " + it)
+                );
     }
 }
