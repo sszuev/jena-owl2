@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi.model;
 
-import com.github.sszuev.jena.ontapi.OntVocabulary;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
 import com.github.sszuev.jena.ontapi.utils.Iterators;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
@@ -82,7 +81,6 @@ public interface OntEntity extends OntObject {
      * @return {@code true} if it is a built-in entity
      * @see OWL
      * @see OntPersonality.Builtins
-     * @see OntVocabulary
      */
     boolean isBuiltIn();
 

@@ -1,6 +1,6 @@
-package com.github.sszuev.jena.ontapi;
+package com.github.sszuev.jena.ontapi.common;
 
-import com.github.sszuev.jena.ontapi.common.OntPersonality;
+import com.github.sszuev.jena.ontapi.OntJenaException;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.SWRL;
@@ -44,9 +44,19 @@ import java.util.stream.Stream;
  * <p>
  * Created by @ssz on 04.04.2017.
  *
- * @see Factory
+ * @see Impls
  */
 public interface OntVocabulary {
+
+    OntVocabulary EMPTY = new Impls.BaseImpl(Map.of());
+    OntVocabulary RDFS = new Impls.RDFSImpl();
+    OntVocabulary OWL2_FULL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.FULL);
+    OntVocabulary OWL2_EL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.EL);
+    OntVocabulary OWL1_FULL = new Impls.OWL1Impl(Impls.OWL1Impl.Type.FULL);
+    OntVocabulary OWL1_LITE = new Impls.OWL1Impl(Impls.OWL1Impl.Type.LITE);
+    OntVocabulary DC = new Impls.DCImpl();
+    OntVocabulary SKOS = new Impls.SKOSImpl();
+    OntVocabulary SWRL = new Impls.SWRLImpl();
 
     /**
      * Answers a {@code Set} of system/builtin {@link Resource}s for the specified URI-{@code key}.
@@ -68,7 +78,7 @@ public interface OntVocabulary {
      */
     @SuppressWarnings("unchecked")
     default <X extends Resource> Set<X> get(Resource uri) {
-        return (Set<X>) get(uri.getURI());
+        return (Set<X>) get(Objects.requireNonNull(uri.getURI()));
     }
 
     /**
@@ -108,7 +118,7 @@ public interface OntVocabulary {
      * @return {@code Set} of {@link Resource Resources}
      */
     default Set<Resource> getBuiltinDatatypes() {
-        return get(RDFS.Datatype);
+        return get(org.apache.jena.vocabulary.RDFS.Datatype);
     }
 
     /**
@@ -128,7 +138,7 @@ public interface OntVocabulary {
      * @return {@code Set} of {@link Resource Resources}
      */
     default Set<Resource> getBuiltinSWRLs() {
-        return get(SWRL.Builtin);
+        return get(com.github.sszuev.jena.ontapi.vocabulary.SWRL.Builtin);
     }
 
     /**
@@ -138,7 +148,7 @@ public interface OntVocabulary {
      * @return {@code Set} of {@link Resource Resources}
      */
     default Set<Resource> getSystemResources() {
-        return get(RDFS.Resource);
+        return get(org.apache.jena.vocabulary.RDFS.Resource);
     }
 
     /**
@@ -152,6 +162,16 @@ public interface OntVocabulary {
     }
 
     /**
+     * Creates a new instance of {@code OntVocabulary}, combining this and the given vocabularies.
+     *
+     * @param other {@link OntVocabulary}, not {@code null}
+     * @return {@link OntVocabulary}
+     */
+    default OntVocabulary and(OntVocabulary other) {
+        return Impls.create(this, Objects.requireNonNull(other));
+    }
+
+    /**
      * A factory-helper to work with {@link OntVocabulary} instances, that wrap constant-holders
      * from the packages {@link com.github.sszuev.jena.ontapi.vocabulary}
      * and {@link org.apache.jena.vocabulary} (such as {@link OWL}).
@@ -159,21 +179,8 @@ public interface OntVocabulary {
      * In ONT-API, a {@link OntVocabulary} singleton is used
      * to build {@link OntPersonality}
      * and, also, in {@code com.github.owlcs.ontapi.transforms} subsystem.
-     * <p>
-     * Created by @ssz on 21.12.2016.
      */
-    class Factory {
-
-        public static final OntVocabulary EMPTY_VOCABULARY = new Impl(Map.of());
-        public static final OntVocabulary RDFS_VOCABULARY = new RDFSImpl();
-        public static final OntVocabulary OWL2_VOCABULARY = new OWL2Impl(false);
-        public static final OntVocabulary OWL2_EL_VOCABULARY = new OWL2Impl(true);
-        public static final OntVocabulary OWL1_VOCABULARY = new OWL1Impl(true);
-        public static final OntVocabulary OWL1_LITE_VOCABULARY = new OWL1Impl(false);
-        public static final OntVocabulary DC_VOCABULARY = new DCImpl();
-        public static final OntVocabulary SKOS_VOCABULARY = new SKOSImpl();
-        public static final OntVocabulary SWRL_VOCABULARY = new SWRLImpl();
-        public static final OntVocabulary OWL2_DC_SKOS_SWRL_VOCABULARY = create(OWL2_VOCABULARY, DC_VOCABULARY, SKOS_VOCABULARY, SWRL_VOCABULARY);
+    final class Impls {
 
         /**
          * Creates a fresh union vocabulary that combines the given ones.
@@ -183,8 +190,8 @@ public interface OntVocabulary {
          * @see #create(String, Collection)
          */
         public static OntVocabulary create(OntVocabulary... vocabularies) {
-            return new Impl(Arrays.stream(vocabularies)
-                    .map(Factory::asMap)
+            return new BaseImpl(Arrays.stream(vocabularies)
+                    .map(Impls::asMap)
                     .flatMap(x -> x.entrySet().stream())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
                         Set<Resource> res = new HashSet<>(a);
@@ -226,7 +233,7 @@ public interface OntVocabulary {
         public static OntVocabulary create(String key, Collection<? extends Resource> values) {
             Map<String, Set<? extends Resource>> map = new HashMap<>();
             map.put(Objects.requireNonNull(key), toUnmodifiableSet(Objects.requireNonNull(values)));
-            return new Impl(map);
+            return new BaseImpl(map);
         }
 
         /**
@@ -239,7 +246,7 @@ public interface OntVocabulary {
          * (keys: {@link RDFS#Resource rdfs:Resource} and {@link RDF#Property rdf:Property})
          */
         public static OntVocabulary create(Class<?>... schemas) {
-            return new Impl(getConstants(Property.class, schemas), getConstants(Resource.class, schemas));
+            return new BaseImpl(getConstants(Property.class, schemas), getConstants(Resource.class, schemas));
         }
 
         private static Stream<Field> directFields(Class<?> vocabulary, Class<?> type) {
@@ -267,19 +274,24 @@ public interface OntVocabulary {
             }
         }
 
-        protected static <T> Set<T> getConstants(Class<? extends T> type, Class<?>... vocabularies) {
+        private static <T> Set<T> getConstants(Class<? extends T> type, Class<?>... vocabularies) {
             return Arrays.stream(vocabularies)
                     .flatMap(x -> constants(x, type))
                     .collect(Collectors.toUnmodifiableSet());
         }
 
         private static Map<String, Set<? extends Resource>> asMap(OntVocabulary voc) {
-            if (voc instanceof Impl) {
-                return ((Impl) voc).map;
+            if (voc instanceof BaseImpl) {
+                return ((BaseImpl) voc).map;
             }
             Map<String, Set<? extends Resource>> res = new HashMap<>();
             Stream.of(OWL.AnnotationProperty, OWL.DatatypeProperty, OWL.ObjectProperty,
-                            RDFS.Datatype, OWL.Class, SWRL.Builtin, RDF.Property, RDFS.Resource)
+                            org.apache.jena.vocabulary.RDFS.Datatype,
+                            OWL.Class,
+                            com.github.sszuev.jena.ontapi.vocabulary.SWRL.Builtin,
+                            RDF.Property,
+                            org.apache.jena.vocabulary.RDFS.Resource
+                    )
                     .forEach(x -> res.put(x.getURI(), voc.get(x)));
             return res;
         }
@@ -291,8 +303,13 @@ public interface OntVocabulary {
             return input.stream().peek(Objects::requireNonNull).collect(Collectors.toUnmodifiableSet());
         }
 
-        protected static class RDFSImpl extends Impl {
-            public static final Set<Property> ANNOTATION_PROPERTIES = Set.of(RDFS.label, RDFS.comment, RDFS.seeAlso, RDFS.isDefinedBy);
+        protected static class RDFSImpl extends BaseImpl {
+            public static final Set<Property> ANNOTATION_PROPERTIES = Set.of(
+                    org.apache.jena.vocabulary.RDFS.label,
+                    org.apache.jena.vocabulary.RDFS.comment,
+                    org.apache.jena.vocabulary.RDFS.seeAlso,
+                    org.apache.jena.vocabulary.RDFS.isDefinedBy
+            );
             private static final Class<?>[] VOCABULARIES = new Class<?>[]{RDF.class, RDFS.class};
             public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
@@ -315,71 +332,92 @@ public interface OntVocabulary {
          * Access to the {@link OWL OWL2} (including RDFS &amp; RDF &amp; XSD) vocabulary.
          */
         @SuppressWarnings("WeakerAccess")
-        protected static class OWL2Impl extends Impl {
+        protected static class OWL2Impl extends BaseImpl {
             /**
              * The list of datatypes from owl-2 specification (35 types)
              * (see <a href="https://www.w3.org/TR/owl2-quick-reference/">Quick References, 3.1 Built-in Datatypes</a>).
              * It seems it is not full:
              */
-            public static final Set<Resource> OWL2_FULL_DATATYPES =
-                    Set.of(OWL.real, OWL.rational,
-                            RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
-                            RDFS.Literal, XSD.xstring, XSD.normalizedString,
-                            XSD.token, XSD.language, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
-                            XSD.xdouble, XSD.xfloat, XSD.xboolean,
-                            XSD.nonNegativeInteger, XSD.nonPositiveInteger, XSD.positiveInteger, XSD.negativeInteger,
-                            XSD.xlong, XSD.xint, XSD.xshort, XSD.xbyte,
-                            XSD.unsignedLong, XSD.unsignedInt, XSD.unsignedShort, XSD.unsignedByte,
-                            XSD.hexBinary, XSD.base64Binary,
-                            XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
-                    );
+            public static final Set<Resource> OWL2_DATATYPES = Set.of(
+                    OWL.real, OWL.rational,
+                    RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
+                    org.apache.jena.vocabulary.RDFS.Literal, XSD.xstring, XSD.normalizedString,
+                    XSD.token, XSD.language, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
+                    XSD.xdouble, XSD.xfloat, XSD.xboolean,
+                    XSD.nonNegativeInteger, XSD.nonPositiveInteger, XSD.positiveInteger, XSD.negativeInteger,
+                    XSD.xlong, XSD.xint, XSD.xshort, XSD.xbyte,
+                    XSD.unsignedLong, XSD.unsignedInt, XSD.unsignedShort, XSD.unsignedByte,
+                    XSD.hexBinary, XSD.base64Binary,
+                    XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
+            );
             /**
              * @see <a href="https://www.w3.org/TR/owl2-profiles/#Entities">EL: Entities</a>
              * @see <a href="https://www.w3.org/TR/owl2-profiles/#Entities_2">QL: Entities</a>
              */
-            public static final Set<Resource> OWL2_EL_QL_DATATYPES =
-                    Set.of(OWL.real, OWL.rational,
-                            RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
-                            RDFS.Literal, XSD.xstring, XSD.normalizedString,
-                            XSD.token, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
-                            XSD.nonNegativeInteger,
-                            XSD.hexBinary, XSD.base64Binary,
-                            XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
-                    );
-            public static final Set<Resource> OWL2_ALL_KNOWN_DATATYPES = initOWL2BuiltInRDFDatatypes(TypeMapper.getInstance())
+            public static final Set<Resource> OWL2_EL_QL_DATATYPES = Set.of(
+                    OWL.real, OWL.rational,
+                    RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
+                    org.apache.jena.vocabulary.RDFS.Literal, XSD.xstring, XSD.normalizedString,
+                    XSD.token, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
+                    XSD.nonNegativeInteger,
+                    XSD.hexBinary, XSD.base64Binary,
+                    XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
+            );
+            public static final Set<Resource> ALL_KNOWN_DATATYPES = initOWL2BuiltInRDFDatatypes(TypeMapper.getInstance())
                     .stream()
                     .map(RDFDatatype::getURI)
                     .map(ResourceFactory::createResource)
                     .collect(Collectors.toUnmodifiableSet());
-            public static final Set<Resource> OWL2_BUILTIN_CLASSES = Set.of(OWL.Nothing, OWL.Thing);
-            public static final Set<Property> OWL2_BUILTIN_ANNOTATION_PROPERTIES =
-                    Set.of(RDFS.label, RDFS.comment, RDFS.seeAlso, RDFS.isDefinedBy, OWL.versionInfo,
-                            OWL.backwardCompatibleWith, OWL.priorVersion, OWL.incompatibleWith, OWL.deprecated);
-            public static final Set<Property> OWL2_BUILTIN_DATA_PROPERTIES = Set.of(OWL.topDataProperty, OWL.bottomDataProperty);
-            public static final Set<Property> OWL2_BUILTIN_OBJECT_PROPERTIES = Set.of(OWL.topObjectProperty, OWL.bottomObjectProperty);
-            private static final Class<?>[] VOCABULARIES = new Class<?>[]{XSD.class, RDF.class, RDFS.class, OWL.class};
+            public static final Set<Resource> OWL2_CLASSES = Set.of(OWL.Nothing, OWL.Thing);
+            public static final Set<Property> OWL2_ANNOTATION_PROPERTIES = Set.of(
+                    org.apache.jena.vocabulary.RDFS.label,
+                    org.apache.jena.vocabulary.RDFS.comment,
+                    org.apache.jena.vocabulary.RDFS.seeAlso,
+                    org.apache.jena.vocabulary.RDFS.isDefinedBy,
+                    OWL.versionInfo,
+                    OWL.backwardCompatibleWith,
+                    OWL.priorVersion,
+                    OWL.incompatibleWith,
+                    OWL.deprecated);
+            public static final Set<Property> OWL2_DATA_PROPERTIES = Set.of(OWL.topDataProperty, OWL.bottomDataProperty);
+            public static final Set<Property> OWL2_OBJECT_PROPERTIES = Set.of(OWL.topObjectProperty, OWL.bottomObjectProperty);
+            private static final Class<?>[] VOCABULARIES = new Class<?>[]{XSD.class, RDF.class, org.apache.jena.vocabulary.RDFS.class, OWL.class};
             public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
-            protected OWL2Impl(boolean forEL) {
+            protected OWL2Impl(Type type) {
                 super(
-                        OWL2_BUILTIN_ANNOTATION_PROPERTIES,
-                        OWL2_BUILTIN_DATA_PROPERTIES,
-                        OWL2_BUILTIN_OBJECT_PROPERTIES,
-                        OWL2_BUILTIN_CLASSES,
-                        forEL? OWL2_EL_QL_DATATYPES : OWL2_ALL_KNOWN_DATATYPES,
+                        OWL2_ANNOTATION_PROPERTIES,
+                        OWL2_DATA_PROPERTIES,
+                        OWL2_OBJECT_PROPERTIES,
+                        OWL2_CLASSES,
+                        datatypes(type),
                         /*SWRL*/ null,
                         PROPERTIES,
                         RESOURCES
                 );
             }
 
+            private static Set<Resource> datatypes(Type type) {
+                if (type == Type.DL) {
+                    return OWL2_DATATYPES;
+                }
+                if (type == Type.EL || type == Type.QL) {
+                    return OWL2_EL_QL_DATATYPES;
+                }
+                return ALL_KNOWN_DATATYPES;
+            }
+
             private static Set<RDFDatatype> initOWL2BuiltInRDFDatatypes(TypeMapper types) {
                 Stream.of(OWL.real, OWL.rational).forEach(d -> types.registerDatatype(new BaseDatatype(d.getURI())));
-                OWL2_FULL_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
+                OWL2_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
                 Set<RDFDatatype> res = new HashSet<>();
                 types.listTypes().forEachRemaining(res::add);
                 return Collections.unmodifiableSet(res);
+            }
+
+            protected enum Type {
+                FULL, DL, EL, QL,
             }
         }
 
@@ -387,10 +425,10 @@ public interface OntVocabulary {
          * Access to the {@link org.apache.jena.vocabulary.OWL OWL1} (including RDFS &amp; RDF &amp; XSD) vocabulary.
          */
         @SuppressWarnings("WeakerAccess")
-        protected static class OWL1Impl extends Impl {
+        protected static class OWL1Impl extends BaseImpl {
             private static final Set<Resource> OWL1_DATATYPES =
                     Set.of(RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
-                            RDFS.Literal, XSD.xstring, XSD.normalizedString,
+                            org.apache.jena.vocabulary.RDFS.Literal, XSD.xstring, XSD.normalizedString,
                             XSD.token, XSD.language, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
                             XSD.xdouble, XSD.xfloat, XSD.xboolean,
                             XSD.nonNegativeInteger, XSD.nonPositiveInteger, XSD.positiveInteger, XSD.negativeInteger,
@@ -399,44 +437,67 @@ public interface OntVocabulary {
                             XSD.hexBinary, XSD.base64Binary,
                             XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
                     );
-            public static final Set<Resource> ALL_KNOWN_BUILTIN_DATATYPES = initOWL1BuiltInRDFDatatypes(TypeMapper.getInstance())
+            public static final Set<Resource> ALL_KNOWN_DATATYPES = initOWL1BuiltInRDFDatatypes(TypeMapper.getInstance())
                     .stream()
                     .map(RDFDatatype::getURI)
                     .map(ResourceFactory::createResource)
                     .collect(Collectors.toUnmodifiableSet());
-            public static final Set<Resource> OWL1_FULL_BUILTIN_CLASSES = Set.of(
+            public static final Set<Resource> OWL1_FULL_CLASSES = Set.of(
                     org.apache.jena.vocabulary.OWL.Nothing, org.apache.jena.vocabulary.OWL.Thing
             );
-            public static final Set<Resource> OWL1_LITE_BUILTIN_CLASSES = Set.of(
+            public static final Set<Resource> OWL1_LITE_CLASSES = Set.of(
                     org.apache.jena.vocabulary.OWL.Thing
             );
-            public static final Set<Property> OWL1_BUILTIN_ANNOTATION_PROPERTIES = Set.of(
-                    RDFS.label, RDFS.comment, RDFS.seeAlso, RDFS.isDefinedBy,
-                    org.apache.jena.vocabulary.OWL.versionInfo, org.apache.jena.vocabulary.OWL.backwardCompatibleWith,
-                    org.apache.jena.vocabulary.OWL.priorVersion, org.apache.jena.vocabulary.OWL.incompatibleWith
+            public static final Set<Property> OWL1_ANNOTATION_PROPERTIES = Set.of(
+                    org.apache.jena.vocabulary.RDFS.label,
+                    org.apache.jena.vocabulary.RDFS.comment,
+                    org.apache.jena.vocabulary.RDFS.seeAlso,
+                    org.apache.jena.vocabulary.RDFS.isDefinedBy,
+                    org.apache.jena.vocabulary.OWL.versionInfo,
+                    org.apache.jena.vocabulary.OWL.backwardCompatibleWith,
+                    org.apache.jena.vocabulary.OWL.priorVersion,
+                    org.apache.jena.vocabulary.OWL.incompatibleWith
             );
-            public static final Set<Property> OWL1_BUILTIN_DATA_PROPERTIES = Set.of();
-            public static final Set<Property> OWL1_BUILTIN_OBJECT_PROPERTIES = Set.of();
-            private static final Class<?>[] VOCABULARIES = new Class<?>[]{XSD.class, RDF.class, RDFS.class, org.apache.jena.vocabulary.OWL.class};
+            public static final Set<Property> OWL1_DATA_PROPERTIES = Set.of();
+            public static final Set<Property> OWL1_OBJECT_PROPERTIES = Set.of();
+            private static final Class<?>[] VOCABULARIES = new Class<?>[]{
+                    XSD.class,
+                    RDF.class,
+                    org.apache.jena.vocabulary.RDFS.class,
+                    org.apache.jena.vocabulary.OWL.class};
             public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
             public static final Set<Resource> RESOURCES = getConstants(Resource.class, VOCABULARIES);
 
-            protected OWL1Impl(boolean full) {
+            protected OWL1Impl(Type type) {
                 super(
-                        OWL1_BUILTIN_ANNOTATION_PROPERTIES,
-                        OWL1_BUILTIN_DATA_PROPERTIES,
-                        OWL1_BUILTIN_OBJECT_PROPERTIES,
-                        full ? OWL1_FULL_BUILTIN_CLASSES : OWL1_LITE_BUILTIN_CLASSES,
-                        ALL_KNOWN_BUILTIN_DATATYPES,
+                        OWL1_ANNOTATION_PROPERTIES,
+                        OWL1_DATA_PROPERTIES,
+                        OWL1_OBJECT_PROPERTIES,
+                        classes(type),
+                        datatypes(type),
                         /*SWRL*/ null,
                         PROPERTIES,
                         RESOURCES
                 );
             }
 
+            private static Set<Resource> classes(Type type) {
+                if (type == Type.LITE) {
+                    return OWL1_LITE_CLASSES;
+                }
+                return OWL1_FULL_CLASSES;
+            }
+
+            private static Set<Resource> datatypes(Type type) {
+                if (type == Type.FULL) {
+                    return ALL_KNOWN_DATATYPES;
+                }
+                return OWL1_DATATYPES;
+            }
+
             private static Set<RDFDatatype> initOWL1BuiltInRDFDatatypes(TypeMapper types) {
                 OWL1_DATATYPES.forEach(iri -> types.getSafeTypeByName(iri.getURI()));
-                Set<String> exclude = OWL2Impl.OWL2_FULL_DATATYPES.stream()
+                Set<String> exclude = OWL2Impl.OWL2_DATATYPES.stream()
                         .filter(it -> !OWL1_DATATYPES.contains(it))
                         .map(Resource::getURI)
                         .collect(Collectors.toUnmodifiableSet());
@@ -448,13 +509,17 @@ public interface OntVocabulary {
                 });
                 return Collections.unmodifiableSet(res);
             }
+
+            public enum Type {
+                FULL, DL, LITE,
+            }
         }
 
         /**
          * Access to {@link DC} vocabulary.
          */
-        protected static class DCImpl extends Impl {
-            public static final Set<Property> ALL_PROPERTIES = getConstants(Property.class, DC.class);
+        protected static class DCImpl extends BaseImpl {
+            public static final Set<Property> ALL_PROPERTIES = getConstants(Property.class, org.apache.jena.vocabulary.DC.class);
 
             protected DCImpl() {
                 super(
@@ -474,26 +539,27 @@ public interface OntVocabulary {
          * Access to {@link SKOS} vocabulary.
          */
         @SuppressWarnings("WeakerAccess")
-        protected static class SKOSImpl extends Impl {
+        protected static class SKOSImpl extends BaseImpl {
             public static final Set<Property> ANNOTATION_PROPERTIES =
-                    Set.of(SKOS.altLabel, SKOS.changeNote, SKOS.definition,
-                            SKOS.editorialNote, SKOS.example, SKOS.hiddenLabel, SKOS.historyNote,
-                            SKOS.note, SKOS.prefLabel, SKOS.scopeNote);
+                    Set.of(org.apache.jena.vocabulary.SKOS.altLabel,
+                            org.apache.jena.vocabulary.SKOS.changeNote, org.apache.jena.vocabulary.SKOS.definition,
+                            org.apache.jena.vocabulary.SKOS.editorialNote, org.apache.jena.vocabulary.SKOS.example, org.apache.jena.vocabulary.SKOS.hiddenLabel, org.apache.jena.vocabulary.SKOS.historyNote,
+                            org.apache.jena.vocabulary.SKOS.note, org.apache.jena.vocabulary.SKOS.prefLabel, org.apache.jena.vocabulary.SKOS.scopeNote);
             public static final Set<Property> OBJECT_PROPERTIES =
-                    Set.of(SKOS.broadMatch, SKOS.broader, SKOS.broaderTransitive,
-                            SKOS.closeMatch, SKOS.exactMatch, SKOS.hasTopConcept, SKOS.inScheme,
-                            SKOS.mappingRelation, SKOS.member, SKOS.memberList, SKOS.narrowMatch,
-                            SKOS.narrower, SKOS.narrowerTransitive, SKOS.related,
-                            SKOS.relatedMatch, SKOS.semanticRelation, SKOS.topConceptOf);
+                    Set.of(org.apache.jena.vocabulary.SKOS.broadMatch, org.apache.jena.vocabulary.SKOS.broader, org.apache.jena.vocabulary.SKOS.broaderTransitive,
+                            org.apache.jena.vocabulary.SKOS.closeMatch, org.apache.jena.vocabulary.SKOS.exactMatch, org.apache.jena.vocabulary.SKOS.hasTopConcept, org.apache.jena.vocabulary.SKOS.inScheme,
+                            org.apache.jena.vocabulary.SKOS.mappingRelation, org.apache.jena.vocabulary.SKOS.member, org.apache.jena.vocabulary.SKOS.memberList, org.apache.jena.vocabulary.SKOS.narrowMatch,
+                            org.apache.jena.vocabulary.SKOS.narrower, org.apache.jena.vocabulary.SKOS.narrowerTransitive, org.apache.jena.vocabulary.SKOS.related,
+                            org.apache.jena.vocabulary.SKOS.relatedMatch, org.apache.jena.vocabulary.SKOS.semanticRelation, org.apache.jena.vocabulary.SKOS.topConceptOf);
             /**
              * NOTE: In the OWLAPI-api {@code org.semanticweb.owlapi.vocab.SKOSVocabulary} there is also skos:TopConcept
              * But in fact there is no such resource in the <a href="https://www.w3.org/2009/08/skos-reference/skos.htm">specification</a>.
              */
             public static final Set<Resource> CLASSES =
-                    Set.of(SKOS.Collection, SKOS.Concept, SKOS.ConceptScheme, SKOS.OrderedCollection);
+                    Set.of(org.apache.jena.vocabulary.SKOS.Collection, org.apache.jena.vocabulary.SKOS.Concept, org.apache.jena.vocabulary.SKOS.ConceptScheme, org.apache.jena.vocabulary.SKOS.OrderedCollection);
 
-            public static final Set<Property> PROPERTIES = getConstants(Property.class, SKOS.class);
-            public static final Set<Resource> RESOURCES = getConstants(Resource.class, SKOS.class);
+            public static final Set<Property> PROPERTIES = getConstants(Property.class, org.apache.jena.vocabulary.SKOS.class);
+            public static final Set<Resource> RESOURCES = getConstants(Resource.class, org.apache.jena.vocabulary.SKOS.class);
 
 
             protected SKOSImpl() {
@@ -516,7 +582,7 @@ public interface OntVocabulary {
          * @see SWRL
          * @see SWRLB
          */
-        protected static class SWRLImpl extends Impl {
+        protected static class SWRLImpl extends BaseImpl {
             public static final Set<Resource> BUILTINS = getConstants(Property.class, SWRLB.class);
             private static final Class<?>[] VOCABULARIES = new Class<?>[]{SWRL.class, SWRLB.class};
             public static final Set<Property> PROPERTIES = getConstants(Property.class, VOCABULARIES);
@@ -539,11 +605,11 @@ public interface OntVocabulary {
         /**
          * The base implementation.
          */
-        protected static class Impl implements OntVocabulary {
+        public static class BaseImpl implements OntVocabulary {
             private final Map<String, Set<? extends Resource>> map;
 
-            private Impl(Set<Property> properties,
-                         Set<Resource> resources) {
+            private BaseImpl(Set<Property> properties,
+                             Set<Resource> resources) {
                 this(
                         /* annotation properties */ null,
                         /* datatype properties */ null,
@@ -556,14 +622,14 @@ public interface OntVocabulary {
                 );
             }
 
-            protected Impl(Set<Property> annotationProperties,
-                           Set<Property> dataProperties,
-                           Set<Property> objectProperties,
-                           Set<Resource> classes,
-                           Set<Resource> datatypes,
-                           Set<Resource> swrlBuiltins,
-                           Set<Property> allProperties,
-                           Set<Resource> allResources) {
+            protected BaseImpl(Set<Property> annotationProperties,
+                               Set<Property> dataProperties,
+                               Set<Property> objectProperties,
+                               Set<Resource> classes,
+                               Set<Resource> datatypes,
+                               Set<Resource> swrlBuiltins,
+                               Set<Property> allProperties,
+                               Set<Resource> allResources) {
                 this.map = collectBuiltIns(
                         annotationProperties,
                         dataProperties,
@@ -588,10 +654,10 @@ public interface OntVocabulary {
                         pair(OWL.DatatypeProperty, dataProperties),
                         pair(OWL.ObjectProperty, objectProperties),
                         pair(OWL.Class, classes),
-                        pair(RDFS.Datatype, datatypes),
-                        pair(SWRL.Builtin, swrlBuiltins),
+                        pair(org.apache.jena.vocabulary.RDFS.Datatype, datatypes),
+                        pair(com.github.sszuev.jena.ontapi.vocabulary.SWRL.Builtin, swrlBuiltins),
                         pair(RDF.Property, allProperties),
-                        pair(RDFS.Resource, allResources)
+                        pair(org.apache.jena.vocabulary.RDFS.Resource, allResources)
                 ).filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(
                         it -> it.getKey().getURI(),
                         it -> Set.copyOf(it.getValue()))
@@ -602,7 +668,7 @@ public interface OntVocabulary {
                 return value == null ? null : Map.entry(key, value);
             }
 
-            protected Impl(Map<String, Set<? extends Resource>> map) {
+            protected BaseImpl(Map<String, Set<? extends Resource>> map) {
                 this.map = Map.copyOf(Objects.requireNonNull(map));
             }
 

@@ -8,6 +8,7 @@ import com.github.sszuev.jena.ontapi.common.EnhNodeProducer;
 import com.github.sszuev.jena.ontapi.common.OntObjectPersonalityBuilder;
 import com.github.sszuev.jena.ontapi.common.OntPersonalities;
 import com.github.sszuev.jena.ontapi.common.OntPersonality;
+import com.github.sszuev.jena.ontapi.common.OntVocabulary;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.model.OntAnnotationProperty;
 import com.github.sszuev.jena.ontapi.model.OntClass;
@@ -93,15 +94,15 @@ public class OntPersonalityTest {
 
 
         OntPersonality p1 = OntObjectPersonalityBuilder.from(TestOntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
-                .setBuiltins(OntPersonalities.createBuiltinsVocabulary(OntVocabulary.Factory.OWL2_VOCABULARY)).build();
+                .setBuiltins(OntPersonalities.createBuiltinsVocabulary(OntVocabulary.OWL2_FULL)).build();
         OntModel m1 = OntModelFactory.createModel(g.getGraph(), p1);
         Assertions.assertEquals(1, m1.classes().count());
         Assertions.assertNull(m1.getOntClass(agent));
         Assertions.assertNull(m1.getOntClass(document));
         Assertions.assertEquals(0, m1.getOntClass(clazz).superClasses().count());
 
-        OntVocabulary SIMPLE_FOAF_VOC = OntVocabulary.Factory.create(OWL.Class, agent, document);
-        OntVocabulary voc = OntVocabulary.Factory.create(OntVocabulary.Factory.OWL2_VOCABULARY, SIMPLE_FOAF_VOC);
+        OntVocabulary SIMPLE_FOAF_VOC = OntVocabulary.Impls.create(OWL.Class, agent, document);
+        OntVocabulary voc = OntVocabulary.Impls.create(OntVocabulary.OWL2_FULL, SIMPLE_FOAF_VOC);
         OntPersonality p2 = OntObjectPersonalityBuilder.from(TestOntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
                 .setBuiltins(OntPersonalities.createBuiltinsVocabulary(voc)).build();
         OntModel m2 = OntModelFactory.createModel(g.getGraph(), p2);
@@ -127,7 +128,7 @@ public class OntPersonalityTest {
         OntModel m1 = OntModelFactory.createModel(g.getGraph());
         Assertions.assertEquals(2, m1.ontObjects(OntIndividual.class).count());
 
-        OntVocabulary voc = OntVocabulary.Factory.create(RDF.Property, p);
+        OntVocabulary voc = OntVocabulary.Impls.create(RDF.Property, p);
         OntPersonality p2 = OntObjectPersonalityBuilder.from(TestOntPersonalities.OWL2_PERSONALITY_STRICT_PUNNS)
                 .setReserved(OntPersonalities.createReservedVocabulary(voc)).build();
         OntModel m2 = OntModelFactory.createModel(g.getGraph(), p2);

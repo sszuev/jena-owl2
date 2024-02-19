@@ -14,7 +14,7 @@ import java.util.Set;
  * Created by @ssz on 16.01.2019.
  *
  * @param <T> any subtype of {@link Resource}
- * @see com.github.sszuev.jena.ontapi.OntVocabulary
+ * @see OntVocabulary
  */
 public interface ResourceVocabulary<T extends Resource> {
 

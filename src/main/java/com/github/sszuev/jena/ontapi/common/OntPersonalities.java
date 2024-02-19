@@ -1,6 +1,5 @@
 package com.github.sszuev.jena.ontapi.common;
 
-import com.github.sszuev.jena.ontapi.OntVocabulary;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL1ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.OWL2ObjectFactories;
 import com.github.sszuev.jena.ontapi.impl.factories.RDFSObjectFactories;
@@ -55,15 +54,17 @@ import java.util.Set;
 @SuppressWarnings("WeakerAccess")
 public class OntPersonalities {
 
-    public static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
-    public static final OntPersonality.Builtins OWL2_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL2_DC_SKOS_SWRL_VOCABULARY);
-    public static final OntPersonality.Builtins OWL2_EL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL2_EL_VOCABULARY);
-    public static final OntPersonality.Builtins OWL1_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL1_VOCABULARY);
-    public static final OntPersonality.Builtins OWL1_LITE_BUILTINS = createBuiltinsVocabulary(OntVocabulary.Factory.OWL1_LITE_VOCABULARY);
+    public static final OntPersonality.Builtins RDFS_BUILTINS = createBuiltinsVocabulary(OntVocabulary.RDFS);
+    public static final OntPersonality.Builtins OWL2_FULL_BUILTINS = createBuiltinsVocabulary(
+            OntVocabulary.OWL2_FULL.and(OntVocabulary.DC).and(OntVocabulary.SKOS).and(OntVocabulary.SWRL));
+    public static final OntPersonality.Builtins OWL2_EL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.OWL2_EL);
+    public static final OntPersonality.Builtins OWL1_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.OWL1_FULL);
+    public static final OntPersonality.Builtins OWL1_LITE_BUILTINS = createBuiltinsVocabulary(OntVocabulary.OWL1_LITE);
 
-    public static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.Factory.RDFS_VOCABULARY);
-    public static final OntPersonality.Reserved OWL2_RESERVED = createReservedVocabulary(OntVocabulary.Factory.OWL2_DC_SKOS_SWRL_VOCABULARY);
-    public static final OntPersonality.Reserved OWL1_RESERVED = createReservedVocabulary(OntVocabulary.Factory.OWL1_VOCABULARY);
+    public static final OntPersonality.Reserved RDFS_RESERVED = createReservedVocabulary(OntVocabulary.RDFS);
+    public static final OntPersonality.Reserved OWL2_RESERVED = createReservedVocabulary(
+            OntVocabulary.OWL2_FULL.and(OntVocabulary.DC).and(OntVocabulary.SKOS).and(OntVocabulary.SWRL));
+    public static final OntPersonality.Reserved OWL1_RESERVED = createReservedVocabulary(OntVocabulary.OWL1_FULL);
 
     public static final OntPersonality.Punnings OWL_DL1_PUNNINGS = createPunningsVocabulary(PunningsMode.DL1_COMPATIBLE);
     public static final OntPersonality.Punnings OWL_DL2_PUNNINGS = createPunningsVocabulary(PunningsMode.DL2);
