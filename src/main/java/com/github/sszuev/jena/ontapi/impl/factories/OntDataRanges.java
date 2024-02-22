@@ -75,9 +75,7 @@ final class OntDataRanges {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public static EnhNodeFactory createOWL2OneOfEnumerationFactory(OntConfig config) {
-        boolean restrictOneOfToSingleLiteral =
-                config.getBoolean(OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION);
+    public static EnhNodeFactory createOWL2ELOneOfEnumerationFactory(OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(
                 OntDataRangeImpl.OneOfImpl.class, RDFS.Datatype, OntDataRangeImpl.OneOfImpl::new
         );
@@ -89,7 +87,7 @@ final class OntDataRanges {
                     if (list == null) {
                         return false;
                     }
-                    return !restrictOneOfToSingleLiteral || Iterators.takeAsSet(list.iterator(), 2).size() == 1;
+                    return Iterators.takeAsSet(list.iterator(), 2).size() == 1;
                 });
         EnhNodeFinder finder = makeOWLFinder(config);
         return OntEnhNodeFactories.createCommon(maker, finder, filter);

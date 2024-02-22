@@ -87,6 +87,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -986,14 +987,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntDataRange.OneOf createDataOneOf(Collection<Literal> values) {
         checkType(OntDataRange.OneOf.class);
-        if (configValue(this, OntModelControls.USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION)) {
-            if (values.size() != 1) {
-                throw new OntJenaException.Unsupported(
-                        "Profile " + getOntPersonality().getName() + " requires single owl:oneOf literal"
-                );
-            }
-        }
-        return OntDataRangeImpl.createOneOf(this, values.stream());
+        return checkCreate(model -> OntDataRangeImpl.createOneOf(OntGraphModelImpl.this, values.stream()), OntDataRange.OneOf.class);
     }
 
     @Override
@@ -1118,15 +1112,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.OneOf createObjectOneOf(Collection<OntIndividual> individuals) {
         checkType(OntClass.OneOf.class);
-        if (configValue(this, OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION)) {
-            if (individuals.size() != 1) {
-                throw new OntJenaException.Unsupported(
-                        "Profile " + getOntPersonality().getName() + " requires single owl:oneOf individual"
-                );
-            }
-        }
-        return OntClassImpl.createComponentsCE(this,
-                OntClass.OneOf.class, OntIndividual.class, OWL.oneOf, individuals.stream());
+        return checkCreate(model -> OntClassImpl.createComponentsCE(OntGraphModelImpl.this,
+                OntClass.OneOf.class, OntIndividual.class, OWL.oneOf, individuals.stream()), OntClass.OneOf.class);
     }
 
     @Override
@@ -1212,6 +1199,32 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
                                      Collection<OntSWRL.Atom<?>> body) {
         checkType(OntSWRL.Atom.Imp.class);
         return OntSWRLImpl.createImp(this, head, body);
+    }
+
+    /**
+     * Creates an object of type {@link X} if it is possible;
+     * otherwise throws {@link OntJenaException.Unsupported} exception.
+     * @param creator {@link Function} to create {@link X}
+     * @param type of {@link X}
+     * @return {@link X}
+     * @param <X> {@link OntObject}
+     * @throws OntJenaException.Unsupported if no possible to create an object
+     */
+    protected <X extends OntObject> X checkCreate(Function<OntModel, X> creator, Class<X> type) {
+        Graph bg = GraphMemFactory.createDefaultGraph();
+        UnionGraph ug = new UnionGraphImpl(bg);
+        ug.addSubGraph(getGraph());
+        OntModel m = new OntGraphModelImpl(ug, getOntPersonality());
+        try {
+            X res = creator.apply(m);
+            bg.find().forEach(getBaseGraph()::add);
+            return res.inModel(this).as(type);
+        } catch (OntJenaException.Conversion e) {
+            throw new OntJenaException.Unsupported(
+                    "Unable to create object " + OntEnhNodeFactories.viewAsString(type) +
+                            "; probably, it is disallowed by profile " + getOntPersonality().getName()
+            );
+        }
     }
 
     public RDFDatatype getRDFDatatype(String uri) {

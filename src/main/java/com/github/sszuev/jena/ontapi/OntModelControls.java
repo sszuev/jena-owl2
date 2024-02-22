@@ -272,16 +272,4 @@ public enum OntModelControls {
      * predicates are allowed for Cardinality restrictions.
      */
     USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE,
-    /**
-     * If this key is set to {@code true},
-     * DataOneOf enumeration is restricted to a single literal.
-     * This is required by some OWL-profiles (e.g., EL).
-     */
-    USE_DATA_ONE_OF_SINGLE_LITERAL_RESTRICTION,
-    /**
-     * If this key is set to {@code true},
-     * ObjectOneOf enumeration is restricted to a single individual.
-     * This is required by some OWL-profiles (e.g., EL).
-     */
-    USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION,
 }

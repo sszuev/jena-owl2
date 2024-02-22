@@ -180,7 +180,7 @@ public class OntPersonalities {
             .add(OntClass.DataCardinality.class, OWL2ObjectFactories.DATA_CARDINALITY_CLASS)
             .add(OntClass.HasSelf.class, OWL2ObjectFactories.HAS_SELF_CLASS)
             .add(OntClass.UnionOf.class, OWL2ObjectFactories.UNION_OF_CLASS)
-            .add(OntClass.OneOf.class, OWL2ObjectFactories.ONE_OF_CLASS)
+            .add(OntClass.OneOf.class, OWL2ObjectFactories.DL_ONE_OF_CLASS)
             .add(OntClass.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_CLASS)
             .add(OntClass.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_CLASS)
             .add(OntClass.NaryDataAllValuesFrom.class, OWL2ObjectFactories.NARY_DATA_ALL_VALUES_FROM_CLASS)
@@ -195,7 +195,7 @@ public class OntPersonalities {
             .add(OntClass.class, OWL2ObjectFactories.DL_ANY_CLASS)
 
             // data ranges:
-            .add(OntDataRange.OneOf.class, OWL2ObjectFactories.ONE_OF_DATARANGE)
+            .add(OntDataRange.OneOf.class, OWL2ObjectFactories.DL_ONE_OF_DATARANGE)
             .add(OntDataRange.Restriction.class, OWL2ObjectFactories.RESTRICTION_DATARANGE)
             .add(OntDataRange.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_DATARANGE)
             .add(OntDataRange.UnionOf.class, OWL2ObjectFactories.UNION_OF_DATARANGE)
@@ -228,7 +228,7 @@ public class OntPersonalities {
             .add(OntDisjoint.ObjectProperties.class, OWL2ObjectFactories.OBJECT_PROPERTIES_DISJOINT)
             .add(OntDisjoint.DataProperties.class, OWL2ObjectFactories.DATA_PROPERTIES_DISJOINT)
             .add(OntDisjoint.Properties.class, OWL2ObjectFactories.ANY_PROPERTIES_DISJOINT)
-            .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT_DL)
+            .add(OntDisjoint.class, OWL2ObjectFactories.DL_ANY_DISJOINT)
 
             // SWRL objects:
             .add(SWRL_OBJECT_FACTORIES);
@@ -274,7 +274,7 @@ public class OntPersonalities {
             .add(OntClass.ObjectHasValue.class, OWL2ObjectFactories.OBJECT_HAS_VALUE_CLASS)
             .add(OntClass.DataHasValue.class, OWL2ObjectFactories.DATA_HAS_VALUE_CLASS)
             .add(OntClass.HasSelf.class, OWL2ObjectFactories.HAS_SELF_CLASS)
-            .add(OntClass.OneOf.class, OWL2ObjectFactories.ONE_OF_CLASS)
+            .add(OntClass.OneOf.class, OWL2ObjectFactories.EL_ONE_OF_CLASS)
             .add(OntClass.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_CLASS)
             .add(OntClass.LogicalExpression.class, OWL2ObjectFactories.EL_ANY_LOGICAL_CLASS)
             .add(OntClass.CollectionOf.class, OWL2ObjectFactories.EL_ANY_COLLECTION_OF_CLASS)
@@ -285,7 +285,7 @@ public class OntPersonalities {
             .add(OntClass.class, OWL2ObjectFactories.EL_ANY_CLASS)
 
             // data ranges:
-            .add(OntDataRange.OneOf.class, OWL2ObjectFactories.ONE_OF_DATARANGE)
+            .add(OntDataRange.OneOf.class, OWL2ObjectFactories.EL_ONE_OF_DATARANGE)
             .add(OntDataRange.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_DATARANGE)
             .add(OntDataRange.Combination.class, OWL2ObjectFactories.EL_ANY_COMPONENTS_DATARANGE)
             .add(OntDataRange.class, OWL2ObjectFactories.EL_ANY_DATARANGE)
@@ -298,7 +298,71 @@ public class OntPersonalities {
             // disjoint anonymous collections:
             .add(OntDisjoint.Classes.class, OWL2ObjectFactories.CLASSES_DISJOINT)
             .add(OntDisjoint.Individuals.class, OWL2ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
-            .add(OntDisjoint.class, OWL2ObjectFactories.ANY_DISJOINT_EL);
+            .add(OntDisjoint.class, OWL2ObjectFactories.EL_ANY_DISJOINT);
+
+    /**
+     * Default personality builder for OWL2 QL. Private access since this constant is mutable.
+     */
+    private static final OntObjectPersonalityBuilder OWL2_QL_OBJECT_FACTORIES = templatePersonalityBuilder()
+            .setName("OWL2-QL")
+            .addPersonality(STANDARD_PERSONALITY)
+            // the base ontology object:
+            .add(OntObject.class, OWL2ObjectFactories.ANY_OBJECT)
+
+            // ont-id:
+            .add(OntID.class, OWL2ObjectFactories.ID)
+
+            // annotation object:
+            .add(OntAnnotation.class, OWL2ObjectFactories.ANNOTATION)
+
+            // entities:
+            .add(OntClass.Named.class, OWL2ObjectFactories.NAMED_CLASS)
+            .add(OntDataRange.Named.class, OWL2ObjectFactories.NAMED_DATARANGE)
+            .add(OntIndividual.Named.class, OWL2ObjectFactories.NAMED_INDIVIDUAL)
+            .add(OntObjectProperty.Named.class, OWL2ObjectFactories.NAMED_OBJECT_PROPERTY)
+            .add(OntDataProperty.class, OWL2ObjectFactories.DATATYPE_PROPERTY)
+            .add(OntAnnotationProperty.class, OWL2ObjectFactories.ANNOTATION_PROPERTY)
+            .add(OntEntity.class, OWL2ObjectFactories.ANY_ENTITY)
+
+            // individuals:
+            .add(OntIndividual.Anonymous.class, OWL2ObjectFactories.ANONYMOUS_INDIVIDUAL)
+            .add(OntIndividual.class, OWL2ObjectFactories.QL_ANY_INDIVIDUAL)
+
+            // property expressions:
+            .add(OntObjectProperty.Inverse.class, OWL2ObjectFactories.INVERSE_OBJECT_PROPERTY)
+            .add(OntObjectProperty.class, OWL2ObjectFactories.QL_OBJECT_PROPERTY)
+            .add(OntRelationalProperty.class, OWL2ObjectFactories.QL_ANY_DATA_OR_OBJECT_PROPERTY)
+            .add(OntNamedProperty.class, OWL2ObjectFactories.ANY_NAMED_PROPERTY)
+            .add(OntProperty.class, OWL2ObjectFactories.ANY_PROPERTY)
+
+            // class expressions:
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_CLASS)
+            .add(OntClass.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_CLASS)
+            .add(OntClass.NaryDataAllValuesFrom.class, OWL2ObjectFactories.NARY_DATA_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.NaryDataSomeValuesFrom.class, OWL2ObjectFactories.NARY_DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.LogicalExpression.class, OWL2ObjectFactories.QL_ANY_LOGICAL_CLASS)
+            .add(OntClass.CollectionOf.class, OWL2ObjectFactories.QL_ANY_COLLECTION_OF_CLASS)
+            .add(OntClass.ValueRestriction.class, OWL2ObjectFactories.QL_ANY_VALUE_RESTRICTION_CLASS)
+            .add(OntClass.ComponentRestriction.class, OWL2ObjectFactories.QL_ANY_COMPONENT_RESTRICTION_CLASS)
+            .add(OntClass.UnaryRestriction.class, OWL2ObjectFactories.QL_ANY_UNARY_RESTRICTION_CLASS)
+            .add(OntClass.Restriction.class, OWL2ObjectFactories.QL_ANY_RESTRICTION_CLASS)
+            .add(OntClass.class, OWL2ObjectFactories.QL_ANY_CLASS)
+
+            // data ranges:
+            .add(OntDataRange.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_DATARANGE)
+            .add(OntDataRange.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_DATARANGE)
+            .add(OntDataRange.Combination.class, OWL2ObjectFactories.QL_ANY_COMPONENTS_DATARANGE)
+            .add(OntDataRange.class, OWL2ObjectFactories.QL_ANY_DATARANGE)
+
+            // disjoint anonymous collections:
+            .add(OntDisjoint.Classes.class, OWL2ObjectFactories.CLASSES_DISJOINT)
+            .add(OntDisjoint.Individuals.class, OWL2ObjectFactories.DIFFERENT_INDIVIDUALS_DISJOINT)
+            .add(OntDisjoint.ObjectProperties.class, OWL2ObjectFactories.OBJECT_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.DataProperties.class, OWL2ObjectFactories.DATA_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.Properties.class, OWL2ObjectFactories.ANY_PROPERTIES_DISJOINT)
+            .add(OntDisjoint.class, OWL2ObjectFactories.QL_ANY_DISJOINT);
 
     /**
      * For OWL1.1 Ontologies, limited functionality.

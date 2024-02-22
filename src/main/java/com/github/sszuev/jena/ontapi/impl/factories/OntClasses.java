@@ -108,7 +108,6 @@ final class OntClasses {
                 /*genericClassFilter*/ genericClassFilter,
                 /*allowNamedClassExpressions*/ config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ config.getBoolean(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE),
-                /*restrictOneOfToSingleIndividual*/ config.getBoolean(OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION),
                 /*filter types*/ Arrays.asList(filters));
     }
 
@@ -138,10 +137,8 @@ final class OntClasses {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public static EnhNodeFactory createOWL2OneOfEnumerationFactory(
+    public static EnhNodeFactory createOWL2ELOneOfEnumerationFactory(
             OntConfig config) {
-        boolean restrictOneOfToSingleIndividual =
-                config.getBoolean(OntModelControls.USE_OBJECT_ONE_OF_SINGLE_INDIVIDUAL_RESTRICTION);
         EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.OneOfImpl.class, OWL.Class, OntClassImpl.OneOfImpl::new);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
@@ -152,7 +149,7 @@ final class OntClasses {
                     if (list == null) {
                         return false;
                     }
-                    return !restrictOneOfToSingleIndividual || Iterators.takeAsSet(list.iterator(), 2).size() == 1;
+                    return Iterators.takeAsSet(list.iterator(), 2).size() == 1;
                 });
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
@@ -347,7 +344,6 @@ final class OntClasses {
 
         private final boolean allowNamedClassExpressions;
         private final boolean allowQualifiedCardinalityRestrictions;
-        private final boolean restrictOneOfToSingleIndividual;
 
         private final Set<Type> filters;
         private final BiPredicate<Node, EnhGraph> namedClassFilter;
@@ -358,7 +354,6 @@ final class OntClasses {
                 BiPredicate<Node, EnhGraph> genericClassFilter,
                 boolean allowNamedClassExpressions,
                 boolean allowQualifiedCardinalityRestrictions,
-                boolean restrictOneOfToSingleIndividual,
                 List<Type> filters) {
             if (genericClassFilter != null && namedClassFilter == null) {
                 throw new IllegalArgumentException();
@@ -367,7 +362,6 @@ final class OntClasses {
             this.genericClassFilter = genericClassFilter;
             this.allowNamedClassExpressions = allowNamedClassExpressions;
             this.allowQualifiedCardinalityRestrictions = allowQualifiedCardinalityRestrictions;
-            this.restrictOneOfToSingleIndividual = restrictOneOfToSingleIndividual;
             this.filters = EnumSet.copyOf(filters);
         }
 
@@ -660,9 +654,10 @@ final class OntClasses {
             if (filters.contains(Type.UNION_OF) && isList(n, eg, UNION_OF)) {
                 return Type.UNION_OF;
             }
-            if (filters.contains(Type.ONE_OF)) {
-                RDFList list = getList(n, eg, ONE_OF);
-                if (list != null && (!restrictOneOfToSingleIndividual || Iterators.takeAsSet(list.iterator(), 2).size() == 1)) {
+            if (filters.contains(Type.ONE_OF) && isList(n, eg, ONE_OF)) {
+                // for the OWL2 EL Profile, there is a special checking:
+                // ObjectOneOf must contain a single individual, so use direct factory to validate that
+                if (Type.ONE_OF.factory.canWrap(n, eg)) {
                     return Type.ONE_OF;
                 }
             }
@@ -737,19 +732,15 @@ final class OntClasses {
         COMPLEMENT_OF(OntClass.ComplementOf.class),
         ;
 
-        private final Class<? extends OntObject> type;
+        private final EnhNodeFactory factory;
 
         Type(Class<? extends OntObject> type) {
-            this.type = type;
-        }
-
-        EnhNodeFactory factory() {
-            return WrappedEnhNodeFactory.of(type);
+            this.factory = WrappedEnhNodeFactory.of(type);
         }
 
         @Override
         public EnhNode apply(Node node, EnhGraph enhGraph) {
-            return factory().createInstance(node, enhGraph);
+            return factory.createInstance(node, enhGraph);
         }
     }
 }

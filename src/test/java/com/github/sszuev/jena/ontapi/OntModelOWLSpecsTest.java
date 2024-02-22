@@ -1076,7 +1076,7 @@ public class OntModelOWLSpecsTest {
                         List.of(m.createTypedLiteral("A")) :
                         List.of(m.createTypedLiteral("A"), m.createTypedLiteral("B"))
         );
-        OntDataRange.OneOf d3 = m.createResource(null, OWL.DataRange)
+        OntDataRange.OneOf d3 = m.createResource(null, spec.isOWL2EL() ? RDFS.Datatype : OWL.DataRange)
                 .addProperty(OWL.oneOf, m.createList(m.createLiteral("C")))
                 .as(OntDataRange.OneOf.class);
         m.createResource("X", RDFS.Datatype) // treated as named data range
