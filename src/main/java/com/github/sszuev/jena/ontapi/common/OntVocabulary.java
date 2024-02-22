@@ -52,6 +52,7 @@ public interface OntVocabulary {
     OntVocabulary RDFS = new Impls.RDFSImpl();
     OntVocabulary OWL2_FULL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.FULL);
     OntVocabulary OWL2_EL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.EL);
+    OntVocabulary OWL2_QL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.QL);
     OntVocabulary OWL1_FULL = new Impls.OWL1Impl(Impls.OWL1Impl.Type.FULL);
     OntVocabulary OWL1_LITE = new Impls.OWL1Impl(Impls.OWL1Impl.Type.LITE);
     OntVocabulary DC = new Impls.DCImpl();

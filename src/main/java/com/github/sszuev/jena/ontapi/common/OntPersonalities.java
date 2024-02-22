@@ -58,6 +58,7 @@ public class OntPersonalities {
     public static final OntPersonality.Builtins OWL2_FULL_BUILTINS = createBuiltinsVocabulary(
             OntVocabulary.OWL2_FULL.and(OntVocabulary.DC).and(OntVocabulary.SKOS).and(OntVocabulary.SWRL));
     public static final OntPersonality.Builtins OWL2_EL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.OWL2_EL);
+    public static final OntPersonality.Builtins OWL2_QL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.OWL2_QL);
     public static final OntPersonality.Builtins OWL1_FULL_BUILTINS = createBuiltinsVocabulary(OntVocabulary.OWL1_FULL);
     public static final OntPersonality.Builtins OWL1_LITE_BUILTINS = createBuiltinsVocabulary(OntVocabulary.OWL1_LITE);
 
@@ -166,7 +167,7 @@ public class OntPersonalities {
             .add(OntProperty.class, OWL2ObjectFactories.ANY_PROPERTY)
 
             // class expressions:
-            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.DL_OBJECT_SOME_VALUES_FROM_CLASS)
             .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
             .add(OntClass.ObjectAllValuesFrom.class, OWL2ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
             .add(OntClass.DataAllValuesFrom.class, OWL2ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
@@ -269,7 +270,7 @@ public class OntPersonalities {
             .add(OntProperty.class, OWL2ObjectFactories.ANY_PROPERTY)
 
             // class expressions:
-            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.EL_OBJECT_SOME_VALUES_FROM_CLASS)
             .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
             .add(OntClass.ObjectHasValue.class, OWL2ObjectFactories.OBJECT_HAS_VALUE_CLASS)
             .add(OntClass.DataHasValue.class, OWL2ObjectFactories.DATA_HAS_VALUE_CLASS)
@@ -336,7 +337,7 @@ public class OntPersonalities {
             .add(OntProperty.class, OWL2ObjectFactories.ANY_PROPERTY)
 
             // class expressions:
-            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.OBJECT_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.QL_OBJECT_SOME_VALUES_FROM_CLASS)
             .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
             .add(OntClass.IntersectionOf.class, OWL2ObjectFactories.INTERSECTION_OF_CLASS)
             .add(OntClass.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_CLASS)
@@ -521,10 +522,24 @@ public class OntPersonalities {
     public static OntObjectPersonalityBuilder OWL2_EL_ONT_PERSONALITY() {
         return OWL2_EL_OBJECT_FACTORIES
                 .copy()
-                .setBuiltins(OntPersonalities.OWL2_FULL_BUILTINS)
+                .setBuiltins(OntPersonalities.OWL2_EL_BUILTINS)
                 .setReserved(OntPersonalities.OWL2_RESERVED)
-                .setPunnings(OntPersonalities.OWL_NO_PUNNINGS)
+                .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
                 .setConfig(OntConfigs.OWL2_EL_CONFIG);
+    }
+
+    /**
+     * Mutable {@link OntObjectPersonalityBuilder} for OWL2 QL Ontologies.
+     *
+     * @return {@link OntObjectPersonalityBuilder}
+     */
+    public static OntObjectPersonalityBuilder OWL2_QL_ONT_PERSONALITY() {
+        return OWL2_QL_OBJECT_FACTORIES
+                .copy()
+                .setBuiltins(OntPersonalities.OWL2_QL_BUILTINS)
+                .setReserved(OntPersonalities.OWL2_RESERVED)
+                .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
+                .setConfig(OntConfigs.OWL2_QL_CONFIG);
     }
 
     /**

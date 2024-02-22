@@ -110,7 +110,8 @@ public class OntIndividualClassesTest {
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_RDFS_INF",
             "OWL2_EL_MEM_TRANS_INF",
-            "OWL2_EL_MEM_RULES_INF"
+            "OWL2_EL_MEM_RULES_INF",
+            "OWL2_QL_MEM",
     }, mode = EnumSource.Mode.EXCLUDE)
     public void testListOntClasses2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);

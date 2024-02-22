@@ -269,6 +269,22 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     boolean isDisjoint(Resource candidate);
 
     /**
+     * Answers {@code true} if this class is allowed to be a superclass; some profiles (e.g., OWL2-QL) disallow this.
+     * @return {@code boolean}
+     */
+    default boolean canBeSuperClass() {
+        return true;
+    }
+
+    /**
+     * Answers {@code true} if this class is allowed to be a subclass; some profiles (e.g., OWL2-QL) disallow this.
+     * @return {@code boolean}
+     */
+    default boolean canBeSubClass() {
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

@@ -1017,8 +1017,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.ObjectSomeValuesFrom createObjectSomeValuesFrom(OntObjectProperty property, OntClass ce) {
         checkType(OntClass.ObjectSomeValuesFrom.class);
-        return OntClassImpl.createComponentRestrictionCE(this,
-                OntClass.ObjectSomeValuesFrom.class, property, ce, OWL.someValuesFrom);
+        return checkCreate(model -> OntClassImpl.createComponentRestrictionCE(OntGraphModelImpl.this,
+                OntClass.ObjectSomeValuesFrom.class, property, ce, OWL.someValuesFrom), OntClass.ObjectSomeValuesFrom.class);
     }
 
     @Override
@@ -1204,10 +1204,11 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     /**
      * Creates an object of type {@link X} if it is possible;
      * otherwise throws {@link OntJenaException.Unsupported} exception.
+     *
      * @param creator {@link Function} to create {@link X}
-     * @param type of {@link X}
+     * @param type    of {@link X}
+     * @param <X>     {@link OntObject}
      * @return {@link X}
-     * @param <X> {@link OntObject}
      * @throws OntJenaException.Unsupported if no possible to create an object
      */
     protected <X extends OntObject> X checkCreate(Function<OntModel, X> creator, Class<X> type) {

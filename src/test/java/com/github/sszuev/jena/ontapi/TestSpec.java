@@ -53,6 +53,8 @@ public enum TestSpec {
     OWL2_EL_MEM_TRANS_INF(OntSpecification.OWL2_EL_MEM_TRANS_INF),
     OWL2_EL_MEM_RULES_INF(OntSpecification.OWL2_EL_MEM_RULES_INF),
 
+    OWL2_QL_MEM(OntSpecification.OWL2_QL_MEM),
+
     OWL1_MEM(OntSpecification.OWL1_FULL_MEM),
     OWL1_MEM_RDFS_INF(OntSpecification.OWL1_FULL_MEM_RDFS_INF),
     OWL1_MEM_TRANS_INF(OntSpecification.OWL1_FULL_MEM_TRANS_INF),
@@ -94,6 +96,10 @@ public enum TestSpec {
 
     boolean isOWL2EL() {
         return name().startsWith("OWL2_EL");
+    }
+
+    boolean isOWL2QL() {
+        return name().startsWith("OWL2_QL");
     }
 
     boolean isRules() {

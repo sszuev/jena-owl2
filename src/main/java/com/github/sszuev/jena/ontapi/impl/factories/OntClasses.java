@@ -97,6 +97,13 @@ final class OntClasses {
     public static EnhNodeFactory createClassExpressionFactory(OntConfig config,
                                                               boolean baseClass,
                                                               Type... filters) {
+        return createClassExpressionFactory(config, baseClass, Arrays.asList(filters), List.of());
+    }
+
+    public static EnhNodeFactory createClassExpressionFactory(OntConfig config,
+                                                              boolean baseClass,
+                                                              List<Type> filters,
+                                                              List<Type> strict) {
         // namedClassFactory should be specified only for the super type OntClass.
         boolean useLegacyClassTest = config.getBoolean(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
         BiPredicate<Node, EnhGraph> namedClassFilter = baseClass ?
@@ -108,7 +115,8 @@ final class OntClasses {
                 /*genericClassFilter*/ genericClassFilter,
                 /*allowNamedClassExpressions*/ config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ config.getBoolean(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE),
-                /*filter types*/ Arrays.asList(filters));
+                /*primary filter types*/ filters,
+                /*additional filter types*/ strict);
     }
 
     // Boolean Connectives and Enumeration of Individuals
@@ -184,6 +192,27 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
+    public static EnhNodeFactory createOWL2QLObjectSomeValuesFromRestrictionFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.ObjectSomeValuesFromImpl.class, OWL.Restriction,
+                (node, graph) -> new OntClassImpl.ObjectSomeValuesFromImpl(node, graph) {
+                    @Override
+                    public boolean canBeSuperClass() {
+                        return getValue().isURIResource();
+                    }
+
+                    @Override
+                    public boolean canBeSubClass() {
+                        return OWL.Thing.equals(getValue());
+                    }
+                });
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
+                .and(RestrictionType.OBJECT.getFilter())
+                // either owl:Thing or named class
+                .and(ObjectRestrictionType.NAMED_CLASS.getFilter(OWL.someValuesFrom));
+        return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
+    }
+
     public static EnhNodeFactory createNaryRestrictionFactory(
             Class<? extends OntClassImpl.NaryRestrictionImpl<?, ?, ?>> impl,
             Property predicate) {
@@ -202,6 +231,12 @@ final class OntClasses {
     }
 
     public enum ObjectRestrictionType implements PredicateFilterProvider {
+        NAMED_CLASS {
+            @Override
+            public Class<OntClass.Named> view() {
+                return OntClass.Named.class;
+            }
+        },
         CLASS {
             @Override
             public Class<OntClass> view() {
@@ -346,6 +381,7 @@ final class OntClasses {
         private final boolean allowQualifiedCardinalityRestrictions;
 
         private final Set<Type> filters;
+        private final Set<Type> strict;
         private final BiPredicate<Node, EnhGraph> namedClassFilter;
         private final BiPredicate<Node, EnhGraph> genericClassFilter;
 
@@ -354,7 +390,8 @@ final class OntClasses {
                 BiPredicate<Node, EnhGraph> genericClassFilter,
                 boolean allowNamedClassExpressions,
                 boolean allowQualifiedCardinalityRestrictions,
-                List<Type> filters) {
+                List<Type> filters,
+                List<Type> additionalFilters) {
             if (genericClassFilter != null && namedClassFilter == null) {
                 throw new IllegalArgumentException();
             }
@@ -363,6 +400,7 @@ final class OntClasses {
             this.allowNamedClassExpressions = allowNamedClassExpressions;
             this.allowQualifiedCardinalityRestrictions = allowQualifiedCardinalityRestrictions;
             this.filters = EnumSet.copyOf(filters);
+            this.strict = additionalFilters.isEmpty() ? Set.of() : EnumSet.copyOf(additionalFilters);
         }
 
         private boolean isDataCardinality(Node n,
@@ -576,7 +614,7 @@ final class OntClasses {
                     if (filterObjectUnaryRestrictions() && objectPropertyFactory.canWrap(p, eg)) {
                         if (filters.contains(Type.OBJECT_SOME_VALUES_FROM)
                                 && isObjectOfType(n, eg, SOME_VALUES_FROM, OntClass.class)) {
-                            return Type.OBJECT_SOME_VALUES_FROM;
+                            return strictFilter(n, eg, Type.OBJECT_SOME_VALUES_FROM);
                         }
                         if (filters.contains(Type.OBJECT_ALL_VALUES_FROM)
                                 && isObjectOfType(n, eg, ALL_VALUES_FROM, OntClass.class)) {
@@ -655,13 +693,13 @@ final class OntClasses {
                 return Type.UNION_OF;
             }
             if (filters.contains(Type.ONE_OF) && isList(n, eg, ONE_OF)) {
-                // for the OWL2 EL Profile, there is a special checking:
-                // ObjectOneOf must contain a single individual, so use direct factory to validate that
-                if (Type.ONE_OF.factory.canWrap(n, eg)) {
-                    return Type.ONE_OF;
-                }
+                return strictFilter(n, eg, Type.ONE_OF);
             }
             return null;
+        }
+
+        private Type strictFilter(Node n, EnhGraph eg, Type filter) {
+            return strict.contains(filter) ? filter.factory.canWrap(n, eg) ? filter : null : filter;
         }
 
         private boolean filterDeclaredClassExpressions() {

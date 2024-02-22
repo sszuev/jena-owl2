@@ -18,7 +18,8 @@ import java.util.Objects;
  * Contains OWL2, OWL1 and RDFS specifications:
  * <ul>
  *     <li>OWL2 (DL &amp; FULL): full support last version of OWL</li>
- *     <li>OWL2 (EL): OWL2 EL subset</li>
+ *     <li>OWL2 (EL): OWL2 Existential Logic subset</li>
+ *     <li>OWL2 (QL): OWL2 Query Language subset</li>
  *     <li>OWL1 (DL &amp; FULL): does not support some language construct from OWL2, such as {@code OntDataRange.UnionOf};
  *     supposed to be compatible with legacy Jena's OntModel</li>
  *     <li>OWL1 LITE: does not support some language construct from OWL2 and OWL1, such as {@code OntClass.UnionOf};
@@ -28,6 +29,7 @@ import java.util.Objects;
  *
  * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
  * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_EL">OWL 2 EL</a>
+ * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_QL">OWL 2 QL</a>
  * @see <a href="https://www.w3.org/TR/2008/WD-owl11-syntax-20080108/">OWL v1.1</a>
  * @see <a href="https://www.w3.org/TR/owl-guide/">OWL v1</a>
  * @see <a href="https://www.w3.org/TR/2004/REC-owl-features-20040210/#s3">OWL1 Lite</a>
@@ -57,6 +59,14 @@ public class OntSpecification {
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
                     .setConfig(OntConfigs.OWL2_EL_CONFIG)
+                    .build();
+
+    private static final OntPersonality OWL2_QL_PERSONALITY =
+            OntPersonalities.OWL2_QL_ONT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL2_QL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL2_RESERVED)
+                    .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
+                    .setConfig(OntConfigs.OWL2_QL_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_DL_PERSONALITY =
@@ -263,6 +273,21 @@ public class OntSpecification {
      */
     public static final OntSpecification OWL2_EL_MEM_RULES_INF = new OntSpecification(
             OWL2_EL_PERSONALITY, OWLFBRuleReasonerFactory.theInstance()
+    );
+
+    /*
+     * *****************************************************************************************************************
+     * OWL 2 QL
+     * *****************************************************************************************************************
+     */
+
+    /**
+     * A specification for OWL2 QL Ontology models that are stored in memory and do no additional entailment reasoning.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
+     */
+    public static final OntSpecification OWL2_QL_MEM = new OntSpecification(
+            OWL2_QL_PERSONALITY, null
     );
 
     /*
