@@ -5,10 +5,14 @@ import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class OntModelOWL2QLSpecTest {
 
@@ -94,7 +98,6 @@ public class OntModelOWL2QLSpecTest {
     })
     public void testObjectComplementOf(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
-        OntObjectProperty op = data.createObjectProperty("p");
         OntDataProperty dp = data.createDataProperty("d");
 
         OntClass c0 = data.createOntClass("c");
@@ -117,5 +120,34 @@ public class OntModelOWL2QLSpecTest {
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectComplementOf(c1));
         m.createObjectComplementOf(c2);
         Assertions.assertEquals(5, m.ontObjects(OntClass.class).count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_QL_MEM",
+    })
+    public void testSubClasses(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntObjectProperty op = m.createObjectProperty("p");
+        OntDataProperty dp = m.createDataProperty("d");
+
+        OntClass c0 = m.createOntClass("c");
+        OntClass c1 = m.createDataSomeValuesFrom(dp, m.getDatatype(XSD.xstring.getURI()));
+        OntClass c2 = m.createObjectSomeValuesFrom(op, c0);
+        OntClass c3 = m.createObjectSomeValuesFrom(op, m.getOWLThing());
+        OntClass c4 = m.createObjectComplementOf(c0);
+        OntClass c5 = m.createObjectComplementOf(c1);
+
+        c0.addProperty(RDFS.subClassOf, c4);
+        c4.addProperty(RDFS.subClassOf, c5);
+        c3.addProperty(RDFS.subClassOf, c0);
+        c2.addProperty(RDFS.subClassOf, c0);
+
+        Assertions.assertEquals(List.of(c3), c0.subClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(c4), c0.superClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(c0), c4.subClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(c5), c4.superClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c5.subClasses().collect(Collectors.toList()));
+
     }
 }

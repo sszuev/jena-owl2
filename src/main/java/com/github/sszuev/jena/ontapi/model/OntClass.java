@@ -356,11 +356,13 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @return {@link Optional} wrapping {@link OntClass}
      */
     default Optional<OntClass> subClass() {
-        try (Stream<? extends Resource> classes = getModel()
+        try (Stream<OntClass> classes = getModel()
                 .statements(null, RDFS.subClassOf, this)
                 .map(OntStatement::getSubject)
-                .filter(it -> it.canAs(OntClass.class))) {
-            return classes.map(it -> it.as(OntClass.class)).findFirst();
+                .filter(it -> it.canAs(OntClass.class))
+                .map(it -> it.as(OntClass.class))
+                .filter(OntClass::canBeSubClass)) {
+            return classes.findFirst();
         }
     }
 
@@ -386,10 +388,12 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @return {@link Optional} wrapping {@link OntClass}
      */
     default Optional<OntClass> superClass() {
-        try (Stream<? extends Resource> classes = this.statements(RDFS.subClassOf)
+        try (Stream<OntClass> classes = this.statements(RDFS.subClassOf)
                 .map(OntStatement::getSubject)
-                .filter(it -> it.canAs(OntClass.class))) {
-            return classes.map(it -> it.as(OntClass.class)).findFirst();
+                .filter(it -> it.canAs(OntClass.class))
+                .map(it -> it.as(OntClass.class))
+                .filter(OntClass::canBeSuperClass)) {
+            return classes.findFirst();
         }
     }
 

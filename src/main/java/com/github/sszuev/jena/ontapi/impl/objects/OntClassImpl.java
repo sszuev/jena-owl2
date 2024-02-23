@@ -394,7 +394,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> explicitSuperClasses(Property predicate, OntClass clazz) {
-        return clazz.objects(predicate, OntClass.class);
+        return clazz.objects(predicate, OntClass.class).filter(OntClass::canBeSuperClass);
     }
 
     static Stream<OntClass> explicitSubClasses(OntClass clazz) {
@@ -402,7 +402,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> explicitSubClasses(Property predicate, OntClass clazz) {
-        return subjects(predicate, clazz, OntClass.class);
+        return subjects(predicate, clazz, OntClass.class).filter(OntClass::canBeSubClass);
     }
 
     @Override
