@@ -308,6 +308,37 @@ public class OntSpecification {
     );
 
     /**
+     * A specification for OWL2 QL models that are stored in memory
+     * and use the RDFS inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RDFS_INF
+     */
+    public static final OntSpecification OWL2_QL_MEM_RDFS_INF = new OntSpecification(
+            OWL2_QL_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL2 QL models that are stored in memory
+     * and use the transitive inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_TRANS_INF
+     */
+    public static final OntSpecification OWL2_QL_MEM_TRANS_INF = new OntSpecification(
+            OWL2_QL_PERSONALITY, TransitiveReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL2 QL ontology models
+     * that are stored in memory and use the OWL rules inference engine for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RULE_INF
+     */
+    public static final OntSpecification OWL2_QL_MEM_RULES_INF = new OntSpecification(
+            OWL2_QL_PERSONALITY, OWLFBRuleReasonerFactory.theInstance()
+    );
+
+
+    /**
      * A specification for OWL1 DL ontology models
      * that are stored in memory and use the RDFS inferencer for additional entailments.
      * Supposed to be a replacement for the original legacy Jena interpretation of OWL v1.1 specification.

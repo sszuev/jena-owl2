@@ -228,6 +228,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM_TRANS_INF",
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_LITE_MEM",
@@ -244,6 +246,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM_TRANS_INF",
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_LITE_MEM",
@@ -260,6 +264,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM_TRANS_INF",
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_LITE_MEM",
@@ -400,6 +406,10 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_EL_MEM_RDFS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_QL_MEM_RULES_INF",
             "OWL1_LITE_MEM",
     })
     public void testCreateImports(TestSpec spec) {
@@ -484,6 +494,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM_TRANS_INF",
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
@@ -524,6 +536,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM_TRANS_INF",
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_TRANS_INF",
     })
     public void testCreateAnnotatedEntities(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -682,6 +696,7 @@ public class OntModelOWLSpecsTest {
             "OWL2_DL_MEM_RDFS_BUILTIN_INF",
             "OWL2_MEM",
             "OWL2_EL_MEM",
+            "OWL2_QL_MEM",
             "OWL1_MEM",
             "OWL1_LITE_MEM",
     })
@@ -752,6 +767,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM_TRANS_INF",
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_LITE_MEM",
             "OWL1_MEM_TRANS_INF",
@@ -818,6 +835,10 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_EL_MEM_RDFS_INF",
             "OWL2_EL_MEM_RULES_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_QL_MEM_RULES_INF",
             "RDFS_MEM",
             "RDFS_MEM_RDFS_INF",
             "RDFS_MEM_TRANS_INF",
@@ -918,6 +939,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM_TRANS_INF",
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_TRANS_INF",
     })
     public void testRemoveStatement(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);

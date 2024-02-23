@@ -3,22 +3,83 @@ package com.github.sszuev.jena.ontapi;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntModel;
+import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
+import com.github.sszuev.jena.ontapi.vocabulary.RDF;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.github.sszuev.jena.ontapi.OntModelOWLSpecsTest.testListObjects;
 
 public class OntModelOWL2QLSpecTest {
 
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+    })
+    public void testPizzaObjects1c(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.inst);
+
+        Map<Class<? extends OntObject>, Integer> expected = new HashMap<>();
+        expected.put(OntClass.ObjectSomeValuesFrom.class, 154);
+        expected.put(OntClass.DataSomeValuesFrom.class, 0);
+        expected.put(OntClass.ObjectAllValuesFrom.class, 0);
+        expected.put(OntClass.DataAllValuesFrom.class, 0);
+        expected.put(OntClass.ObjectHasValue.class, 0);
+        expected.put(OntClass.DataHasValue.class, 0);
+        expected.put(OntClass.ObjectMinCardinality.class, 0);
+        expected.put(OntClass.DataMinCardinality.class, 0);
+        expected.put(OntClass.ObjectMaxCardinality.class, 0);
+        expected.put(OntClass.DataMaxCardinality.class, 0);
+        expected.put(OntClass.ObjectCardinality.class, 0);
+        expected.put(OntClass.DataCardinality.class, 0);
+        expected.put(OntClass.HasSelf.class, 0);
+        expected.put(OntClass.UnionOf.class, 0);
+        expected.put(OntClass.OneOf.class, 0);
+        expected.put(OntClass.IntersectionOf.class, 6);
+        expected.put(OntClass.ComplementOf.class, 1);
+        expected.put(OntClass.NaryDataAllValuesFrom.class, 0);
+        expected.put(OntClass.NaryDataSomeValuesFrom.class, 0);
+        expected.put(OntClass.LogicalExpression.class, 7);
+        expected.put(OntClass.CollectionOf.class, 6);
+        expected.put(OntClass.ValueRestriction.class, 154);
+        expected.put(OntClass.CardinalityRestriction.class, 0);
+        expected.put(OntClass.ComponentRestriction.class, 154);
+        expected.put(OntClass.UnaryRestriction.class, 154);
+        expected.put(OntClass.Restriction.class, 154);
+        expected.put(OntClass.class, 261);
+
+        testListObjects(m, expected);
+
+        List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
+        int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
+                .mapWith(Statement::getSubject).filterKeep(RDFNode::isURIResource).toSet().size();
+        int actualClassesCount = classes.size();
+        Assertions.assertEquals(expectedClassesCount, actualClassesCount);
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
     })
     public void testObjectSomeValuesFrom(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -57,6 +118,9 @@ public class OntModelOWL2QLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_QL_MEM_RULES_INF",
     })
     public void testObjectIntersectionOf(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -82,19 +146,22 @@ public class OntModelOWL2QLSpecTest {
         Assertions.assertEquals(2, m.ontObjects(OntClass.IntersectionOf.class).count());
         Assertions.assertEquals(2, m.ontObjects(OntClass.LogicalExpression.class).count());
         Assertions.assertEquals(2, m.ontObjects(OntClass.CollectionOf.class).count());
-        Assertions.assertEquals(7, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(spec == TestSpec.OWL2_QL_MEM_RULES_INF ? 19 : 7, m.ontObjects(OntClass.class).count());
 
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, m::createObjectIntersectionOf);
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectIntersectionOf(c0));
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectIntersectionOf(c0, c1));
         m.createObjectIntersectionOf(c0, c4);
-        Assertions.assertEquals(8, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(spec == TestSpec.OWL2_QL_MEM_RULES_INF ? 20 :8, m.ontObjects(OntClass.class).count());
     }
 
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_QL_MEM_RULES_INF",
     })
     public void testObjectComplementOf(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -115,11 +182,11 @@ public class OntModelOWL2QLSpecTest {
 
         Assertions.assertEquals(2, m.ontObjects(OntClass.ComplementOf.class).count());
         Assertions.assertEquals(2, m.ontObjects(OntClass.LogicalExpression.class).count());
-        Assertions.assertEquals(4, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(spec == TestSpec.OWL2_QL_MEM_RULES_INF ? 16 : 4, m.ontObjects(OntClass.class).count());
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectComplementOf(c1));
         m.createObjectComplementOf(c2);
-        Assertions.assertEquals(5, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(spec == TestSpec.OWL2_QL_MEM_RULES_INF ? 17 : 5, m.ontObjects(OntClass.class).count());
     }
 
     @ParameterizedTest

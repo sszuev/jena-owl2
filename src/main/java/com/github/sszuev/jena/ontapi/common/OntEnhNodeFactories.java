@@ -122,7 +122,7 @@ public class OntEnhNodeFactories {
         return type.getName().replace(OntObject.class.getPackage().getName() + ".", "");
     }
 
-    static String toPrintString(Node node, EnhGraph graph) {
+    public static String toPrintString(Node node, EnhGraph graph) {
         if (!(graph instanceof Model)) {
             return node.toString(PrefixMapping.Standard);
         }
