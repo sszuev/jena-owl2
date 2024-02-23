@@ -192,7 +192,7 @@ final class OntClasses {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public static EnhNodeFactory createOWL2ELOneOfEnumerationFactory(
+    public static EnhNodeFactory createOWL2ELObjectOneOfFactory(
             OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.OneOfImpl.class, OWL.Class, OntClassImpl.OneOfImpl::new);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
@@ -209,7 +209,7 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
 
-    public static EnhNodeFactory createOWL2QLObjectSomeValuesFromRestrictionFactory(OntConfig config) {
+    public static EnhNodeFactory createOWL2QLObjectSomeValuesFromFactory(OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.QLObjectSomeValuesFromImpl.class, OWL.Restriction,
                 OntClassImpl.QLObjectSomeValuesFromImpl::new);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
@@ -220,7 +220,7 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
-    public static EnhNodeFactory createOWL2QLIntersectionOfEnumerationFactory(OntConfig config) {
+    public static EnhNodeFactory createOWL2QLIntersectionOfFactory(OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.QLIntersectionOfImpl.class, OWL.Class,
                 OntClassImpl.QLIntersectionOfImpl::new);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
@@ -238,6 +238,32 @@ final class OntClasses {
                                     list.iterator().filterKeep(it ->
                                             it.canAs(OntClass.class) && it.as(OntClass.class).canBeSuperClass()
                                     ), 2).size() == 2) {
+                                return true;
+                            }
+                        }
+                    } finally {
+                        res.close();
+                    }
+                    return false;
+                });
+        return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
+    }
+
+    public static EnhNodeFactory createOWL2QLComplementOfFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.QLComplementOfImpl.class, OWL.Class,
+                OntClassImpl.QLComplementOfImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> res = g.asGraph().find(n, OWL.complementOf.asNode(), Node.ANY);
+                    try {
+                        while (res.hasNext()) {
+                            Node node = res.next().getObject();
+                            OntClass clazz = OntEnhGraph.asPersonalityModel(g).safeFindNodeAs(node, OntClass.class);
+                            if (clazz == null) {
+                                return false;
+                            }
+                            if (clazz.canBeSubClass()) {
                                 return true;
                             }
                         }
@@ -703,7 +729,7 @@ final class OntClasses {
         private BiFunction<Node, EnhGraph, EnhNode> logicalExpressionFactory(Node n, EnhGraph eg) {
             // first check owl:complementOf, since it is more accurately defined
             if (filters.contains(Type.COMPLEMENT_OF) && isObjectOfType(n, eg, COMPLEMENT_OF, OntClass.class)) {
-                return Type.COMPLEMENT_OF;
+                return strictFilter(n, eg, Type.COMPLEMENT_OF);
             }
             if (filters.contains(Type.INTERSECTION_OF) && isList(n, eg, INTERSECTION_OF)) {
                 return strictFilter(n, eg, Type.INTERSECTION_OF);

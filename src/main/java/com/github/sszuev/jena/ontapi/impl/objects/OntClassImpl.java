@@ -789,6 +789,18 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class QLComplementOfImpl extends ComplementOfImpl {
+
+        public QLComplementOfImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public boolean canBeSubClass() {
+            return false;
+        }
+    }
+
     public static class ComplementOfImpl extends OntClassImpl implements ComplementOf {
         public ComplementOfImpl(Node n, EnhGraph m) {
             super(n, m);

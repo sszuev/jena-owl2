@@ -1137,7 +1137,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.ComplementOf createObjectComplementOf(OntClass ce) {
         checkType(OntClass.ComplementOf.class);
-        return OntClassImpl.createComplementOf(this, ce);
+        return checkCreate(model -> OntClassImpl.createComplementOf(OntGraphModelImpl.this, ce), OntClass.ComplementOf.class);
     }
 
     @Override

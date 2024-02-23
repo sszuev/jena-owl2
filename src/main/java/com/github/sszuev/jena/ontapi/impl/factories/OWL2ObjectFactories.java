@@ -120,20 +120,22 @@ public final class OWL2ObjectFactories {
                     config);
     public static final Function<OntConfig, EnhNodeFactory> EL_INTERSECTION_OF_CLASS = DL_INTERSECTION_OF_CLASS;
     public static final Function<OntConfig, EnhNodeFactory> QL_INTERSECTION_OF_CLASS =
-            OntClasses::createOWL2QLIntersectionOfEnumerationFactory;
+            OntClasses::createOWL2QLIntersectionOfFactory;
     public static final Function<OntConfig, EnhNodeFactory> DL_ONE_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
                     OntClassImpl.OneOfImpl.class,
                     OWL.oneOf,
                     RDFList.class,
                     config);
-    public static final Function<OntConfig, EnhNodeFactory> EL_ONE_OF_CLASS = OntClasses::createOWL2ELOneOfEnumerationFactory;
-    public static final Function<OntConfig, EnhNodeFactory> COMPLEMENT_OF_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> EL_ONE_OF_CLASS = OntClasses::createOWL2ELObjectOneOfFactory;
+    public static final Function<OntConfig, EnhNodeFactory> DL_COMPLEMENT_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
                     OntClassImpl.ComplementOfImpl.class,
                     OWL.complementOf,
                     OntClass.class,
                     config);
+    public static final Function<OntConfig, EnhNodeFactory> QL_COMPLEMENT_OF_CLASS = OntClasses::createOWL2QLComplementOfFactory;
+
     public static final Function<OntConfig, EnhNodeFactory> DL_OBJECT_SOME_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
                     OntClassImpl.ObjectSomeValuesFromImpl.class,
@@ -143,7 +145,7 @@ public final class OWL2ObjectFactories {
                     config);
     public static final Function<OntConfig, EnhNodeFactory> EL_OBJECT_SOME_VALUES_FROM_CLASS = DL_OBJECT_SOME_VALUES_FROM_CLASS;
     public static final Function<OntConfig, EnhNodeFactory> QL_OBJECT_SOME_VALUES_FROM_CLASS =
-            OntClasses::createOWL2QLObjectSomeValuesFromRestrictionFactory;
+            OntClasses::createOWL2QLObjectSomeValuesFromFactory;
     public static final Function<OntConfig, EnhNodeFactory> DATA_SOME_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
                     OntClassImpl.DataSomeValuesFromImpl.class,
@@ -272,7 +274,7 @@ public final class OWL2ObjectFactories {
                     config,
                     false,
                     List.of(OntClasses.Type.INTERSECTION_OF, OntClasses.Type.COMPLEMENT_OF),
-                    List.of(OntClasses.Type.INTERSECTION_OF)
+                    List.of(OntClasses.Type.INTERSECTION_OF, OntClasses.Type.COMPLEMENT_OF)
             );
     // Value Restrictions:
     public static final Function<OntConfig, EnhNodeFactory> DL_ANY_VALUE_RESTRICTION_CLASS =
@@ -467,7 +469,8 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.INTERSECTION_OF,
                             OntClasses.Type.COMPLEMENT_OF),
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
-                            OntClasses.Type.INTERSECTION_OF)
+                            OntClasses.Type.INTERSECTION_OF,
+                            OntClasses.Type.COMPLEMENT_OF)
             );
 
     // Data Range Expressions

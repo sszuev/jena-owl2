@@ -87,4 +87,35 @@ public class OntModelOWL2QLSpecTest {
         m.createObjectIntersectionOf(c0, c4);
         Assertions.assertEquals(8, m.ontObjects(OntClass.class).count());
     }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_QL_MEM",
+    })
+    public void testObjectComplementOf(TestSpec spec) {
+        OntModel data = OntModelFactory.createModel();
+        OntObjectProperty op = data.createObjectProperty("p");
+        OntDataProperty dp = data.createDataProperty("d");
+
+        OntClass c0 = data.createOntClass("c");
+        OntClass c1 = data.createObjectUnionOf(c0);
+        OntClass c2 = data.createDataSomeValuesFrom(dp, data.getDatatype(XSD.xstring.getURI()));
+
+        OntClass c3 = data.createObjectComplementOf(c0);
+        OntClass c4 = data.createObjectComplementOf(c1);
+        OntClass c5 = data.createObjectComplementOf(c2);
+
+        OntModel m = OntModelFactory.createModel(data.getGraph(), spec.inst);
+        Assertions.assertTrue(c3.inModel(m).canAs(OntClass.ComplementOf.class));
+        Assertions.assertFalse(c4.inModel(m).canAs(OntClass.ComplementOf.class));
+        Assertions.assertTrue(c5.inModel(m).canAs(OntClass.ComplementOf.class));
+
+        Assertions.assertEquals(2, m.ontObjects(OntClass.ComplementOf.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.LogicalExpression.class).count());
+        Assertions.assertEquals(4, m.ontObjects(OntClass.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectComplementOf(c1));
+        m.createObjectComplementOf(c2);
+        Assertions.assertEquals(5, m.ontObjects(OntClass.class).count());
+    }
 }
