@@ -65,10 +65,10 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *
      * @param direct {@code boolean} - if {@code true} answers the directly adjacent classes in the subclass relation:
      *               i.e. eliminate any class
-     *                              for which there is a longer route
-     *                              to reach that parent under the subclass relation;
+     *               for which there is a longer route
+     *               to reach that parent under the subclass relation;
      *               if {@code false} answers all subclasses found by inferencer,
-     *                              which usually means entire hierarchy down the tree;
+     *               which usually means entire hierarchy down the tree;
      *               this class is not included
      * @return <b>distinct</b> {@code Stream} of sub {@link OntClass class expression}s
      * @see #subClasses()
@@ -110,10 +110,10 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent classes in the superclass relation,
      *               i.e. eliminate any class
-     *                              for which there is a longer route
-     *                              to reach that parent under the superclass relation;
+     *               for which there is a longer route
+     *               to reach that parent under the superclass relation;
      *               if {@code false} answers all superclasses found by inferencer,
-     *                              which usually means entire hierarchy up the tree;
+     *               which usually means entire hierarchy up the tree;
      *               this class is not included
      * @return <b>distinct</b> {@code Stream} of super {@link OntClass class expression}s
      * @see #superClasses()
@@ -127,7 +127,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * The search pattern is {@code a rdf:type C}, where {@code C} is class expression and {@code a} individual.
      *
      * @param direct {@code boolean} if true, only direct instances are counted
-     *                              (i.e. not instances of subclasses of this class)
+     *               (i.e. not instances of subclasses of this class)
      * @return a {@code Stream} of {@link OntIndividual}s
      */
     Stream<OntIndividual> individuals(boolean direct);
@@ -270,6 +270,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Answers {@code true} if this class is allowed to be a superclass; some profiles (e.g., OWL2-QL) disallow this.
+     *
      * @return {@code boolean}
      */
     default boolean canBeSuperClass() {
@@ -278,6 +279,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
 
     /**
      * Answers {@code true} if this class is allowed to be a subclass; some profiles (e.g., OWL2-QL) disallow this.
+     *
      * @return {@code boolean}
      */
     default boolean canBeSubClass() {
@@ -1149,9 +1151,19 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * An abstract class expression that unites class expressions consisting of multiple components.
      * There are three kinds of such expressions: {@link UnionOf}, {@link IntersectionOf} and {@link OneOf}.
      *
-     * @param <O> a component type
+     * @param <O> a {@link OntObject} component type
      */
     interface CollectionOf<O extends OntObject> extends OntClass, HasRDFNodeList<O> {
+        /**
+         * Lists all allowed components of the collection.
+         * Note that the returned values are not necessarily the same as {@link OntList#members()} output:
+         * some profiles (e.g., OWL2 QL) impose some restrictions.
+         *
+         * @return a {@code Stream} of {@link O}s
+         */
+        default Stream<O> components() {
+            return getList().members();
+        }
     }
 
     /**

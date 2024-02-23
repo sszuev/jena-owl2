@@ -144,24 +144,6 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
 
-    @SuppressWarnings("DuplicatedCode")
-    public static EnhNodeFactory createOWL2ELOneOfEnumerationFactory(
-            OntConfig config) {
-        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.OneOfImpl.class, OWL.Class, OntClassImpl.OneOfImpl::new);
-        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
-        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
-                .and((n, g) -> {
-                    RDFList list = Iterators.findFirst(g.asGraph().find(n, OWL.oneOf.asNode(), Node.ANY).filterKeep(
-                            it -> STDObjectFactories.RDF_LIST.canWrap(it.getObject(), g)
-                    ).mapWith(it -> new RDFListImpl(it.getObject(), g))).orElse(null);
-                    if (list == null) {
-                        return false;
-                    }
-                    return Iterators.takeAsSet(list.iterator(), 2).size() == 1;
-                });
-        return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
-    }
-
     public static EnhNodeFactory createCardinalityRestrictionFactory(
             Class<? extends OntClassImpl.CardinalityRestrictionImpl<?, ?, ?>> impl,
             RestrictionType restrictionType,
@@ -192,27 +174,6 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
-    public static EnhNodeFactory createOWL2QLObjectSomeValuesFromRestrictionFactory(OntConfig config) {
-        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.ObjectSomeValuesFromImpl.class, OWL.Restriction,
-                (node, graph) -> new OntClassImpl.ObjectSomeValuesFromImpl(node, graph) {
-                    @Override
-                    public boolean canBeSuperClass() {
-                        return getValue().isURIResource();
-                    }
-
-                    @Override
-                    public boolean canBeSubClass() {
-                        return OWL.Thing.equals(getValue());
-                    }
-                });
-        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
-        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
-                .and(RestrictionType.OBJECT.getFilter())
-                // either owl:Thing or named class
-                .and(ObjectRestrictionType.NAMED_CLASS.getFilter(OWL.someValuesFrom));
-        return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
-    }
-
     public static EnhNodeFactory createNaryRestrictionFactory(
             Class<? extends OntClassImpl.NaryRestrictionImpl<?, ?, ?>> impl,
             Property predicate) {
@@ -228,6 +189,64 @@ final class OntClasses {
             Class<? extends RDFNode> objectType,
             boolean qualifiedCardinalityAllowed) {
         return (n, g) -> type.isNonQualified(n, g) || (qualifiedCardinalityAllowed && type.isQualified(n, g, objectType));
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    public static EnhNodeFactory createOWL2ELOneOfEnumerationFactory(
+            OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.OneOfImpl.class, OWL.Class, OntClassImpl.OneOfImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
+                .and((n, g) -> {
+                    RDFList list = Iterators.findFirst(g.asGraph().find(n, OWL.oneOf.asNode(), Node.ANY).filterKeep(
+                            it -> STDObjectFactories.RDF_LIST.canWrap(it.getObject(), g)
+                    ).mapWith(it -> new RDFListImpl(it.getObject(), g))).orElse(null);
+                    if (list == null) {
+                        return false;
+                    }
+                    return Iterators.takeAsSet(list.iterator(), 2).size() == 1;
+                });
+        return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
+    }
+
+    public static EnhNodeFactory createOWL2QLObjectSomeValuesFromRestrictionFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.QLObjectSomeValuesFromImpl.class, OWL.Restriction,
+                OntClassImpl.QLObjectSomeValuesFromImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
+                .and(RestrictionType.OBJECT.getFilter())
+                // either owl:Thing or named class
+                .and(ObjectRestrictionType.NAMED_CLASS.getFilter(OWL.someValuesFrom));
+        return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
+    }
+
+    public static EnhNodeFactory createOWL2QLIntersectionOfEnumerationFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.QLIntersectionOfImpl.class, OWL.Class,
+                OntClassImpl.QLIntersectionOfImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> res = g.asGraph().find(n, OWL.intersectionOf.asNode(), Node.ANY);
+                    try {
+                        while (res.hasNext()) {
+                            Node listNode = res.next().getObject();
+                            if (!STDObjectFactories.RDF_LIST.canWrap(listNode, g)) {
+                                return false;
+                            }
+                            RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(listNode, g);
+                            if (Iterators.takeAsSet(
+                                    list.iterator().filterKeep(it ->
+                                            it.canAs(OntClass.class) && it.as(OntClass.class).canBeSuperClass()
+                                    ), 2).size() == 2) {
+                                return true;
+                            }
+                        }
+                    } finally {
+                        res.close();
+                    }
+                    return false;
+                });
+        return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
 
     public enum ObjectRestrictionType implements PredicateFilterProvider {
@@ -687,7 +706,7 @@ final class OntClasses {
                 return Type.COMPLEMENT_OF;
             }
             if (filters.contains(Type.INTERSECTION_OF) && isList(n, eg, INTERSECTION_OF)) {
-                return Type.INTERSECTION_OF;
+                return strictFilter(n, eg, Type.INTERSECTION_OF);
             }
             if (filters.contains(Type.UNION_OF) && isList(n, eg, UNION_OF)) {
                 return Type.UNION_OF;

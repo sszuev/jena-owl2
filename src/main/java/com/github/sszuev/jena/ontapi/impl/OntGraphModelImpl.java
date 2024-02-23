@@ -1105,8 +1105,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.IntersectionOf createObjectIntersectionOf(Collection<OntClass> classes) {
         checkType(OntClass.IntersectionOf.class);
-        return OntClassImpl.createComponentsCE(this,
-                OntClass.IntersectionOf.class, OntClass.class, OWL.intersectionOf, classes.stream());
+        return checkCreate(model -> OntClassImpl.createComponentsCE(OntGraphModelImpl.this,
+                OntClass.IntersectionOf.class, OntClass.class, OWL.intersectionOf, classes.stream()), OntClass.IntersectionOf.class);
     }
 
     @Override

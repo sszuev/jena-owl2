@@ -563,6 +563,23 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class QLObjectSomeValuesFromImpl extends ObjectSomeValuesFromImpl {
+
+        public QLObjectSomeValuesFromImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public boolean canBeSuperClass() {
+            return getValue().isURIResource();
+        }
+
+        @Override
+        public boolean canBeSubClass() {
+            return OWL.Thing.equals(getValue());
+        }
+    }
+
     public static class ObjectSomeValuesFromImpl
             extends ComponentRestrictionImpl<OntClass, OntObjectProperty, ObjectSomeValuesFromImpl> implements ObjectSomeValuesFrom {
         public ObjectSomeValuesFromImpl(Node n, EnhGraph m) {
@@ -643,6 +660,22 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         @Override
         public Class<UnionOf> objectType() {
             return UnionOf.class;
+        }
+    }
+
+    public static class QLIntersectionOfImpl extends IntersectionOfImpl {
+        public QLIntersectionOfImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public boolean canBeSubClass() {
+            return false;
+        }
+
+        @Override
+        public Stream<OntClass> components() {
+            return getList().members().filter(OntClass::canBeSuperClass);
         }
     }
 
