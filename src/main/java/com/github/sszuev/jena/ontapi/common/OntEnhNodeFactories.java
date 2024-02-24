@@ -13,11 +13,13 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -137,8 +139,12 @@ public class OntEnhNodeFactories {
         PrefixMapping pm = PrefixMapping.Factory.create()
                 .setNsPrefixes((PrefixMapping) graph)
                 .setNsPrefixes(PrefixMapping.Standard);
+        List<Statement> properties = rdfNode.asResource().listProperties().toList();
+        if (properties.isEmpty()) {
+            return node.toString(PrefixMapping.Standard);
+        }
         StringBuilder sb = new StringBuilder("\n");
-        rdfNode.asResource().listProperties().forEach(s -> sb.append(StdModels.toString(s, pm)).append("\n"));
+        properties.forEach(s -> sb.append(StdModels.toString(s, pm)).append("\n"));
         return sb.toString();
     }
 }

@@ -1210,7 +1210,7 @@ public class OntModelOWLSpecsTest {
         Assertions.assertTrue(m.getRDFSLabel().isBuiltIn());
 
         Assertions.assertTrue(RDFS.seeAlso.inModel(m).as(OntAnnotationProperty.class).isBuiltIn());
-        if (spec.isOWL2()) {
+        if (spec.isOWL2() && !spec.isOWL2RL()) {
             Assertions.assertTrue(OWL.real.inModel(m).as(OntDataRange.Named.class).isBuiltIn());
         } else {
             Assertions.assertFalse(OWL.real.inModel(m).canAs(OntDataRange.Named.class));

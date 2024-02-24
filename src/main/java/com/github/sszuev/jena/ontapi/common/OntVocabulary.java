@@ -53,6 +53,7 @@ public interface OntVocabulary {
     OntVocabulary OWL2_FULL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.FULL);
     OntVocabulary OWL2_EL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.EL);
     OntVocabulary OWL2_QL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.QL);
+    OntVocabulary OWL2_RL = new Impls.OWL2Impl(Impls.OWL2Impl.Type.RL);
     OntVocabulary OWL1_FULL = new Impls.OWL1Impl(Impls.OWL1Impl.Type.FULL);
     OntVocabulary OWL1_LITE = new Impls.OWL1Impl(Impls.OWL1Impl.Type.LITE);
     OntVocabulary DC = new Impls.DCImpl();
@@ -364,6 +365,20 @@ public interface OntVocabulary {
                     XSD.hexBinary, XSD.base64Binary,
                     XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
             );
+            /**
+             * @see <a href="https://www.w3.org/TR/owl2-profiles/#Entities_3">RL: Entitites</a>
+             */
+            public static final Set<Resource> OWL2_RL_DATATYPES = Set.of(
+                    RDF.xmlLiteral, RDF.PlainLiteral, RDF.langString,
+                    org.apache.jena.vocabulary.RDFS.Literal, XSD.xstring, XSD.normalizedString,
+                    XSD.token, XSD.language, XSD.Name, XSD.NCName, XSD.NMTOKEN, XSD.decimal, XSD.integer,
+                    XSD.xdouble, XSD.xfloat, XSD.xboolean,
+                    XSD.nonNegativeInteger, XSD.nonPositiveInteger, XSD.positiveInteger, XSD.negativeInteger,
+                    XSD.xlong, XSD.xint, XSD.xshort, XSD.xbyte,
+                    XSD.unsignedLong, XSD.unsignedInt, XSD.unsignedShort, XSD.unsignedByte,
+                    XSD.hexBinary, XSD.base64Binary,
+                    XSD.anyURI, XSD.dateTime, XSD.dateTimeStamp
+            );
             public static final Set<Resource> ALL_KNOWN_DATATYPES = initOWL2BuiltInRDFDatatypes(TypeMapper.getInstance())
                     .stream()
                     .map(RDFDatatype::getURI)
@@ -406,6 +421,9 @@ public interface OntVocabulary {
                 if (type == Type.EL || type == Type.QL) {
                     return OWL2_EL_QL_DATATYPES;
                 }
+                if (type == Type.RL) {
+                    return OWL2_RL_DATATYPES;
+                }
                 return ALL_KNOWN_DATATYPES;
             }
 
@@ -418,7 +436,7 @@ public interface OntVocabulary {
             }
 
             protected enum Type {
-                FULL, DL, EL, QL,
+                FULL, DL, EL, QL, RL,
             }
         }
 

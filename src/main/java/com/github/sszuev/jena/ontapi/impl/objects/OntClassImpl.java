@@ -658,6 +658,29 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class RLObjectSomeValuesFromImpl extends ObjectSomeValuesFromImpl {
+        private static final Capabilities capabilities = new Capabilities() {
+            @Override
+            public boolean canBeSuperClass() {
+                return false;
+            }
+
+            @Override
+            public boolean canBeEquivalentClass() {
+                return false;
+            }
+        };
+
+        public RLObjectSomeValuesFromImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public Capabilities capabilities() {
+            return capabilities;
+        }
+    }
+
     public static class ObjectSomeValuesFromImpl
             extends ComponentRestrictionImpl<OntClass, OntObjectProperty, ObjectSomeValuesFromImpl> implements ObjectSomeValuesFrom {
         public ObjectSomeValuesFromImpl(Node n, EnhGraph m) {

@@ -223,6 +223,33 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
+    public static EnhNodeFactory createOWL2RLObjectSomeValuesFromFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.RLObjectSomeValuesFromImpl.class, OWL.Restriction,
+                OntClassImpl.RLObjectSomeValuesFromImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
+                .and(RestrictionType.OBJECT.getFilter())
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> res = g.asGraph().find(n, OWL.someValuesFrom.asNode(), Node.ANY);
+                    try {
+                        while (res.hasNext()) {
+                            Node node = res.next().getObject();
+                            OntClass clazz = OntEnhGraph.asPersonalityModel(g).safeFindNodeAs(node, OntClass.class);
+                            if (clazz == null) {
+                                return false;
+                            }
+                            if (clazz.capabilities().canBeSubClass() || clazz == OWL.Thing.asNode()) {
+                                return true;
+                            }
+                        }
+                    } finally {
+                        res.close();
+                    }
+                    return false;
+                });
+        return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
+    }
+
     public static EnhNodeFactory createOWL2QLIntersectionOfFactory(OntConfig config) {
         EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.QLIntersectionOfImpl.class, OWL.Class,
                 OntClassImpl.QLIntersectionOfImpl::new);

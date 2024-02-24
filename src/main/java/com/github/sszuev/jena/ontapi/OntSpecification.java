@@ -20,6 +20,7 @@ import java.util.Objects;
  *     <li>OWL2 (DL &amp; FULL): full support last version of OWL</li>
  *     <li>OWL2 (EL): OWL2 Existential Logic subset</li>
  *     <li>OWL2 (QL): OWL2 Query Language subset</li>
+ *     <li>OWL2 (RL): OWL2 Rule Language subset</li>
  *     <li>OWL1 (DL &amp; FULL): does not support some language construct from OWL2, such as {@code OntDataRange.UnionOf};
  *     supposed to be compatible with legacy Jena's OntModel</li>
  *     <li>OWL1 LITE: does not support some language construct from OWL2 and OWL1, such as {@code OntClass.UnionOf};
@@ -30,6 +31,7 @@ import java.util.Objects;
  * @see <a href="https://www.w3.org/TR/owl2-syntax/">OWL v2</a>
  * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_EL">OWL 2 EL</a>
  * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_QL">OWL 2 QL</a>
+ * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_RL">OWL 2 RL</a>
  * @see <a href="https://www.w3.org/TR/2008/WD-owl11-syntax-20080108/">OWL v1.1</a>
  * @see <a href="https://www.w3.org/TR/owl-guide/">OWL v1</a>
  * @see <a href="https://www.w3.org/TR/2004/REC-owl-features-20040210/#s3">OWL1 Lite</a>
@@ -67,6 +69,14 @@ public class OntSpecification {
                     .setReserved(OntPersonalities.OWL2_RESERVED)
                     .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
                     .setConfig(OntConfigs.OWL2_QL_CONFIG)
+                    .build();
+
+    private static final OntPersonality OWL2_RL_PERSONALITY =
+            OntPersonalities.OWL2_RL_ONT_PERSONALITY()
+                    .setBuiltins(OntPersonalities.OWL2_RL_BUILTINS)
+                    .setReserved(OntPersonalities.OWL2_RESERVED)
+                    .setPunnings(OntPersonalities.OWL_DL2_PUNNINGS)
+                    .setConfig(OntConfigs.OWL2_RL_CONFIG)
                     .build();
 
     private static final OntPersonality OWL1_DL_PERSONALITY =
@@ -290,23 +300,6 @@ public class OntSpecification {
             OWL2_QL_PERSONALITY, null
     );
 
-    /*
-     * *****************************************************************************************************************
-     * OWL 1 DL
-     * *****************************************************************************************************************
-     */
-
-    /**
-     * A specification for OWL1 DL ontology models
-     * that are stored in memory and do no additional entailment reasoning.
-     * Supposed to be a replacement for the original legacy Jena interpretation of OWL DL v1.1 specification.
-     *
-     * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM
-     */
-    public static final OntSpecification OWL1_DL_MEM = new OntSpecification(
-            OWL1_DL_PERSONALITY, null
-    );
-
     /**
      * A specification for OWL2 QL models that are stored in memory
      * and use the RDFS inferencer for additional entailments.
@@ -337,6 +330,37 @@ public class OntSpecification {
             OWL2_QL_PERSONALITY, OWLFBRuleReasonerFactory.theInstance()
     );
 
+    /*
+     * *****************************************************************************************************************
+     * OWL 2 RL
+     * *****************************************************************************************************************
+     */
+
+    /**
+     * A specification for OWL2 RL Ontology models that are stored in memory and do no additional entailment reasoning.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM
+     */
+    public static final OntSpecification OWL2_RL_MEM = new OntSpecification(
+            OWL2_RL_PERSONALITY, null
+    );
+
+    /*
+     * *****************************************************************************************************************
+     * OWL 1 DL
+     * *****************************************************************************************************************
+     */
+
+    /**
+     * A specification for OWL1 DL ontology models
+     * that are stored in memory and do no additional entailment reasoning.
+     * Supposed to be a replacement for the original legacy Jena interpretation of OWL DL v1.1 specification.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_DL_MEM
+     */
+    public static final OntSpecification OWL1_DL_MEM = new OntSpecification(
+            OWL1_DL_PERSONALITY, null
+    );
 
     /**
      * A specification for OWL1 DL ontology models
