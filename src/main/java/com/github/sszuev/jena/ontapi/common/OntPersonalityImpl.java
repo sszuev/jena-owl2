@@ -123,11 +123,9 @@ public class OntPersonalityImpl extends Personality<RDFNode> implements OntPerso
     @Override
     public EnhNodeFactory getObjectFactory(Class<? extends RDFNode> type) {
         Implementation implementation = getImplementation(type);
-        if (implementation == null) {
-            throw new OntJenaException.Unsupported(
-                    "Profile " + name + " does not support language construct " + OntEnhNodeFactories.viewAsString(type)
-            );
-        }
+        OntJenaException.checkSupported(implementation != null,
+                "Profile " + name + " does not support language construct " + OntEnhNodeFactories.viewAsString(type)
+        );
         if (implementation instanceof EnhNodeFactory) {
             return (EnhNodeFactory) implementation;
         }

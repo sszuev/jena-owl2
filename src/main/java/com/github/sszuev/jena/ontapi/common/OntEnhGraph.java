@@ -129,6 +129,7 @@ public interface OntEnhGraph {
 
     /**
      * Equivalent to {@code safeFindNodeAs(node, view) != null}.
+     *
      * @param view {@link RDFNode} type
      * @param node {@link Node}
      * @return boolean
@@ -138,16 +139,13 @@ public interface OntEnhGraph {
     }
 
     /**
-     * @throws OntJenaException.Unsupported if the {@code type} is not supported by the configuration
      * @param type {@link X}
-     * @param <X> any {@link OntObject} type
+     * @param <X>  any {@link OntObject} type
+     * @throws OntJenaException.Unsupported if the {@code type} is not supported by the configuration
      */
     default <X extends OntObject> void checkType(Class<X> type) {
-        if (!getOntPersonality().supports(type)) {
-            throw new OntJenaException.Unsupported(
-                    "Profile " + getOntPersonality().getName() + " does not support language construct " +
-                            OntEnhNodeFactories.viewAsString(type)
-            );
-        }
+        OntJenaException.checkSupported(getOntPersonality().supports(type),
+                "Profile " + getOntPersonality().getName() + " does not support language construct " +
+                        OntEnhNodeFactories.viewAsString(type));
     }
 }

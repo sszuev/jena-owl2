@@ -96,6 +96,25 @@ public class OntJenaException extends JenaException {
     }
 
     /**
+     * @param feature boolean
+     * @throws Unsupported if {@code feature} is {@code false}
+     */
+    public static void checkSupported(boolean feature) {
+        checkSupported(feature, null);
+    }
+
+    /**
+     * @param feature boolean
+     * @param message error description
+     * @throws Unsupported if {@code feature} is {@code false}
+     */
+    public static void checkSupported(boolean feature, String message) {
+        if (!feature) {
+            throw new OntJenaException.Unsupported(message);
+        }
+    }
+
+    /**
      * Exception that is thrown when an ontology resource is converted to another facet,
      * using {@link org.apache.jena.rdf.model.RDFNode#as as()},
      * and the requested conversion is not possible.

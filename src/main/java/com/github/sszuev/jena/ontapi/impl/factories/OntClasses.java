@@ -236,7 +236,7 @@ final class OntClasses {
                             RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(listNode, g);
                             if (Iterators.takeAsSet(
                                     list.iterator().filterKeep(it ->
-                                            it.canAs(OntClass.class) && it.as(OntClass.class).canBeSuperClass()
+                                            it.canAs(OntClass.class) && it.as(OntClass.class).capabilities().canBeSuperClass()
                                     ), 2).size() == 2) {
                                 return true;
                             }
@@ -263,7 +263,7 @@ final class OntClasses {
                             if (clazz == null) {
                                 return false;
                             }
-                            if (clazz.canBeSubClass()) {
+                            if (clazz.capabilities().canBeSubClass()) {
                                 return true;
                             }
                         }

@@ -393,8 +393,8 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         );
     }
 
-    static Stream<OntClass> explicitSuperClasses(Property predicate, OntClass clazz) {
-        return clazz.objects(predicate, OntClass.class).filter(OntClass::canBeSuperClass);
+    static Stream<OntClass> explicitSuperClasses(Property predicate, OntObject clazz) {
+        return clazz.objects(predicate, OntClass.class).filter(it -> it.capabilities().canBeSuperClass());
     }
 
     static Stream<OntClass> explicitSubClasses(OntClass clazz) {
@@ -402,7 +402,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> explicitSubClasses(Property predicate, OntClass clazz) {
-        return subjects(predicate, clazz, OntClass.class).filter(OntClass::canBeSubClass);
+        return subjects(predicate, clazz, OntClass.class).filter(it -> it.capabilities().canBeSubClass());
     }
 
     @Override
@@ -564,19 +564,24 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static class QLObjectSomeValuesFromImpl extends ObjectSomeValuesFromImpl {
+        private final Capabilities capabilities = new Capabilities() {
+            @Override
+            public boolean canBeSuperClass() {
+                return getValue().isURIResource();
+            }
+            @Override
+            public boolean canBeSubClass() {
+                return OWL.Thing.equals(getValue());
+            }
+        };
 
         public QLObjectSomeValuesFromImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public boolean canBeSuperClass() {
-            return getValue().isURIResource();
-        }
-
-        @Override
-        public boolean canBeSubClass() {
-            return OWL.Thing.equals(getValue());
+        public Capabilities capabilities() {
+            return capabilities;
         }
     }
 
@@ -664,18 +669,26 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static class QLIntersectionOfImpl extends IntersectionOfImpl {
+        private static final Capabilities capabilities = new Capabilities() {
+
+            @Override
+            public boolean canBeSubClass() {
+                return false;
+            }
+        };
+
         public QLIntersectionOfImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public boolean canBeSubClass() {
-            return false;
+        public Capabilities capabilities() {
+            return capabilities;
         }
 
         @Override
         public Stream<OntClass> components() {
-            return getList().members().filter(OntClass::canBeSuperClass);
+            return getList().members().filter(it -> it.capabilities().canBeSuperClass());
         }
     }
 
@@ -790,14 +803,20 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static class QLComplementOfImpl extends ComplementOfImpl {
+        private static final Capabilities capabilities = new Capabilities() {
+            @Override
+            public boolean canBeSubClass() {
+                return false;
+            }
+        };
 
         public QLComplementOfImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public boolean canBeSubClass() {
-            return false;
+        public Capabilities capabilities() {
+            return capabilities;
         }
     }
 

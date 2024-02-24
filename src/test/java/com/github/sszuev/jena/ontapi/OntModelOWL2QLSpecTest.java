@@ -103,14 +103,14 @@ public class OntModelOWL2QLSpecTest {
         OntClass oc1 = c1.inModel(m).as(OntClass.ObjectSomeValuesFrom.class);
         OntClass oc3 = c3.inModel(m).as(OntClass.ObjectSomeValuesFrom.class);
 
-        Assertions.assertFalse(oc1.canBeSubClass());
-        Assertions.assertTrue(oc3.canBeSubClass());
-        Assertions.assertTrue(oc1.canBeSuperClass());
-        Assertions.assertTrue(oc3.canBeSuperClass());
+        Assertions.assertFalse(oc1.capabilities().canBeSubClass());
+        Assertions.assertTrue(oc3.capabilities().canBeSubClass());
+        Assertions.assertTrue(oc1.capabilities().canBeSuperClass());
+        Assertions.assertTrue(oc3.capabilities().canBeSuperClass());
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectSomeValuesFrom(p, oc1));
 
-        Assertions.assertFalse(m.createObjectSomeValuesFrom(p, c0).canBeSubClass());
+        Assertions.assertFalse(m.createObjectSomeValuesFrom(p, c0).capabilities().canBeSubClass());
         Assertions.assertEquals(4, m.ontObjects(OntClass.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntClass.ObjectSomeValuesFrom.class).count());
     }

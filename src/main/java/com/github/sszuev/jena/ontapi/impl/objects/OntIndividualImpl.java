@@ -149,9 +149,9 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
     static Stream<OntClass> listClassesFor(OntObject resource, AtomicBoolean isFirstLevel) {
         if (isFirstLevel.get()) {
             isFirstLevel.set(false);
-            return resource.objects(RDF.type, OntClass.class);
+            return resource.objects(RDF.type, OntClass.class).filter(it -> it.capabilities().canHaveIndividuals());
         }
-        return resource.objects(RDFS.subClassOf, OntClass.class);
+        return OntClassImpl.explicitSuperClasses(RDFS.subClassOf, resource);
     }
 
     @Override

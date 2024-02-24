@@ -181,7 +181,7 @@ public interface OntRelationalProperty extends OntProperty {
      */
     @Override
     default Stream<OntClass> domains() {
-        return objects(RDFS.domain, OntClass.class);
+        return objects(RDFS.domain, OntClass.class).filter(it -> it.capabilities().canBeSuperClass());
     }
 
     /**
@@ -210,8 +210,11 @@ public interface OntRelationalProperty extends OntProperty {
      * @return {@code Stream} of {@link OntClass class expression}s, distinct
      */
     default Stream<OntClass> domains(boolean direct) {
-        if (direct) return domains();
-        return domains().flatMap(d -> Stream.concat(Stream.of(d), d.superClasses(false))).distinct();
+        if (direct) {
+            return domains();
+        } else {
+            return domains().flatMap(d -> Stream.concat(Stream.of(d), d.superClasses(false))).distinct();
+        }
     }
 
     /**
