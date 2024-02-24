@@ -168,7 +168,7 @@ public class OntPersonalities {
 
             // class expressions:
             .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.DL_OBJECT_SOME_VALUES_FROM_CLASS)
-            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DL_DATA_SOME_VALUES_FROM_CLASS)
             .add(OntClass.ObjectAllValuesFrom.class, OWL2ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
             .add(OntClass.DataAllValuesFrom.class, OWL2ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
             .add(OntClass.ObjectHasValue.class, OWL2ObjectFactories.OBJECT_HAS_VALUE_CLASS)
@@ -271,7 +271,7 @@ public class OntPersonalities {
 
             // class expressions:
             .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.EL_OBJECT_SOME_VALUES_FROM_CLASS)
-            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.EL_DATA_SOME_VALUES_FROM_CLASS)
             .add(OntClass.ObjectHasValue.class, OWL2ObjectFactories.OBJECT_HAS_VALUE_CLASS)
             .add(OntClass.DataHasValue.class, OWL2ObjectFactories.DATA_HAS_VALUE_CLASS)
             .add(OntClass.HasSelf.class, OWL2ObjectFactories.HAS_SELF_CLASS)
@@ -338,7 +338,7 @@ public class OntPersonalities {
 
             // class expressions:
             .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.QL_OBJECT_SOME_VALUES_FROM_CLASS)
-            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.DATA_SOME_VALUES_FROM_CLASS)
+            .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.QL_DATA_SOME_VALUES_FROM_CLASS)
             .add(OntClass.IntersectionOf.class, OWL2ObjectFactories.QL_INTERSECTION_OF_CLASS)
             .add(OntClass.ComplementOf.class, OWL2ObjectFactories.QL_COMPLEMENT_OF_CLASS)
             .add(OntClass.NaryDataAllValuesFrom.class, OWL2ObjectFactories.NARY_DATA_ALL_VALUES_FROM_CLASS)

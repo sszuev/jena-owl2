@@ -111,12 +111,14 @@ public final class OWL2ObjectFactories {
                     OntClassImpl.UnionOfImpl.class,
                     OWL.unionOf,
                     RDFList.class,
+                    OntClassImpl.UnionOfImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> DL_INTERSECTION_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
                     OntClassImpl.IntersectionOfImpl.class,
                     OWL.intersectionOf,
                     RDFList.class,
+                    OntClassImpl.IntersectionOfImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> EL_INTERSECTION_OF_CLASS = DL_INTERSECTION_OF_CLASS;
     public static final Function<OntConfig, EnhNodeFactory> QL_INTERSECTION_OF_CLASS =
@@ -126,6 +128,7 @@ public final class OWL2ObjectFactories {
                     OntClassImpl.OneOfImpl.class,
                     OWL.oneOf,
                     RDFList.class,
+                    OntClassImpl.OneOfImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> EL_ONE_OF_CLASS = OntClasses::createOWL2ELObjectOneOfFactory;
     public static final Function<OntConfig, EnhNodeFactory> DL_COMPLEMENT_OF_CLASS =
@@ -133,6 +136,7 @@ public final class OWL2ObjectFactories {
                     OntClassImpl.ComplementOfImpl.class,
                     OWL.complementOf,
                     OntClass.class,
+                    OntClassImpl.ComplementOfImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> QL_COMPLEMENT_OF_CLASS = OntClasses::createOWL2QLComplementOfFactory;
 
@@ -142,16 +146,27 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.OBJECT,
                     OntClasses.ObjectRestrictionType.CLASS,
                     OWL.someValuesFrom,
+                    OntClassImpl.ObjectSomeValuesFromImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> EL_OBJECT_SOME_VALUES_FROM_CLASS = DL_OBJECT_SOME_VALUES_FROM_CLASS;
     public static final Function<OntConfig, EnhNodeFactory> QL_OBJECT_SOME_VALUES_FROM_CLASS =
             OntClasses::createOWL2QLObjectSomeValuesFromFactory;
-    public static final Function<OntConfig, EnhNodeFactory> DATA_SOME_VALUES_FROM_CLASS =
+    public static final Function<OntConfig, EnhNodeFactory> DL_DATA_SOME_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
                     OntClassImpl.DataSomeValuesFromImpl.class,
                     OntClasses.RestrictionType.DATA,
                     OntClasses.ObjectRestrictionType.DATA_RANGE,
                     OWL.someValuesFrom,
+                    OntClassImpl.DataSomeValuesFromImpl::new,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> EL_DATA_SOME_VALUES_FROM_CLASS = DL_DATA_SOME_VALUES_FROM_CLASS;
+    public static final Function<OntConfig, EnhNodeFactory> QL_DATA_SOME_VALUES_FROM_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.QLDataSomeValuesFromImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OWL.someValuesFrom,
+                    OntClassImpl.QLDataSomeValuesFromImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_ALL_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
@@ -159,6 +174,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.OBJECT,
                     OntClasses.ObjectRestrictionType.CLASS,
                     OWL.allValuesFrom,
+                    OntClassImpl.ObjectAllValuesFromImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> DATA_ALL_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
@@ -166,6 +182,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.DATA,
                     OntClasses.ObjectRestrictionType.DATA_RANGE,
                     OWL.allValuesFrom,
+                    OntClassImpl.DataAllValuesFromImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_HAS_VALUE_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
@@ -173,6 +190,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.OBJECT,
                     OntClasses.ObjectRestrictionType.INDIVIDUAL,
                     OWL.hasValue,
+                    OntClassImpl.ObjectHasValueImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> DATA_HAS_VALUE_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
@@ -180,6 +198,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.DATA,
                     OntClasses.ObjectRestrictionType.LITERAL,
                     OWL.hasValue,
+                    OntClassImpl.DataHasValueImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> DATA_MIN_CARDINALITY_CLASS =
             config -> OntClasses.createCardinalityRestrictionFactory(
@@ -187,6 +206,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.DATA,
                     OntClasses.ObjectRestrictionType.DATA_RANGE,
                     OntClassImpl.CardinalityType.MIN,
+                    OntClassImpl.DataMinCardinalityImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_MIN_CARDINALITY_CLASS =
             config -> OntClasses.createCardinalityRestrictionFactory(
@@ -194,6 +214,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.OBJECT,
                     OntClasses.ObjectRestrictionType.CLASS,
                     OntClassImpl.CardinalityType.MIN,
+                    OntClassImpl.ObjectMinCardinalityImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> DATA_MAX_CARDINALITY_CLASS =
             config -> OntClasses.createCardinalityRestrictionFactory(
@@ -201,6 +222,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.DATA,
                     OntClasses.ObjectRestrictionType.DATA_RANGE,
                     OntClassImpl.CardinalityType.MAX,
+                    OntClassImpl.DataMaxCardinalityImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_MAX_CARDINALITY_CLASS =
             config -> OntClasses.createCardinalityRestrictionFactory(
@@ -208,6 +230,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.OBJECT,
                     OntClasses.ObjectRestrictionType.CLASS,
                     OntClassImpl.CardinalityType.MAX,
+                    OntClassImpl.ObjectMaxCardinalityImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> DATA_CARDINALITY_CLASS =
             config -> OntClasses.createCardinalityRestrictionFactory(
@@ -215,6 +238,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.DATA,
                     OntClasses.ObjectRestrictionType.DATA_RANGE,
                     OntClassImpl.CardinalityType.EXACTLY,
+                    OntClassImpl.DataCardinalityImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_CARDINALITY_CLASS =
             config -> OntClasses.createCardinalityRestrictionFactory(
@@ -222,6 +246,7 @@ public final class OWL2ObjectFactories {
                     OntClasses.RestrictionType.OBJECT,
                     OntClasses.ObjectRestrictionType.CLASS,
                     OntClassImpl.CardinalityType.EXACTLY,
+                    OntClassImpl.ObjectCardinalityImpl::new,
                     config);
     public static final EnhNodeFactory HAS_SELF_CLASS = OntEnhNodeFactories.createCommon(
             new OntClasses.HasSelfMaker(),

@@ -247,7 +247,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
             }
             return testIsOWLClass(model, candidate);
         }
-        return model.canNodeAs(OntClass.class, candidate);
+        OntClass clazz = model.safeFindNodeAs(candidate, OntClass.class);
+        return clazz != null && clazz.capabilities().canHaveIndividuals();
     }
 
     private static <M extends OntModel & OntEnhGraph> boolean testIsOWLClass(M model, Node candidate) {

@@ -124,8 +124,9 @@ final class OntClasses {
             Class<? extends OntClassImpl> impl,
             Property predicate,
             Class<? extends RDFNode> view,
+            BiFunction<Node, EnhGraph, EnhNode> producer,
             OntConfig config) {
-        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Class);
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Class, producer);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
                 .and((n, g) -> {
@@ -149,8 +150,9 @@ final class OntClasses {
             RestrictionType restrictionType,
             ObjectRestrictionType objectType,
             OntClassImpl.CardinalityType cardinalityType,
+            BiFunction<Node, EnhGraph, EnhNode> producer,
             OntConfig config) {
-        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction, producer);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
                 .and(getCardinalityFilter(cardinalityType,
@@ -165,8 +167,9 @@ final class OntClasses {
             RestrictionType propertyType,
             ObjectRestrictionType objectType,
             Property predicate,
+            BiFunction<Node, EnhGraph, EnhNode> producer,
             OntConfig config) {
-        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction);
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(impl, OWL.Restriction, producer);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
                 .and(propertyType.getFilter())

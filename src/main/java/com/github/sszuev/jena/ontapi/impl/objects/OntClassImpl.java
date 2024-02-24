@@ -157,11 +157,18 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Anonymous createAnonymousIndividual(OntGraphModelImpl model, OntClass source) {
         OntGraphModelImpl.checkFeature(model, OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS, "anonymous-individuals");
+        OntJenaException.checkSupported(source.capabilities().canHaveIndividuals(),
+                "Class " + OntEnhNodeFactories.viewAsString(source.getClass()) + " cannot have individuals. " +
+                        "Profile: " + model.getOntPersonality().getName());
         return model.getNodeAs(model.createResource(source).asNode(), OntIndividual.Anonymous.class);
     }
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
-        Resource res = model.createResource(OntJenaException.notNull(uri, "Null uri"), source);
+        OntJenaException.notNull(uri, "Null uri");
+        OntJenaException.checkSupported(source.capabilities().canHaveIndividuals(),
+                "Class " + OntEnhNodeFactories.viewAsString(source.getClass()) + " cannot have individuals. " +
+                        "Profile: " + model.getOntPersonality().getName());
+        Resource res = model.createResource(uri, source);
         if (OntGraphModelImpl.configValue(model, OntModelControls.USE_OWL2_NAMED_INDIVIDUAL_DECLARATION_FEATURE)) {
             res.addProperty(RDF.type, OWL.NamedIndividual);
         }
@@ -356,6 +363,9 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
+        if (!clazz.capabilities().canHaveIndividuals()) {
+            return Stream.empty();
+        }
         if (OntGraphModelImpl.configValue(clazz.getModel(), OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)) {
             // TODO: optimize
             return clazz.getModel().individuals().filter(i -> i.hasOntClass(clazz, direct));
@@ -573,6 +583,10 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
             public boolean canBeSubClass() {
                 return OWL.Thing.equals(getValue());
             }
+            @Override
+            public boolean canHaveIndividuals() {
+                return false;
+            }
         };
 
         public QLObjectSomeValuesFromImpl(Node n, EnhGraph m) {
@@ -594,6 +608,24 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         @Override
         public Class<ObjectSomeValuesFrom> objectType() {
             return ObjectSomeValuesFrom.class;
+        }
+    }
+
+    public static class QLDataSomeValuesFromImpl extends DataSomeValuesFromImpl {
+        private final static Capabilities capabilities = new Capabilities() {
+            @Override
+            public boolean canHaveIndividuals() {
+                return false;
+            }
+        };
+
+        public QLDataSomeValuesFromImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public Capabilities capabilities() {
+            return capabilities;
         }
     }
 
@@ -673,6 +705,11 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
             @Override
             public boolean canBeSubClass() {
+                return false;
+            }
+
+            @Override
+            public boolean canHaveIndividuals() {
                 return false;
             }
         };
@@ -806,6 +843,11 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         private static final Capabilities capabilities = new Capabilities() {
             @Override
             public boolean canBeSubClass() {
+                return false;
+            }
+
+            @Override
+            public boolean canHaveIndividuals() {
                 return false;
             }
         };

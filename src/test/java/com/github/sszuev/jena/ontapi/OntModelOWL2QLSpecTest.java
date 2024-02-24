@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
+import com.github.sszuev.jena.ontapi.model.OntIndividual;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
@@ -20,6 +21,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.github.sszuev.jena.ontapi.OntModelOWLSpecsTest.testListObjects;
@@ -153,7 +155,7 @@ public class OntModelOWL2QLSpecTest {
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectIntersectionOf(c0));
         Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectIntersectionOf(c0, c1));
         m.createObjectIntersectionOf(c0, c4);
-        Assertions.assertEquals(spec == TestSpec.OWL2_QL_MEM_RULES_INF ? 20 :8, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(spec == TestSpec.OWL2_QL_MEM_RULES_INF ? 20 : 8, m.ontObjects(OntClass.class).count());
     }
 
     @ParameterizedTest
@@ -215,6 +217,57 @@ public class OntModelOWL2QLSpecTest {
         Assertions.assertEquals(List.of(c0), c4.subClasses().collect(Collectors.toList()));
         Assertions.assertEquals(List.of(c5), c4.superClasses().collect(Collectors.toList()));
         Assertions.assertEquals(List.of(), c5.subClasses().collect(Collectors.toList()));
+    }
 
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+    })
+    public void testIndividuals(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntObjectProperty op = m.createObjectProperty("p");
+        OntDataProperty dp = m.createDataProperty("d");
+
+        OntClass c0 = m.createOntClass("c");
+        OntClass c1 = m.createDataSomeValuesFrom(dp, m.getDatatype(XSD.xstring.getURI()));
+        OntClass c2 = m.createObjectSomeValuesFrom(op, c0);
+        OntClass c3 = m.createObjectSomeValuesFrom(op, m.getOWLThing());
+        OntClass c4 = m.createObjectComplementOf(c0);
+        OntClass c5 = m.createObjectIntersectionOf(c0, c1);
+
+        OntIndividual i0 = m.createIndividual("i0");
+        OntIndividual i1 = m.createIndividual("i1");
+        OntIndividual i2 = m.createIndividual("i2");
+        OntIndividual i3 = m.createIndividual("i3");
+
+        i0.addProperty(RDF.type, c0);
+        i1.addProperty(RDF.type, c1);
+        i2.addProperty(RDF.type, c2);
+        i3.addProperty(RDF.type, c3);
+        i0.addProperty(RDF.type, c4);
+        i0.addProperty(RDF.type, c5);
+
+        Assertions.assertEquals(List.of(i0), c0.individuals().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c1.individuals().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c2.individuals().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c3.individuals().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c4.individuals().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c5.individuals().collect(Collectors.toList()));
+
+        Assertions.assertEquals(List.of(c0), i0.classes().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), i1.classes().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), i2.classes().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), i3.classes().collect(Collectors.toList()));
+
+        Assertions.assertEquals(List.of(i0), m.individuals().collect(Collectors.toList()));
+        Assertions.assertEquals(4, m.ontEntities(OntIndividual.Named.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.createIndividual("x"));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, c0::createIndividual);
+
+        OntIndividual i4 = c0.createIndividual("i4");
+        Assertions.assertEquals(Set.of(i0, i4), m.individuals().collect(Collectors.toSet()));
     }
 }

@@ -134,7 +134,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         if (direct) {
             Property reasonerProperty = reasonerProperty(individual.getModel(), RDF.type);
             if (reasonerProperty != null) {
-                return individual.objects(reasonerProperty, OntClass.class);
+                return individual.objects(reasonerProperty, OntClass.class).filter(it -> it.capabilities().canHaveIndividuals());
             }
         }
         AtomicBoolean isIndividual = new AtomicBoolean(true);
