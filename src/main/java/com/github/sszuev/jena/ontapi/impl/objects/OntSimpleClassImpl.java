@@ -124,13 +124,19 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
     }
 
     @Override
+    public OntClass addDisjointClass(OntClass other) {
+        OntClassImpl.addDisjoint(getModel(), this, other);
+        return this;
+    }
+
+    @Override
     public OntStatement addDisjointWithStatement(OntClass other) {
-        return OntClassImpl.addDisjointWith(getModel(), this, other);
+        return OntClassImpl.addDisjointWithStatement(getModel(), this, other);
     }
 
     @Override
     public OntClass removeDisjointClass(Resource other) {
-        OntClassImpl.removeDisjointWith(getModel(), this, other);
+        OntClassImpl.removeDisjoint(getModel(), this, other);
         return this;
     }
 
@@ -197,13 +203,19 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
 
         @Override
         public OntClass.Named removeDisjointClass(Resource other) {
-            OntClassImpl.removeDisjointWith(getModel(), this, other);
+            super.removeDisjointClass(other);
             return this;
         }
 
         @Override
         public OntClass.Named removeEquivalentClass(Resource other) {
-            OntClassImpl.removeEquivalentClass(getModel(), this, other);
+            super.removeEquivalentClass(other);
+            return this;
+        }
+
+        @Override
+        public OntClass.Named addDisjointClass(OntClass other) {
+            super.addDisjointClass(other);
             return this;
         }
     }

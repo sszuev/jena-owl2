@@ -269,6 +269,25 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     boolean isDisjoint(Resource candidate);
 
     /**
+     * Returns disjoint class-objects.
+     * This includes {@code thisClass owl:disjointWith otherClass},
+     * {@code otherClass owl:disjointWith thisClass} statements and {@code owl:AllDisjointClasses} construct.
+     *
+     * @return a {@code Stream} of {@link OntClass}s
+     * @see OntDisjoint.Classes
+     */
+    Stream<OntClass> disjointClasses();
+
+    /**
+     * Lists all equivalent classes.
+     * The statement patter to search for is {@code C1 owl:equivalentClass C2}.
+     *
+     * @return {@code Stream} of {@link OntClass}s
+     * @see OntDataRange.Named#equivalentClasses()
+     */
+    Stream<OntClass> equivalentClasses();
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -390,28 +409,6 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * Returns disjoint class-objects.
-     * The statement pattern to search for is {@code thisClass owl:disjointWith otherClass}.
-     *
-     * @return a {@code Stream} of {@link OntClass}s
-     * @see OntDisjoint.Classes
-     */
-    default Stream<OntClass> disjointClasses() {
-        return objects(OWL.disjointWith, OntClass.class);
-    }
-
-    /**
-     * Lists all equivalent classes.
-     * The statement patter to search for is {@code C1 owl:equivalentClass C2}.
-     *
-     * @return {@code Stream} of {@link OntClass}s
-     * @see OntDataRange.Named#equivalentClasses()
-     */
-    default Stream<OntClass> equivalentClasses() {
-        return objects(OWL.equivalentClass, OntClass.class);
-    }
-
-    /**
      * Adds the given class as a superclass
      * and returns the corresponding statement to provide the ability to add annotations.
      *
@@ -477,6 +474,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #removeSuperClass(Resource)
      */
     default OntClass addSuperClass(OntClass other) {
+        OntJenaException.checkSupported(this.capabilities().canBeSubClass() && other.capabilities().canBeSuperClass());
         addSubClassOfStatement(other);
         return this;
     }
@@ -490,6 +488,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #addSuperClass(OntClass)
      */
     default OntClass addSubClass(OntClass other) {
+        OntJenaException.checkSupported(other.capabilities().canBeSubClass() && this.capabilities().canBeSuperClass());
         other.addSuperClass(this);
         return this;
     }
@@ -504,6 +503,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #removeDisjointClass(Resource)
      */
     default OntClass addDisjointClass(OntClass other) {
+        OntJenaException.checkSupported(other.capabilities().canBeDisjointClass() && this.capabilities().canBeDisjointClass());
         addDisjointWithStatement(other);
         return this;
     }
@@ -517,6 +517,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #removeDisjointClass(Resource)
      */
     default OntClass addEquivalentClass(OntClass other) {
+        OntJenaException.checkSupported(capabilities().canBeEquivalentClass() && other.capabilities().canBeEquivalentClass());
         addEquivalentClassStatement(other);
         return this;
     }
@@ -686,6 +687,24 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          * @return {@code boolean}
          */
         default boolean canBeSubClass() {
+            return true;
+        }
+
+        /**
+         * Answers {@code true} if this class can be disjoint with some other class.
+         *
+         * @return {@code boolean}
+         */
+        default boolean canBeDisjointClass() {
+            return true;
+        }
+
+        /**
+         * Answers {@code true} if this class can be equivalent to some other class.
+         *
+         * @return {@code boolean}
+         */
+        default boolean canBeEquivalentClass() {
             return true;
         }
 
@@ -954,8 +973,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          * {@inheritDoc}
          */
         @Override
-        default Named addDisjointClass(OntClass other) {
-            OntClass.super.addDisjointClass(other);
+        default Named addSubClass(OntClass other) {
+            OntClass.super.addSubClass(other);
             return this;
         }
 
@@ -1002,6 +1021,15 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
          */
         default Named addDisjointUnion(OntClass... classes) {
             addDisjointUnionOfStatement(classes);
+            return this;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        default Named addDisjointClass(OntClass other) {
+            OntClass.super.addDisjointClass(other);
             return this;
         }
 

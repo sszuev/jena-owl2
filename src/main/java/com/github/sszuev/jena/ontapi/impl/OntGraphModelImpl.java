@@ -287,9 +287,9 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     }
 
     public static void checkFeature(OntModel m, OntModelControls setting, String featureName) {
-        OntJenaException.checkSupported (configValue(m, setting),
+        OntJenaException.checkSupported(configValue(m, setting),
                 "Feature " + featureName + " is disabled. " +
-                            "Profile " + OntEnhGraph.asPersonalityModel(m).getOntPersonality().getName());
+                        "Profile " + OntEnhGraph.asPersonalityModel(m).getOntPersonality().getName());
     }
 
     public static boolean configValue(OntModel m, OntModelControls setting) {
@@ -726,7 +726,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
         OntPersonality personality = getOntPersonality();
         OntJenaException.checkSupported(personality.supports(type),
                 "Attempt to create resource <" + uri + ">. Profile " + personality.getName() +
-                            " does not support language construct " + OntEnhNodeFactories.viewAsString(type));
+                        " does not support language construct " + OntEnhNodeFactories.viewAsString(type));
         Node node = Graphs.createNode(uri);
         EnhNodeFactory factory = personality.getObjectFactory(type);
         return factory.createInGraph(node, this).as(type);

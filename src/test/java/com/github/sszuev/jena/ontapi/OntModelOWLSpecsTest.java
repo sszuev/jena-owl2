@@ -357,7 +357,7 @@ public class OntModelOWLSpecsTest {
 
         marsupials.addDisjointClass(animal);
         Assertions.assertEquals(2, marsupials.disjointClasses().count());
-        Assertions.assertEquals(0, animal.disjointClasses().count());
+        Assertions.assertEquals(1, animal.disjointClasses().count());
         Assertions.assertEquals(1, person.disjointClasses().count());
         marsupials.removeDisjointClass(animal);
         Assertions.assertEquals(1, marsupials.disjointClasses().count());
@@ -593,7 +593,6 @@ public class OntModelOWLSpecsTest {
         OntIndividual i2 = class6.createIndividual();
         // nap:
         OntNegativeAssertion<?, ?> npa1 = p1.addNegativeAssertion(i1, m.createLiteral("xxx"));
-
 
         Assertions.assertEquals(1, class1.spec().map(StdModels::toString).count());
         Assertions.assertEquals(4, class1.content().map(StdModels::toString).count());

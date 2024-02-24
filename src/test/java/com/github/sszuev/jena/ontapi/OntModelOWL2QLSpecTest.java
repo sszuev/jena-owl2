@@ -217,6 +217,10 @@ public class OntModelOWL2QLSpecTest {
         Assertions.assertEquals(List.of(c0), c4.subClasses().collect(Collectors.toList()));
         Assertions.assertEquals(List.of(c5), c4.superClasses().collect(Collectors.toList()));
         Assertions.assertEquals(List.of(), c5.subClasses().collect(Collectors.toList()));
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c0.addSubClass(c2));
+        c0.addSuperClass(c2);
+        Assertions.assertEquals(Set.of(c2, c4), c0.superClasses().collect(Collectors.toSet()));
     }
 
     @ParameterizedTest
@@ -269,5 +273,56 @@ public class OntModelOWL2QLSpecTest {
 
         OntIndividual i4 = c0.createIndividual("i4");
         Assertions.assertEquals(Set.of(i0, i4), m.individuals().collect(Collectors.toSet()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_QL_MEM_RULES_INF",
+    })
+    public void testDisjoints(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntObjectProperty op = m.createObjectProperty("p");
+        OntDataProperty dp = m.createDataProperty("d");
+
+        OntClass c0 = m.createOntClass("c");
+        OntClass c1 = m.createDataSomeValuesFrom(dp, m.getDatatype(XSD.xstring.getURI()));
+        OntClass c2 = m.createObjectSomeValuesFrom(op, c0);
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.addDisjointClass(c2));
+        c0.addDisjointClass(c1);
+        Assertions.assertEquals(List.of(c0), c1.disjointClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(c1), c0.disjointClasses().collect(Collectors.toList()));
+
+        c1.addProperty(OWL.disjointWith, c2);
+        Assertions.assertEquals(List.of(c0), c1.disjointClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c2.disjointClasses().collect(Collectors.toList()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+    })
+    public void testEquivalents(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntObjectProperty op = m.createObjectProperty("p");
+        OntDataProperty dp = m.createDataProperty("d");
+
+        OntClass c0 = m.createOntClass("c");
+        OntClass c1 = m.createDataSomeValuesFrom(dp, m.getDatatype(XSD.xstring.getURI()));
+        OntClass c2 = m.createObjectSomeValuesFrom(op, c0);
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.addEquivalentClass(c2));
+        c0.addEquivalentClass(c1);
+        Assertions.assertEquals(List.of(c0), c1.equivalentClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(c1), c0.equivalentClasses().collect(Collectors.toList()));
+
+        c1.addProperty(OWL.equivalentClass, c2);
+        Assertions.assertEquals(List.of(c0), c1.equivalentClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(), c2.equivalentClasses().collect(Collectors.toList()));
     }
 }
