@@ -70,4 +70,38 @@ public class OntModelOWL2RLSpecTest {
         Assertions.assertEquals(2, m.ontObjects(OntClass.CollectionOf.class).count());
         Assertions.assertEquals(2, m.ontObjects(OntClass.IntersectionOf.class).count());
     }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+    })
+    public void testObjectUnionOf(TestSpec spec) {
+        OntModel data = OntModelFactory.createModel();
+        OntDataProperty p = data.createDataProperty("p");
+        OntClass c0 = data.createOntClass("c0");
+        OntClass c1 = data.createOntClass("c1");
+        OntClass c2 = data.createOntClass("c2");
+        OntClass c3 = data.createDataMinCardinality(p, 42, data.getDatatype(XSD.xlong));
+        OntClass c4 = data.createObjectUnionOf(c0);
+        OntClass c5 = data.createObjectUnionOf(c1, c3);
+        OntClass c6 = data.createObjectUnionOf(c1, c2);
+
+        OntModel m = OntModelFactory.createModel(data.getGraph(), spec.inst);
+        Assertions.assertFalse(c4.inModel(m).canAs(OntClass.class));
+        Assertions.assertFalse(c5.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(c6.inModel(m).canAs(OntClass.class));
+
+        Assertions.assertEquals(4, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(1, m.ontObjects(OntClass.LogicalExpression.class).count());
+        Assertions.assertEquals(1, m.ontObjects(OntClass.CollectionOf.class).count());
+        Assertions.assertEquals(1, m.ontObjects(OntClass.UnionOf.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectUnionOf(c1, c3));
+
+        m.createObjectUnionOf(c1, c5, c2);
+        Assertions.assertEquals(5, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.LogicalExpression.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.CollectionOf.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.UnionOf.class).count());
+    }
 }

@@ -749,6 +749,32 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class RLUnionOfImpl extends UnionOfImpl {
+        public RLUnionOfImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSuperClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return asSubClass();
+        }
+
+        @Override
+        public Stream<OntClass> components() {
+            return getList().members().map(OntClass::asSubClass).filter(Objects::nonNull);
+        }
+    }
+
     public static class UnionOfImpl extends CollectionOfImpl<OntClass> implements UnionOf {
         public UnionOfImpl(Node n, EnhGraph m) {
             super(n, m, OWL.unionOf, OntClass.class);

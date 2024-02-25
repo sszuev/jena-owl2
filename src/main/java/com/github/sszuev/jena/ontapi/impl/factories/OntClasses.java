@@ -265,9 +265,11 @@ final class OntClasses {
                             }
                             RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(listNode, g);
                             if (Iterators.hasAtLeast(
-                                    list.iterator().filterKeep(it ->
-                                            it.canAs(OntClass.class) && it.as(OntClass.class).asSuperClass() != null
-                                    ), 2)) {
+                                    list.iterator()
+                                            .mapWith(it ->
+                                                    OntEnhGraph.asPersonalityModel(g).safeFindNodeAs(it.asNode(), OntClass.class)
+                                            )
+                                            .filterKeep(it -> it != null && it.asSuperClass() != null), 2)) {
                                 return true;
                             }
                         }
@@ -344,6 +346,37 @@ final class OntClasses {
                                 return false;
                             }
                             if (clazz.asSubClass() != null) {
+                                return true;
+                            }
+                        }
+                    } finally {
+                        res.close();
+                    }
+                    return false;
+                });
+        return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
+    }
+
+    public static EnhNodeFactory createOWL2RLUnionOfFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.RLUnionOfImpl.class, OWL.Class,
+                OntClassImpl.RLUnionOfImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> res = g.asGraph().find(n, OWL.unionOf.asNode(), Node.ANY);
+                    try {
+                        while (res.hasNext()) {
+                            Node listNode = res.next().getObject();
+                            if (!STDObjectFactories.RDF_LIST.canWrap(listNode, g)) {
+                                return false;
+                            }
+                            RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(listNode, g);
+                            if (Iterators.hasAtLeast(
+                                    list.iterator()
+                                            .mapWith(it ->
+                                                    OntEnhGraph.asPersonalityModel(g).safeFindNodeAs(it.asNode(), OntClass.class)
+                                            )
+                                            .filterKeep(it -> it != null && it.asSubClass() != null), 2)) {
                                 return true;
                             }
                         }
@@ -815,7 +848,7 @@ final class OntClasses {
                 return strictFilter(n, eg, Type.INTERSECTION_OF);
             }
             if (filters.contains(Type.UNION_OF) && isList(n, eg, UNION_OF)) {
-                return Type.UNION_OF;
+                return strictFilter(n, eg, Type.UNION_OF);
             }
             if (filters.contains(Type.ONE_OF) && isList(n, eg, ONE_OF)) {
                 return strictFilter(n, eg, Type.ONE_OF);

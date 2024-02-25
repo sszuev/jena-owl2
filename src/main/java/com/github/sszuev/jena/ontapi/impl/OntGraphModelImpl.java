@@ -982,7 +982,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntDataRange.OneOf createDataOneOf(Collection<Literal> values) {
         checkType(OntDataRange.OneOf.class);
-        return checkCreate(model -> OntDataRangeImpl.createOneOf(OntGraphModelImpl.this, values.stream()), OntDataRange.OneOf.class);
+        return checkCreate(model -> OntDataRangeImpl.createOneOf(model, values.stream()), OntDataRange.OneOf.class);
     }
 
     @Override
@@ -1012,14 +1012,14 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.ObjectSomeValuesFrom createObjectSomeValuesFrom(OntObjectProperty property, OntClass ce) {
         checkType(OntClass.ObjectSomeValuesFrom.class);
-        return checkCreate(model -> OntClassImpl.createComponentRestrictionCE(OntGraphModelImpl.this,
+        return checkCreate(model -> OntClassImpl.createComponentRestrictionCE(model,
                 OntClass.ObjectSomeValuesFrom.class, property, ce, OWL.someValuesFrom), OntClass.ObjectSomeValuesFrom.class);
     }
 
     @Override
     public OntClass.DataSomeValuesFrom createDataSomeValuesFrom(OntDataProperty property, OntDataRange dr) {
         checkType(OntClass.DataSomeValuesFrom.class);
-        return checkCreate(model -> OntClassImpl.createComponentRestrictionCE(OntGraphModelImpl.this,
+        return checkCreate(model -> OntClassImpl.createComponentRestrictionCE(model,
                 OntClass.DataSomeValuesFrom.class, property, dr, OWL.someValuesFrom), OntClass.DataSomeValuesFrom.class);
     }
 
@@ -1094,20 +1094,22 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.UnionOf createObjectUnionOf(Collection<OntClass> classes) {
         checkType(OntClass.UnionOf.class);
-        return OntClassImpl.createComponentsCE(this, OntClass.UnionOf.class, OntClass.class, OWL.unionOf, classes.stream());
+        return checkCreate(model ->
+                OntClassImpl.createComponentsCE(model, OntClass.UnionOf.class, OntClass.class, OWL.unionOf, classes.stream()),
+                OntClass.UnionOf.class);
     }
 
     @Override
     public OntClass.IntersectionOf createObjectIntersectionOf(Collection<OntClass> classes) {
         checkType(OntClass.IntersectionOf.class);
-        return checkCreate(model -> OntClassImpl.createComponentsCE(OntGraphModelImpl.this,
+        return checkCreate(model -> OntClassImpl.createComponentsCE(model,
                 OntClass.IntersectionOf.class, OntClass.class, OWL.intersectionOf, classes.stream()), OntClass.IntersectionOf.class);
     }
 
     @Override
     public OntClass.OneOf createObjectOneOf(Collection<OntIndividual> individuals) {
         checkType(OntClass.OneOf.class);
-        return checkCreate(model -> OntClassImpl.createComponentsCE(OntGraphModelImpl.this,
+        return checkCreate(model -> OntClassImpl.createComponentsCE(model,
                 OntClass.OneOf.class, OntIndividual.class, OWL.oneOf, individuals.stream()), OntClass.OneOf.class);
     }
 
@@ -1132,7 +1134,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.ComplementOf createObjectComplementOf(OntClass ce) {
         checkType(OntClass.ComplementOf.class);
-        return checkCreate(model -> OntClassImpl.createComplementOf(OntGraphModelImpl.this, ce), OntClass.ComplementOf.class);
+        return checkCreate(model -> OntClassImpl.createComplementOf(model, ce), OntClass.ComplementOf.class);
     }
 
     @Override
@@ -1206,11 +1208,11 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @return {@link X}
      * @throws OntJenaException.Unsupported if no possible to create an object
      */
-    protected <X extends OntObject> X checkCreate(Function<OntModel, X> creator, Class<X> type) {
+    protected <X extends OntObject> X checkCreate(Function<OntGraphModelImpl, X> creator, Class<X> type) {
         Graph bg = GraphMemFactory.createDefaultGraph();
         UnionGraph ug = new UnionGraphImpl(bg);
         ug.addSubGraph(getGraph());
-        OntModel m = new OntGraphModelImpl(ug, getOntPersonality());
+        OntGraphModelImpl m = new OntGraphModelImpl(ug, getOntPersonality());
         try {
             X res = creator.apply(m);
             bg.find().forEach(getBaseGraph()::add);
