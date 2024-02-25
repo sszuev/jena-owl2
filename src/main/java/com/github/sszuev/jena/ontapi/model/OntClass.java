@@ -361,8 +361,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
                 .statements(null, RDFS.subClassOf, this)
                 .map(OntStatement::getSubject)
                 .filter(it -> it.canAs(OntClass.class))
-                .map(it -> it.as(OntClass.class))
-                .filter(it -> it.capabilities().canBeSubClass())) {
+                .map(it -> it.as(OntClass.class).asSubClass())
+                .filter(Objects::nonNull)) {
             return classes.findFirst();
         }
     }
@@ -392,8 +392,8 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
         try (Stream<OntClass> classes = this.statements(RDFS.subClassOf)
                 .map(OntStatement::getSubject)
                 .filter(it -> it.canAs(OntClass.class))
-                .map(it -> it.as(OntClass.class))
-                .filter(it -> it.capabilities().canBeSuperClass())) {
+                .map(it -> it.as(OntClass.class).asSuperClass())
+                .filter(Objects::nonNull)) {
             return classes.findFirst();
         }
     }
@@ -474,7 +474,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #removeSuperClass(Resource)
      */
     default OntClass addSuperClass(OntClass other) {
-        OntJenaException.checkSupported(this.capabilities().canBeSubClass() && other.capabilities().canBeSuperClass());
+        OntJenaException.checkSupported(this.asSubClass() != null && other.asSuperClass() != null);
         addSubClassOfStatement(other);
         return this;
     }
@@ -488,7 +488,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #addSuperClass(OntClass)
      */
     default OntClass addSubClass(OntClass other) {
-        OntJenaException.checkSupported(other.capabilities().canBeSubClass() && this.capabilities().canBeSuperClass());
+        OntJenaException.checkSupported(other.asSubClass() != null && this.asSuperClass() != null);
         other.addSuperClass(this);
         return this;
     }
@@ -503,7 +503,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #removeDisjointClass(Resource)
      */
     default OntClass addDisjointClass(OntClass other) {
-        OntJenaException.checkSupported(other.capabilities().canBeDisjointClass() && this.capabilities().canBeDisjointClass());
+        OntJenaException.checkSupported(other.asDisjointClass() != null && this.asDisjointClass() != null);
         addDisjointWithStatement(other);
         return this;
     }
@@ -517,7 +517,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @see #removeDisjointClass(Resource)
      */
     default OntClass addEquivalentClass(OntClass other) {
-        OntJenaException.checkSupported(capabilities().canBeEquivalentClass() && other.capabilities().canBeEquivalentClass());
+        OntJenaException.checkSupported(this.asEquivalentClass() != null && other.asEquivalentClass() != null);
         addEquivalentClassStatement(other);
         return this;
     }
@@ -657,65 +657,60 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
     }
 
     /**
-     * @return {@link Capabilities}, never {@code null}
+     * Returns this class if the specification allows it to be in subclass position, otherwise returns {@code null}.
+     * Some profiles (e.g., OWL2 QL, OWL2 RL)
+     * distinguish constructions with respect to their position in the axiom statements.
+     *
+     * @return {@link OntClass} or {@code null}
      */
-    default Capabilities capabilities() {
-        return Capabilities.DEFAULT;
+    default OntClass asSubClass() {
+        return this;
     }
 
     /**
-     * Controls {@link OntClass} behavior.
-     * Different profiles have different requirements;
-     * for example, OWL2 QL requires only named classes in class-assertions.
+     * Returns this class if the specification allows it to be in superclass position, otherwise returns {@code null}.
+     * Some profiles (e.g., OWL2 QL, OWL2 RL)
+     * distinguish constructions with respect to their position in the axiom statements.
+     *
+     * @return {@link OntClass} or {@code null}
      */
-    interface Capabilities {
-        Capabilities DEFAULT = new Capabilities() {
-        };
+    default OntClass asSuperClass() {
+        return this;
+    }
 
-        /**
-         * Answers {@code true} if this class is allowed to be a superclass.
-         *
-         * @return {@code boolean}
-         */
-        default boolean canBeSuperClass() {
-            return true;
-        }
+    /**
+     * Returns this class if the specification allows it to make class assertions, otherwise returns {@code null}.
+     * Some profiles (e.g., OWL2 QL, OWL2 RL)
+     * distinguish constructions with respect to their position in the axiom statements.
+     *
+     * @return {@link OntClass} or {@code null}
+     */
+    default OntClass asAssertionClass() {
+        return this;
+    }
 
-        /**
-         * Answers {@code true} if this class is allowed to be a subclass.
-         *
-         * @return {@code boolean}
-         */
-        default boolean canBeSubClass() {
-            return true;
-        }
+    /**
+     * Returns this class if the specification allows it to be in equivalent
+     * ({@code owl:equivalentClass}) position, otherwise returns {@code null}.
+     * Some profiles (e.g., OWL2 QL, OWL2 RL)
+     * distinguish constructions with respect to their position in the axiom statements.
+     *
+     * @return {@link OntClass} or {@code null}
+     */
+    default OntClass asEquivalentClass() {
+        return this;
+    }
 
-        /**
-         * Answers {@code true} if this class can be disjoint with some other class.
-         *
-         * @return {@code boolean}
-         */
-        default boolean canBeDisjointClass() {
-            return true;
-        }
-
-        /**
-         * Answers {@code true} if this class can be equivalent to some other class.
-         *
-         * @return {@code boolean}
-         */
-        default boolean canBeEquivalentClass() {
-            return true;
-        }
-
-        /**
-         * Answers {@code true} if class assertions are allowed for this class.
-         *
-         * @return {@code boolean}
-         */
-        default boolean canHaveIndividuals() {
-            return true;
-        }
+    /**
+     * Returns this class if the specification allows it to be in disjoint
+     * ({@code owl:disjointWith}, {@code owl:AllDisjointClasses}) position, otherwise returns {@code null}.
+     * Some profiles (e.g., OWL2 QL, OWL2 RL)
+     * distinguish constructions with respect to their position in the axiom statements.
+     *
+     * @return {@link OntClass} or {@code null}
+     */
+    default OntClass asDisjointClass() {
+        return this;
     }
 
     /*

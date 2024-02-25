@@ -238,7 +238,7 @@ final class OntClasses {
                             if (clazz == null) {
                                 return false;
                             }
-                            if (clazz.capabilities().canBeSubClass() || clazz == OWL.Thing.asNode()) {
+                            if (clazz == OWL.Thing.asNode() || clazz.asSubClass() != null) {
                                 return true;
                             }
                         }
@@ -266,7 +266,7 @@ final class OntClasses {
                             RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(listNode, g);
                             if (Iterators.takeAsSet(
                                     list.iterator().filterKeep(it ->
-                                            it.canAs(OntClass.class) && it.as(OntClass.class).capabilities().canBeSuperClass()
+                                            it.canAs(OntClass.class) && it.as(OntClass.class).asSuperClass() != null
                                     ), 2).size() == 2) {
                                 return true;
                             }
@@ -293,7 +293,7 @@ final class OntClasses {
                             if (clazz == null) {
                                 return false;
                             }
-                            if (clazz.capabilities().canBeSubClass()) {
+                            if (clazz.asSubClass() != null) {
                                 return true;
                             }
                         }

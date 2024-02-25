@@ -117,7 +117,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
      */
     @Override
     default Stream<OntClass> ranges() {
-        return objects(RDFS.range, OntClass.class).filter(it -> it.capabilities().canBeSuperClass());
+        return objects(RDFS.range, OntClass.class).map(OntClass::asSuperClass).filter(Objects::nonNull);
     }
 
     /**

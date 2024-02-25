@@ -157,7 +157,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Anonymous createAnonymousIndividual(OntGraphModelImpl model, OntClass source) {
         OntGraphModelImpl.checkFeature(model, OntModelControls.ALLOW_ANONYMOUS_INDIVIDUALS, "anonymous-individuals");
-        OntJenaException.checkSupported(source.capabilities().canHaveIndividuals(),
+        OntJenaException.checkSupported(source.asAssertionClass() != null,
                 "Class " + OntEnhNodeFactories.viewAsString(source.getClass()) + " cannot have individuals. " +
                         "Profile: " + model.getOntPersonality().getName());
         return model.getNodeAs(model.createResource(source).asNode(), OntIndividual.Anonymous.class);
@@ -165,7 +165,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntIndividual.Named createNamedIndividual(OntGraphModelImpl model, OntClass source, String uri) {
         OntJenaException.notNull(uri, "Null uri");
-        OntJenaException.checkSupported(source.capabilities().canHaveIndividuals(),
+        OntJenaException.checkSupported(source.asAssertionClass() != null,
                 "Class " + OntEnhNodeFactories.viewAsString(source.getClass()) + " cannot have individuals. " +
                         "Profile: " + model.getOntPersonality().getName());
         Resource res = model.createResource(uri, source);
@@ -201,7 +201,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE)) {
             return Stream.empty();
         }
-        if (!clazz.capabilities().canBeDisjointClass()) {
+        if (clazz.asDisjointClass() == null) {
             return Stream.empty();
         }
         return Stream.of(
@@ -212,14 +212,15 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                         clazz.disjoints().flatMap(OntDisjoint::members)
                 )
                 .flatMap(it -> it)
-                .filter(it -> it.capabilities().canBeDisjointClass())
                 .filter(it -> !it.equals(clazz))
+                .map(OntClass::asDisjointClass)
+                .filter(Objects::nonNull)
                 .distinct();
     }
 
     public static void addDisjoint(OntGraphModelImpl m, OntClass clazz, OntClass other) {
         OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE, "owl:disjointWith");
-        OntJenaException.checkSupported(clazz.capabilities().canBeDisjointClass() && other.capabilities().canBeDisjointClass(),
+        OntJenaException.checkSupported(clazz.asDisjointClass() != null && other.asDisjointClass() != null,
                 "Classes " + OntEnhNodeFactories.viewAsString(clazz.getClass()) + " and " + OntEnhNodeFactories.viewAsString(other.getClass()) +
                         " cannot be disjoint. Profile " + m.getOntPersonality().getName()
         );
@@ -233,7 +234,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
 
     public static OntStatement addDisjointWithStatement(OntGraphModelImpl m, OntClass clazz, OntClass other) {
         OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_DISJOINT_WITH_FEATURE, "owl:disjointWith");
-        OntJenaException.checkSupported(clazz.capabilities().canBeDisjointClass() && other.capabilities().canBeDisjointClass(),
+        OntJenaException.checkSupported(clazz.asDisjointClass() != null && other.asDisjointClass() != null,
                 "Classes " + OntEnhNodeFactories.viewAsString(clazz.getClass()) + " and " + OntEnhNodeFactories.viewAsString(other.getClass()) +
                         " cannot be disjoint. Profile " + m.getOntPersonality().getName()
         );
@@ -244,7 +245,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         if (!OntGraphModelImpl.configValue(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE)) {
             return Stream.empty();
         }
-        if (!clazz.capabilities().canBeEquivalentClass()) {
+        if (clazz.asEquivalentClass() == null) {
             return Stream.empty();
         }
         return Stream.of(clazz.objects(OWL.equivalentClass, OntClass.class),
@@ -253,14 +254,15 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
                                 .map(it -> it.getSubject(OntClass.class))
                 )
                 .flatMap(it -> it)
-                .filter(it -> it.capabilities().canBeEquivalentClass())
                 .filter(it -> !it.equals(clazz))
+                .map(OntClass::asEquivalentClass)
+                .filter(Objects::nonNull)
                 .distinct();
     }
 
     public static OntStatement addEquivalentClass(OntGraphModelImpl m, OntClass clazz, OntClass other) {
         OntGraphModelImpl.checkFeature(m, OntModelControls.USE_OWL_CLASS_EQUIVALENT_FEATURE, "owl:equivalentClass");
-        OntJenaException.checkSupported(clazz.capabilities().canBeEquivalentClass() && other.capabilities().canBeEquivalentClass(),
+        OntJenaException.checkSupported(clazz.asEquivalentClass() != null && other.asEquivalentClass() != null,
                 "Classes " + OntEnhNodeFactories.viewAsString(clazz.getClass()) + " and " + OntEnhNodeFactories.viewAsString(other.getClass()) +
                         " cannot be equivalent. Profile " + m.getOntPersonality().getName()
         );
@@ -404,7 +406,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntIndividual> individuals(OntClass clazz, boolean direct) {
-        if (!clazz.capabilities().canHaveIndividuals()) {
+        if (clazz.asAssertionClass() == null) {
             return Stream.empty();
         }
         if (OntGraphModelImpl.configValue(clazz.getModel(), OntModelControls.USE_BUILTIN_HIERARCHY_SUPPORT)) {
@@ -445,7 +447,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> explicitSuperClasses(Property predicate, OntObject clazz) {
-        return clazz.objects(predicate, OntClass.class).filter(it -> it.capabilities().canBeSuperClass());
+        return clazz.objects(predicate, OntClass.class).map(OntClass::asSuperClass).filter(Objects::nonNull);
     }
 
     static Stream<OntClass> explicitSubClasses(OntClass clazz) {
@@ -453,7 +455,7 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     static Stream<OntClass> explicitSubClasses(Property predicate, OntClass clazz) {
-        return subjects(predicate, clazz, OntClass.class).filter(it -> it.capabilities().canBeSubClass());
+        return subjects(predicate, clazz, OntClass.class).map(OntClass::asSubClass).filter(Objects::nonNull);
     }
 
     @Override
@@ -621,63 +623,44 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static class QLObjectSomeValuesFromImpl extends ObjectSomeValuesFromImpl {
-        private final Capabilities capabilities = new Capabilities() {
-            @Override
-            public boolean canBeSuperClass() {
-                return getValue().isURIResource();
-            }
-
-            @Override
-            public boolean canBeSubClass() {
-                return OWL.Thing.equals(getValue());
-            }
-
-            @Override
-            public boolean canHaveIndividuals() {
-                return false;
-            }
-
-            @Override
-            public boolean canBeDisjointClass() {
-                return canBeSubClass();
-            }
-
-            @Override
-            public boolean canBeEquivalentClass() {
-                return canBeSubClass();
-            }
-        };
-
         public QLObjectSomeValuesFromImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public Capabilities capabilities() {
-            return capabilities;
+        public OntClass asSubClass() {
+            return OWL.Thing.equals(getValue()) ? this : null;
+        }
+
+        @Override
+        public OntClass asSuperClass() {
+            return getValue().isURIResource() ? this : null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return asSubClass();
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return asSubClass();
+        }
+
+        @Override
+        public OntClass asAssertionClass() {
+            return null;
         }
     }
 
     public static class RLObjectSomeValuesFromImpl extends ObjectSomeValuesFromImpl {
-        private static final Capabilities capabilities = new Capabilities() {
-            @Override
-            public boolean canBeSuperClass() {
-                return false;
-            }
-
-            @Override
-            public boolean canBeEquivalentClass() {
-                return false;
-            }
-        };
-
         public RLObjectSomeValuesFromImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public Capabilities capabilities() {
-            return capabilities;
+        public OntClass asSuperClass() {
+            return null;
         }
     }
 
@@ -694,20 +677,13 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static class QLDataSomeValuesFromImpl extends DataSomeValuesFromImpl {
-        private final static Capabilities capabilities = new Capabilities() {
-            @Override
-            public boolean canHaveIndividuals() {
-                return false;
-            }
-        };
-
         public QLDataSomeValuesFromImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public Capabilities capabilities() {
-            return capabilities;
+        public OntClass asAssertionClass() {
+            return null;
         }
     }
 
@@ -783,41 +759,33 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static class QLIntersectionOfImpl extends IntersectionOfImpl {
-        private static final Capabilities capabilities = new Capabilities() {
-
-            @Override
-            public boolean canBeSubClass() {
-                return false;
-            }
-
-            @Override
-            public boolean canHaveIndividuals() {
-                return false;
-            }
-
-            @Override
-            public boolean canBeDisjointClass() {
-                return canBeSubClass();
-            }
-
-            @Override
-            public boolean canBeEquivalentClass() {
-                return canBeSubClass();
-            }
-        };
-
         public QLIntersectionOfImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public Capabilities capabilities() {
-            return capabilities;
+        public OntClass asSubClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asAssertionClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return null;
         }
 
         @Override
         public Stream<OntClass> components() {
-            return getList().members().filter(it -> it.capabilities().canBeSuperClass());
+            return getList().members().map(OntClass::asSuperClass).filter(Objects::nonNull);
         }
     }
 
@@ -932,36 +900,28 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
     }
 
     public static class QLComplementOfImpl extends ComplementOfImpl {
-        private static final Capabilities capabilities = new Capabilities() {
-            @Override
-            public boolean canBeSubClass() {
-                return false;
-            }
-
-            @Override
-            public boolean canHaveIndividuals() {
-                return false;
-            }
-
-            @Override
-            public boolean canBeDisjointClass() {
-                return canBeSubClass();
-            }
-
-            @Override
-            public boolean canBeEquivalentClass() {
-                return canBeSubClass();
-            }
-
-        };
-
         public QLComplementOfImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 
         @Override
-        public Capabilities capabilities() {
-            return capabilities;
+        public OntClass asSubClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asAssertionClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return null;
         }
     }
 

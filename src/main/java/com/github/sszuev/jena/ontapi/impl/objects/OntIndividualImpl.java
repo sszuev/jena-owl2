@@ -20,6 +20,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDFS;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -134,7 +135,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
         if (direct) {
             Property reasonerProperty = reasonerProperty(individual.getModel(), RDF.type);
             if (reasonerProperty != null) {
-                return individual.objects(reasonerProperty, OntClass.class).filter(it -> it.capabilities().canHaveIndividuals());
+                return individual.objects(reasonerProperty, OntClass.class).map(OntClass::asAssertionClass).filter(Objects::nonNull);
             }
         }
         AtomicBoolean isIndividual = new AtomicBoolean(true);
@@ -149,7 +150,7 @@ public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndi
     static Stream<OntClass> listClassesFor(OntObject resource, AtomicBoolean isFirstLevel) {
         if (isFirstLevel.get()) {
             isFirstLevel.set(false);
-            return resource.objects(RDF.type, OntClass.class).filter(it -> it.capabilities().canHaveIndividuals());
+            return resource.objects(RDF.type, OntClass.class).map(OntClass::asAssertionClass).filter(Objects::nonNull);
         }
         return OntClassImpl.explicitSuperClasses(RDFS.subClassOf, resource);
     }
