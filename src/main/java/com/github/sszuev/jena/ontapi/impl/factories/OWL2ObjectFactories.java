@@ -120,6 +120,8 @@ public final class OWL2ObjectFactories {
                     config);
     public static final Function<OntConfig, EnhNodeFactory> QL_INTERSECTION_OF_CLASS =
             OntClasses::createOWL2QLIntersectionOfFactory;
+    public static final Function<OntConfig, EnhNodeFactory> RL_INTERSECTION_OF_CLASS =
+            OntClasses::createOWL2RLIntersectionOfFactory;
     public static final Function<OntConfig, EnhNodeFactory> ONE_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
                     OntClassImpl.OneOfImpl.class,
@@ -275,6 +277,15 @@ public final class OWL2ObjectFactories {
                     List.of(OntClasses.Type.ONE_OF)
             );
     public static final Function<OntConfig, EnhNodeFactory> QL_ANY_COLLECTION_OF_CLASS = QL_INTERSECTION_OF_CLASS;
+    public static final Function<OntConfig, EnhNodeFactory> RL_ANY_COLLECTION_OF_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    false,
+                    List.of(OntClasses.Type.UNION_OF,
+                            OntClasses.Type.INTERSECTION_OF,
+                            OntClasses.Type.ONE_OF),
+                    List.of(OntClasses.Type.INTERSECTION_OF)
+            );
     // Boolean Connectives and Enumeration of Individuals + ComplementOf):
     public static final Function<OntConfig, EnhNodeFactory> ANY_LOGICAL_CLASS =
             config -> OntClasses.createClassExpressionFactory(
@@ -297,6 +308,17 @@ public final class OWL2ObjectFactories {
                     false,
                     List.of(OntClasses.Type.INTERSECTION_OF, OntClasses.Type.COMPLEMENT_OF),
                     List.of(OntClasses.Type.INTERSECTION_OF, OntClasses.Type.COMPLEMENT_OF)
+            );
+    public static final Function<OntConfig, EnhNodeFactory> RL_ANY_LOGICAL_CLASS =
+            config -> OntClasses.createClassExpressionFactory(
+                    config,
+                    false,
+                    List.of(
+                            OntClasses.Type.UNION_OF,
+                            OntClasses.Type.INTERSECTION_OF,
+                            OntClasses.Type.ONE_OF,
+                            OntClasses.Type.COMPLEMENT_OF),
+                    List.of(OntClasses.Type.INTERSECTION_OF)
             );
     // Value Restrictions:
     public static final Function<OntConfig, EnhNodeFactory> ANY_VALUE_RESTRICTION_CLASS =
@@ -545,7 +567,8 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.INTERSECTION_OF,
                             OntClasses.Type.ONE_OF,
                             OntClasses.Type.COMPLEMENT_OF),
-                    List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM)
+                    List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                            OntClasses.Type.INTERSECTION_OF)
             );
 
     // Data Range Expressions

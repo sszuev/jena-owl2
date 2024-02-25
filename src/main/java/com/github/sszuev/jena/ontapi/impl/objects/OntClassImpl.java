@@ -42,6 +42,8 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -786,6 +788,91 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         @Override
         public Stream<OntClass> components() {
             return getList().members().map(OntClass::asSuperClass).filter(Objects::nonNull);
+        }
+    }
+
+    /**
+     * @see <a href="https://www.w3.org/TR/owl2-profiles/#Class_Expressions_3">RL: Class Expressions</a>
+     */
+    public static class RLIntersectionOfImpl extends IntersectionOfImpl {
+        public RLIntersectionOfImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSubClass() {
+            Collection<OntClass> res = collectSubClasses();
+            return res.isEmpty() ? null : new RLIntersectionOfImpl(this.node, this.enhGraph) {
+                @Override
+                public Stream<OntClass> components() {
+                    return res.stream();
+                }
+            };
+        }
+
+        @Override
+        public OntClass asSuperClass() {
+            Collection<OntClass> res = collectSuperClasses();
+            return res.isEmpty() ? null : new RLIntersectionOfImpl(this.node, this.enhGraph) {
+                @Override
+                public Stream<OntClass> components() {
+                    return res.stream();
+                }
+            };
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            Collection<OntClass> res = collectEquivalentClasses();
+            return res.isEmpty() ? null : new RLIntersectionOfImpl(this.node, this.enhGraph) {
+                @Override
+                public Stream<OntClass> components() {
+                    return res.stream();
+                }
+            };
+        }
+
+        @Override
+        public OntClass asAssertionClass() {
+            return asSuperClass();
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return asSubClass();
+        }
+
+        private Collection<OntClass> collectSubClasses() {
+            Set<OntClass> res = new LinkedHashSet<>();
+            getList().members().forEach(it -> {
+                OntClass sub = it.asSubClass();
+                if (sub != null) {
+                    res.add(sub);
+                }
+            });
+            return res.size() > 1 ? res : List.of();
+        }
+
+        private Collection<OntClass> collectSuperClasses() {
+            Set<OntClass> res = new LinkedHashSet<>();
+            getList().members().forEach(it -> {
+                OntClass sub = it.asSuperClass();
+                if (sub != null) {
+                    res.add(sub);
+                }
+            });
+            return res.size() > 1 ? res : List.of();
+        }
+
+        private Collection<OntClass> collectEquivalentClasses() {
+            Set<OntClass> res = new LinkedHashSet<>();
+            getList().members().forEach(it -> {
+                OntClass sub = it.asEquivalentClass();
+                if (sub != null) {
+                    res.add(sub);
+                }
+            });
+            return res.size() > 1 ? res : List.of();
         }
     }
 

@@ -340,12 +340,68 @@ public class Iterators {
      * @return long, the count of elements in the given {@code iterator}
      */
     public static long count(Iterator<?> iterator) {
-        long res = 0;
-        while (iterator.hasNext()) {
-            iterator.next();
-            res++;
+        try {
+            long res = 0;
+            while (iterator.hasNext()) {
+                iterator.next();
+                res++;
+            }
+            return res;
+        } finally {
+            close(iterator);
         }
-        return res;
+    }
+
+    /**
+     * Answers {@code true} iff the given iterator has more than {@code n} or equal to {@code n} elements.
+     *
+     * @param n        positive number
+     * @param iterator {@link Iterator}, not {@code null}
+     * @return {@code true} if the specified iterator has at least {@code n} elements
+     */
+    public static boolean hasAtLeast(Iterator<?> iterator, int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException();
+        }
+        try {
+            long res = 0;
+            while (iterator.hasNext()) {
+                iterator.next();
+                res++;
+                if (res == n) {
+                    return true;
+                }
+            }
+            return false;
+        } finally {
+            close(iterator);
+        }
+    }
+
+    /**
+     * Answers {@code true} iff the given iterator has exactly {@code n} elements.
+     *
+     * @param n        positive number
+     * @param iterator {@link Iterator}, not {@code null}
+     * @return {@code true} if the specified iterator has exactly {@code n} elements
+     */
+    public static boolean hasExactly(Iterator<?> iterator, int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException();
+        }
+        try {
+            long res = 0;
+            while (iterator.hasNext()) {
+                iterator.next();
+                res++;
+                if (res > n) {
+                    return false;
+                }
+            }
+            return res == n;
+        } finally {
+            close(iterator);
+        }
     }
 
     /**

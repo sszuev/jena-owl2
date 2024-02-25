@@ -87,7 +87,7 @@ final class OntDataRanges {
                     if (list == null) {
                         return false;
                     }
-                    return Iterators.takeAsSet(list.iterator(), 2).size() == 1;
+                    return Iterators.hasExactly(list.iterator(), 1);
                 });
         EnhNodeFinder finder = makeOWLFinder(config);
         return OntEnhNodeFactories.createCommon(maker, finder, filter);

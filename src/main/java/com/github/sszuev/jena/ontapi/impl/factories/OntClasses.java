@@ -207,7 +207,7 @@ final class OntClasses {
                     if (list == null) {
                         return false;
                     }
-                    return Iterators.takeAsSet(list.iterator(), 2).size() == 1;
+                    return Iterators.hasExactly(list.iterator(), 1);
                 });
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
@@ -264,11 +264,61 @@ final class OntClasses {
                                 return false;
                             }
                             RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(listNode, g);
-                            if (Iterators.takeAsSet(
+                            if (Iterators.hasAtLeast(
                                     list.iterator().filterKeep(it ->
                                             it.canAs(OntClass.class) && it.as(OntClass.class).asSuperClass() != null
-                                    ), 2).size() == 2) {
+                                    ), 2)) {
                                 return true;
+                            }
+                        }
+                    } finally {
+                        res.close();
+                    }
+                    return false;
+                });
+        return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
+    }
+
+    public static EnhNodeFactory createOWL2RLIntersectionOfFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.RLIntersectionOfImpl.class, OWL.Class,
+                OntClassImpl.RLIntersectionOfImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> res = g.asGraph().find(n, OWL.intersectionOf.asNode(), Node.ANY);
+                    try {
+                        while (res.hasNext()) {
+                            Node listNode = res.next().getObject();
+                            if (!STDObjectFactories.RDF_LIST.canWrap(listNode, g)) {
+                                return false;
+                            }
+                            RDFList list = (RDFList) STDObjectFactories.RDF_LIST.wrap(listNode, g);
+                            ExtendedIterator<RDFNode> members = list.iterator();
+                            int numSub = 0;
+                            int numSup = 0;
+                            int numEqv = 0;
+                            try {
+                                while (members.hasNext()) {
+                                    RDFNode e = members.next();
+                                    OntClass clazz = OntEnhGraph.asPersonalityModel(g).safeFindNodeAs(e.asNode(), OntClass.class);
+                                    if (clazz == null) {
+                                        continue;
+                                    }
+                                    if (clazz.asSubClass() != null) {
+                                        numSub++;
+                                    }
+                                    if (clazz.asSuperClass() != null) {
+                                        numSup++;
+                                    }
+                                    if (clazz.asEquivalentClass() != null) {
+                                        numEqv++;
+                                    }
+                                    if (numSub > 1 || numSup > 1 || numEqv > 1) {
+                                        return true;
+                                    }
+                                }
+                            } finally {
+                                members.close();
                             }
                         }
                     } finally {
