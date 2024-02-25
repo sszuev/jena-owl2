@@ -407,7 +407,7 @@ public class OntPersonalities {
             .add(OntClass.DataAllValuesFrom.class, OWL2ObjectFactories.DATA_ALL_VALUES_FROM_CLASS)
             .add(OntClass.ObjectHasValue.class, OWL2ObjectFactories.OBJECT_HAS_VALUE_CLASS)
             .add(OntClass.DataHasValue.class, OWL2ObjectFactories.DATA_HAS_VALUE_CLASS)
-            .add(OntClass.ObjectMaxCardinality.class, OWL2ObjectFactories.OBJECT_MAX_CARDINALITY_CLASS)
+            .add(OntClass.ObjectMaxCardinality.class, OWL2ObjectFactories.RL_OBJECT_MAX_CARDINALITY_CLASS)
             .add(OntClass.DataMaxCardinality.class, OWL2ObjectFactories.DATA_MAX_CARDINALITY_CLASS)
             .add(OntClass.UnionOf.class, OWL2ObjectFactories.RL_UNION_OF_CLASS)
             .add(OntClass.OneOf.class, OWL2ObjectFactories.ONE_OF_CLASS)

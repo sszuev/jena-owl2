@@ -1067,8 +1067,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.ObjectMaxCardinality createObjectMaxCardinality(OntObjectProperty property, int cardinality, OntClass ce) {
         checkType(OntClass.ObjectMaxCardinality.class);
-        return OntClassImpl.createCardinalityRestrictionCE(this,
-                OntClass.ObjectMaxCardinality.class, property, cardinality, ce);
+        return checkCreate(model -> OntClassImpl.createCardinalityRestrictionCE(model,
+                OntClass.ObjectMaxCardinality.class, property, cardinality, ce), OntClass.ObjectMaxCardinality.class);
     }
 
     @Override
@@ -1095,7 +1095,7 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     public OntClass.UnionOf createObjectUnionOf(Collection<OntClass> classes) {
         checkType(OntClass.UnionOf.class);
         return checkCreate(model ->
-                OntClassImpl.createComponentsCE(model, OntClass.UnionOf.class, OntClass.class, OWL.unionOf, classes.stream()),
+                        OntClassImpl.createComponentsCE(model, OntClass.UnionOf.class, OntClass.class, OWL.unionOf, classes.stream()),
                 OntClass.UnionOf.class);
     }
 

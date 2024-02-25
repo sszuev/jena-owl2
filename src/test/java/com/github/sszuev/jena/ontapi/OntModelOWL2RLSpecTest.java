@@ -104,4 +104,43 @@ public class OntModelOWL2RLSpecTest {
         Assertions.assertEquals(2, m.ontObjects(OntClass.CollectionOf.class).count());
         Assertions.assertEquals(2, m.ontObjects(OntClass.UnionOf.class).count());
     }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+    })
+    public void testSuperObjectMaxCardinality(TestSpec spec) {
+        OntModel data = OntModelFactory.createModel();
+        OntObjectProperty p0 = data.createObjectProperty("p0");
+        OntObjectProperty p1 = data.createObjectProperty("p1");
+        OntClass c0 = data.createOntClass("c0");
+        OntClass c1 = data.createOntClass("c1");
+        OntClass c2 = data.createOntClass("c2");
+        OntClass c3 = data.createObjectMaxCardinality(p0, 42, null);
+        OntClass c4 = data.createObjectMaxCardinality(p1, 0, null);
+        OntClass c5 = data.createObjectMaxCardinality(p1, 1, c0);
+        OntClass c6 = data.createObjectMaxCardinality(p1, 42, c1);
+
+        OntModel m = OntModelFactory.createModel(data.getGraph(), spec.inst);
+        Assertions.assertFalse(c3.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(c4.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(c5.inModel(m).canAs(OntClass.class));
+        Assertions.assertFalse(c6.inModel(m).canAs(OntClass.class));
+
+        Assertions.assertEquals(5, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.Restriction.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.UnaryRestriction.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.CardinalityRestriction.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.ObjectMaxCardinality.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectMinCardinality(p0, 42, c1));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectMinCardinality(p0, 1, c5));
+
+        m.createObjectMaxCardinality(p1, 1, c2);
+        Assertions.assertEquals(6, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.Restriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.UnaryRestriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.CardinalityRestriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.ObjectMaxCardinality.class).count());
+    }
 }

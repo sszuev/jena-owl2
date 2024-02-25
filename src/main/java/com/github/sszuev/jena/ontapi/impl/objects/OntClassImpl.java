@@ -960,6 +960,28 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class RLObjectMaxCardinalityImpl extends ObjectMaxCardinalityImpl {
+
+        public RLObjectMaxCardinalityImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSubClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return null;
+        }
+    }
+
     public static class ObjectMaxCardinalityImpl
             extends CardinalityRestrictionImpl<OntClass, OntObjectProperty, ObjectMaxCardinalityImpl> implements ObjectMaxCardinality {
         public ObjectMaxCardinalityImpl(Node n, EnhGraph m) {

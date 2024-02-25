@@ -388,6 +388,48 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
 
+    public static EnhNodeFactory createOWL2RLObjectMaxCardinalityFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.RLObjectMaxCardinalityImpl.class, OWL.Restriction,
+                OntClassImpl.RLObjectMaxCardinalityImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
+                .and(RestrictionType.OBJECT.getFilter())
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> byMaxQualifiedCardinality = g.asGraph().find(n, OWL.maxQualifiedCardinality.asNode(), Node.ANY);
+                    try {
+                        while (byMaxQualifiedCardinality.hasNext()) {
+                            Node cardinality = byMaxQualifiedCardinality.next().getObject();
+                            if (!isZeroOrOneNonNegativeInteger(cardinality)) {
+                                continue;
+                            }
+                            if (Iterators.anyMatch(
+                                    g.asGraph().find(n, OWL.onClass.asNode(), Node.ANY)
+                                            .mapWith(it ->
+                                                    OntEnhGraph.asPersonalityModel(g)
+                                                            .safeFindNodeAs(it.getObject(), OntClass.class)
+                                                            .asSubClass()
+                                            ), Objects::nonNull)) {
+                                return true;
+                            }
+                        }
+                    } finally {
+                        byMaxQualifiedCardinality.close();
+                    }
+                    return Iterators.anyMatch(
+                            g.asGraph().find(n, OWL.maxCardinality.asNode(), Node.ANY).mapWith(Triple::getObject),
+                            OntClasses::isZeroOrOneNonNegativeInteger);
+                });
+        return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
+    }
+
+    private static boolean isZeroOrOneNonNegativeInteger(Node n) {
+        if (!n.isLiteral() || !n.getLiteral().getDatatypeURI().equals(XSD.nonNegativeInteger.getURI())) {
+            return false;
+        }
+        String value = n.getLiteral().getValue().toString();
+        return "0".equals(value) || "1".equals(value);
+    }
+
     public enum ObjectRestrictionType implements PredicateFilterProvider {
         NAMED_CLASS {
             @Override
@@ -788,7 +830,7 @@ final class OntClasses {
                         }
                         if (filters.contains(Type.OBJECT_MAX_CARDINALITY)
                                 && isObjectCardinality(n, eg, MAX_CARDINALITY, MAX_QUALIFIED_CARDINALITY)) {
-                            return Type.OBJECT_MAX_CARDINALITY;
+                            return strictFilter(n, eg, Type.OBJECT_MAX_CARDINALITY);
                         }
                         if (filters.contains(Type.OBJECT_EXACT_CARDINALITY)
                                 && isObjectCardinality(n, eg, CARDINALITY, QUALIFIED_CARDINALITY)) {
