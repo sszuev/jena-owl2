@@ -129,19 +129,19 @@ public class OntEnhNodeFactories {
             return node.toString(PrefixMapping.Standard);
         }
         Model m = ((Model) graph);
-        if (m.getGraph() instanceof InfGraph) {
-            return node.toString(PrefixMapping.Standard);
-        }
-        RDFNode rdfNode = m.asRDFNode(node);
-        if (!rdfNode.isResource()) {
-            return node.toString(PrefixMapping.Standard);
-        }
         PrefixMapping pm = PrefixMapping.Factory.create()
                 .setNsPrefixes((PrefixMapping) graph)
                 .setNsPrefixes(PrefixMapping.Standard);
+        if (m.getGraph() instanceof InfGraph) {
+            return node.toString(pm);
+        }
+        RDFNode rdfNode = m.asRDFNode(node);
+        if (!rdfNode.isResource()) {
+            return node.toString(pm);
+        }
         List<Statement> properties = rdfNode.asResource().listProperties().toList();
         if (properties.isEmpty()) {
-            return node.toString(PrefixMapping.Standard);
+            return node.toString(pm);
         }
         StringBuilder sb = new StringBuilder("\n");
         properties.forEach(s -> sb.append(StdModels.toString(s, pm)).append("\n"));

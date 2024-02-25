@@ -1247,5 +1247,53 @@ public class OntModelOWLSpecsTest {
         }
     }
 
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_EL_MEM",
+            "OWL2_EL_MEM_RDFS_INF",
+            "OWL2_EL_MEM_TRANS_INF",
+            "OWL2_EL_MEM_RULES_INF",
+            "OWL2_QL_MEM",
+            "OWL2_QL_MEM_RDFS_INF",
+            "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_QL_MEM_RULES_INF",
+            "OWL2_RL_MEM",
+    })
+    public void testOWL2ProfilesDataRanges(TestSpec spec) {
+        OntModel data = OntModelFactory.createModel();
+
+        OntDataRange.Named d1 = data.createDatatype("d1");
+        OntDataRange.Named d2 = data.createDatatype("d2");
+        OntDataRange d3 = data.createDataRestriction(d1,
+                data.createFacetRestriction(OntFacetRestriction.MaxExclusive.class, data.createTypedLiteral(42)),
+                data.createFacetRestriction(OntFacetRestriction.Pattern.class, data.createTypedLiteral("42"))
+        );
+        OntDataRange d4 = data.createDataUnionOf(d1, d2);
+        OntDataRange d5 = data.createDataComplementOf(d2);
+
+        OntDataRange d6 = data.createDataIntersectionOf(d1, d2);
+        OntDataRange d7 = data.createDataIntersectionOf(d2, d3);
+
+
+        OntModel m = OntModelFactory.createModel(data.getGraph(), spec.inst);
+
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.Restriction.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.UnionOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.OneOf.class).count());
+        Assertions.assertEquals(0, m.ontObjects(OntDataRange.ComplementOf.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntDataRange.IntersectionOf.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntDataRange.Combination.class).count());
+
+        int expectedNamedDataRanges;
+        if (spec.isRDFS()) {
+            expectedNamedDataRanges = 3;
+        } else if (spec.isRules()) {
+            expectedNamedDataRanges = 19;
+        } else {
+            expectedNamedDataRanges = 2;
+        }
+        Assertions.assertEquals(expectedNamedDataRanges, m.ontObjects(OntDataRange.Named.class).count());
+        Assertions.assertEquals(expectedNamedDataRanges + 2, m.ontObjects(OntDataRange.class).count());
+    }
 }
 

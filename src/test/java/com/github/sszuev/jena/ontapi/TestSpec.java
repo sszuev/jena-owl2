@@ -123,4 +123,8 @@ public enum TestSpec {
     boolean isRules() {
         return name().endsWith("_RULES_INF");
     }
+
+    boolean isRDFS() {
+        return name().endsWith("_RDFS_INF");
+    }
 }

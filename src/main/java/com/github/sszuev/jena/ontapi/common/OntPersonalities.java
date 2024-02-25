@@ -369,7 +369,7 @@ public class OntPersonalities {
      * Default personality builder for OWL2 RL. Private access since this constant is mutable.
      */
     private static final OntObjectPersonalityBuilder OWL2_RL_OBJECT_FACTORIES = templatePersonalityBuilder()
-            .setName("OWL2")
+            .setName("OWL2-RL")
             .addPersonality(STANDARD_PERSONALITY)
             // the base ontology object:
             .add(OntObject.class, OWL2ObjectFactories.ANY_OBJECT)
