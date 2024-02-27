@@ -948,6 +948,28 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class RLDataMaxCardinalityImpl extends DataMaxCardinalityImpl {
+
+        public RLDataMaxCardinalityImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSubClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return null;
+        }
+    }
+
     public static class DataMaxCardinalityImpl
             extends CardinalityRestrictionImpl<OntDataRange, OntDataProperty, DataMaxCardinalityImpl> implements DataMaxCardinality {
         public DataMaxCardinalityImpl(Node n, EnhGraph m) {

@@ -243,6 +243,8 @@ public final class OWL2ObjectFactories {
                     OntClassImpl.CardinalityType.EXACTLY,
                     OntClassImpl.DataCardinalityImpl::new,
                     config);
+    public static final Function<OntConfig, EnhNodeFactory> RL_DATA_MAX_CARDINALITY_CLASS =
+            OntClasses::createOWL2RLDataMaxCardinalityFactory;
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_CARDINALITY_CLASS =
             config -> OntClasses.createCardinalityRestrictionFactory(
                     OntClassImpl.ObjectCardinalityImpl.class,
@@ -384,7 +386,8 @@ public final class OWL2ObjectFactories {
                     List.of(
                             OntClasses.Type.OBJECT_MAX_CARDINALITY,
                             OntClasses.Type.DATA_MAX_CARDINALITY),
-                    List.of(OntClasses.Type.OBJECT_MAX_CARDINALITY)
+                    List.of(OntClasses.Type.OBJECT_MAX_CARDINALITY,
+                            OntClasses.Type.DATA_MAX_CARDINALITY)
             );
     // Cardinality + Existential/Universal Restrictions + Value Restrictions:
     public static final Function<OntConfig, EnhNodeFactory> ANY_COMPONENT_RESTRICTION_CLASS =
@@ -433,7 +436,8 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.DATA_HAS_VALUE
                     ),
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
-                            OntClasses.Type.OBJECT_MAX_CARDINALITY)
+                            OntClasses.Type.OBJECT_MAX_CARDINALITY,
+                            OntClasses.Type.DATA_MAX_CARDINALITY)
             );
     // Cardinality + Existential/Universal Restrictions + Local reflexivity (hasSelf) + Value Restrictions
     // (all them have owl:onProperty):
@@ -483,7 +487,8 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.DATA_MAX_CARDINALITY,
                             OntClasses.Type.DATA_HAS_VALUE),
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
-                            OntClasses.Type.OBJECT_MAX_CARDINALITY)
+                            OntClasses.Type.OBJECT_MAX_CARDINALITY,
+                            OntClasses.Type.DATA_MAX_CARDINALITY)
             );
     // Cardinality + Existential/Universal Restrictions + N-ary existential/universal +
     // Local reflexivity (hasSelf) + Value Restrictions:
@@ -582,6 +587,7 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.COMPLEMENT_OF),
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
                             OntClasses.Type.OBJECT_MAX_CARDINALITY,
+                            OntClasses.Type.DATA_MAX_CARDINALITY,
                             OntClasses.Type.INTERSECTION_OF,
                             OntClasses.Type.UNION_OF)
             );

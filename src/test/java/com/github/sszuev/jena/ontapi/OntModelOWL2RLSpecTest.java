@@ -2,6 +2,7 @@ package com.github.sszuev.jena.ontapi;
 
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
+import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
 import org.apache.jena.vocabulary.RDFS;
@@ -133,8 +134,8 @@ public class OntModelOWL2RLSpecTest {
         Assertions.assertEquals(2, m.ontObjects(OntClass.CardinalityRestriction.class).count());
         Assertions.assertEquals(2, m.ontObjects(OntClass.ObjectMaxCardinality.class).count());
 
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectMinCardinality(p0, 42, c1));
-        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectMinCardinality(p0, 1, c5));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectMaxCardinality(p0, 42, c1));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectMaxCardinality(p0, 1, c5));
 
         m.createObjectMaxCardinality(p1, 1, c2);
         Assertions.assertEquals(6, m.ontObjects(OntClass.class).count());
@@ -142,5 +143,44 @@ public class OntModelOWL2RLSpecTest {
         Assertions.assertEquals(3, m.ontObjects(OntClass.UnaryRestriction.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntClass.CardinalityRestriction.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntClass.ObjectMaxCardinality.class).count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+    })
+    public void testSuperDataMaxCardinality(TestSpec spec) {
+        OntModel data = OntModelFactory.createModel();
+        OntDataProperty p0 = data.createDataProperty("p0");
+        OntDataProperty p1 = data.createDataProperty("p1");
+        OntDataRange d0 = data.createDatatype("d0");
+        OntDataRange d1 = data.getDatatype(XSD.xstring.getURI());
+        OntDataRange d2 = data.createDatatype("d2");
+        OntClass c3 = data.createDataMaxCardinality(p0, 42, null);
+        OntClass c4 = data.createDataMaxCardinality(p1, 0, null);
+        OntClass c5 = data.createDataMaxCardinality(p1, 1, d0);
+        OntClass c6 = data.createDataMaxCardinality(p1, 42, d1);
+
+        OntModel m = OntModelFactory.createModel(data.getGraph(), spec.inst);
+        Assertions.assertFalse(c3.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(c4.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(c5.inModel(m).canAs(OntClass.class));
+        Assertions.assertFalse(c6.inModel(m).canAs(OntClass.class));
+
+        Assertions.assertEquals(2, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.Restriction.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.UnaryRestriction.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.CardinalityRestriction.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.DataMaxCardinality.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createDataMaxCardinality(p0, 42, d1));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createDataMaxCardinality(p0, 42, null));
+
+        m.createDataMaxCardinality(p1, 1, d2);
+        Assertions.assertEquals(3, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.Restriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.UnaryRestriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.CardinalityRestriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.DataMaxCardinality.class).count());
     }
 }

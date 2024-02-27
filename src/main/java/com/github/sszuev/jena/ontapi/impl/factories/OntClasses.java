@@ -422,6 +422,38 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
     }
 
+    public static EnhNodeFactory createOWL2RLDataMaxCardinalityFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.RLDataMaxCardinalityImpl.class, OWL.Restriction,
+                OntClassImpl.RLDataMaxCardinalityImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
+                .and(RestrictionType.DATA.getFilter())
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> byMaxQualifiedCardinality = g.asGraph().find(n, OWL.maxQualifiedCardinality.asNode(), Node.ANY);
+                    try {
+                        while (byMaxQualifiedCardinality.hasNext()) {
+                            Node cardinality = byMaxQualifiedCardinality.next().getObject();
+                            if (!isZeroOrOneNonNegativeInteger(cardinality)) {
+                                continue;
+                            }
+                            if (Iterators.anyMatch(
+                                    g.asGraph().find(n, OWL.onDataRange.asNode(), Node.ANY)
+                                            .mapWith(it -> OntEnhGraph.asPersonalityModel(g)
+                                                    .findNodeAs(it.getObject(), OntDataRange.class)
+                                            ), Objects::nonNull)) {
+                                return true;
+                            }
+                        }
+                    } finally {
+                        byMaxQualifiedCardinality.close();
+                    }
+                    return Iterators.anyMatch(
+                            g.asGraph().find(n, OWL.maxCardinality.asNode(), Node.ANY).mapWith(Triple::getObject),
+                            OntClasses::isZeroOrOneNonNegativeInteger);
+                });
+        return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
+    }
+
     private static boolean isZeroOrOneNonNegativeInteger(Node n) {
         if (!n.isLiteral() || !n.getLiteral().getDatatypeURI().equals(XSD.nonNegativeInteger.getURI())) {
             return false;
@@ -862,7 +894,7 @@ final class OntClasses {
                         }
                         if (filters.contains(Type.DATA_MAX_CARDINALITY)
                                 && isDataCardinality(n, eg, MAX_CARDINALITY, MAX_QUALIFIED_CARDINALITY)) {
-                            return Type.DATA_MAX_CARDINALITY;
+                            return strictFilter(n, eg, Type.DATA_MAX_CARDINALITY);
                         }
                         if (filters.contains(Type.DATA_EXACT_CARDINALITY)
                                 && isDataCardinality(n, eg, CARDINALITY, QUALIFIED_CARDINALITY)) {

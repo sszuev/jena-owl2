@@ -1074,8 +1074,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.DataMaxCardinality createDataMaxCardinality(OntDataProperty property, int cardinality, OntDataRange dr) {
         checkType(OntClass.DataMaxCardinality.class);
-        return OntClassImpl.createCardinalityRestrictionCE(this,
-                OntClass.DataMaxCardinality.class, property, cardinality, dr);
+        return checkCreate(model -> OntClassImpl.createCardinalityRestrictionCE(model,
+                OntClass.DataMaxCardinality.class, property, cardinality, dr), OntClass.DataMaxCardinality.class);
     }
 
     @Override
