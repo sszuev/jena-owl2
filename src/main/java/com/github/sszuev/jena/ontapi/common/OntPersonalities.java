@@ -412,7 +412,7 @@ public class OntPersonalities {
             .add(OntClass.UnionOf.class, OWL2ObjectFactories.RL_UNION_OF_CLASS)
             .add(OntClass.OneOf.class, OWL2ObjectFactories.ONE_OF_CLASS)
             .add(OntClass.IntersectionOf.class, OWL2ObjectFactories.RL_INTERSECTION_OF_CLASS)
-            .add(OntClass.ComplementOf.class, OWL2ObjectFactories.COMPLEMENT_OF_CLASS)
+            .add(OntClass.ComplementOf.class, OWL2ObjectFactories.RL_COMPLEMENT_OF_CLASS)
             .add(OntClass.LogicalExpression.class, OWL2ObjectFactories.RL_ANY_LOGICAL_CLASS)
             .add(OntClass.CollectionOf.class, OWL2ObjectFactories.RL_ANY_COLLECTION_OF_CLASS)
             .add(OntClass.ValueRestriction.class, OWL2ObjectFactories.RL_ANY_VALUE_RESTRICTION_CLASS)

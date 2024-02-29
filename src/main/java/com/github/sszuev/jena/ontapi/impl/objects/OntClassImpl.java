@@ -1056,8 +1056,8 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
-    public static class QLComplementOfImpl extends ComplementOfImpl {
-        public QLComplementOfImpl(Node n, EnhGraph m) {
+    public static class RLQLComplementOfImpl extends ComplementOfImpl {
+        public RLQLComplementOfImpl(Node n, EnhGraph m) {
             super(n, m);
         }
 

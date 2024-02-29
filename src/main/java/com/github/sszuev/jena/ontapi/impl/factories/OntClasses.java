@@ -331,9 +331,9 @@ final class OntClasses {
         return OntEnhNodeFactories.createCommon(maker, CLASS_FINDER, filter);
     }
 
-    public static EnhNodeFactory createOWL2QLComplementOfFactory(OntConfig config) {
-        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.QLComplementOfImpl.class, OWL.Class,
-                OntClassImpl.QLComplementOfImpl::new);
+    public static EnhNodeFactory createOWL2RLQLComplementOfFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.RLQLComplementOfImpl.class, OWL.Class,
+                OntClassImpl.RLQLComplementOfImpl::new);
         EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
         EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Class))
                 .and((n, g) -> {

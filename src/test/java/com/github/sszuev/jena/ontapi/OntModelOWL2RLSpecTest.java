@@ -183,4 +183,36 @@ public class OntModelOWL2RLSpecTest {
         Assertions.assertEquals(3, m.ontObjects(OntClass.CardinalityRestriction.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntClass.DataMaxCardinality.class).count());
     }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+    })
+    public void testSuperObjectComplementOf(TestSpec spec) {
+        OntModel data = OntModelFactory.createModel();
+
+        OntClass c0 = data.createOntClass("c0");
+        OntClass c1 = data.createOntClass("c1");
+        OntClass c2 = data.createObjectOneOf(data.createIndividual("X"));
+        OntClass c3 = data.createObjectMaxCardinality(data.createObjectProperty("p1"), 0, null);
+
+        OntClass c4 = data.createObjectComplementOf(c2); // true
+        OntClass c5 = data.createObjectComplementOf(c0); // true
+        OntClass c6 = data.createObjectComplementOf(c3); // false
+
+        OntModel m = OntModelFactory.createModel(data.getGraph(), spec.inst);
+        Assertions.assertTrue(c4.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(c5.inModel(m).canAs(OntClass.class));
+        Assertions.assertFalse(c6.inModel(m).canAs(OntClass.class));
+
+        Assertions.assertEquals(6, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.LogicalExpression.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.ComplementOf.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectComplementOf(c3));
+        m.createObjectComplementOf(c1);
+        Assertions.assertEquals(7, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(4, m.ontObjects(OntClass.LogicalExpression.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.ComplementOf.class).count());
+    }
 }

@@ -139,7 +139,8 @@ public final class OWL2ObjectFactories {
                     OntClass.class,
                     OntClassImpl.ComplementOfImpl::new,
                     config);
-    public static final Function<OntConfig, EnhNodeFactory> QL_COMPLEMENT_OF_CLASS = OntClasses::createOWL2QLComplementOfFactory;
+    public static final Function<OntConfig, EnhNodeFactory> QL_COMPLEMENT_OF_CLASS = OntClasses::createOWL2RLQLComplementOfFactory;
+    public static final Function<OntConfig, EnhNodeFactory> RL_COMPLEMENT_OF_CLASS = OntClasses::createOWL2RLQLComplementOfFactory;
 
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_SOME_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
@@ -328,7 +329,8 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.ONE_OF,
                             OntClasses.Type.COMPLEMENT_OF),
                     List.of(OntClasses.Type.INTERSECTION_OF,
-                            OntClasses.Type.UNION_OF)
+                            OntClasses.Type.UNION_OF,
+                            OntClasses.Type.COMPLEMENT_OF)
             );
     // Value Restrictions:
     public static final Function<OntConfig, EnhNodeFactory> ANY_VALUE_RESTRICTION_CLASS =
@@ -588,8 +590,9 @@ public final class OWL2ObjectFactories {
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
                             OntClasses.Type.OBJECT_MAX_CARDINALITY,
                             OntClasses.Type.DATA_MAX_CARDINALITY,
+                            OntClasses.Type.UNION_OF,
                             OntClasses.Type.INTERSECTION_OF,
-                            OntClasses.Type.UNION_OF)
+                            OntClasses.Type.COMPLEMENT_OF)
             );
 
     // Data Range Expressions
