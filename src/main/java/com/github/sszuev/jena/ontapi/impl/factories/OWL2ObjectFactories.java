@@ -14,6 +14,7 @@ import com.github.sszuev.jena.ontapi.impl.objects.OntIDImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntIndividualImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntNegativePropertyAssertionImpl;
 import com.github.sszuev.jena.ontapi.impl.objects.OntObjectImpl;
+import com.github.sszuev.jena.ontapi.impl.objects.OntSimpleClassImpl;
 import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
@@ -53,6 +54,7 @@ public final class OWL2ObjectFactories {
     );
 
     public static final EnhNodeFactory NAMED_CLASS = OntEntities.createOWL2NamedClassFactory();
+    public static final EnhNodeFactory RL_NAMED_CLASS = OntEntities.createOWL2RLNamedClassFactory();
     public static final EnhNodeFactory NAMED_DATARANGE = OntEntities.createOWL2NamedDataRangeFactory();
     public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEntities.createAnnotationPropertyFactory();
     public static final EnhNodeFactory DATATYPE_PROPERTY = OntEntities.createDataPropertyFactory();
@@ -62,6 +64,15 @@ public final class OWL2ObjectFactories {
     public static final Function<OntConfig, EnhNodeFactory> ANY_ENTITY = config -> OntEnhNodeFactories.createFrom(
             EnhNodeFinder.ANY_TYPED,
             NAMED_CLASS,
+            NAMED_DATARANGE,
+            NAMED_INDIVIDUAL,
+            ANNOTATION_PROPERTY,
+            DATATYPE_PROPERTY,
+            NAMED_OBJECT_PROPERTY.apply(config)
+    );
+    public static final Function<OntConfig, EnhNodeFactory> RL_ANY_ENTITY = config -> OntEnhNodeFactories.createFrom(
+            EnhNodeFinder.ANY_TYPED,
+            RL_NAMED_CLASS,
             NAMED_DATARANGE,
             NAMED_INDIVIDUAL,
             ANNOTATION_PROPERTY,
@@ -602,7 +613,7 @@ public final class OWL2ObjectFactories {
     public static final Function<OntConfig, EnhNodeFactory> RL_ANY_CLASS =
             config -> OntClasses.createClassExpressionFactory(
                     config,
-                    true,
+                    OntSimpleClassImpl.RLNamedImpl::new,
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
                             OntClasses.Type.OBJECT_ALL_VALUES_FROM,
                             OntClasses.Type.OBJECT_MAX_CARDINALITY,

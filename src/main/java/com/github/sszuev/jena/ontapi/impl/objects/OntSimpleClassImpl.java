@@ -152,6 +152,37 @@ public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {
     }
 
     /**
+     * A version of Named class for RL specification.
+     * @see <a href="https://www.w3.org/TR/owl2-profiles/#OWL_2_RL_2">OWL2 RL</a>
+     */
+    public static class RLNamedImpl extends NamedImpl {
+
+        public RLNamedImpl(Node n, EnhGraph eg) {
+            super(n, eg);
+        }
+
+        @Override
+        public OntClass asSubClass() {
+            return OWL.Thing.equals(this) ? null : this;
+        }
+
+        @Override
+        public OntClass asSuperClass() {
+            return OWL.Thing.equals(this) ? null : this;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return OWL.Thing.equals(this) ? null : this;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return OWL.Thing.equals(this) ? null : this;
+        }
+    }
+
+    /**
      * Primary (named) class ({@code <uri> a owl:Class}).
      * This is also {@link com.github.sszuev.jena.ontapi.model.OntEntity}.
      * Note:

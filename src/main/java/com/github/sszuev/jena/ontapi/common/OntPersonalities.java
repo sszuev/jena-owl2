@@ -381,13 +381,13 @@ public class OntPersonalities {
             .add(OntAnnotation.class, OWL2ObjectFactories.ANNOTATION)
 
             // entities:
-            .add(OntClass.Named.class, OWL2ObjectFactories.NAMED_CLASS)
+            .add(OntClass.Named.class, OWL2ObjectFactories.RL_NAMED_CLASS)
             .add(OntDataRange.Named.class, OWL2ObjectFactories.NAMED_DATARANGE)
             .add(OntIndividual.Named.class, OWL2ObjectFactories.NAMED_INDIVIDUAL)
             .add(OntObjectProperty.Named.class, OWL2ObjectFactories.NAMED_OBJECT_PROPERTY)
             .add(OntDataProperty.class, OWL2ObjectFactories.DATATYPE_PROPERTY)
             .add(OntAnnotationProperty.class, OWL2ObjectFactories.ANNOTATION_PROPERTY)
-            .add(OntEntity.class, OWL2ObjectFactories.ANY_ENTITY)
+            .add(OntEntity.class, OWL2ObjectFactories.RL_ANY_ENTITY)
 
             // individuals:
             .add(OntIndividual.Anonymous.class, OWL2ObjectFactories.ANONYMOUS_INDIVIDUAL)

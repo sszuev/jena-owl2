@@ -95,24 +95,33 @@ final class OntClasses {
     }
 
     public static EnhNodeFactory createClassExpressionFactory(OntConfig config,
-                                                              boolean baseClass,
+                                                              boolean anyClass,
                                                               Type... filters) {
-        return createClassExpressionFactory(config, baseClass, Arrays.asList(filters), List.of());
+        return createClassExpressionFactory(config, anyClass, Arrays.asList(filters), List.of());
     }
 
     public static EnhNodeFactory createClassExpressionFactory(OntConfig config,
-                                                              boolean baseClass,
+                                                              boolean anyClass,
+                                                              List<Type> filters,
+                                                              List<Type> strict) {
+        return createClassExpressionFactory(config, anyClass ? OntSimpleClassImpl.NamedImpl::new : null, filters, strict);
+    }
+
+    public static EnhNodeFactory createClassExpressionFactory(OntConfig config,
+                                                              BiFunction<Node, EnhGraph, EnhNode> namedClassProducer,
                                                               List<Type> filters,
                                                               List<Type> strict) {
         // namedClassFactory should be specified only for the super type OntClass.
         boolean useLegacyClassTest = config.getBoolean(OntModelControls.USE_LEGACY_COMPATIBLE_NAMED_CLASS_FACTORY);
-        BiPredicate<Node, EnhGraph> namedClassFilter = baseClass ?
+        BiPredicate<Node, EnhGraph> namedClassFilter = namedClassProducer != null ?
                 (node, graph) -> canBeNamedClass(node, graph, useLegacyClassTest) : null;
-        BiPredicate<Node, EnhGraph> genericClassFilter = baseClass && config.getBoolean(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS) ?
-                (node, graph) -> canBeClass(node, graph.asGraph()) : null;
+        BiPredicate<Node, EnhGraph> genericClassFilter =
+                namedClassProducer != null && config.getBoolean(OntModelControls.ALLOW_GENERIC_CLASS_EXPRESSIONS) ?
+                        (node, graph) -> canBeClass(node, graph.asGraph()) : null;
         return new Factory(
-                /*namedClassFactory*/ namedClassFilter,
+                /*namedClassFilter*/ namedClassFilter,
                 /*genericClassFilter*/ genericClassFilter,
+                /*namedClassProducer*/ namedClassProducer,
                 /*allowNamedClassExpressions*/ config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS),
                 /*allowQualifiedCardinalityRestrictions*/ config.getBoolean(OntModelControls.USE_OWL2_QUALIFIED_CARDINALITY_RESTRICTION_FEATURE),
                 /*primary filter types*/ filters,
@@ -626,7 +635,7 @@ final class OntClasses {
         private static final Node SUB_CLASS_OF = RDFS.subClassOf.asNode();
         private static final String NON_NEGATIVE_INTEGER_URI = XSD.nonNegativeInteger.getURI();
 
-        private static final BiFunction<Node, EnhGraph, EnhNode> NAMED_CLASS_PRODUCER = OntSimpleClassImpl.NamedImpl::new;
+
         private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_CLASS_PRODUCER = OntSimpleClassImpl::new;
         private static final BiFunction<Node, EnhGraph, EnhNode> GENERIC_RESTRICTION_PRODUCER = OntClassImpl.RestrictionImpl::new;
 
@@ -638,12 +647,14 @@ final class OntClasses {
 
         private final Set<Type> filters;
         private final Set<Type> strict;
+        private final BiFunction<Node, EnhGraph, EnhNode> namedClassProducer;
         private final BiPredicate<Node, EnhGraph> namedClassFilter;
         private final BiPredicate<Node, EnhGraph> genericClassFilter;
 
         private Factory(
                 BiPredicate<Node, EnhGraph> namedClassFilter,
                 BiPredicate<Node, EnhGraph> genericClassFilter,
+                BiFunction<Node, EnhGraph, EnhNode> namedClassProducer,
                 boolean allowNamedClassExpressions,
                 boolean allowQualifiedCardinalityRestrictions,
                 List<Type> filters,
@@ -653,6 +664,7 @@ final class OntClasses {
             }
             this.namedClassFilter = namedClassFilter;
             this.genericClassFilter = genericClassFilter;
+            this.namedClassProducer = namedClassProducer;
             this.allowNamedClassExpressions = allowNamedClassExpressions;
             this.allowQualifiedCardinalityRestrictions = allowQualifiedCardinalityRestrictions;
             this.filters = EnumSet.copyOf(filters);
@@ -726,7 +738,7 @@ final class OntClasses {
                         .mapWith(t -> {
                             Node n = t.getSubject();
                             if (namedClassFilter != null && n.isURI()) {
-                                return namedClassFilter.test(n, eg) ? NAMED_CLASS_PRODUCER.apply(n, eg) : null;
+                                return namedClassFilter.test(n, eg) ? namedClassProducer.apply(n, eg) : null;
                             }
                             if (genericClassFilter != null) {
                                 return GENERIC_CLASS_PRODUCER.apply(n, eg);
@@ -804,7 +816,7 @@ final class OntClasses {
             }
             if (namedClassFilter != null && n.isURI()) {
                 // fast check for entity-class - the most common case in OWL2
-                return namedClassFilter.test(n, eg) ? NAMED_CLASS_PRODUCER : null;
+                return namedClassFilter.test(n, eg) ? namedClassProducer : null;
             }
             Graph g = eg.asGraph();
             if (filterRestrictions() && g.contains(n, TYPE, RESTRICTION)) {

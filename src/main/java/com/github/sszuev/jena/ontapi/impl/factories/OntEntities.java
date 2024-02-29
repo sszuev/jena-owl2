@@ -118,6 +118,17 @@ final class OntEntities {
         );
     }
 
+    public static EnhNodeFactory createOWL2RLNamedClassFactory() {
+        return createOntEntityFactory(
+                OntClass.Named.class,
+                OntSimpleClassImpl.RLNamedImpl.class,
+                OntSimpleClassImpl.RLNamedImpl::new,
+                OntPersonality.Builtins::getNamedClasses,
+                OntPersonality.Punnings::getNamedClasses,
+                OWL.Class
+        );
+    }
+
     public static Function<OntConfig, EnhNodeFactory> createOWL1NamedClassFactory() {
         Set<Node> compatibleTypes = Stream.of(OWL.Class, RDFS.Class, RDFS.Datatype)
                 .map(FrontsNode::asNode).collect(Collectors.toUnmodifiableSet());

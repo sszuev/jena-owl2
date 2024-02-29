@@ -5,8 +5,9 @@ import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.vocabulary.OWL;
+import com.github.sszuev.jena.ontapi.vocabulary.XSD;
 import org.apache.jena.vocabulary.RDFS;
-import org.apache.jena.vocabulary.XSD;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -254,5 +255,28 @@ public class OntModelOWL2RLSpecTest {
         Assertions.assertEquals(4, m.ontObjects(OntClass.ValueRestriction.class).count());
         Assertions.assertEquals(4, m.ontObjects(OntClass.ComponentRestriction.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntClass.ObjectAllValuesFrom.class).count());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+    })
+    public void testNamedClassSubClassOf(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        OntClass c0 = m.createOntClass("c0");
+        OntClass c1 = m.createOntClass("c1");
+        c0.addSuperClass(c1);
+
+        c0.addProperty(RDFS.subClassOf, OWL.Thing);
+        Assertions.assertEquals(List.of(c1), c0.superClasses().collect(Collectors.toList()));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> c1.addSuperClass(m.getOWLThing()));
+
+        OWL.Thing.inModel(m).addProperty(RDFS.subClassOf, c1);
+        Assertions.assertEquals(List.of(c0), c1.subClasses().collect(Collectors.toList()));
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.getOWLThing().addSuperClass(m.getOWLThing()));
+
+        c0.addProperty(OWL.equivalentClass, OWL.Thing).addProperty(OWL.equivalentClass, c1);
+        Assertions.assertEquals(List.of(c0), c1.equivalentClasses().collect(Collectors.toList()));
+        Assertions.assertEquals(List.of(c1), c0.equivalentClasses().collect(Collectors.toList()));
     }
 }
