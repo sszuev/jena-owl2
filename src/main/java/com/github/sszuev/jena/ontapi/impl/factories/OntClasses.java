@@ -236,9 +236,33 @@ final class OntClasses {
                             Node node = res.next().getObject();
                             OntClass clazz = OntEnhGraph.asPersonalityModel(g).safeFindNodeAs(node, OntClass.class);
                             if (clazz == null) {
-                                return false;
+                                continue;
                             }
                             if (clazz == OWL.Thing.asNode() || clazz.asSubClass() != null) {
+                                return true;
+                            }
+                        }
+                    } finally {
+                        res.close();
+                    }
+                    return false;
+                });
+        return OntEnhNodeFactories.createCommon(maker, RESTRICTION_FINDER, filter);
+    }
+
+    public static EnhNodeFactory createOWL2RLObjectAllValuesFromFactory(OntConfig config) {
+        EnhNodeProducer maker = new EnhNodeProducer.WithType(OntClassImpl.RLObjectAllValuesFromImpl.class, OWL.Restriction,
+                OntClassImpl.RLObjectAllValuesFromImpl::new);
+        EnhNodeFilter primary = config.getBoolean(OntModelControls.ALLOW_NAMED_CLASS_EXPRESSIONS) ? EnhNodeFilter.TRUE : EnhNodeFilter.ANON;
+        EnhNodeFilter filter = primary.and(new EnhNodeFilter.HasType(OWL.Restriction))
+                .and(RestrictionType.OBJECT.getFilter())
+                .and((n, g) -> {
+                    ExtendedIterator<Triple> res = g.asGraph().find(n, OWL.allValuesFrom.asNode(), Node.ANY);
+                    try {
+                        while (res.hasNext()) {
+                            Node node = res.next().getObject();
+                            OntClass clazz = OntEnhGraph.asPersonalityModel(g).safeFindNodeAs(node, OntClass.class);
+                            if (clazz != null && clazz.asSuperClass() != null) {
                                 return true;
                             }
                         }
@@ -850,7 +874,7 @@ final class OntClasses {
                         }
                         if (filters.contains(Type.OBJECT_ALL_VALUES_FROM)
                                 && isObjectOfType(n, eg, ALL_VALUES_FROM, OntClass.class)) {
-                            return Type.OBJECT_ALL_VALUES_FROM;
+                            return strictFilter(n, eg, Type.OBJECT_ALL_VALUES_FROM);
                         }
                         if (filters.contains(Type.OBJECT_HAS_VALUE)
                                 && isObjectOfType(n, eg, HAS_VALUE, OntIndividual.class)) {

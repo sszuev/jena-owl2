@@ -193,6 +193,8 @@ public final class OWL2ObjectFactories {
                     OWL.allValuesFrom,
                     OntClassImpl.ObjectAllValuesFromImpl::new,
                     config);
+    public static final Function<OntConfig, EnhNodeFactory> RL_OBJECT_ALL_VALUES_FROM_CLASS =
+            OntClasses::createOWL2RLObjectAllValuesFromFactory;
     public static final Function<OntConfig, EnhNodeFactory> DATA_ALL_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
                     OntClassImpl.DataAllValuesFromImpl.class,
@@ -391,7 +393,8 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.DATA_SOME_VALUES_FROM,
                             OntClasses.Type.DATA_ALL_VALUES_FROM,
                             OntClasses.Type.DATA_HAS_VALUE),
-                    List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM)
+                    List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                            OntClasses.Type.OBJECT_ALL_VALUES_FROM)
             );
     // Cardinality Restrictions:
     public static final Function<OntConfig, EnhNodeFactory> ANY_CARDINALITY_RESTRICTION_CLASS =
@@ -461,6 +464,7 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.DATA_HAS_VALUE
                     ),
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                            OntClasses.Type.OBJECT_ALL_VALUES_FROM,
                             OntClasses.Type.OBJECT_MAX_CARDINALITY,
                             OntClasses.Type.DATA_MAX_CARDINALITY)
             );
@@ -512,6 +516,7 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.DATA_MAX_CARDINALITY,
                             OntClasses.Type.DATA_HAS_VALUE),
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                            OntClasses.Type.OBJECT_ALL_VALUES_FROM,
                             OntClasses.Type.OBJECT_MAX_CARDINALITY,
                             OntClasses.Type.DATA_MAX_CARDINALITY)
             );
@@ -611,6 +616,7 @@ public final class OWL2ObjectFactories {
                             OntClasses.Type.ONE_OF,
                             OntClasses.Type.COMPLEMENT_OF),
                     List.of(OntClasses.Type.OBJECT_SOME_VALUES_FROM,
+                            OntClasses.Type.OBJECT_ALL_VALUES_FROM,
                             OntClasses.Type.OBJECT_MAX_CARDINALITY,
                             OntClasses.Type.DATA_MAX_CARDINALITY,
                             OntClasses.Type.UNION_OF,

@@ -403,7 +403,7 @@ public class OntPersonalities {
             // class expressions:
             .add(OntClass.ObjectSomeValuesFrom.class, OWL2ObjectFactories.RL_OBJECT_SOME_VALUES_FROM_CLASS)
             .add(OntClass.DataSomeValuesFrom.class, OWL2ObjectFactories.RL_DATA_SOME_VALUES_FROM_CLASS)
-            .add(OntClass.ObjectAllValuesFrom.class, OWL2ObjectFactories.OBJECT_ALL_VALUES_FROM_CLASS)
+            .add(OntClass.ObjectAllValuesFrom.class, OWL2ObjectFactories.RL_OBJECT_ALL_VALUES_FROM_CLASS)
             .add(OntClass.DataAllValuesFrom.class, OWL2ObjectFactories.RL_DATA_ALL_VALUES_FROM_CLASS)
             .add(OntClass.ObjectHasValue.class, OWL2ObjectFactories.OBJECT_HAS_VALUE_CLASS)
             .add(OntClass.DataHasValue.class, OWL2ObjectFactories.DATA_HAS_VALUE_CLASS)

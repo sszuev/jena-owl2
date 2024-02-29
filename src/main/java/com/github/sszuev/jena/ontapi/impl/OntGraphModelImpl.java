@@ -1026,8 +1026,8 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
     @Override
     public OntClass.ObjectAllValuesFrom createObjectAllValuesFrom(OntObjectProperty property, OntClass ce) {
         checkType(OntClass.ObjectAllValuesFrom.class);
-        return OntClassImpl.createComponentRestrictionCE(this,
-                OntClass.ObjectAllValuesFrom.class, property, ce, OWL.allValuesFrom);
+        return checkCreate(model -> OntClassImpl.createComponentRestrictionCE(model,
+                OntClass.ObjectAllValuesFrom.class, property, ce, OWL.allValuesFrom), OntClass.ObjectAllValuesFrom.class);
     }
 
     @Override

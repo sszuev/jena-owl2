@@ -215,4 +215,44 @@ public class OntModelOWL2RLSpecTest {
         Assertions.assertEquals(4, m.ontObjects(OntClass.LogicalExpression.class).count());
         Assertions.assertEquals(3, m.ontObjects(OntClass.ComplementOf.class).count());
     }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+    })
+    public void testSuperObjectAllValuesFrom(TestSpec spec) {
+        OntModel data = OntModelFactory.createModel();
+        OntObjectProperty p0 = data.createObjectProperty("p0");
+        OntObjectProperty p1 = data.createObjectProperty("p1");
+        OntDataProperty p2 = data.createDataProperty("p2");
+
+        OntClass c0 = data.createOntClass("c0");
+        OntClass c1 = data.createDataHasValue(p2, data.createTypedLiteral(42));
+        OntClass c2 = data.createObjectOneOf(data.createIndividual("X"));
+
+        OntClass c3 = data.createObjectAllValuesFrom(p0, c0); // true
+        OntClass c4 = data.createObjectAllValuesFrom(p0, c2); // false
+        OntClass c5 = data.createObjectAllValuesFrom(p0, c1); // true
+
+        OntModel m = OntModelFactory.createModel(data.getGraph(), spec.inst);
+        Assertions.assertTrue(c3.inModel(m).canAs(OntClass.class));
+        Assertions.assertFalse(c4.inModel(m).canAs(OntClass.class));
+        Assertions.assertTrue(c5.inModel(m).canAs(OntClass.class));
+
+        Assertions.assertEquals(5, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.Restriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.UnaryRestriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.ValueRestriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.ComponentRestriction.class).count());
+        Assertions.assertEquals(2, m.ontObjects(OntClass.ObjectAllValuesFrom.class).count());
+
+        Assertions.assertThrows(OntJenaException.Unsupported.class, () -> m.createObjectAllValuesFrom(p1, c2));
+        m.createObjectAllValuesFrom(p1, c0);
+        Assertions.assertEquals(6, m.ontObjects(OntClass.class).count());
+        Assertions.assertEquals(4, m.ontObjects(OntClass.Restriction.class).count());
+        Assertions.assertEquals(4, m.ontObjects(OntClass.UnaryRestriction.class).count());
+        Assertions.assertEquals(4, m.ontObjects(OntClass.ValueRestriction.class).count());
+        Assertions.assertEquals(4, m.ontObjects(OntClass.ComponentRestriction.class).count());
+        Assertions.assertEquals(3, m.ontObjects(OntClass.ObjectAllValuesFrom.class).count());
+    }
 }

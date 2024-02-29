@@ -719,6 +719,28 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class RLObjectAllValuesFromImpl extends ObjectAllValuesFromImpl {
+
+        public RLObjectAllValuesFromImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSubClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return null;
+        }
+    }
+
     public static class ObjectAllValuesFromImpl
             extends ComponentRestrictionImpl<OntClass, OntObjectProperty, ObjectAllValuesFromImpl> implements ObjectAllValuesFrom {
         public ObjectAllValuesFromImpl(Node n, EnhGraph m) {
