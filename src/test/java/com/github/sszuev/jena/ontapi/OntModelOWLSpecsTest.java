@@ -1226,7 +1226,7 @@ public class OntModelOWLSpecsTest {
         }
         Assertions.assertTrue(OWL.Thing.inModel(m).as(OntClass.class).asNamed().isBuiltIn());
         Assertions.assertNotNull(m.getOWLThing());
-        if (spec.isOWL1()) {
+        if (spec.isOWL1() || spec.isOWL2RL()) {
             Assertions.assertFalse(OWL.topObjectProperty.inModel(m).canAs(OntObjectProperty.class));
             Assertions.assertFalse(OWL.bottomObjectProperty.inModel(m).canAs(OntObjectProperty.class));
             Assertions.assertFalse(OWL.topDataProperty.inModel(m).canAs(OntDataProperty.class));

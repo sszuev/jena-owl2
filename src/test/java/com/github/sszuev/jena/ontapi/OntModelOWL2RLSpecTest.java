@@ -261,7 +261,7 @@ public class OntModelOWL2RLSpecTest {
     @EnumSource(names = {
             "OWL2_RL_MEM",
     })
-    public void testNamedClassSubClassOf(TestSpec spec) {
+    public void testOWLThing(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
         OntClass c0 = m.createOntClass("c0");
         OntClass c1 = m.createOntClass("c1");
@@ -278,5 +278,19 @@ public class OntModelOWL2RLSpecTest {
         c0.addProperty(OWL.equivalentClass, OWL.Thing).addProperty(OWL.equivalentClass, c1);
         Assertions.assertEquals(List.of(c0), c1.equivalentClasses().collect(Collectors.toList()));
         Assertions.assertEquals(List.of(c1), c0.equivalentClasses().collect(Collectors.toList()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+    })
+    public void testBuiltins(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(spec.inst);
+        Assertions.assertNotNull(m.getOWLThing());
+        Assertions.assertNotNull(m.getOWLNothing());
+        Assertions.assertNull(m.getOWLBottomDataProperty());
+        Assertions.assertNull(m.getOWLBottomObjectProperty());
+        Assertions.assertNull(m.getOWLTopObjectProperty());
+        Assertions.assertNull(m.getOWLTopDataProperty());
     }
 }

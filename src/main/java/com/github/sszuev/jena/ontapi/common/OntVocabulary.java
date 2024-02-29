@@ -404,8 +404,8 @@ public interface OntVocabulary {
             protected OWL2Impl(Type type) {
                 super(
                         OWL2_ANNOTATION_PROPERTIES,
-                        OWL2_DATA_PROPERTIES,
-                        OWL2_OBJECT_PROPERTIES,
+                        type == Type.RL ? Set.of() : OWL2_DATA_PROPERTIES,
+                        type == Type.RL ? Set.of() : OWL2_OBJECT_PROPERTIES,
                         OWL2_CLASSES,
                         datatypes(type),
                         /*SWRL*/ null,

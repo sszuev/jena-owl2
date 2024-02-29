@@ -249,6 +249,13 @@ public class OntModelOWL2ELSpecTest {
     })
     public void testBuiltins(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
+        Assertions.assertNotNull(m.getOWLThing());
+        Assertions.assertNotNull(m.getOWLNothing());
+        Assertions.assertNotNull(m.getOWLBottomDataProperty());
+        Assertions.assertNotNull(m.getOWLBottomObjectProperty());
+        Assertions.assertNotNull(m.getOWLTopObjectProperty());
+        Assertions.assertNotNull(m.getOWLTopDataProperty());
+
         OWL.real.inModel(m).as(OntEntity.class);
         OWL.rational.inModel(m).as(OntEntity.class);
         XSD.xstring.inModel(m).as(OntEntity.class);
