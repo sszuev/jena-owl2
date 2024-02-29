@@ -689,6 +689,24 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         }
     }
 
+    public static class RLDataSomeValuesFromImpl extends DataSomeValuesFromImpl {
+
+        public RLDataSomeValuesFromImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSuperClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+    }
+
     public static class DataSomeValuesFromImpl
             extends ComponentRestrictionImpl<OntDataRange, OntDataProperty, DataSomeValuesFromImpl> implements DataSomeValuesFrom {
         public DataSomeValuesFromImpl(Node n, EnhGraph m) {
@@ -710,6 +728,28 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         @Override
         public Class<ObjectAllValuesFrom> objectType() {
             return ObjectAllValuesFrom.class;
+        }
+    }
+
+    public static class RLDataAllValuesFromImpl extends DataAllValuesFromImpl {
+
+        public RLDataAllValuesFromImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSubClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asDisjointClass() {
+            return null;
         }
     }
 
@@ -910,6 +950,22 @@ public abstract class OntClassImpl extends OntObjectImpl implements OntClass {
         @Override
         public Class<IntersectionOf> objectType() {
             return IntersectionOf.class;
+        }
+    }
+
+    public static class RLOneOfImpl extends OneOfImpl {
+        public RLOneOfImpl(Node n, EnhGraph m) {
+            super(n, m);
+        }
+
+        @Override
+        public OntClass asSuperClass() {
+            return null;
+        }
+
+        @Override
+        public OntClass asEquivalentClass() {
+            return null;
         }
     }
 

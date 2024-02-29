@@ -131,6 +131,13 @@ public final class OWL2ObjectFactories {
                     RDFList.class,
                     OntClassImpl.OneOfImpl::new,
                     config);
+    public static final Function<OntConfig, EnhNodeFactory> RL_ONE_OF_CLASS =
+            config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
+                    OntClassImpl.RLOneOfImpl.class,
+                    OWL.oneOf,
+                    RDFList.class,
+                    OntClassImpl.RLOneOfImpl::new,
+                    config);
     public static final Function<OntConfig, EnhNodeFactory> EL_ONE_OF_CLASS = OntClasses::createOWL2ELObjectOneOfFactory;
     public static final Function<OntConfig, EnhNodeFactory> COMPLEMENT_OF_CLASS =
             config -> OntClasses.createBooleanConnectivesAndIndividualEnumerationFactory(
@@ -162,6 +169,14 @@ public final class OWL2ObjectFactories {
                     OWL.someValuesFrom,
                     OntClassImpl.DataSomeValuesFromImpl::new,
                     config);
+    public static final Function<OntConfig, EnhNodeFactory> RL_DATA_SOME_VALUES_FROM_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.RLDataSomeValuesFromImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OWL.someValuesFrom,
+                    OntClassImpl.RLDataSomeValuesFromImpl::new,
+                    config);
     public static final Function<OntConfig, EnhNodeFactory> QL_DATA_SOME_VALUES_FROM_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
                     OntClassImpl.QLDataSomeValuesFromImpl.class,
@@ -185,6 +200,14 @@ public final class OWL2ObjectFactories {
                     OntClasses.ObjectRestrictionType.DATA_RANGE,
                     OWL.allValuesFrom,
                     OntClassImpl.DataAllValuesFromImpl::new,
+                    config);
+    public static final Function<OntConfig, EnhNodeFactory> RL_DATA_ALL_VALUES_FROM_CLASS =
+            config -> OntClasses.createComponentRestrictionFactory(
+                    OntClassImpl.RLDataAllValuesFromImpl.class,
+                    OntClasses.RestrictionType.DATA,
+                    OntClasses.ObjectRestrictionType.DATA_RANGE,
+                    OWL.allValuesFrom,
+                    OntClassImpl.RLDataAllValuesFromImpl::new,
                     config);
     public static final Function<OntConfig, EnhNodeFactory> OBJECT_HAS_VALUE_CLASS =
             config -> OntClasses.createComponentRestrictionFactory(
