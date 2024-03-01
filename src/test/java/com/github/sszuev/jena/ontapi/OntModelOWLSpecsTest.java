@@ -230,6 +230,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_LITE_MEM",
@@ -248,6 +250,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_LITE_MEM",
@@ -266,6 +270,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_TRANS_INF",
             "OWL1_LITE_MEM",
@@ -406,6 +412,10 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM",
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_EL_MEM_RDFS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
+            "OWL2_RL_MEM_RULES_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_RDFS_INF",
             "OWL2_QL_MEM_TRANS_INF",
@@ -496,6 +506,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_MEM_RDFS_INF",
             "OWL1_MEM_TRANS_INF",
@@ -538,6 +550,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testCreateAnnotatedEntities(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -696,6 +710,7 @@ public class OntModelOWLSpecsTest {
             "OWL2_MEM",
             "OWL2_EL_MEM",
             "OWL2_QL_MEM",
+            "OWL2_RL_MEM",
             "OWL1_MEM",
             "OWL1_LITE_MEM",
     })
@@ -768,6 +783,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_TRANS_INF",
             "OWL1_MEM",
             "OWL1_LITE_MEM",
             "OWL1_MEM_TRANS_INF",
@@ -838,6 +855,10 @@ public class OntModelOWLSpecsTest {
             "OWL2_QL_MEM_RDFS_INF",
             "OWL2_QL_MEM_TRANS_INF",
             "OWL2_QL_MEM_RULES_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
+            "OWL2_RL_MEM_RULES_INF",
             "RDFS_MEM",
             "RDFS_MEM_RDFS_INF",
             "RDFS_MEM_TRANS_INF",
@@ -940,6 +961,8 @@ public class OntModelOWLSpecsTest {
             "OWL2_EL_MEM_TRANS_INF",
             "OWL2_QL_MEM",
             "OWL2_QL_MEM_TRANS_INF",
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testRemoveStatement(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -1150,7 +1173,6 @@ public class OntModelOWLSpecsTest {
             Assertions.assertEquals(m.getObjectProperty("P"), hasSelf.getProperty());
         });
 
-
         // can create & delete individual
         OntClass.HasSelf hasSelf = r.inModel(m).as(OntClass.HasSelf.class);
         OntIndividual i = hasSelf.as(OntClass.HasSelf.class).createIndividual("I");
@@ -1258,6 +1280,9 @@ public class OntModelOWLSpecsTest {
             "OWL2_QL_MEM_TRANS_INF",
             "OWL2_QL_MEM_RULES_INF",
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
+            "OWL2_RL_MEM_RULES_INF",
     })
     public void testOWL2ProfilesDataRanges(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -1288,7 +1313,11 @@ public class OntModelOWLSpecsTest {
         if (spec.isRDFS()) {
             expectedNamedDataRanges = 3;
         } else if (spec.isRules()) {
-            expectedNamedDataRanges = 19;
+            if (spec.isOWL2RL()) {
+                expectedNamedDataRanges = 30;
+            } else {
+                expectedNamedDataRanges = 19;
+            }
         } else {
             expectedNamedDataRanges = 2;
         }

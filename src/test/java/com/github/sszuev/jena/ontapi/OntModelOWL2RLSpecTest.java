@@ -4,18 +4,76 @@ import com.github.sszuev.jena.ontapi.model.OntClass;
 import com.github.sszuev.jena.ontapi.model.OntDataProperty;
 import com.github.sszuev.jena.ontapi.model.OntDataRange;
 import com.github.sszuev.jena.ontapi.model.OntModel;
+import com.github.sszuev.jena.ontapi.model.OntObject;
 import com.github.sszuev.jena.ontapi.model.OntObjectProperty;
+import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
+import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.github.sszuev.jena.ontapi.OntModelOWLSpecsTest.testListObjects;
+
 public class OntModelOWL2RLSpecTest {
+
+    @ParameterizedTest
+    @EnumSource(names = {
+            "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
+    })
+    public void testPizzaObjects1d(TestSpec spec) {
+        OntModel m = OntModelFactory.createModel(
+                RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.inst);
+
+        Map<Class<? extends OntObject>, Integer> expected = new HashMap<>();
+        expected.put(OntClass.ObjectSomeValuesFrom.class, 155);
+        expected.put(OntClass.DataSomeValuesFrom.class, 0);
+        expected.put(OntClass.ObjectAllValuesFrom.class, 3);
+        expected.put(OntClass.DataAllValuesFrom.class, 0);
+        expected.put(OntClass.ObjectHasValue.class, 6);
+        expected.put(OntClass.DataHasValue.class, 0);
+        expected.put(OntClass.ObjectMinCardinality.class, 0);
+        expected.put(OntClass.DataMinCardinality.class, 0);
+        expected.put(OntClass.ObjectMaxCardinality.class, 0);
+        expected.put(OntClass.DataMaxCardinality.class, 0);
+        expected.put(OntClass.ObjectCardinality.class, 0);
+        expected.put(OntClass.DataCardinality.class, 0);
+        expected.put(OntClass.HasSelf.class, 0);
+        expected.put(OntClass.UnionOf.class, 25);
+        expected.put(OntClass.OneOf.class, 1);
+        expected.put(OntClass.IntersectionOf.class, 13);
+        expected.put(OntClass.ComplementOf.class, 3);
+        expected.put(OntClass.NaryDataAllValuesFrom.class, 0);
+        expected.put(OntClass.NaryDataSomeValuesFrom.class, 0);
+        expected.put(OntClass.LogicalExpression.class, 42);
+        expected.put(OntClass.CollectionOf.class, 39);
+        expected.put(OntClass.ValueRestriction.class, 164); // 187
+        expected.put(OntClass.CardinalityRestriction.class, 0);
+        expected.put(OntClass.ComponentRestriction.class, 164);
+        expected.put(OntClass.UnaryRestriction.class, 164);
+        expected.put(OntClass.Restriction.class, 164);
+        expected.put(OntClass.class, 306);
+
+        testListObjects(m, expected);
+
+        List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
+        int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
+                .mapWith(Statement::getSubject).filterKeep(RDFNode::isURIResource).toSet().size();
+        int actualClassesCount = classes.size();
+        Assertions.assertEquals(expectedClassesCount, actualClassesCount);
+    }
 
     @ParameterizedTest
     @EnumSource(names = {
@@ -42,6 +100,8 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testObjectIntersectionOf(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -76,6 +136,8 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testObjectUnionOf(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -110,6 +172,8 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testSuperObjectMaxCardinality(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -149,6 +213,8 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testSuperDataMaxCardinality(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -188,6 +254,8 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testSuperObjectComplementOf(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -220,6 +288,8 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testSuperObjectAllValuesFrom(TestSpec spec) {
         OntModel data = OntModelFactory.createModel();
@@ -260,6 +330,8 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
     })
     public void testOWLThing(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);
@@ -283,6 +355,9 @@ public class OntModelOWL2RLSpecTest {
     @ParameterizedTest
     @EnumSource(names = {
             "OWL2_RL_MEM",
+            "OWL2_RL_MEM_RDFS_INF",
+            "OWL2_RL_MEM_TRANS_INF",
+            "OWL2_RL_MEM_RULES_INF",
     })
     public void testBuiltins(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst);

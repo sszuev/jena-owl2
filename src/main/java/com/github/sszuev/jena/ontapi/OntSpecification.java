@@ -345,6 +345,36 @@ public class OntSpecification {
             OWL2_RL_PERSONALITY, null
     );
 
+    /**
+     * A specification for OWL2 RL models that are stored in memory
+     * and use the RDFS inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RDFS_INF
+     */
+    public static final OntSpecification OWL2_RL_MEM_RDFS_INF = new OntSpecification(
+            OWL2_RL_PERSONALITY, RDFSRuleReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL2 RL models that are stored in memory
+     * and use the transitive inferencer for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_TRANS_INF
+     */
+    public static final OntSpecification OWL2_RL_MEM_TRANS_INF = new OntSpecification(
+            OWL2_RL_PERSONALITY, TransitiveReasonerFactory.theInstance()
+    );
+
+    /**
+     * A specification for OWL2 RL ontology models
+     * that are stored in memory and use the OWL rules inference engine for additional entailments.
+     *
+     * @see org.apache.jena.ontology.OntModelSpec#OWL_MEM_RULE_INF
+     */
+    public static final OntSpecification OWL2_RL_MEM_RULES_INF = new OntSpecification(
+            OWL2_RL_PERSONALITY, OWLFBRuleReasonerFactory.theInstance()
+    );
+
     /*
      * *****************************************************************************************************************
      * OWL 1 DL

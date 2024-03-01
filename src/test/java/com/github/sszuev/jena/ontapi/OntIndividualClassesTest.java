@@ -115,6 +115,7 @@ public class OntIndividualClassesTest {
             "OWL2_QL_MEM_RDFS_INF",
             "OWL2_QL_MEM_TRANS_INF",
             "OWL2_QL_MEM_RULES_INF",
+            "OWL2_RL_MEM_RULES_INF",
     }, mode = EnumSource.Mode.EXCLUDE)
     public void testListOntClasses2(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(spec.inst).setNsPrefixes(OntModelFactory.STANDARD);
@@ -125,7 +126,7 @@ public class OntIndividualClassesTest {
         OntIndividual x = A.createIndividual();
         x.attachClass(B);
 
-        Assertions.assertEquals(B, x.classes(true).findFirst().orElseThrow());
+        Assertions.assertEquals(List.of(B), x.classes(true).collect(Collectors.toList()));
     }
 
     @ParameterizedTest
