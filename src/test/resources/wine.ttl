@@ -6,6 +6,9 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix food:  <http://www.w3.org/TR/2003/PR-owl-guide-20031209/food#> .
 
+owl:NamedIndividual  a            owl:Class ;
+        rdfs:comment      "A `owl:NamedIndividual` is explicitly declared as a class for backwards compatibility with OWL1." .
+
 vin:CorbansPrivateBinSauvignonBlanc
         a              owl:NamedIndividual , vin:SauvignonBlanc ;
         vin:hasBody    vin:Full ;
