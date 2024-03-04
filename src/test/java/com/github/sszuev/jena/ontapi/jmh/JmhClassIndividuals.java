@@ -41,7 +41,7 @@ public class JmhClassIndividuals {
     }
 
     @Benchmark
-    @Group("LIST_DECLARED_PROPERTIES_DIRECT")
+    @Group("LIST_CLASS_INDIVIDUALS_DIRECT")
     public void jmhClassListIndividualsDirect(Blackhole blackhole) {
         List<? extends Resource> individuals;
         if (model instanceof OntModel) {
@@ -57,7 +57,7 @@ public class JmhClassIndividuals {
     }
 
     @Benchmark
-    @Group("LIST_DECLARED_PROPERTIES_INDIRECT")
+    @Group("LIST_CLASS_INDIVIDUALS_INDIRECT")
     public void jmhClassListIndividualsIndirect(Blackhole blackhole) {
         List<? extends Resource> individuals;
         if (model instanceof OntModel) {
