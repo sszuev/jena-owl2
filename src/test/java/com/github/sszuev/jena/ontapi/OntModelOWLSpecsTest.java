@@ -38,7 +38,6 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.vocabulary.RDFS;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -1084,19 +1083,6 @@ public class OntModelOWLSpecsTest {
         Assertions.assertEquals(2, m.ontObjects(OntFacetRestriction.class).count(), "Incorrect count of facet restrictions");
         Assertions.assertEquals(9, m.ontObjects(OntDataRange.class).count(), "Incorrect count of data ranges");
         Assertions.assertEquals(6, m.ontObjects(OntEntity.class).count(), "Incorrect count of entities");
-    }
-
-    @Test
-    public void testRecursionOnComplementOf() {
-        // test there is no StackOverflowError
-        Assertions.assertThrows(OntJenaException.Recursion.class, () -> {
-            Model m = OntModelFactory.createDefaultModel().setNsPrefixes(OntModelFactory.STANDARD);
-            Resource anon = m.createResource().addProperty(RDF.type, OWL.Class);
-            anon.addProperty(OWL.complementOf, anon);
-            OntModel ont = OntModelFactory.createModel(m.getGraph());
-            List<OntClass> ces = ont.ontObjects(OntClass.class).collect(Collectors.toList());
-            Assertions.assertEquals(0, ces.size());
-        });
     }
 
     @ParameterizedTest

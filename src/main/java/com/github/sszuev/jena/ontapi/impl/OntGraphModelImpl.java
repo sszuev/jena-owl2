@@ -1209,13 +1209,18 @@ public class OntGraphModelImpl extends ModelCom implements OntModel, OntEnhGraph
      * @throws OntJenaException.Unsupported if no possible to create an object
      */
     protected <X extends OntObject> X checkCreate(Function<OntGraphModelImpl, X> creator, Class<X> type) {
+        Graph thisGraph = getGraph();
         Graph bg = GraphMemFactory.createDefaultGraph();
-        UnionGraph ug = new UnionGraphImpl(bg);
-        ug.addSubGraph(getGraph());
-        OntGraphModelImpl m = new OntGraphModelImpl(ug, getOntPersonality());
+        UnionGraph ug = new UnionGraphImpl(bg) {
+            @Override
+            protected void addParent(Graph graph) {
+            }
+        };
+        ug.addSubGraph(thisGraph);
         try {
+            OntGraphModelImpl m = new OntGraphModelImpl(ug, getOntPersonality());
             X res = creator.apply(m);
-            bg.find().forEach(getBaseGraph()::add);
+            bg.find().forEach(thisGraph::add);
             return res.inModel(this).as(type);
         } catch (OntJenaException.Conversion e) {
             throw new OntJenaException.Unsupported(
