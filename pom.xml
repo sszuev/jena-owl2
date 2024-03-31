@@ -6,7 +6,7 @@
 
     <groupId>com.github.sszuev</groupId>
     <artifactId>jena-owl2</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3.1-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
