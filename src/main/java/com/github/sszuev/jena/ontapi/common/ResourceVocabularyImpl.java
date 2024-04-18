@@ -25,8 +25,6 @@ import java.util.stream.Stream;
  * A {@link ResourceVocabulary} abstraction and a holder for some particular vocabulary {@link OntPersonality}'s implementations.
  * Each of the impl has a simple in-memory cache to speed-up,
  * since it is important to have quick access to desired types.
- * <p>
- * Created by @ssz on 18.01.2019.
  */
 abstract class ResourceVocabularyImpl<T extends Resource> implements ResourceVocabulary<T> {
     private final Map<Class<? extends T>, Set<Node>> map;

@@ -41,8 +41,6 @@ import java.util.stream.Stream;
  * A system resource/property is simply a URI defined in any scheme.
  * A builtin resource/property is a URI with a known type that does not require explicit declaration.
  * Note that all methods of this interface return unmodifiable {@code Set}s.
- * <p>
- * Created by @ssz on 04.04.2017.
  *
  * @see Impls
  */

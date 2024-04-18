@@ -42,9 +42,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Created by @ssz on 27.03.2018.
- */
 @SuppressWarnings("WeakerAccess")
 public class OntPersonalityTest {
 

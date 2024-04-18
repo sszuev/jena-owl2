@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 
 /**
  * A {@link EnhNodeFactory Ontology Object Factory} implementation to combine several other factories.
- * <p>
- * Created @ssz on 07.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public class CompositeEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {

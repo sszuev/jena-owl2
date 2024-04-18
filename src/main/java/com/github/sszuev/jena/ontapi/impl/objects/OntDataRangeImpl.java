@@ -26,8 +26,6 @@ import java.util.stream.Stream;
 
 /**
  * Implementation for Data Range Expressions.
- * <p>
- * Created by @ssz on 16.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public class OntDataRangeImpl extends OntObjectImpl implements OntDataRange {

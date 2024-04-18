@@ -17,8 +17,6 @@ import java.util.stream.Stream;
  * In other words, calling the methods {@link #removeImport(String)} does not remove the sub-graph
  * from the main {@link UnionGraph Union Graph}.
  * Similar, calling the method {@link #addImport(String)} simply adds the corresponding triple to the base graph.
- * <p>
- * Created @ssz on 09.11.2016.
  *
  * @see <a href='https://www.w3.org/TR/owl-syntax/#Ontology_IRI_and_Version_IRI'>3.1 Ontology IRI and Version IRI</a>
  */

@@ -95,8 +95,6 @@ import java.util.stream.Stream;
 /**
  * Base model ONT-API implementation to work through jena only.
  * This is an analogue of {@link org.apache.jena.ontology.impl.OntModelImpl} to work in accordance with OWL2 DL specification.
- * <p>
- * Created by @ssz on 27.10.2016.
  *
  * @see UnionGraph
  */

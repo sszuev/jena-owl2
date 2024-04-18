@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
 
 /**
  * To test {@link StdModels} and {@link OntModels} utilities.
- * <p>
- * Created by @ssz on 25.04.2018.
  */
 public class ModelUtilsTest {
     @SuppressWarnings("SameParameterValue")

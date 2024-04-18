@@ -16,8 +16,6 @@ import java.util.stream.Stream;
  * Range values for this property are {@link OntDataRange datarange} values
  * (as distinct from object property expression valued {@link OntObjectProperty properties}).
  * In OWL2, a Data Property cannot be anonymous.
- * <p>
- * Created @ssz on 01.11.2016.
  *
  * @see <a href='https://www.w3.org/TR/owl2-syntax/#Data_Properties'>5.4 Data Properties</a>
  */

@@ -4,7 +4,6 @@ import org.apache.jena.rdf.model.RDFNode;
 
 /**
  * A technical interface to provide {@link RDFNodeList} instance.
- * Created by @ssz on 08.05.2019.
  *
  * @param <E> any {@link RDFNode} - a type for list's item
  * @see WithOntList

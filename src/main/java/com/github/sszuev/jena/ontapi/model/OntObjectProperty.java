@@ -24,8 +24,6 @@ import java.util.stream.Stream;
  * named object property (entity) and InverseOf anonymous property expression.
  * Range values for this property expression are restricted to individuals
  * (as distinct from datatype valued {@link OntDataProperty properties}).
- * <p>
- * Created by @ssz on 08.11.2016.
  */
 public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObjectProperty.Named>, HasDisjoint<OntObjectProperty> {
 
@@ -33,7 +31,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
      * {@inheritDoc}
      *
      * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
-     *               i.e. eliminate any properties for which
+     *               i.e., eliminate any properties for which
      *               there is a longer route to reach that parent under the sub-property relation
      * @return <b>distinct</b> {@code Stream} of object property expressions
      * @see #propertyChains()
@@ -45,7 +43,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
      * {@inheritDoc}
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
-     *               i.e. eliminate any property for
+     *               i.e., eliminate any property for
      *               which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of object property expressions
      * @see #propertyChains()
@@ -412,7 +410,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
     }
 
     /**
-     * Adds a disjoint object property (i.e. the {@code _:this owl:propertyDisjointWith @other} statement).
+     * Adds a disjoint object property (i.e., the {@code _:this owl:propertyDisjointWith @other} statement).
      *
      * @param other {@link OntObjectProperty}, not {@code null}
      * @return {@link OntStatement} to allow subsequent annotations adding
@@ -794,9 +792,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
     /**
      * Interface encapsulating an Ontology Named Object Property.
      * It is a URI-{@link Resource Resource} and an extension to the standard jena {@link Property}.
-     * Also? It is an {@link OntEntity OWL Entity} and {@link OntRelationalProperty real ontology property}.
-     * <p>
-     * Created @ssz on 01.11.2016.
+     * Also, It is an {@link OntEntity OWL Entity} and {@link OntRelationalProperty real ontology property}.
      *
      * @see <a href='https://www.w3.org/TR/owl2-syntax/#Object_Properties'>5.3 Object Properties</a>
      */
@@ -806,7 +802,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
          * Creates or finds an inverse of this property.
          * The searching is performed only in the base graph,
          * so it is possible to have more than one anonymous object property expressions
-         * in case the named companion belongs to some sub-graph.
+         * in case the named companion belongs to some subgraph.
          * For a single-graph model a named object property can be answered
          * by one and only one {@code Inverse} object property expression.
          *

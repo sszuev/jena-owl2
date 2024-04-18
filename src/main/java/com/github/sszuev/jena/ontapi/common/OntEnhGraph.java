@@ -20,8 +20,6 @@ import org.apache.jena.rdf.model.RDFNode;
  * replacing one factory with a custom implementation will not break the whole model.
  * More about this see in the description for
  * the method {@link OntObjectPersonalityBuilder#add(Class, EnhNodeFactory)}.
- * <p>
- * Created by @ssz on 18.01.2019.
  */
 @SuppressWarnings("unused")
 public interface OntEnhGraph {

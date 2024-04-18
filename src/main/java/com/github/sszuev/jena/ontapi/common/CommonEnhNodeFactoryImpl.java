@@ -16,8 +16,6 @@ import java.util.Objects;
  * <li>{@link EnhNodeFilter} to test the presence of a node in the graph.</li>
  * <li>{@link EnhNodeFinder} to search for nodes in the graph.</li>
  * </ul>
- * <p>
- * Created @ssz on 07.11.2016.
  */
 public class CommonEnhNodeFactoryImpl extends BaseEnhNodeFactoryImpl {
     private final EnhNodeProducer maker;

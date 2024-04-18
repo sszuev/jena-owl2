@@ -39,8 +39,6 @@ import java.util.stream.Stream;
  * Note, that an empty []-list (i.e. {@link RDF#nil nil}-list) cannot be typed.
  * <p>
  * Using the method {@link #getMainStatement()} it is possible to add annotations with any nesting depth.
- * <p>
- * Created by @ssz on 10.07.2018.
  *
  * @param <E> the type of {@link RDFNode rdf-node}s in this list
  * @see RDFNodeList

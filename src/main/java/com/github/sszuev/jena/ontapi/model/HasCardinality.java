@@ -5,7 +5,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.XSD;
 
 /**
  * A technical interface to provide a non-negative integer value, that is a restriction cardinality.
- * Created by @ssz on 09.05.2019.
  *
  * @see SetCardinality
  */

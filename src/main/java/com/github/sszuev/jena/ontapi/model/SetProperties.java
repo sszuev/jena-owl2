@@ -6,8 +6,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
  * A technical interface to provide a possibility to assign {@link OntDataProperty} properties
  * into {@link OntClass.NaryRestriction n-ary restriction class expression}
  * on predicate {@link OWL#onProperties owl:onProperties}.
- * <p>
- * Created by @ssz on 09.05.2019.
  *
  * @param <P> - any subtype of {@link OntRelationalProperty} in general case, but in the current model it can only be {@link OntDataProperty}
  * @param <R> - return type, a subtype of {@link OntClass.NaryRestriction}

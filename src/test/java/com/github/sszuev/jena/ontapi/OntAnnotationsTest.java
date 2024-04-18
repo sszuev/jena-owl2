@@ -33,7 +33,6 @@ import java.util.List;
 
 /**
  * To test annotated statements ({@link OntStatement}) and annotations within ont objects ({@link OntObject}).
- * Created by @ssz on 28.07.2018.
  */
 public class OntAnnotationsTest {
 
@@ -113,6 +112,7 @@ public class OntAnnotationsTest {
 
         // 8) Deleter all annotations for class `cl`
 
+        //noinspection MappingBeforeCount
         Assertions.assertEquals(2, cl.content().peek(OntStatement::clearAnnotations).count());
 
         Assertions.assertEquals(0, cl.annotations().count(), "Found annotations for class " + cl);
@@ -374,6 +374,7 @@ public class OntAnnotationsTest {
         Assertions.assertEquals(base, annotation.getBase());
         Assertions.assertFalse(annotation.parent().isPresent());
         Assertions.assertEquals(2, annotation.annotations().count());
+        //noinspection MappingBeforeCount
         Assertions.assertEquals(1, annotation.descendants()
                 .peek(x -> Assertions.assertEquals(annotation, x.parent().orElseThrow(AssertionError::new)))
                 .count());
@@ -460,6 +461,7 @@ public class OntAnnotationsTest {
 
         Assertions.assertEquals(an1, base.asAnnotationResource().orElseThrow(AssertionError::new));
         Assertions.assertEquals(3, an1.inModel(model).as(OntAnnotation.class).annotations().count());
+        //noinspection MappingBeforeCount
         Assertions.assertEquals(1, an1.inModel(model).as(OntAnnotation.class)
                 .descendants()
                 .peek(x -> Assertions.assertEquals(an1, x.parent().orElseThrow(AssertionError::new)))

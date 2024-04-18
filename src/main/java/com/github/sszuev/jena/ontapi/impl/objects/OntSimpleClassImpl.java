@@ -27,8 +27,6 @@ import java.util.stream.Stream;
  * Instance of this class as a class with unknown nature is only available in a spec with corresponding permissions
  * ({@link OntModelControls}).
  * Specialized classes have their own implementations ({@link NamedImpl} or {@link OntClassImpl}).
- * <p>
- * Created @ssz on 03.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public class OntSimpleClassImpl extends OntObjectImpl implements OntClass {

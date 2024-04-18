@@ -5,8 +5,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 /**
  * A technical interface to access {@link P} property
  * on predicate {@link OWL#onProperty owl:onProperty}.
- * <p>
- * Created by @ssz on 09.05.2019.
  *
  * @param <P> - {@link OntRelationalProperty Data or Object} property expression
  * @see SetProperty

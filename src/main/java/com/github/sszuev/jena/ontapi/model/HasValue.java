@@ -7,8 +7,6 @@ import org.apache.jena.rdf.model.RDFNode;
  * A technical generic interface to provide {@link RDFNode} value,
  * which can be either {@link OntClass}, {@link OntDataRange}, {@link OntIndividual} or {@link org.apache.jena.rdf.model.Literal}.
  * This interface is used to construct {@link OntClass class expression}s and {@link OntDataRange data range}s as a base.
- * <p>
- * Created by @ssz on 08.05.2019.
  *
  * @param <V> a subtype of {@link RDFNode}: {@link OntClass}, {@link OntDataRange}, {@link OntIndividual}
  *            or {@link org.apache.jena.rdf.model.Literal}

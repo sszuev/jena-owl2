@@ -21,8 +21,6 @@ import java.util.stream.Stream;
 /**
  * Property Expression base impl-class.
  * No functionality, just a collection of factories related to all OWL property-expressions.
- * <p>
- * Created by @ssz on 08.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntPropertyImpl extends OntObjectImpl implements OntProperty {

@@ -12,8 +12,6 @@ import org.junit.jupiter.api.Test;
 
 /**
  * To test {@link OntIndividual}.
- * <p>
- * Created by @ssz on 11.05.2019.
  */
 public class OntIndividualMiscTest {
 

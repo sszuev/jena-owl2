@@ -23,9 +23,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Created by @ssz on 10.07.2019.
- */
 public class StreamsTest {
 
     private static final Map<Integer, String> SPLITERATOR_CONSTANTS = getSpliteratorConstants();

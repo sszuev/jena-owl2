@@ -6,8 +6,6 @@ import org.apache.jena.rdf.model.Resource;
  * Vocabulary definition for the <a href="https://www.w3.org/TR/owl2-syntax/">OWL 2 Web Ontology Language</a>
  * See <a href="http://www.w3.org/2002/07/owl#">schema(ttl)</a>
  * Note: {@code owl:real} and {@code owl:rational} are absent in the schema and standard jena vocabulary (don't know why).
- * <p>
- * Created by @ssz on 21.12.2016.
  */
 public class OWL extends org.apache.jena.vocabulary.OWL2 {
 

@@ -23,8 +23,6 @@ import java.util.stream.Stream;
  * A class-helper to perform the preliminary resource search in a model.
  * Subsequently, the search result Stream will be filtered by the {@link EnhNodeFilter} instance.
  * Used as a component in {@link CommonEnhNodeFactoryImpl default factory} and {@link CompositeEnhNodeFactoryImpl} implementations
- * <p>
- * Created @ssz on 07.11.2016.
  */
 @FunctionalInterface
 public interface EnhNodeFinder {

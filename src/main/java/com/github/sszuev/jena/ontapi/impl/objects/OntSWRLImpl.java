@@ -30,8 +30,6 @@ import java.util.Optional;
 
 /**
  * Ont SWRL Object Implementation.
- * <p>
- * Created by @ssz on 18.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public class OntSWRLImpl extends OntObjectImpl implements OntSWRL {

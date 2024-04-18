@@ -48,8 +48,6 @@ import java.util.Set;
 /**
  * Settings and personalities that are used for constructing {@link OntModel}.
  * An access point to several predefined {@link OntPersonality Ontology Personality} constants.
- * <p>
- * Created by @ssz on 04.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public class OntPersonalities {

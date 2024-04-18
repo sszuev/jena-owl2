@@ -5,8 +5,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 /**
  * A technical interface to provide a possibility to assign {@link OntRelationalProperty data or object} property
  * into {@link OntClass.Restriction restriction class expression}.
- * <p>
- * Created by @ssz on 09.05.2019.
  *
  * @param <P> {@link OntRelationalProperty data or object} property expression
  * @param <R> - return type, a subtype of {@link OntClass.Restriction}

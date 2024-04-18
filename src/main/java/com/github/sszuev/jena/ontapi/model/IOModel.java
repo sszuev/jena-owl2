@@ -10,7 +10,6 @@ import java.io.Writer;
 /**
  * A technical interface that describes model I/O operations.
  * Contains overridden read/write methods inherited from {@link Model}.
- * Created by @ssz on 15.03.2020.
  *
  * @param <R> - subtype of {@link Model}, the model to return
  * @see <a href="http://jena.apache.org/documentation/io/index.html">"Reading and Writing RDF in Apache Jena"</a>

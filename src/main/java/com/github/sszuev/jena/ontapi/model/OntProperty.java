@@ -10,8 +10,6 @@ import java.util.stream.Stream;
  * An abstraction for any Ontology Property Expression.
  * In OWL2 there are four such property expressions:
  * Data Property, Object Property (OWL Entity and InverseOf) and Annotation Property.
- * <p>
- * Created by @ssz on 02.11.2016.
  *
  * @see <a href='https://www.w3.org/TR/owl2-quick-reference/'>2.2 Properties</a>
  * @see OntObjectProperty
@@ -44,9 +42,9 @@ public interface OntProperty extends OntObject {
      * the sub-properties iterator will include {@code D}.
      * The {@code direct} sub-properties are those members of the closure of the subPropertyOf relation,
      * restricted to properties that cannot be reached by a longer route,
-     * i.e. the ones that are <em>directly</em> adjacent to the given root.
+     * i.e., the ones that are <em>directly</em> adjacent to the given root.
      * Thus, the direct sub-properties of {@code A} are {@code B} and {@code C} only, and not {@code D} - even in an inferencing graph.
-     * Note that this is not the same as the entailments from the raw graph.
+     * Note that this is different from the entailments from the raw graph.
      * Suppose we add to this example:
      * <pre>{@code
      *   :D rdfs:subPropertyOf :A.
@@ -83,9 +81,9 @@ public interface OntProperty extends OntObject {
      * so the super-property iterator will include {@code D}.
      * The {@code direct} super-properties are those members of the closure of the inverse-subPropertyOf relation,
      * restricted to properties that cannot be reached by a longer route,
-     * i.e. the ones that are <em>directly</em> adjacent to the given root.
+     * i.e., the ones that are <em>directly</em> adjacent to the given root.
      * Thus, the direct super-property of {@code A} are {@code B} and {@code C} only, and not {@code D} - even in an inferencing graph.
-     * Note that this is not the same as the entailments from the raw graph.
+     * Note that this is different from the entailments from the raw graph.
      * Suppose we add to this example:
      * <pre>{@code
      *   :A rdfs:subPropertyOf :D .
@@ -133,7 +131,7 @@ public interface OntProperty extends OntObject {
      * for more details see the
      * <a href="https://jena.apache.org/documentation/notes/rdf-frames.html">Apache Jena: Presenting RDF as frames</a>
      * <p>
-     * The behaviour of this method must be identical to the behaviour of the Jena method
+     * The behavior of this method must be identical to the behavior of the Jena method
      * {@link org.apache.jena.ontology.OntProperty#listDeclaringClasses(boolean)}.
      *
      * @param direct {@code boolean} if {@code true}, use only <em>direct</em> associations between classes and properties
@@ -207,7 +205,7 @@ public interface OntProperty extends OntObject {
     /**
      * Removes the specified domain resource (predicate is {@link RDFS#domain rdfs:domain}),
      * including the corresponding statement's annotations.
-     * No-op in case no such domain found.
+     * No-op in case no such domain is found.
      * Removes all domains if {@code null} is specified.
      *
      * @param domain {@link Resource}, or {@code null} to remove all domains

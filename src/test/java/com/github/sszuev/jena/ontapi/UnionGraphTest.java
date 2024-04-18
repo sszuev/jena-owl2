@@ -3,7 +3,6 @@ package com.github.sszuev.jena.ontapi;
 import com.github.sszuev.jena.ontapi.impl.UnionGraphImpl;
 import com.github.sszuev.jena.ontapi.model.OntModel;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
-import com.github.sszuev.jena.ontapi.testutils.UnmodifiableGraph;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +15,8 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shared.AddDeniedException;
 import org.apache.jena.shared.ClosedException;
 import org.apache.jena.shared.DeleteDeniedException;
-import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.shared.JenaException;
+import org.apache.jena.sparql.graph.GraphReadOnly;
 import org.apache.jena.sparql.graph.GraphWrapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 
 /**
  * To test {@link UnionGraph}.
- * <p>
- * Created by @ssz on 21.10.2018.
  */
 @SuppressWarnings("WeakerAccess")
 public class UnionGraphTest {
@@ -107,7 +105,7 @@ public class UnionGraphTest {
         Graph base = GraphMemFactory.createDefaultGraph();
         base.getPrefixMapping().setNsPrefixes(OntModelFactory.STANDARD);
         base.add(a);
-        Graph unmodified = new UnmodifiableGraph(base);
+        Graph unmodified = new GraphReadOnly(base);
         Assertions.assertEquals(1, unmodified.find().toSet().size());
         Assertions.assertEquals(4, unmodified.getPrefixMapping().numPrefixes());
 
@@ -117,7 +115,7 @@ public class UnionGraphTest {
         try {
             u.getPrefixMapping().setNsPrefix("x", "http://x#");
             Assertions.fail("Possible to add prefix");
-        } catch (PrefixMapping.JenaLockedException lj) {
+        } catch (JenaException lj) {
             // expected
         }
 

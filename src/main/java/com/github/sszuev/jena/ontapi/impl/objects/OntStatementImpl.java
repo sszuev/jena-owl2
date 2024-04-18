@@ -43,8 +43,6 @@ import java.util.stream.Stream;
  * for more details see {@link OntAnnotation}).
  * The examples of how to write bulk-annotations in RDF-graph see here:
  * <a href="https://www.w3.org/TR/owl2-mapping-to-rdf/#Translation_of_Annotations">2.2 Translation of Annotations</a>.
- * <p>
- * Created by @ssz on 12.11.2016.
  *
  * @see OntAnnotationImpl
  */

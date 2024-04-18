@@ -9,8 +9,6 @@ import java.util.stream.Stream;
 
 /**
  * A base for SWRL addition.
- * <p>
- * Created by @ssz on 02.11.2016.
  *
  * @see SWRL
  * @see <a href='https://www.w3.org/Submission/SWRL'>specification</a>
@@ -93,7 +91,7 @@ public interface OntSWRL extends OntObject {
     interface Atom<P extends OntObject> extends OntSWRL {
 
         /**
-         * Returns the atom predicate, which can be one of the following:
+         * Returns the atom's predicate, which can be one of the following:
          * {@link OntDataRange}, {@link OntObjectProperty}, {@link OntDataProperty}, {@link OntClass}, URI-{@link Resource}, {@link Property}.
          *
          * @return RDFNode
@@ -114,7 +112,7 @@ public interface OntSWRL extends OntObject {
             /**
              * Gets the argument's ONT-List.
              * Note that the returned list is <b>not</b> expected to be typed,
-             * i.e. there is neither {@code _:x rdf:type rdf:List}
+             * i.e., there is neither {@code _:x rdf:type rdf:List}
              * or {@code _:x rdf:type swrl:AtomList} statements for each its items.
              *
              * @return {@link OntList} of {@link DArg}s

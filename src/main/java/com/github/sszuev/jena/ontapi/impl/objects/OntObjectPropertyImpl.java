@@ -31,8 +31,6 @@ import java.util.stream.Stream;
  * Implementation of the Object Property Expression abstraction.
  * Named instances should have a {@link OWL#ObjectProperty owl:ObjectProperty} type declarations.
  * Anonymous instances should have {@link OWL#inverseOf owl:inverseOf} predicate.
- * <p>
- * Created @ssz on 03.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements OntObjectProperty {

@@ -5,8 +5,6 @@ import com.github.sszuev.jena.ontapi.vocabulary.XSD;
 
 /**
  * A technical interface to set new cardinality value.
- * <p>
- * Created by @ssz on 09.05.2019.
  *
  * @param <R> - return type, a subtype of {@link OntClass.CardinalityRestriction}
  * @see HasCardinality

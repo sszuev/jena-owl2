@@ -24,8 +24,6 @@ import java.util.stream.Stream;
  * {@link OntEnhGraph}).
  * <p>
  * TODO: consider a possibility to replace {@link EnhGraph} with {@link OntEnhGraph}.
- * <p>
- * Created by @ssz on 03.11.2016.
  *
  * @see OntPersonality
  * @see OntEnhGraph

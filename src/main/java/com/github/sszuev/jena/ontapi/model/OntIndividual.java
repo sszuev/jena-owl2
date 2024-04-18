@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 
 /**
  * Interface for named and anonymous individuals.
- * <p>
- * Created by @ssz on 02.11.2016.
  */
 @SuppressWarnings("rawtypes")
 public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, HasDisjoint<OntIndividual> {
@@ -475,8 +473,6 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
 
     /**
      * An interface for <b>Named</b> Individual which is an {@link OWL Entity OntEntity}.
-     * <p>
-     * Created @ssz on 01.11.2016.
      *
      * @see <a href='https://www.w3.org/TR/owl2-syntax/#Named_Individuals'>5.6.1 Named Individuals</a>
      */
@@ -512,8 +508,6 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
      * <li>it is a subject or an object in a triple which corresponds object property assertion {@code _:a1 PN _:a2}
      * (where {@code PN} is a {@link OntObjectProperty.Named named object property}, and {@code _:ai} are individuals)</li>
      * </ul>
-     * <p>
-     * Created @ssz on 10.11.2016.
      *
      * @see <a href='https://www.w3.org/TR/owl2-syntax/#Anonymous_Individuals'>5.6.2 Anonymous Individuals</a>
      */

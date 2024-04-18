@@ -10,8 +10,6 @@ import java.util.Set;
 /**
  * The base interface for OWL entities, which are always URI-{@link org.apache.jena.rdf.model.Resource}.
  * In OWL2 there are <b>6</b> types of entities, see below.
- * <p>
- * Created @ssz on 01.11.2016.
  *
  * @see OntClass.Named
  * @see OntDataRange.Named

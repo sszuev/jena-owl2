@@ -43,8 +43,6 @@ import java.util.stream.Stream;
 
 /**
  * Default OntList implementation.
- * <p>
- * Created by @ssz on 10.07.2018.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntListImpl<E extends RDFNode> extends ResourceImpl implements OntList<E> {

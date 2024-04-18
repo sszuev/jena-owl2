@@ -14,8 +14,6 @@ import org.apache.jena.graph.Node;
  * Used to bind implementation (node) and interface.
  * Also, in addition to the standard jena methods,
  * this implementation includes nodes' search and graph transformation functionality.
- * <p>
- * Created by @ssz on 03.11.2016.
  */
 public abstract class BaseEnhNodeFactoryImpl extends Implementation implements EnhNodeFactory {
 

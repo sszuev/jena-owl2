@@ -27,8 +27,6 @@ import java.util.stream.Stream;
 
 /**
  * Implementation for anonymous {@code owl:AllDisjointProperties}, {@code owl:AllDisjointClasses}, {@code owl:AllDifferent} sections.
- * <p>
- * Created by @ssz on 15.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntDisjointImpl<O extends OntObject> extends OntObjectImpl implements OntDisjoint<O> {

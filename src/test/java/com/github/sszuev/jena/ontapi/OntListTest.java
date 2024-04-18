@@ -35,9 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Created by @ssz on 10.07.2018.
- */
 public class OntListTest {
 
     private static OntStatement getSingleAnnotation(OntList<?> list) {

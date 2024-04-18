@@ -30,8 +30,6 @@ import java.util.List;
 /**
  * The acceptance reasoner tests.
  * Modified copy-paste from jena-core-tests (org.apache.jena.reasoner.test.ManualExample)
- * <p>
- * Created @ssz on 26.04.2017.
  */
 public class JenaReasonerTest {
 

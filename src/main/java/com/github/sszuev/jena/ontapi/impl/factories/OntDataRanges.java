@@ -123,8 +123,6 @@ final class OntDataRanges {
      * this variant with explicit methods must be a little faster,
      * since there is a reduction of number of some possible repetition calls.
      * Also, everything here is under control.
-     * <p>
-     * Created by @ssz on 02.02.2019.
      */
     public static class Factory extends BaseEnhNodeFactoryImpl {
         private static final Node TYPE = RDF.Nodes.type;

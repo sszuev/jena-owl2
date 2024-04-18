@@ -11,8 +11,6 @@ import java.util.stream.Stream;
 /**
  * A common (abstract) interface for any Ontology Data and Object Property expressions.
  * In OWL2 terms it is any {@link OntProperty Property Expression} minus {@link OntAnnotationProperty Annotation Property}.
- * <p>
- * Created by @ssz on 21.07.2018.
  */
 public interface OntRelationalProperty extends OntProperty {
 
@@ -20,7 +18,7 @@ public interface OntRelationalProperty extends OntProperty {
      * {@inheritDoc}
      *
      * @param direct {@code boolean} if {@code true} answers the directly adjacent properties in the sub-property relation:
-     *               i.e. eliminate any properties for which there is a longer route to reach that parent under the sub-property relation
+     *               i.e., eliminate any properties for which there is a longer route to reach that parent under the sub-property relation
      * @return <b>distinct</b> {@code Stream} of data <b>or</b> object properties
      */
     Stream<? extends OntRelationalProperty> subProperties(boolean direct);
@@ -29,14 +27,14 @@ public interface OntRelationalProperty extends OntProperty {
      * {@inheritDoc}
      *
      * @param direct {@code boolean}: if {@code true} answers the directly adjacent properties in the super-property relation,
-     *               i.e. eliminate any property for which there is a longer route to reach that parent under the super-property relation
+     *               i.e., eliminate any property for which there is a longer route to reach that parent under the super-property relation
      * @return <b>distinct</b> {@code Stream} of data <b>or</b> object properties
      */
     Stream<? extends OntRelationalProperty> superProperties(boolean direct);
 
     /**
      * Lists all property ranges,
-     * i.e. all objects from statements with this property as a subject and {@code rdfs:range} as predicate.
+     * i.e., all objects from statements with this property as a subject and {@code rdfs:range} as predicate.
      *
      * @return {@code Stream} of {@link OntObject ontology object}s
      */

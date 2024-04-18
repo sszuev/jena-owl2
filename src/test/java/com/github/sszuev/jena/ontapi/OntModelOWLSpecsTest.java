@@ -20,7 +20,6 @@ import com.github.sszuev.jena.ontapi.model.OntStatement;
 import com.github.sszuev.jena.ontapi.testutils.MiscUtils;
 import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.testutils.RDFIOTestUtils;
-import com.github.sszuev.jena.ontapi.utils.StdModels;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
 import com.github.sszuev.jena.ontapi.vocabulary.XSD;
@@ -58,8 +57,6 @@ import java.util.stream.Stream;
 
 /**
  * To test {@link OntModel} and all its related functionality.
- * <p>
- * Created @ssz on 07.11.2016.
  */
 public class OntModelOWLSpecsTest {
 
@@ -607,44 +604,44 @@ public class OntModelOWLSpecsTest {
         // nap:
         OntNegativeAssertion<?, ?> npa1 = p1.addNegativeAssertion(i1, m.createLiteral("xxx"));
 
-        Assertions.assertEquals(1, class1.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(4, class1.content().map(StdModels::toString).count());
+        Assertions.assertEquals(1, class1.spec().count());
+        Assertions.assertEquals(4, class1.content().count());
 
-        Assertions.assertEquals(6, class2.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(7, class2.content().map(StdModels::toString).count());
+        Assertions.assertEquals(6, class2.spec().count());
+        Assertions.assertEquals(7, class2.content().count());
 
-        Assertions.assertEquals(3, class3.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(3, class3.content().map(StdModels::toString).count());
+        Assertions.assertEquals(3, class3.spec().count());
+        Assertions.assertEquals(3, class3.content().count());
 
-        Assertions.assertEquals(4, class4.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(4, class4.content().map(StdModels::toString).count());
+        Assertions.assertEquals(4, class4.spec().count());
+        Assertions.assertEquals(4, class4.content().count());
 
-        Assertions.assertEquals(0, class5.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(1, class5.content().map(StdModels::toString).count());
+        Assertions.assertEquals(0, class5.spec().count());
+        Assertions.assertEquals(1, class5.content().count());
 
-        Assertions.assertEquals(3, class6.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(3, class6.content().map(StdModels::toString).count());
+        Assertions.assertEquals(3, class6.spec().count());
+        Assertions.assertEquals(3, class6.content().count());
 
-        Assertions.assertEquals(3, class7.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(3, class7.content().map(StdModels::toString).count());
+        Assertions.assertEquals(3, class7.spec().count());
+        Assertions.assertEquals(3, class7.content().count());
 
-        Assertions.assertEquals(0, dr1.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(0, dr1.content().map(StdModels::toString).count());
+        Assertions.assertEquals(0, dr1.spec().count());
+        Assertions.assertEquals(0, dr1.content().count());
 
-        Assertions.assertEquals(6, dr2.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(6, dr2.content().map(StdModels::toString).count());
+        Assertions.assertEquals(6, dr2.spec().count());
+        Assertions.assertEquals(6, dr2.content().count());
 
-        Assertions.assertEquals(2, dr3.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(2, dr3.content().map(StdModels::toString).count());
+        Assertions.assertEquals(2, dr3.spec().count());
+        Assertions.assertEquals(2, dr3.content().count());
 
-        Assertions.assertEquals(1, i1.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(6, i1.content().map(StdModels::toString).count());
+        Assertions.assertEquals(1, i1.spec().count());
+        Assertions.assertEquals(6, i1.content().count());
 
-        Assertions.assertEquals(0, i2.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(1, i2.content().map(StdModels::toString).count());
+        Assertions.assertEquals(0, i2.spec().count());
+        Assertions.assertEquals(1, i2.content().count());
 
-        Assertions.assertEquals(4, npa1.spec().map(StdModels::toString).count());
-        Assertions.assertEquals(4, npa1.content().map(StdModels::toString).count());
+        Assertions.assertEquals(4, npa1.spec().count());
+        Assertions.assertEquals(4, npa1.content().count());
     }
 
     @ParameterizedTest

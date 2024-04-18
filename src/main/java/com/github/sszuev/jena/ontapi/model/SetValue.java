@@ -9,8 +9,6 @@ import org.apache.jena.rdf.model.RDFNode;
  * A value can be either {@link OntClass}, {@link OntDataRange}, {@link OntIndividual}
  * or {@link org.apache.jena.rdf.model.Literal}, depending on a concrete {@link OntClass} or {@link OntDataRange} type.
  * This interface is used to construct {@link OntClass class expression}s and {@link OntDataRange data range}s as a base.
- * <p>
- * Created by @ssz on 08.05.2019.
  *
  * @param <V> - any subtype of {@link RDFNode} ({@link OntClass}, {@link OntDataRange}, {@link OntIndividual}
  *            or {@link org.apache.jena.rdf.model.Literal}).

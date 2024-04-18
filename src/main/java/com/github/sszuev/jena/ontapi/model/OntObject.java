@@ -17,8 +17,6 @@ import java.util.stream.Stream;
  * A common super-type for all the abstractions in the {@link OntModel Ontology RDF Model},
  * which support Jena Polymorphism,
  * can be annotated and have a structure strictly defined according to the OWL2 specification.
- * <p>
- * Created @ssz on 01.11.2016.
  */
 public interface OntObject extends OntResource {
 
@@ -40,13 +38,13 @@ public interface OntObject extends OntResource {
      * in the form of annotation property assertions (so-called 'plain annotations'),
      * not as typed anonymous resources (so-called 'bulk annotations', {@link OntAnnotation}).
      * In ONT-API it is legal for a main statement to have both plain and bulk annotations.
-     * Note: for anonymous ontology objects (i.e. not for OWL Entities) this behaviour may not fully meet
+     * Note: for anonymous ontology objects (i.e., not for OWL Entities) this behavior may not fully meet
      * OWL2 specification: the specification describes only bulk annotations
      * for all anonymous OWL2 components with except of an individual.
      * To get a common ontology statement that supports bulk annotations only,
      * the expression {@code getModel().asStatement(this.getMainStatement().asTriple())} can be used.
      *
-     * @return {@link OntStatement} or {@code null} in some boundary cases (e.g. for builtins)
+     * @return {@link OntStatement} or {@code null} in some boundary cases (e.g., for builtins)
      * @see OntModel#asStatement(Triple)
      * @see OntStatement#addAnnotation(OntAnnotationProperty, RDFNode)
      */
@@ -66,7 +64,7 @@ public interface OntObject extends OntResource {
     Stream<OntStatement> spec();
 
     /**
-     * Lists the content of the object, i.e. all characteristic statements (see {@link #spec()}),
+     * Lists the content of the object, i.e., all characteristic statements (see {@link #spec()}),
      * plus all additional statements in which this object is the subject,
      * minus those of them whose predicate is an annotation property (annotations are not included).
      *
@@ -109,7 +107,7 @@ public interface OntObject extends OntResource {
     Stream<OntStatement> statements(Property property);
 
     /**
-     * Lists all top-level statements related to this object (i.e. with subject={@code this}).
+     * Lists all top-level statements related to this object (i.e., with subject={@code this}).
      *
      * @return {@code Stream} of all statements
      * @see #listProperties()
@@ -193,7 +191,7 @@ public interface OntObject extends OntResource {
      * @param predicate {@link OntAnnotationProperty}, not {@code null}
      * @param lang      String, the language tag to restrict the listed literals to,
      *                  or {@code null} to select all literals
-     * @return {@code Stream} of String's, i.e. literal lexical forms
+     * @return {@code Stream} of String's, i.e., literal lexical forms
      * @see #annotationValues(OntAnnotationProperty)
      */
     Stream<String> annotationValues(OntAnnotationProperty predicate, String lang);

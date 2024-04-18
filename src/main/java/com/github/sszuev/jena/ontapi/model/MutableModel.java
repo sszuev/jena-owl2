@@ -15,7 +15,6 @@ import java.util.List;
 /**
  * A technical interface that describes model modify operations.
  * Contains overridden methods inherited from {@link Model} and {@link ModelCon}:
- * Created by @ssz on 15.03.2020.
  *
  * @param <R> - a subtype of {@link Model}, the type to return
  */

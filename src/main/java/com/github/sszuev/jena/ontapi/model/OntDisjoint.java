@@ -10,8 +10,6 @@ import java.util.stream.Stream;
  * {@code owl:AllDisjointProperties}, {@code owl:AllDisjointClasses}, {@code owl:AllDifferent}).
  * The resource is looks like this example:
  * {@code _:x rdf:type owl:AllDisjointProperties; _:x owl:members ( R1 ... Rn ).}.
- * <p>
- * Created by @ssz on 15.11.2016.
  *
  * @param <O> - {@link OntIndividual individual}, {@link OntClass class expression},
  *            {@link OntObjectProperty object property expression} or {@link OntDataProperty data property}

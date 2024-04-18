@@ -15,16 +15,13 @@ import org.apache.jena.rdf.model.RDFNode;
  * _:x owl:assertionProperty P ;
  * _:x owl:targetIndividual a2 .
  * }</pre>
- * In turn, a Negative Data Property Assertion looks like following:
+ * In turn, a Negative Data Property Assertion looks like the following:
  * <pre>{@code
  * _:x rdf:type owl:NegativePropertyAssertion ;
  * _:x owl:sourceIndividual a ;
  * _:x owl:assertionProperty R ;
  * _:x owl:targetValue v .
  * }</pre>
- *
- * <p>
- * Created by @ssz on 15.11.2016.
  *
  * @param <P> - either {@link OntObjectProperty object property expression} or {@link OntDataProperty data property}
  * @param <V> - either {@link OntIndividual} or {@link Literal}

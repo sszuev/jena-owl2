@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 
 /**
  * An Ontology ID Implementation.
- * Created @ssz on 09.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public class OntIDImpl extends OntObjectImpl implements OntID {

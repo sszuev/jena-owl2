@@ -38,8 +38,6 @@ import java.util.stream.Stream;
  * Also, it allows recursion, that is, it can contain itself somewhere in the hierarchy.
  * The {@link PrefixMapping} of this graph is taken from the base graph,
  * and, therefore, any changes in it reflect both the base and this graph.
- * <p>
- * Created @ssz on 28.10.2016.
  */
 @SuppressWarnings({"WeakerAccess"})
 public class UnionGraphImpl extends CompositionBase implements UnionGraph {

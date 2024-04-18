@@ -2,8 +2,7 @@ package com.github.sszuev.jena.ontapi.model;
 
 /**
  * Provides a "sugar" functionality to represent an expression as an entity.
- * Just in convenience sake.
- * Created by @ssz on 09.03.2020.
+ * Just for convenience’s sake.
  *
  * @param <E> - an {@link OntEntity} instance
  */

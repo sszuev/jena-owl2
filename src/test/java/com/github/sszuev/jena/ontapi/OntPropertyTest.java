@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
  * {@link OntDataProperty},
  * {@link OntRelationalProperty},
  * {@link OntAnnotationProperty}.
- * <p>
- * Created by @ssz on 08.05.2019.
  */
 public class OntPropertyTest {
 

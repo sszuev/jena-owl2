@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
  * A class-helper to work with {@link Model Jena Model}s and its related objects and components:
  * {@link RDFNode Jena RDF Node}, {@link Literal Jena Literal}, {@link Resource Jena Resource} and
  * {@link Statement Jena Statement}.
- * <p>
- * Created @ssz on 20.10.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public class StdModels {
@@ -70,7 +68,8 @@ public class StdModels {
 
     /**
      * Creates a typed list with the given type containing the resources from the given iterator.
-     * A typed list is an anonymous resource that is created using the same rules as the standard {@link RDFList []-list}
+     * A typed list is an anonymous resource
+     * created using the same rules as the standard {@link RDFList []-list}
      * (that is, using {@link RDF#first rdf:first}, {@link RDF#rest rdf:rest} and {@link RDF#nil rdf:nil} predicates),
      * but each item of this []-list has the specified type on predicate {@link RDF#type rdf:type}.
      *
@@ -116,7 +115,7 @@ public class StdModels {
     }
 
     /**
-     * Replaces namespaces map with new one.
+     * Replaces namespaces' map with new one.
      *
      * @param mapping  {@link PrefixMapping Prefix Mapping} to modify
      * @param prefixes java Map of new prefixes to set

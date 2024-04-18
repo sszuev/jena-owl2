@@ -46,8 +46,6 @@ import java.util.stream.Stream;
 
 /**
  * This is an enumeration of all entities (configurable-)factories.
- * <p>
- * Created @ssz on 03.11.2016.
  *
  * @see OntEntity
  */

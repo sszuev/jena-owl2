@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 
 /**
  * All test-cases related to {@link OntDataRange}.
- * <p>
- * Created by @ssz on 11.05.2019.
  */
 public class OntDatatypeTest {
 

@@ -15,8 +15,6 @@ import java.util.Objects;
  * It is a facility to provide implicit links between {@link EnhNodeFactory object factories}.
  * For more details see the {@link OntEnhGraph} description and also the description for
  * the method {@link OntObjectPersonalityBuilder#add(Class, EnhNodeFactory)}.
- * <p>
- * Created by @ssz on 18.01.2019.
  *
  * @see OntEnhNodeFactories
  */

@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 /**
  * To filter resources.
  * Used by {@link CommonEnhNodeFactoryImpl default factory} and {@link CompositeEnhNodeFactoryImpl} implementations as a component.
- * <p>
- * Created @ssz on 07.11.2016.
  */
 @FunctionalInterface
 public interface EnhNodeFilter {

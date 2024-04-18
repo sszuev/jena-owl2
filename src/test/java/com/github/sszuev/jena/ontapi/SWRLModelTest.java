@@ -25,9 +25,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 
-/**
- * Created by @ssz on 09.03.2019.
- */
 public class SWRLModelTest {
 
     private static OntSWRL.Variable getVariable(OntModel m, String localName) {
@@ -85,9 +82,9 @@ public class SWRLModelTest {
         Assertions.assertEquals(4, atom5.spec().count());
 
         // literals(2) and variables(1):
-        Assertions.assertEquals(3, m.ontObjects(OntSWRL.DArg.class).map(String::valueOf).count());
+        Assertions.assertEquals(3, m.ontObjects(OntSWRL.DArg.class).count());
         // individuals(2 anonymous, 1 named) and variables(1):
-        Assertions.assertEquals(4, m.ontObjects(OntSWRL.IArg.class).map(String::valueOf).count());
+        Assertions.assertEquals(4, m.ontObjects(OntSWRL.IArg.class).count());
 
         Assertions.assertEquals(1, m.ontObjects(OntSWRL.Builtin.class).count());
 
@@ -98,6 +95,7 @@ public class SWRLModelTest {
         Assertions.assertEquals(1, m.ontObjects(OntSWRL.Imp.class).count());
         Assertions.assertEquals(8, m.ontObjects(OntSWRL.class).count());
 
+        //noinspection MappingBeforeCount
         Assertions.assertEquals(5, m.statements(null, RDF.type, SWRL.AtomList)
                 .map(OntStatement::getSubject)
                 .map(s -> s.as(RDFList.class))

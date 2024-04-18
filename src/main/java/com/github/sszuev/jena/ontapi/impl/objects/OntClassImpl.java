@@ -55,8 +55,6 @@ import java.util.stream.Stream;
 
 /**
  * A base class for any class-expression implementation.
- * <p>
- * Created @ssz on 03.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntClassImpl extends OntObjectImpl implements OntClass {

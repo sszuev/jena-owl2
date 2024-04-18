@@ -8,7 +8,6 @@ import java.util.Collection;
 
 /**
  * A technical interface to generate {@link OntClass Class Expression}s.
- * Created by @ssz on 13.05.2019.
  */
 interface CreateClasses {
 

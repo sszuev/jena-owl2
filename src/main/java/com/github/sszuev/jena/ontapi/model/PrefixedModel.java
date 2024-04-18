@@ -7,7 +7,6 @@ import java.util.Map;
 /**
  * A technical interface that describes model prefix operations.
  * Contains overridden methods inherited from {@link PrefixMapping}.
- * Created by @ssz on 15.03.2020.
  *
  * @param <R> - subtype of {@link PrefixMapping}, the type to return
  */

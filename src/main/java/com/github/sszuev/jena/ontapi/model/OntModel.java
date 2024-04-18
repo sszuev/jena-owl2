@@ -49,8 +49,6 @@ import java.util.stream.Stream;
  * The interface does not extend {@link InfModel},
  * but the inference model can be accessed via {@link OntModel#asInferenceModel()}.
  * If implementation does not provide inference support, the method will throw an exception.
- * <p>
- * Created by @ssz on 11.11.2016.
  *
  * @see org.apache.jena.ontology.OntModel
  * @see <a href='https://www.w3.org/TR/owl2-mapping-to-rdf'>OWL2 RDF mapping</a>

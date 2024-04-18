@@ -5,8 +5,6 @@ import org.apache.jena.rdf.model.RDFNode;
 
 /**
  * Named Ontology property: {@link OntAnnotationProperty}, {@link OntDataProperty} and {@link OntObjectProperty.Named}.
- * <p>
- * Created by @ssz on 20.01.2019.
  *
  * @param <P> subtype of {@link OntNamedProperty}
  */

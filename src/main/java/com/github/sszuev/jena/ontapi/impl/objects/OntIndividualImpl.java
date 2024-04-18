@@ -29,8 +29,6 @@ import java.util.stream.Stream;
 
 /**
  * An {@link OntIndividual} implementation, both for anonymous and named individuals.
- * <p>
- * Created @ssz on 09.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntIndividualImpl extends OntObjectImpl implements OntIndividual {

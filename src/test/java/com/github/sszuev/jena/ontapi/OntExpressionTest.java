@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 
 /**
  * To test {@link OntClass class expression}s mostly.
- * <p>
- * Created by @ssz on 08.05.2019.
  */
 public class OntExpressionTest {
 

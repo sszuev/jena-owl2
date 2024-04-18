@@ -18,8 +18,6 @@ import java.util.function.BiFunction;
  * To make some preparation while creating (create main triple).
  * Also, to create new instance of the resource ({@link EnhNode}).
  * Used in factory ({@link CommonEnhNodeFactoryImpl}).
- * <p>
- * Created @ssz on 07.11.2016.
  */
 public interface EnhNodeProducer {
 

@@ -28,8 +28,6 @@ import java.util.stream.Stream;
 
 /**
  * A helper (factory) to produce {@link EnhNodeFactory EnhNode factories} instances or its components.
- * <p>
- * Created by @ssz on 19.01.2019.
  */
 public class OntEnhNodeFactories {
 

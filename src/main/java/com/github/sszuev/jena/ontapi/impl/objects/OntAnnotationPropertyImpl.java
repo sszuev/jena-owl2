@@ -18,8 +18,6 @@ import java.util.stream.Stream;
 /**
  * Implementation of Annotation Property abstraction
  * (a URI-{@link Resource} with {@link OWL#AnnotationProperty owl:AnnotationProperty} type).
- * <p>
- * Created @ssz on 03.11.2016.
  */
 public class OntAnnotationPropertyImpl extends OntPropertyImpl implements OntAnnotationProperty {
 

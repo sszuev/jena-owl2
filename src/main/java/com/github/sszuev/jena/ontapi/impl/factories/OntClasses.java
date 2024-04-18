@@ -602,8 +602,6 @@ final class OntClasses {
 
     /**
      * A factory to produce {@link OntClass}s of any types.
-     * <p>
-     * Created by @ssz on 01.09.2018.
      */
     @SuppressWarnings("WeakerAccess")
     static class Factory extends BaseEnhNodeFactoryImpl {

@@ -11,8 +11,6 @@ import java.util.stream.Stream;
 
 /**
  * A parameterized analogue of the {@link RDFList Jena RDF []-List} that provides read-only access to its items.
- * <p>
- * Created by @ssz on 08.05.2019.
  *
  * @param <E> the type of element-nodes in this []-list
  * @see RDFList
@@ -21,7 +19,7 @@ public interface RDFNodeList<E extends RDFNode> extends Resource {
 
     /**
      * Lists all elements of the type {@link E} from this list.
-     * Note: a real RDF-list may contain nodes with incompatible type,
+     * Note: a real RDF-list may contain nodes with an incompatible type,
      * in this case they will not be included in the result {@code Stream}.
      * To get all {@link RDFNode RDF Node}s use the standard list representation:
      * the expression {@code Iter.asStream(this.as(RDFList.class).iterator())} will return a {@code Stream} of nodes.
@@ -70,7 +68,7 @@ public interface RDFNodeList<E extends RDFNode> extends Resource {
     /**
      * Answers the number of {@link RDFNode rdf-node}s in the list.
      * Note: in general, this operation is not equivalent to the expression {@code this.members().count()},
-     * since the list may contain items of incompatible type.
+     * since the list may contain items of an incompatible type.
      *
      * @return the real size of the []-list as an integer
      */
@@ -81,7 +79,7 @@ public interface RDFNodeList<E extends RDFNode> extends Resource {
     /**
      * Answers {@code true} if it is a nil []-list.
      * Please note: a non-nil list may also not contain elements of the type {@link E}
-     * and, therefore, be {@link #isEmpty()} empty}.
+     * and, therefore, be {@link #isEmpty()} empty.
      *
      * @return boolean
      * @see #isEmpty()

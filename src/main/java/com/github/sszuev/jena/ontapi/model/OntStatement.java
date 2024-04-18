@@ -19,8 +19,6 @@ import java.util.stream.Stream;
  * This is <b>not</b> a {@link Resource}.
  * This is an extended {@link Statement Jena Model Statement} with possibility to add, delete and find annotations
  * in the same form of {@code OntStatement} or {@link OntAnnotation Ontology Annotation} resources.
- * <p>
- * Created by @ssz on 13.11.2016.
  *
  * @see OntAnnotation
  * @see Statement
@@ -40,7 +38,8 @@ public interface OntStatement extends Statement {
      * Annotates the statement with the given {@link OntAnnotationProperty annotation property} and {@link RDFNode RDF Node} value
      * and returns a newly added annotation assertion statement.
      * <p>
-     * In the special case of a main statement (i.e. if this statement is a result of {@link OntObject#getMainStatement()})
+     * In the special case of a main statement
+     * (i.e., if this statement is a result of {@link OntObject#getMainStatement()})
      * the returned {@code OntStatement} has the same subject as this statement,
      * and it is called a plain annotation assertion
      * (in this case the method is equivalent to the {@link OntObject#addAnnotation(OntAnnotationProperty, RDFNode)} method).
@@ -73,7 +72,7 @@ public interface OntStatement extends Statement {
      * Deletes the child annotation if present.
      * Does nothing if no assertion found.
      * Throws an exception if specified annotation has it its own annotations.
-     * If this statement is not root and the corresponding {@link OntAnnotation} resource has no assertions any more,
+     * If this statement is not root and the corresponding {@link OntAnnotation} resource has no assertions anymore,
      * it deletes the whole OntAnnotation resource also.
      *
      * @param property {@link OntAnnotationProperty} named annotation property, not {@code null}
@@ -87,7 +86,7 @@ public interface OntStatement extends Statement {
 
     /**
      * Returns the stream of the annotation objects attached to this statement.
-     * E.g. for the statement {@code s A t} the annotation object looks like
+     * E.g., for the statement {@code s A t} the annotation object looks like
      * <pre>{@code
      * _:b0 a owl:Axiom .
      * _:b0 Aj tj .

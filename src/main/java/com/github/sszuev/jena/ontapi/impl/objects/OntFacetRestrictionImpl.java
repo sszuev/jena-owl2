@@ -16,8 +16,6 @@ import java.util.Optional;
 
 /**
  * Implementation of Facet Restrictions
- * <p>
- * Created by @ssz on 16.11.2016.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class OntFacetRestrictionImpl extends OntObjectImpl implements OntFacetRestriction {
