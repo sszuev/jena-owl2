@@ -86,9 +86,8 @@ public class OntModels {
      */
     @SuppressWarnings("unchecked")
     public static ExtendedIterator<OntModel> listImports(OntModel model) {
-        if (model instanceof OntGraphModelImpl) {
+        if (model instanceof OntGraphModelImpl m) {
             Reasoner reasoner = ((OntGraphModelImpl) model).getReasoner();
-            OntGraphModelImpl m = (OntGraphModelImpl) model;
             ExtendedIterator<?> res = m.listImportModels(m.getOntPersonality(), reasoner);
             return (ExtendedIterator<OntModel>) res;
         }

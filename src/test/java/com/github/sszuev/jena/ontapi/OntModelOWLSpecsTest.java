@@ -94,13 +94,13 @@ public class OntModelOWLSpecsTest {
         Set<Statement> inverseStatements = jena.listStatements(null, OWL.inverseOf, (RDFNode) null)
                 .filterKeep(s -> s.getSubject().isURIResource()).filterKeep(s -> s.getObject().isURIResource()).toSet();
 
-        List<OntProperty> actualPEs = ont.ontObjects(OntProperty.class).collect(Collectors.toList());
+        List<OntProperty> actualPEs = ont.ontObjects(OntProperty.class).toList();
 
         Set<Resource> expectedNamed = MiscUtils.toFlatSet(annotationProperties, datatypeProperties, namedObjectProperties);
         Set<Resource> expectedPEs = MiscUtils.toFlatSet(expectedNamed, inverseObjectProperties);
         Assertions.assertEquals(expectedPEs.size(), actualPEs.size());
 
-        List<OntNamedProperty> actualNamed = ont.ontObjects(OntNamedProperty.class).collect(Collectors.toList());
+        List<OntNamedProperty> actualNamed = ont.ontObjects(OntNamedProperty.class).toList();
         Assertions.assertEquals(expectedNamed.size(), actualNamed.size());
 
         List<OntProperty> actualDOs = ont.ontObjects(OntRelationalProperty.class).collect(Collectors.toList());
@@ -178,19 +178,19 @@ public class OntModelOWLSpecsTest {
 
         testListObjects(m, expected);
 
-        List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
+        List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).toList();
         int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
                 .mapWith(Statement::getSubject).filterKeep(RDFNode::isURIResource).toSet().size();
         int actualClassesCount = classes.size();
         Assertions.assertEquals(expectedClassesCount, actualClassesCount);
 
-        List<OntClass> ces = m.ontObjects(OntClass.class).collect(Collectors.toList());
+        List<OntClass> ces = m.ontObjects(OntClass.class).toList();
         int expectedCEsCount = m.listStatements(null, RDF.type, OWL.Class)
                 .andThen(m.listStatements(null, RDF.type, OWL.Restriction)).toSet().size();
         int actualCEsCount = ces.size();
         Assertions.assertEquals(expectedCEsCount, actualCEsCount);
 
-        List<OntClass.Restriction> restrictions = m.ontObjects(OntClass.Restriction.class).collect(Collectors.toList());
+        List<OntClass.Restriction> restrictions = m.ontObjects(OntClass.Restriction.class).toList();
         Assertions.assertEquals(m.listStatements(null, RDF.type, OWL.Restriction).toSet().size(), restrictions.size());
 
         List<OntClass.ObjectSomeValuesFrom> objectSomeValuesFromCEs = m.ontObjects(OntClass.ObjectSomeValuesFrom.class)
@@ -275,7 +275,7 @@ public class OntModelOWLSpecsTest {
     public void testPizzaLoadIndividuals(TestSpec spec) {
         OntModel m = OntModelFactory.createModel(
                 RDFIOTestUtils.loadResourceAsModel("/pizza.ttl", Lang.TURTLE).getGraph(), spec.inst);
-        List<OntIndividual> individuals = m.ontObjects(OntIndividual.class).collect(Collectors.toList());
+        List<OntIndividual> individuals = m.ontObjects(OntIndividual.class).toList();
         Map<OntIndividual, Set<OntClass>> classes = individuals.stream()
                 .collect(Collectors.toMap(Function.identity(), i -> i.classes().collect(Collectors.toSet())));
         classes.forEach((i, c) -> c.forEach(x -> Assertions.assertEquals(1, x.individuals()
@@ -882,7 +882,7 @@ public class OntModelOWLSpecsTest {
                 RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
                 spec.inst);
 
-        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().collect(Collectors.toList());
+        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().toList();
         Assertions.assertEquals(1, equivalentToWife.size());
         Assertions.assertEquals(OntClass.IntersectionOf.class, equivalentToWife.get(0).objectType());
 
@@ -1182,7 +1182,7 @@ public class OntModelOWLSpecsTest {
         OntModel m = OntModelFactory.createModel(g.getGraph(), spec.inst);
         List<OntClass> ces1 = m.ontObjects(OntClass.HasSelf.class).collect(Collectors.toList());
         Assertions.assertEquals(0, ces1.size());
-        List<OntClass> ces2 = m.ontObjects(OntClass.class).collect(Collectors.toList());
+        List<OntClass> ces2 = m.ontObjects(OntClass.class).toList();
         Assertions.assertEquals(1, ces2.size());
         OntClass hasSelf = ces2.get(0);
         Assertions.assertThrows(UnsupportedPolymorphismException.class, () -> hasSelf.as(OntClass.HasSelf.class));

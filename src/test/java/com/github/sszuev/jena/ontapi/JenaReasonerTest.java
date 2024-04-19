@@ -129,11 +129,13 @@ public class JenaReasonerTest {
         while (id.hasNext()) {
             id.next().printTrace(out, true);
         }
-        String expected = "Rule rule1 concluded (eg:A eg:p eg:D) <-\n" +
-                "    Rule rule1 concluded (eg:A eg:p eg:C) <-\n" +
-                "        Fact (eg:A eg:p eg:B)\n" +
-                "        Fact (eg:B eg:p eg:C)\n" +
-                "    Fact (eg:C eg:p eg:D)\n";
+        String expected = """
+                Rule rule1 concluded (eg:A eg:p eg:D) <-
+                    Rule rule1 concluded (eg:A eg:p eg:C) <-
+                        Fact (eg:A eg:p eg:B)
+                        Fact (eg:B eg:p eg:C)
+                    Fact (eg:C eg:p eg:D)
+                """;
         Assertions.assertEquals(expected, res.toString().replace("\r", ""));
     }
 

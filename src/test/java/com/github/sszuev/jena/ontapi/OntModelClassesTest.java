@@ -155,7 +155,7 @@ public class OntModelClassesTest {
                 .distinct()
                 .map(it -> it.isAnon() ? "null" : it.getLocalName())
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
         Set<String> probes = Set.of("A", "B", "C", "D", "E", "Nothing", "Thing", "X0", "X1", "Y0", "Y1", "Z", "null");
         boolean expectedContainsAll = spec != TestSpec.RDFS_MEM_RDFS_INF;
         int expectedClassCount;

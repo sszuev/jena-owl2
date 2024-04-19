@@ -42,7 +42,7 @@ public class OntListTest {
     }
 
     private static OntStatement getSingleAnnotation(OntStatement s) {
-        List<OntStatement> res = s.annotations().collect(Collectors.toList());
+        List<OntStatement> res = s.annotations().toList();
         Assertions.assertEquals(1, res.size());
         return res.get(0);
     }

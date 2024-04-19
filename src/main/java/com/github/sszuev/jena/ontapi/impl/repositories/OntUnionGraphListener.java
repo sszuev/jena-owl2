@@ -17,7 +17,6 @@ import org.apache.jena.graph.Triple;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class OntUnionGraphListener extends GraphListenerBase implements UnionGraph.EventManager {
 
@@ -145,7 +144,7 @@ public class OntUnionGraphListener extends GraphListenerBase implements UnionGra
                                         .filter(ontSubGraphIri::equals)
                                         .isPresent()
                         )
-                        .collect(Collectors.toList());
+                        .toList();
                 try {
                     graph.getEventManager().off();
                     toDetach.forEach(graph::removeSubGraph);

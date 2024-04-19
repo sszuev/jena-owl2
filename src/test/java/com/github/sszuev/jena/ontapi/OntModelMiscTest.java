@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class OntModelMiscTest {
     @Test
@@ -25,7 +24,7 @@ public class OntModelMiscTest {
             Resource anon = m.createResource().addProperty(RDF.type, OWL.Class);
             anon.addProperty(OWL.complementOf, anon);
             OntModel ont = OntModelFactory.createModel(m.getGraph());
-            List<OntClass> ces = ont.ontObjects(OntClass.class).collect(Collectors.toList());
+            List<OntClass> ces = ont.ontObjects(OntClass.class).toList();
             Assertions.assertEquals(0, ces.size());
         });
     }

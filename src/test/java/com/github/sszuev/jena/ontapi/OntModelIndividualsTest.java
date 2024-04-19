@@ -300,7 +300,8 @@ public class OntModelIndividualsTest {
         // all individuals:
         Assertions.assertEquals(6, m.ontObjects(OntIndividual.class).count());
         // named individuals:
-        Assertions.assertEquals(5, m.namedIndividuals().peek(x -> Assertions.assertTrue(x.isURIResource())).count());
+        m.namedIndividuals().forEach(x -> Assertions.assertTrue(x.isURIResource()));
+        Assertions.assertEquals(5, m.namedIndividuals().count());
 
         // distinct class asserted individuals:
         Assertions.assertEquals(4, m.individuals().count());
@@ -323,7 +324,7 @@ public class OntModelIndividualsTest {
             clazz.createIndividual();
         }
 
-        List<OntIndividual> individuals = m.individuals().collect(Collectors.toList());
+        List<OntIndividual> individuals = m.individuals().toList();
 
         int expectedNumOfIndividuals;
         if (spec == TestSpec.RDFS_MEM_RDFS_INF) {

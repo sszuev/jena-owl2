@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -36,7 +35,7 @@ public class OntEnhNodeFactories {
                                             Class<? extends OntObject> type,
                                             Class<? extends OntObject>... types) {
         return createFrom(finder,
-                Stream.concat(Stream.of(type), Arrays.stream(types)).collect(Collectors.toList()).stream());
+                Stream.concat(Stream.of(type), Arrays.stream(types)).toList().stream());
     }
 
     public static EnhNodeFactory createFrom(EnhNodeFinder finder,
@@ -48,13 +47,13 @@ public class OntEnhNodeFactories {
                                             EnhNodeFactory factory,
                                             EnhNodeFactory... factories) {
         return createMulti(Objects.requireNonNull(finder, "Null finder"),
-                Stream.concat(Stream.of(factory), Arrays.stream(factories)).collect(Collectors.toList()).stream());
+                Stream.concat(Stream.of(factory), Arrays.stream(factories)).toList().stream());
     }
 
     public static EnhNodeFactory createFrom(EnhNodeFactory factory,
                                             EnhNodeFactory... factories) {
         return createMulti(null,
-                Stream.concat(Stream.of(factory), Arrays.stream(factories)).collect(Collectors.toList()).stream());
+                Stream.concat(Stream.of(factory), Arrays.stream(factories)).toList().stream());
     }
 
     public static EnhNodeFactory createCommon(Class<? extends EnhNode> impl,
@@ -123,10 +122,9 @@ public class OntEnhNodeFactories {
     }
 
     public static String toPrintString(Node node, EnhGraph graph) {
-        if (!(graph instanceof Model)) {
+        if (!(graph instanceof Model m)) {
             return node.toString(PrefixMapping.Standard);
         }
-        Model m = ((Model) graph);
         PrefixMapping pm = PrefixMapping.Factory.create()
                 .setNsPrefixes((PrefixMapping) graph)
                 .setNsPrefixes(PrefixMapping.Standard);

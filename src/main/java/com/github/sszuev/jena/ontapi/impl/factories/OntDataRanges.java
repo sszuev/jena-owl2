@@ -29,7 +29,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 final class OntDataRanges {
     private static final EnhNodeFinder DR_FINDER_OWL1 = new EnhNodeFinder.ByType(OWL.DataRange);
@@ -112,7 +111,7 @@ final class OntDataRanges {
                 factories.add(Factory.UNION_OF_FACTORY);
             }
         }
-        return new Factory(factories.stream().collect(Collectors.toUnmodifiableList()));
+        return new Factory(factories.stream().toList());
     }
 
     /**

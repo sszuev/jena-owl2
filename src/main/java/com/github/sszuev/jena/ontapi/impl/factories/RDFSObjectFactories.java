@@ -53,7 +53,7 @@ public final class RDFSObjectFactories {
             EnhNodeFilter.URI.or(EnhNodeFilter.ANON)
     );
 
-    public static Function<OntConfig, EnhNodeFactory> NAMED_CLASS = config -> createFactory(
+    public static final Function<OntConfig, EnhNodeFactory> NAMED_CLASS = config -> createFactory(
             OntSimpleClassImpl.NamedImpl.class,
             OntClass.Named.class,
             RDFS.Class,
@@ -75,7 +75,7 @@ public final class RDFSObjectFactories {
             (n, g) -> isAnonymousIndividual(n, g, config)
     );
 
-    public static EnhNodeFactory PROPERTY = createFactory(
+    public static final EnhNodeFactory PROPERTY = createFactory(
             OntSimplePropertyImpl.class,
             OntProperty.class,
             RDF.Property,
@@ -83,14 +83,14 @@ public final class RDFSObjectFactories {
             RDFSObjectFactories::isAnyProperty
     );
 
-    public static EnhNodeFactory ANNOTATION_PROPERTY = OntEnhNodeFactories.createCommon(OntAnnotationProperty.class,
+    public static final EnhNodeFactory ANNOTATION_PROPERTY = OntEnhNodeFactories.createCommon(OntAnnotationProperty.class,
             new EnhNodeProducer.Default(OntAnnotationPropertyImpl.class, OntAnnotationPropertyImpl::new),
             EnhNodeFinder.NOTHING,
             (n, g) -> n.isURI() &&
                     OntEnhGraph.asPersonalityModel(g).getOntPersonality().getBuiltins().getAnnotationProperties().contains(n)
     );
 
-    public static Function<OntConfig, EnhNodeFactory> ANY_CLASS = config -> createFactory(
+    public static final Function<OntConfig, EnhNodeFactory> ANY_CLASS = config -> createFactory(
             OntSimpleClassImpl.class,
             OntClass.class,
             RDFS.Class,
@@ -98,7 +98,7 @@ public final class RDFSObjectFactories {
             (n, eg) -> isAnyClass(n, eg, config)
     );
 
-    public static Function<OntConfig, EnhNodeFactory> ANY_ENTITY = config -> OntEnhNodeFactories.createFrom(
+    public static final Function<OntConfig, EnhNodeFactory> ANY_ENTITY = config -> OntEnhNodeFactories.createFrom(
             OntEnhNodeFactories.createFinder(RDF.Property, RDFS.Class), NAMED_CLASS.apply(config), NAMED_INDIVIDUAL.apply(config)
     );
 

@@ -621,7 +621,7 @@ public interface OntClass extends OntObject, AsNamed<OntClass.Named>, HasDisjoin
      * @throws OntJenaException if the list is not found
      */
     default OntClass clearHasKeys() {
-        hasKeys().collect(Collectors.toList()).forEach(this::removeHasKey);
+        hasKeys().toList().forEach(this::removeHasKey);
         return this;
     }
 

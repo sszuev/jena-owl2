@@ -152,7 +152,7 @@ public class OntIndividualClassesTest {
         OntIndividual iF = m.getOntClass(NS + "F").createIndividual("iF");
         OntIndividual iG = m.getOntClass(NS + "G").createIndividual("iG");
 
-        m.classes().collect(Collectors.toList()).forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
+        m.classes().toList().forEach(x -> x.createIndividual(NS + "i" + x.getLocalName()));
 
         Set<String> directA = iA.classes(true).map(Resource::getLocalName).collect(Collectors.toSet());
         Set<String> indirectA = iA.classes(false).map(Resource::getLocalName).collect(Collectors.toSet());

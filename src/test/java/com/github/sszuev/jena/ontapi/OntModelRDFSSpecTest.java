@@ -48,11 +48,11 @@ public class OntModelRDFSSpecTest {
 
         OntModel m = OntModelFactory.createModel(base.getGraph(), spec.inst);
 
-        List<OntClass.Named> res1 = m.classes().collect(Collectors.toList());
+        List<OntClass.Named> res1 = m.classes().toList();
         Assertions.assertEquals(List.of("3", "4"),
                 res1.stream().map(Resource::getURI).sorted().collect(Collectors.toList())
         );
-        List<OntEntity> res2 = m.ontEntities().collect(Collectors.toList());
+        List<OntEntity> res2 = m.ontEntities().toList();
         Assertions.assertEquals(List.of("3", "4"),
                 res2.stream().map(Resource::getURI).sorted().collect(Collectors.toList())
         );
@@ -61,7 +61,7 @@ public class OntModelRDFSSpecTest {
                 res4.stream().map(Resource::getURI).sorted().collect(Collectors.toList())
         );
 
-        List<OntClass> res3 = m.ontObjects(OntClass.class).collect(Collectors.toList());
+        List<OntClass> res3 = m.ontObjects(OntClass.class).toList();
         Assertions.assertEquals(3, res3.size());
         Assertions.assertEquals(List.of("3", "4"),
                 res3.stream().filter(RDFNode::isURIResource).map(Resource::getURI).sorted().collect(Collectors.toList())
@@ -112,13 +112,13 @@ public class OntModelRDFSSpecTest {
         Resource i2 = m.createResource("i2", c2);
         Resource i3 = m.createResource(null, c2);
 
-        List<OntIndividual> res1 = m.individuals().collect(Collectors.toList());
+        List<OntIndividual> res1 = m.individuals().toList();
         Assertions.assertEquals(3, res1.size());
         Assertions.assertEquals(List.of("i1", "i2"),
                 res1.stream().filter(RDFNode::isURIResource).map(Resource::getURI).sorted().collect(Collectors.toList())
         );
 
-        List<OntEntity> res2 = m.ontEntities().collect(Collectors.toList());
+        List<OntEntity> res2 = m.ontEntities().toList();
         Assertions.assertEquals(List.of("c1", "c2", "i1", "i2"),
                 res2.stream().map(Resource::getURI).sorted().collect(Collectors.toList())
         );
@@ -244,7 +244,7 @@ public class OntModelRDFSSpecTest {
                 Triple.create(x.asNode(), RDFS.seeAlso.asNode(), NodeFactory.createURI("http://ex.com#")), s1.asTriple()
         );
         Assertions.assertEquals(
-                Triple.create(q.asNode(), RDFS.isDefinedBy.asNode(), NodeFactory.createLiteral("http://ex.com#")), s2.asTriple()
+                Triple.create(q.asNode(), RDFS.isDefinedBy.asNode(), NodeFactory.createLiteralString("http://ex.com#")), s2.asTriple()
         );
 
         Assertions.assertThrows(OntJenaException.Unsupported.class, () ->

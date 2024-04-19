@@ -78,7 +78,7 @@ public class OntModelOWL2ELSpecTest {
 
         testListObjects(m, expected);
 
-        List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).collect(Collectors.toList());
+        List<OntClass.Named> classes = m.ontObjects(OntClass.Named.class).toList();
         int expectedClassesCount = m.listStatements(null, RDF.type, OWL.Class)
                 .mapWith(Statement::getSubject).filterKeep(RDFNode::isURIResource).toSet().size();
         int actualClassesCount = classes.size();

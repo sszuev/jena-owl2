@@ -24,7 +24,6 @@ import org.apache.jena.util.iterator.WrappedIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 final class OntProperties {
     public static final EnhNodeFinder NEGATIVE_PROPERTY_ASSERTION_FINDER = new EnhNodeFinder.ByType(OWL.NegativePropertyAssertion);
@@ -62,8 +61,8 @@ final class OntProperties {
         allPropertyTypes.add(OWL.FunctionalProperty.asNode());
         allPropertyTypes.addAll(objectPropertyTypes);
         return new Factory(
-                allPropertyTypes.stream().collect(Collectors.toUnmodifiableList()),
-                objectPropertyTypes.stream().collect(Collectors.toUnmodifiableList()),
+                allPropertyTypes.stream().toList(),
+                objectPropertyTypes.stream().toList(),
                 config.getBoolean(OntModelControls.USE_OWL_INVERSE_OBJECT_PROPERTY_FEATURE)
         );
     }

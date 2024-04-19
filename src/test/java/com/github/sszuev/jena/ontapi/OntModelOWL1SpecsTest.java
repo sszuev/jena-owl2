@@ -46,11 +46,11 @@ public class OntModelOWL1SpecsTest {
                 RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
                 spec.inst);
 
-        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().collect(Collectors.toList());
+        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().toList();
         Assertions.assertEquals(1, equivalentToWife.size());
         Assertions.assertInstanceOf(OntClass.IntersectionOf.class, equivalentToWife.get(0));
         Assertions.assertEquals(OntClass.IntersectionOf.class, equivalentToWife.get(0).objectType());
-        List<OntClass> equivalentToSex = m.getOntClass(ns + "Sex").equivalentClasses().collect(Collectors.toList());
+        List<OntClass> equivalentToSex = m.getOntClass(ns + "Sex").equivalentClasses().toList();
         Assertions.assertEquals(1, equivalentToSex.size());
         Assertions.assertInstanceOf(OntClass.UnionOf.class, equivalentToSex.get(0));
         Assertions.assertEquals(OntClass.UnionOf.class, equivalentToSex.get(0).objectType());

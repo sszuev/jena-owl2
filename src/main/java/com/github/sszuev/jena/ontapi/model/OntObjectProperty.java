@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -269,7 +268,7 @@ public interface OntObjectProperty extends OntRelationalProperty, AsNamed<OntObj
      * @see #createPropertyChain(Collection)
      */
     default OntObjectProperty clearPropertyChains() {
-        propertyChains().collect(Collectors.toList()).forEach(this::removePropertyChain);
+        propertyChains().toList().forEach(this::removePropertyChain);
         return this;
     }
 

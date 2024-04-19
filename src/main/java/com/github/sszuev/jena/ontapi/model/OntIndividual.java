@@ -10,7 +10,6 @@ import org.apache.jena.rdf.model.Resource;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -368,7 +367,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
                 .filter(x ->
                         x.getPredicate().canAs(OntNamedProperty.class) && (value == null || value.equals(x.getObject()))
                 )
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(x -> x.getModel().remove(x.clearAnnotations()));
         return this;
     }
@@ -384,7 +383,7 @@ public interface OntIndividual extends OntObject, AsNamed<OntIndividual.Named>, 
     default OntIndividual removeNegativeAssertion(OntNamedProperty property, RDFNode value) {
         negativeAssertions(property)
                 .filter(x -> value == null || value.equals(x.getTarget()))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(x -> getModel().removeOntObject(x));
         return this;
     }

@@ -24,7 +24,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.github.sszuev.jena.ontapi.OntModelOWLSpecsTest.assertOntObjectsCount;
 
@@ -40,11 +39,11 @@ public class OntModelOWLLiteSpecTest {
                 RDFIOTestUtils.loadResourceAsModel("/family.ttl", Lang.TURTLE).getGraph(),
                 spec.inst);
 
-        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().collect(Collectors.toList());
+        List<OntClass> equivalentToWife = m.getOntClass(ns + "Wife").equivalentClasses().toList();
         Assertions.assertEquals(1, equivalentToWife.size());
         Assertions.assertInstanceOf(OntClass.IntersectionOf.class, equivalentToWife.get(0));
         Assertions.assertEquals(OntClass.IntersectionOf.class, equivalentToWife.get(0).objectType());
-        List<OntClass> equivalentToSex = m.getOntClass(ns + "Sex").equivalentClasses().collect(Collectors.toList());
+        List<OntClass> equivalentToSex = m.getOntClass(ns + "Sex").equivalentClasses().toList();
         Assertions.assertEquals(1, equivalentToSex.size());
         // generic class:
         Assertions.assertFalse(equivalentToSex.get(0) instanceof OntClass.UnionOf);

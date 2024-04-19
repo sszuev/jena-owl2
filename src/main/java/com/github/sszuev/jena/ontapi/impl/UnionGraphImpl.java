@@ -235,8 +235,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         addParent(graph);
         resetGraphsCache();
         eventManager.notifySubGraphAdded(this, graph);
-        if (graph instanceof UnionGraph) {
-            UnionGraph subGraph = (UnionGraph) graph;
+        if (graph instanceof UnionGraph subGraph) {
             subGraph.getEventManager().notifySuperGraphAdded(subGraph, this);
         }
         return this;
@@ -423,8 +422,7 @@ public class UnionGraphImpl extends CompositionBase implements UnionGraph {
         queue.add(this);
         while (!queue.isEmpty()) {
             Graph next = queue.removeFirst();
-            if (next instanceof UnionGraphImpl) {
-                UnionGraphImpl u = (UnionGraphImpl) next;
+            if (next instanceof UnionGraphImpl u) {
                 if (visited.add(u)) {
                     queue.add(u.base);
                     queue.addAll(u.subGraphs.graphs);

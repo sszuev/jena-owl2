@@ -24,7 +24,6 @@ import org.apache.jena.rdf.model.Resource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -285,7 +284,7 @@ public abstract class OntObjectPropertyImpl extends OntPropertyImpl implements O
                     .filter(RDFNode::isAnon)
                     .map(FrontsNode::asNode)
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
             if (nodes.size() > 1) {
                 throw new OntJenaException.IllegalState("More than one inverse-of object properties found: [" +
                         nodes + " owl:inverseOf " + this + "]");

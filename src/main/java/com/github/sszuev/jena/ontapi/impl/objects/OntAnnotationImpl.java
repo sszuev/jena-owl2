@@ -58,8 +58,7 @@ public class OntAnnotationImpl extends OntObjectImpl implements OntAnnotation {
             Set.of(OWL.AllDisjointClasses, OWL.AllDisjointProperties, OWL.AllDifferent, OWL.NegativePropertyAssertion);
     public static final List<Resource> ROOT_TYPES = Stream.concat(
             Stream.of(OWL.Axiom, OWL.Annotation),
-            EXTRA_ROOT_TYPES.stream()).collect(Collectors.toUnmodifiableList()
-    );
+            EXTRA_ROOT_TYPES.stream()).toList();
 
     public OntAnnotationImpl(Node n, EnhGraph m) {
         super(n, m);

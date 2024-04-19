@@ -16,7 +16,6 @@ import org.apache.jena.util.iterator.WrappedIterator;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -83,7 +82,7 @@ public interface EnhNodeFinder {
             if (types.isEmpty()) {
                 throw new IllegalStateException();
             }
-            this.types = types.stream().map(FrontsNode::asNode).distinct().collect(Collectors.toUnmodifiableList());
+            this.types = types.stream().map(FrontsNode::asNode).distinct().toList();
         }
 
         @Override

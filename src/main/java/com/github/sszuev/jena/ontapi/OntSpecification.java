@@ -37,6 +37,7 @@ import java.util.Objects;
  * @see <a href="https://www.w3.org/TR/2004/REC-owl-features-20040210/#s3">OWL1 Lite</a>
  * @see org.apache.jena.ontology.OntModelSpec OntModelSpec - legacy Jena's OWL1 specifications
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class OntSpecification {
 
     private static final OntPersonality OWL2_FULL_PERSONALITY =

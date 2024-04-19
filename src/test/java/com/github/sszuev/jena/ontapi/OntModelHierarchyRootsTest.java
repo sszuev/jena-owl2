@@ -236,7 +236,7 @@ public class OntModelHierarchyRootsTest {
         c9.addSuperClass(c7);
         c10.addSuperClass(c11);
 
-        List<OntClass> actual = m.hierarchyRoots().collect(Collectors.toList());
+        List<OntClass> actual = m.hierarchyRoots().toList();
         Set<Resource> expected = Set.of(c10, c0, c4, c7);
         Assertions.assertEquals(4, actual.size());
         Assertions.assertEquals(expected, new HashSet<>(actual));
@@ -274,7 +274,7 @@ public class OntModelHierarchyRootsTest {
         c9.addSuperClass(c7);
         c10.addSuperClass(c11);
 
-        List<OntClass> actual = m.hierarchyRoots().collect(Collectors.toList());
+        List<OntClass> actual = m.hierarchyRoots().toList();
         Set<Resource> expected = Set.of(c10, c11);
         Assertions.assertEquals(2, actual.size());
         Assertions.assertEquals(expected, new HashSet<>(actual));

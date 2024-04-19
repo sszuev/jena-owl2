@@ -143,14 +143,7 @@ public class DocumentGraphRepository implements GraphRepository {
         return Stream.of(graphs.keySet(), mappings.keySet()).flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
     }
 
-    private static class Source {
-        private final String location;
-        private final Lang lang;
-
-        private Source(String location, Lang lang) {
-            this.location = location;
-            this.lang = lang;
-        }
+    private record Source(String location, Lang lang) {
     }
 
 }
