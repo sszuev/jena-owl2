@@ -247,7 +247,7 @@ final class OntClasses {
                             if (clazz == null) {
                                 continue;
                             }
-                            if (clazz == OWL.Thing.asNode() || clazz.asSubClass() != null) {
+                            if (OWL.Thing.equals(clazz) || clazz.asSubClass() != null) {
                                 return true;
                             }
                         }
