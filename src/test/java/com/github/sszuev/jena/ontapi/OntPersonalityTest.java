@@ -52,9 +52,9 @@ public class OntPersonalityTest {
                 .add(OntIndividual.Named.class, factory)
                 .remove(OntDataRange.OneOf.class)
                 .build();
-        Assertions.assertEquals(98, res.types().count());
-        List<Class<? extends OntObject>> objects = res.types(OntObject.class).collect(Collectors.toList());
-        List<Class<? extends OntEntity>> entities = res.types(OntEntity.class).collect(Collectors.toList());
+        Assertions.assertEquals(97, res.types().count());
+        List<Class<? extends OntObject>> objects = res.types(OntObject.class).toList();
+        List<Class<? extends OntEntity>> entities = res.types(OntEntity.class).toList();
         Assertions.assertEquals(88, objects.size());
         Assertions.assertEquals(8, entities.size());
         return res;
@@ -218,7 +218,7 @@ public class OntPersonalityTest {
         Assertions.assertEquals(0, m2.datatypes().count());
         Assertions.assertEquals(1, m2.classes().count());
         Assertions.assertEquals(1, m2.ontObjects(OntDisjoint.Individuals.class).count());
-        List<OntClass> ces = m2.ontObjects(OntClass.class).collect(Collectors.toList());
+        List<OntClass> ces = m2.ontObjects(OntClass.class).toList();
         Assertions.assertEquals(1, ces.size(), "Wrong ces list: " + ces);
         OntModel m3 = OntModelFactory.createModel(m2.getBaseGraph(), TestOntPersonalities.OWL2_PERSONALITY_LAX_PUNNS);
         Assertions.assertEquals(1, m3.datatypes().count());
@@ -263,7 +263,7 @@ public class OntPersonalityTest {
         Assertions.assertEquals(0, m2.objectProperties().count());
         Assertions.assertEquals(0, m2.dataProperties().count());
         Assertions.assertEquals(0, m2.annotationProperties().count());
-        List<OntClass> ces = m2.ontObjects(OntClass.class).collect(Collectors.toList());
+        List<OntClass> ces = m2.ontObjects(OntClass.class).toList();
         // no ObjectSomeValuesFrom, no ObjectCardinality
         Assertions.assertEquals(2, ces.size(), "Wrong ces list: " + ces);
         OntModel m3 = OntModelFactory.createModel(m2.getBaseGraph(), TestOntPersonalities.OWL2_PERSONALITY_LAX_PUNNS);

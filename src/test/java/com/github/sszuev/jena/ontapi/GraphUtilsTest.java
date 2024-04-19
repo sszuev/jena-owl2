@@ -6,8 +6,8 @@ import com.github.sszuev.jena.ontapi.testutils.ModelTestUtils;
 import com.github.sszuev.jena.ontapi.utils.Graphs;
 import com.github.sszuev.jena.ontapi.vocabulary.OWL;
 import com.github.sszuev.jena.ontapi.vocabulary.RDF;
-import org.apache.jena.graph.Factory;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.MultiUnion;
 import org.apache.jena.graph.impl.GraphBase;
@@ -100,7 +100,7 @@ public class GraphUtilsTest {
 
     @Test
     public void testIsSame() {
-        Graph g = Factory.createGraphMem();
+        Graph g = GraphMemFactory.createGraphMem();
         Assertions.assertTrue(Graphs.isSameBase(g, g));
 
         Graph a = new UnionGraphImpl(g);
@@ -272,7 +272,7 @@ public class GraphUtilsTest {
         Assertions.assertFalse(Graphs.isOntUnionGraph(u, false));
 
         mE.createResource(E, OWL.Ontology);
-        Assertions.assertTrue(Graphs.isOntUnionGraph(u,false));
+        Assertions.assertTrue(Graphs.isOntUnionGraph(u, false));
     }
 
     @Test

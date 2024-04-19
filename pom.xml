@@ -6,15 +6,15 @@
 
     <groupId>com.github.sszuev</groupId>
     <artifactId>jena-owl2</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>1.3.1-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!--https://mvnrepository.com/artifact/org.apache.jena/jena-arq-->
-        <version.jena>4.10.0</version.jena>
+        <version.jena>5.0.0</version.jena>
         <!--https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-->
         <version.junit>5.10.2</version.junit>
         <!--https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core-->

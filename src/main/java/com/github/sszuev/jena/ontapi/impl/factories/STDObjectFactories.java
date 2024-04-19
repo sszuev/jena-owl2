@@ -13,7 +13,6 @@ import org.apache.jena.rdf.model.impl.BagImpl;
 import org.apache.jena.rdf.model.impl.LiteralImpl;
 import org.apache.jena.rdf.model.impl.PropertyImpl;
 import org.apache.jena.rdf.model.impl.RDFListImpl;
-import org.apache.jena.rdf.model.impl.ReifiedStatementImpl;
 import org.apache.jena.rdf.model.impl.ResourceImpl;
 import org.apache.jena.rdf.model.impl.SeqImpl;
 import org.apache.jena.shared.JenaException;
@@ -132,5 +131,4 @@ public class STDObjectFactories {
         }
     };
 
-    public static final Implementation REIFIED_STATEMENT = ReifiedStatementImpl.reifiedStatementFactory;
 }

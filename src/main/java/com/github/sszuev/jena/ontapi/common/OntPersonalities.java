@@ -34,7 +34,6 @@ import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.ReifiedStatement;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Seq;
 
@@ -77,7 +76,6 @@ public class OntPersonalities {
      *
      * @see org.apache.jena.enhanced.BuiltinPersonalities#model
      */
-    @SuppressWarnings("deprecation : ReifiedStatement")
     public static final Personality<RDFNode> STANDARD_PERSONALITY = new Personality<RDFNode>()
             .add(RDFNode.class, STDObjectFactories.NODE)
             .add(Resource.class, STDObjectFactories.RESOURCE)
@@ -87,7 +85,6 @@ public class OntPersonalities {
             .add(Alt.class, STDObjectFactories.ALT)
             .add(Bag.class, STDObjectFactories.BAG)
             .add(Seq.class, STDObjectFactories.SEQ)
-            .add(ReifiedStatement.class, STDObjectFactories.REIFIED_STATEMENT)
             .add(RDFList.class, STDObjectFactories.RDF_LIST);
 
     /**

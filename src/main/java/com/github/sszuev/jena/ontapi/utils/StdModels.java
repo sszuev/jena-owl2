@@ -137,9 +137,9 @@ public class StdModels {
      */
     public static String toString(Statement st, PrefixMapping pm) {
         return String.format("[%s, %s, %s]",
-                st.getSubject().asNode().toString(pm, false),
-                st.getPredicate().asNode().toString(pm, false),
-                st.getObject().asNode().toString(pm, true));
+                st.getSubject().asNode().toString(pm),
+                st.getPredicate().asNode().toString(pm),
+                st.getObject().asNode().toString(pm));
     }
 
     /**

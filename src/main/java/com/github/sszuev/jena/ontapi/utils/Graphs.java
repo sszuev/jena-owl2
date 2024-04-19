@@ -11,7 +11,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.compose.Dyadic;
 import org.apache.jena.graph.compose.Polyadic;
 import org.apache.jena.graph.impl.WrappedGraph;
-import org.apache.jena.mem.GraphMem;
+import org.apache.jena.mem.GraphMemBase;
 import org.apache.jena.reasoner.InfGraph;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.graph.GraphWrapper;
@@ -180,9 +180,8 @@ public class Graphs {
      * @param graph {@link Graph}
      * @return {@code boolean}
      */
-    @SuppressWarnings("deprecation")
     public static boolean isGraphMem(Graph graph) {
-        return graph instanceof GraphMem;
+        return graph instanceof GraphMemBase;
     }
 
     /**
@@ -264,8 +263,7 @@ public class Graphs {
         if (isGraphMem(graph)) {
             return true;
         }
-        if (graph instanceof UnionGraph) {
-            UnionGraph u = (UnionGraph) graph;
+        if (graph instanceof UnionGraph u) {
             return u.isDistinct() || !u.hasSubGraph() && isDistinct(getPrimary(u));
         }
         return false;
@@ -630,7 +628,7 @@ public class Graphs {
                         Comparator.comparingLong((Node x) ->
                                 Iterators.count(graph.find(x, Node.ANY, Node.ANY))
                         ).reversed()
-                ).thenComparing(o -> o.toString(graph.getPrefixMapping(), false));
+                ).thenComparing(o -> o.toString(graph.getPrefixMapping()));
     }
 
     /**
