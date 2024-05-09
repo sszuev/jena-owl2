@@ -1,5 +1,9 @@
 # Apache Jena OWL2 Model
 
+------
+# NOTE: This library has been integrated into Apache Jena starting from version 5.1.0 ([:jena-ontapi](https://github.com/apache/jena/tree/main/jena-ontapi)). The current repository will remain available for compatibility with Apache Jena 4.x.x.
+
+------
 
 ### Summary
 
